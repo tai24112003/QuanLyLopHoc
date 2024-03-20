@@ -1,0 +1,53 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\VT\\Desktop\\CSharp\\QuanLyLopHoc\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{79C6E178-6402-497B-AD3D-26103EF404C0}|Server\\Server.csproj|C:\\Users\\VT\\Desktop\\CSharp\\QuanLyLopHoc\\server\\serverform.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{79C6E178-6402-497B-AD3D-26103EF404C0}|Server\\Server.csproj|solutionrelative:server\\serverform.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{79C6E178-6402-497B-AD3D-26103EF404C0}|Server\\Server.csproj|C:\\Users\\VT\\Desktop\\CSharp\\QuanLyLopHoc\\server\\serverform.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form",
+      "RelativeMoniker": "D:0:0:{79C6E178-6402-497B-AD3D-26103EF404C0}|Server\\Server.csproj|solutionrelative:server\\serverform.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 0,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "ServerForm.cs",
+              "DocumentMoniker": "C:\\Users\\VT\\Desktop\\CSharp\\QuanLyLopHoc\\Server\\ServerForm.cs",
+              "RelativeDocumentMoniker": "Server\\ServerForm.cs",
+              "ToolTip": "C:\\Users\\VT\\Desktop\\CSharp\\QuanLyLopHoc\\Server\\ServerForm.cs",
+              "RelativeToolTip": "Server\\ServerForm.cs",
+              "ViewState": "AQIAAHsAAAAAAAAAAAAuwKYAAAAKAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-03-14T03:46:18.24Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "ServerForm.cs [Design]",
+              "DocumentMoniker": "C:\\Users\\VT\\Desktop\\CSharp\\QuanLyLopHoc\\Server\\ServerForm.cs",
+              "RelativeDocumentMoniker": "Server\\ServerForm.cs",
+              "ToolTip": "C:\\Users\\VT\\Desktop\\CSharp\\QuanLyLopHoc\\Server\\ServerForm.cs [Design]",
+              "RelativeToolTip": "Server\\ServerForm.cs [Design]",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-03-14T03:46:18.676Z",
+              "EditorCaption": " [Design]"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

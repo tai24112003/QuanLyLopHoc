@@ -51,6 +51,7 @@
             this.cpu = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.ram = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.mssv = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.IPC = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.toolStrip1.SuspendLayout();
             this.toolStrip2.SuspendLayout();
             this.flowLayoutPanel1.SuspendLayout();
@@ -224,13 +225,15 @@
             // 
             // dgv_lst_client
             // 
+            this.dgv_lst_client.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.dgv_lst_client.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dgv_lst_client.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.tenmay,
             this.Ocung,
             this.cpu,
             this.ram,
-            this.mssv});
+            this.mssv,
+            this.IPC});
             dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
             dataGridViewCellStyle1.BackColor = System.Drawing.SystemColors.Window;
             dataGridViewCellStyle1.Font = new System.Drawing.Font("Microsoft Sans Serif", 8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -281,6 +284,14 @@
             this.mssv.MinimumWidth = 8;
             this.mssv.Name = "mssv";
             // 
+            // IPC
+            // 
+            this.IPC.HeaderText = "IPC";
+            this.IPC.MinimumWidth = 8;
+            this.IPC.Name = "IPC";
+            this.IPC.Visible = false;
+            this.IPC.Width = 150;
+            // 
             // svForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
@@ -292,6 +303,7 @@
             this.Controls.Add(this.toolStrip1);
             this.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.Name = "svForm";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Server Form";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.serverForm_FormClosing);
             this.Load += new System.EventHandler(this.Form1_Load);
@@ -330,6 +342,7 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn cpu;
         private System.Windows.Forms.DataGridViewTextBoxColumn ram;
         private System.Windows.Forms.DataGridViewTextBoxColumn mssv;
+        private System.Windows.Forms.DataGridViewTextBoxColumn IPC;
     }
 }
 

@@ -22,13 +22,17 @@ namespace testUdpTcp
         public ClientForm()
         {
             InitializeComponent();
+            myIp = getIPServer();
         }
         private UdpClient udpClient;
         private Thread udpReceiverThread;
         private string IpServer = "";
+        private string myIp = "";
         private List<string> inf;
         private List<string> mssvLst = new List<string>();
         private bool sended = false;
+        private string hostName;
+
         private void Form1_Load(object sender, EventArgs e)
         {
             udpClient = new UdpClient(11312);
@@ -39,7 +43,22 @@ namespace testUdpTcp
         }
 
 
+        private string getIPServer()
+        {
+            // Lấy tên máy tính hiện tại
+            hostName = Dns.GetHostName();
+            string ip = string.Empty;
+            // Lấy địa chỉ IP của máy tính hiện tại
+            IPAddress[] addresses = Dns.GetHostAddresses(hostName);
 
+
+            foreach (IPAddress address in addresses)
+            {
+                if (address.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
+                    ip = address.ToString();
+            }
+            return ip;
+        }
         private void ReceiveDataOnce()
         {
             try
@@ -79,6 +98,7 @@ namespace testUdpTcp
             List<string> stringList = new List<string>();
             // Lấy thông tin về tên máy
             string machineName = Environment.MachineName;
+            stringList.Add($"IPC: {myIp}");
             stringList.Add($"Tenmay: {machineName}Ocung: ");
            
 

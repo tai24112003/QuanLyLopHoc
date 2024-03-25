@@ -33,9 +33,9 @@ namespace Server
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            //sendAllIPInLan();
+            sendAllIPInLan();
             timer = new WinFormsTimer();
-            timer.Interval = 1000;
+            timer.Interval = 5000;
             // Gán sự kiện xảy ra khi Timer đã chạy đủ thời gian
             timer.Tick += OnTimerTick;
 
@@ -124,7 +124,7 @@ namespace Server
             // Gửi tin nhắn UDP đến từng địa chỉ IP trong mạng
             sendAllIPInLan();
             // Dừng Timer sau khi đã thực hiện công việc
-            timer.Stop();
+            //timer.Stop();
         }
         private void ListenForClients()
         {
@@ -162,17 +162,17 @@ namespace Server
                 receivedMessage += Encoding.UTF8.GetString(messageBuffer, 0, bytesRead);
 
             }
-            string[] infC = receivedMessage.Split(new string[] { "Tenmay: ", "MSSV: ", "Ocung: ","CPU: ","RAM: " }, StringSplitOptions.None);
+            string[] infC = receivedMessage.Split(new string[] { "Tenmay: ", "MSSV: ", "Ocung: ","CPU: ","RAM: ","IPC: " }, StringSplitOptions.None);
 
           
 
             if (infC.Length >= 6)
             {
-                AddOrUpdateRowToDataGridView(infC[1], infC[2], infC[3], infC[4], infC[5]);
+                AddOrUpdateRowToDataGridView(infC[2], infC[3], infC[4], infC[5], infC[6], infC[1]);
             }
             else
             {
-                AddOrUpdateRowToDataGridView(infC[1], infC[2], infC[3], infC[4], "");
+                AddOrUpdateRowToDataGridView( infC[2], infC[3], infC[4],infC[5], "", infC[1]);
              }
                 // Đóng kết nối khi client đóng kết nối
                 tcpClient.Close();
@@ -181,7 +181,7 @@ namespace Server
 
         
 
-        private void AddOrUpdateRowToDataGridView(string Tenmay, string Ocung,string cpu, string ram, string MSSV)
+        private void AddOrUpdateRowToDataGridView(string Tenmay, string Ocung,string cpu, string ram, string MSSV, string IPC)
         {
 
             if (dgv_lst_client.InvokeRequired)
@@ -200,11 +200,12 @@ namespace Server
                                 row.Cells["cpu"].Value = cpu;
                                 row.Cells["ram"].Value = ram;
                                 row.Cells["mssv"].Value = MSSV;
+                                row.Cells["IPC"].Value = IPC;
                                 return;
                             }
                         }
                     }
-                    dgv_lst_client.Rows.Add(Tenmay, Ocung,cpu,ram, MSSV);
+                    dgv_lst_client.Rows.Add(Tenmay, Ocung,cpu,ram, MSSV, IPC);
                 }));
             }
             else
@@ -219,10 +220,12 @@ namespace Server
                         row.Cells["cpu"].Value = cpu;
                         row.Cells["ram"].Value = ram;
                         row.Cells["mssv"].Value = MSSV;
+                        row.Cells["IPC"].Value = IPC;
+
                         return;
                     }
                 }
-                dgv_lst_client.Rows.Add(Tenmay, Ocung,cpu,ram, MSSV);
+                dgv_lst_client.Rows.Add(Tenmay, Ocung,cpu,ram, MSSV, IPC);
             }
             // Thêm một dòng mới vào DataGridView
 

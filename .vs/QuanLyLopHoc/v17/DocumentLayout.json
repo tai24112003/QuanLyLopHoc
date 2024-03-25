@@ -1,14 +1,22 @@
 {
   "Version": 1,
-  "WorkspaceRootPath": "C:\\Users\\VT\\Desktop\\CSharp\\QuanLyLopHoc\\",
+  "WorkspaceRootPath": "C:\\Users\\VT\\Documents\\QuanLyLopHoc\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{79C6E178-6402-497B-AD3D-26103EF404C0}|Server\\Server.csproj|C:\\Users\\VT\\Desktop\\CSharp\\QuanLyLopHoc\\server\\serverform.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{79C6E178-6402-497B-AD3D-26103EF404C0}|Server\\Server.csproj|C:\\Users\\VT\\Documents\\QuanLyLopHoc\\server\\serverform.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form",
+      "RelativeMoniker": "D:0:0:{79C6E178-6402-497B-AD3D-26103EF404C0}|Server\\Server.csproj|solutionrelative:server\\serverform.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{79C6E178-6402-497B-AD3D-26103EF404C0}|Server\\Server.csproj|c:\\users\\vt\\documents\\quanlylophoc\\server\\serverform.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{79C6E178-6402-497B-AD3D-26103EF404C0}|Server\\Server.csproj|solutionrelative:server\\serverform.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{79C6E178-6402-497B-AD3D-26103EF404C0}|Server\\Server.csproj|C:\\Users\\VT\\Desktop\\CSharp\\QuanLyLopHoc\\server\\serverform.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form",
-      "RelativeMoniker": "D:0:0:{79C6E178-6402-497B-AD3D-26103EF404C0}|Server\\Server.csproj|solutionrelative:server\\serverform.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form"
+      "AbsoluteMoniker": "D:0:0:{6A371E83-BE40-441B-B443-4203657C9C7A}|Client\\Client.csproj|c:\\users\\vt\\documents\\quanlylophoc\\client\\clientform.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{6A371E83-BE40-441B-B443-4203657C9C7A}|Client\\Client.csproj|solutionrelative:client\\clientform.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{6A371E83-BE40-441B-B443-4203657C9C7A}|Client\\Client.csproj|c:\\users\\vt\\documents\\quanlylophoc\\client\\clientform.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form",
+      "RelativeMoniker": "D:0:0:{6A371E83-BE40-441B-B443-4203657C9C7A}|Client\\Client.csproj|solutionrelative:client\\clientform.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form"
     }
   ],
   "DocumentGroupContainers": [
@@ -18,28 +26,61 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 0,
+          "SelectedChildIndex": 5,
           "Children": [
             {
+              "$type": "Bookmark",
+              "Name": "ST:128:0:{116d2292-e37d-41cd-a077-ebacac4c8cc4}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{1c4feeaa-4718-4aa9-859d-94ce25d182ba}"
+            },
+            {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 2,
+              "Title": "ClientForm.cs",
+              "DocumentMoniker": "C:\\Users\\VT\\Documents\\QuanLyLopHoc\\Client\\ClientForm.cs",
+              "RelativeDocumentMoniker": "Client\\ClientForm.cs",
+              "ToolTip": "C:\\Users\\VT\\Documents\\QuanLyLopHoc\\Client\\ClientForm.cs",
+              "RelativeToolTip": "Client\\ClientForm.cs",
+              "ViewState": "AQIAAMkAAAAAAAAAAAAiwLQAAAAbAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-03-25T10:25:34.122Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "ClientForm.cs [Design]",
+              "DocumentMoniker": "C:\\Users\\VT\\Documents\\QuanLyLopHoc\\Client\\ClientForm.cs",
+              "RelativeDocumentMoniker": "Client\\ClientForm.cs",
+              "ToolTip": "C:\\Users\\VT\\Documents\\QuanLyLopHoc\\Client\\ClientForm.cs [Design]",
+              "RelativeToolTip": "Client\\ClientForm.cs [Design]",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-03-25T10:25:32.606Z",
+              "EditorCaption": " [Design]"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
               "Title": "ServerForm.cs",
-              "DocumentMoniker": "C:\\Users\\VT\\Desktop\\CSharp\\QuanLyLopHoc\\Server\\ServerForm.cs",
+              "DocumentMoniker": "C:\\Users\\VT\\Documents\\QuanLyLopHoc\\Server\\ServerForm.cs",
               "RelativeDocumentMoniker": "Server\\ServerForm.cs",
-              "ToolTip": "C:\\Users\\VT\\Desktop\\CSharp\\QuanLyLopHoc\\Server\\ServerForm.cs",
+              "ToolTip": "C:\\Users\\VT\\Documents\\QuanLyLopHoc\\Server\\ServerForm.cs",
               "RelativeToolTip": "Server\\ServerForm.cs",
-              "ViewState": "AQIAAHsAAAAAAAAAAAAuwKYAAAAKAAAA",
+              "ViewState": "AQIAAJ0AAAAAAAAAAAAgwKwAAAAQAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-03-14T03:46:18.24Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 0,
               "Title": "ServerForm.cs [Design]",
-              "DocumentMoniker": "C:\\Users\\VT\\Desktop\\CSharp\\QuanLyLopHoc\\Server\\ServerForm.cs",
+              "DocumentMoniker": "C:\\Users\\VT\\Documents\\QuanLyLopHoc\\Server\\ServerForm.cs",
               "RelativeDocumentMoniker": "Server\\ServerForm.cs",
-              "ToolTip": "C:\\Users\\VT\\Desktop\\CSharp\\QuanLyLopHoc\\Server\\ServerForm.cs [Design]",
+              "ToolTip": "C:\\Users\\VT\\Documents\\QuanLyLopHoc\\Server\\ServerForm.cs [Design]",
               "RelativeToolTip": "Server\\ServerForm.cs [Design]",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-03-14T03:46:18.676Z",

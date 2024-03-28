@@ -23,6 +23,7 @@ namespace testUdpTcp
         {
             InitializeComponent();
             myIp = getIPServer();
+            inf = GetDeviceInfo();
         }
         private UdpClient udpClient;
         private Thread udpReceiverThread;
@@ -42,9 +43,8 @@ namespace testUdpTcp
             udpClient = new UdpClient(11312);
             udpReceiverThread = new Thread(new ThreadStart(ReceiveDataOnce));
             udpReceiverThread.Start();
-            inf = GetDeviceInfo();
-            updateBox();
             udpReceiverThread.Join();
+            updateBox();
             Console.WriteLine("Da Gui info");
             listenThread = new Thread(new ThreadStart(ListenForClients));
             listenThread.Start();
@@ -57,15 +57,14 @@ namespace testUdpTcp
             listener.Start();
 
             Console.WriteLine("Server is listening for clients...");
-            Console.WriteLine("Dang nghe tu may chu");
             while (true)
             {
                 try
                 {
-                    Console.WriteLine("VO ne");
 
                     TcpClient client = listener.AcceptTcpClient();
                     // Bạn có thể xử lý kết nối client ở đây
+                    Console.WriteLine("lụm");
                     HandleClient(client);
 
                 }
@@ -87,12 +86,13 @@ namespace testUdpTcp
             {
                 // Xử lý dữ liệu nhận được từ client
                 receivedMessage += Encoding.UTF8.GetString(messageBuffer, 0, bytesRead);
+                Console.WriteLine(receivedMessage);
 
             }
 
             switch (receivedMessage)
             {
-                case "LOCK_ACCESS": LockWeb(); MessageBox.Show("nhan dc tin hieu"); break;
+                case "LOCK_ACCESS": LockWeb(); Console.WriteLine("nhan dc tin hieu"); break;
             }
             tcpClient.Close();
 
@@ -283,7 +283,7 @@ namespace testUdpTcp
                 {
                     // Tạo đối tượng TcpClient để kết nối đến server
                     TcpClient client = new TcpClient(IpServer, 8765);
-
+                    Console.WriteLine(string.Join("", inf.ToArray()));
                     //// Lấy luồng mạng từ TcpClient
                     NetworkStream stream = client.GetStream();
                     SendData(stream, string.Join("", inf.ToArray()));

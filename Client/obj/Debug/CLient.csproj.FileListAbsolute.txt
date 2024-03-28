@@ -29,3 +29,13 @@ C:\Users\aniga\Desktop\tn\QuanLyLopHoc\Client\obj\Debug\Client.csproj.GenerateRe
 C:\Users\aniga\Desktop\tn\QuanLyLopHoc\Client\obj\Debug\Client.csproj.CoreCompileInputs.cache
 C:\Users\aniga\Desktop\tn\QuanLyLopHoc\Client\obj\Debug\testUdpTcp.exe
 C:\Users\aniga\Desktop\tn\QuanLyLopHoc\Client\obj\Debug\testUdpTcp.pdb
+C:\Users\VT\Desktop\QuanLyLopHoc\Client\bin\Debug\testUdpTcp.exe.config
+C:\Users\VT\Desktop\QuanLyLopHoc\Client\bin\Debug\testUdpTcp.exe
+C:\Users\VT\Desktop\QuanLyLopHoc\Client\bin\Debug\testUdpTcp.pdb
+C:\Users\VT\Desktop\QuanLyLopHoc\Client\obj\Debug\Client.csproj.AssemblyReference.cache
+C:\Users\VT\Desktop\QuanLyLopHoc\Client\obj\Debug\testUdpTcp.ClientForm.resources
+C:\Users\VT\Desktop\QuanLyLopHoc\Client\obj\Debug\testUdpTcp.Properties.Resources.resources
+C:\Users\VT\Desktop\QuanLyLopHoc\Client\obj\Debug\Client.csproj.GenerateResource.cache
+C:\Users\VT\Desktop\QuanLyLopHoc\Client\obj\Debug\Client.csproj.CoreCompileInputs.cache
+C:\Users\VT\Desktop\QuanLyLopHoc\Client\obj\Debug\testUdpTcp.exe
+C:\Users\VT\Desktop\QuanLyLopHoc\Client\obj\Debug\testUdpTcp.pdb

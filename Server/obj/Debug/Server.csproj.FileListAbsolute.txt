@@ -29,3 +29,13 @@ C:\Users\aniga\Desktop\tn\QuanLyLopHoc\Server\obj\Debug\Server.csproj.GenerateRe
 C:\Users\aniga\Desktop\tn\QuanLyLopHoc\Server\obj\Debug\Server.csproj.CoreCompileInputs.cache
 C:\Users\aniga\Desktop\tn\QuanLyLopHoc\Server\obj\Debug\Server.exe
 C:\Users\aniga\Desktop\tn\QuanLyLopHoc\Server\obj\Debug\Server.pdb
+C:\Users\VT\Desktop\QuanLyLopHoc\Server\bin\Debug\Server.exe.config
+C:\Users\VT\Desktop\QuanLyLopHoc\Server\bin\Debug\Server.exe
+C:\Users\VT\Desktop\QuanLyLopHoc\Server\bin\Debug\Server.pdb
+C:\Users\VT\Desktop\QuanLyLopHoc\Server\obj\Debug\Server.csproj.AssemblyReference.cache
+C:\Users\VT\Desktop\QuanLyLopHoc\Server\obj\Debug\Server.svForm.resources
+C:\Users\VT\Desktop\QuanLyLopHoc\Server\obj\Debug\Server.Properties.Resources.resources
+C:\Users\VT\Desktop\QuanLyLopHoc\Server\obj\Debug\Server.csproj.GenerateResource.cache
+C:\Users\VT\Desktop\QuanLyLopHoc\Server\obj\Debug\Server.csproj.CoreCompileInputs.cache
+C:\Users\VT\Desktop\QuanLyLopHoc\Server\obj\Debug\Server.exe
+C:\Users\VT\Desktop\QuanLyLopHoc\Server\obj\Debug\Server.pdb

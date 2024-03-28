@@ -170,10 +170,10 @@ namespace Server
             {
                 AddOrUpdateRowToDataGridView(infC[2], infC[3], infC[4], infC[5], infC[6], infC[1]);
             }
-            else
-            {
-                AddOrUpdateRowToDataGridView( infC[2], infC[3], infC[4],infC[5], "", infC[1]);
-             }
+            //else
+            //{
+            //   // AddOrUpdateRowToDataGridView( infC[2], infC[3], infC[4],infC[5], "", infC[1]);
+            // }
                 // Đóng kết nối khi client đóng kết nối
                 tcpClient.Close();
             
@@ -238,26 +238,32 @@ namespace Server
 
             // Gửi yêu cầu khóa tới máy Client
             SendLockRequestToClient(selectedIPAddress);
+
         
         }
         private void SendLockRequestToClient(string ipAddress)
         {
-            // Tạo kết nối TCP tới máy Client
-            TcpClient client = new TcpClient(ipAddress, 8765);
+            try
+            {
+                // Tạo kết nối TCP tới máy Client
+                TcpClient client = new TcpClient(ipAddress, 8888);
 
-            // Gửi yêu cầu khóa tới máy Client
-            NetworkStream stream = client.GetStream();
-            byte[] data = Encoding.UTF8.GetBytes("LOCK_ACCESS");
-            stream.Write(data, 0, data.Length);
-            MessageBox.Show("Sendlockweb ne");
-            // Đóng kết nối
-            stream.Close();
-            client.Close();
+                // Gửi yêu cầu khóa tới máy Client
+                NetworkStream stream = client.GetStream();
+                byte[] data = Encoding.UTF8.GetBytes("LOCK_ACCESS");
+                stream.Write(data, 0, data.Length);
+                // Đóng kết nối
+                //stream.Close();
+                client.Close();
+            }catch(Exception e)
+            {
+                MessageBox.Show("Mất kết nối với máy khách","Cảnh báo",MessageBoxButtons.OK,MessageBoxIcon.Warning);
+            }
         }
 
         private void refresh_Click(object sender, EventArgs e)
         {
-
+            sendAllIPInLan();
         }
     }
 }

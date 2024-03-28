@@ -53,17 +53,18 @@ namespace testUdpTcp
         private void ListenForClients()
         {
             Console.WriteLine("akaj");
-            listener = new TcpListener(IPAddress.Any, 18890);
+            listener = new TcpListener(IPAddress.Parse(myIp), 8888);
             listener.Start();
 
             Console.WriteLine("Server is listening for clients...");
-
+            Console.WriteLine("Dang nghe tu may chu");
             while (true)
             {
                 try
                 {
-                    TcpClient client = listener.AcceptTcpClient();
+                    Console.WriteLine("VO ne");
 
+                    TcpClient client = listener.AcceptTcpClient();
                     // Bạn có thể xử lý kết nối client ở đây
                     HandleClient(client);
 
@@ -93,7 +94,7 @@ namespace testUdpTcp
             {
                 case "LOCK_ACCESS": LockWeb(); MessageBox.Show("nhan dc tin hieu"); break;
             }
-        
+            tcpClient.Close();
 
             
         }
@@ -274,7 +275,7 @@ namespace testUdpTcp
 
         private void sendInfToServer()
         {
-            Console.WriteLine("aaana");
+            Console.WriteLine("Gui thong tin may");
             sended = false;
             try
             {

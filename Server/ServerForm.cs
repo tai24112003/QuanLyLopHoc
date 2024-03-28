@@ -144,7 +144,7 @@ namespace Server
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine("Lỗi");
+                    Console.WriteLine(ex);
                     break;
                 }
             }
@@ -163,7 +163,7 @@ namespace Server
 
             }
             string[] infC = receivedMessage.Split(new string[] { "Tenmay: ", "MSSV: ", "Ocung: ","CPU: ","RAM: ","IPC: " }, StringSplitOptions.None);
-
+             
           
 
             if (infC.Length >= 6)
@@ -228,6 +228,35 @@ namespace Server
                 dgv_lst_client.Rows.Add(Tenmay, Ocung,cpu,ram, MSSV, IPC);
             }
             // Thêm một dòng mới vào DataGridView
+
+        }
+
+        private void Lock_Click(object sender, EventArgs e)
+        {
+            // Lấy thông tin máy Client đã chọn từ DataGridView
+            string selectedIPAddress = dgv_lst_client.SelectedRows[0].Cells["IPC"].Value.ToString();
+
+            // Gửi yêu cầu khóa tới máy Client
+            SendLockRequestToClient(selectedIPAddress);
+        
+        }
+        private void SendLockRequestToClient(string ipAddress)
+        {
+            // Tạo kết nối TCP tới máy Client
+            TcpClient client = new TcpClient(ipAddress, 8765);
+
+            // Gửi yêu cầu khóa tới máy Client
+            NetworkStream stream = client.GetStream();
+            byte[] data = Encoding.UTF8.GetBytes("LOCK_ACCESS");
+            stream.Write(data, 0, data.Length);
+            MessageBox.Show("Sendlockweb ne");
+            // Đóng kết nối
+            stream.Close();
+            client.Close();
+        }
+
+        private void refresh_Click(object sender, EventArgs e)
+        {
 
         }
     }

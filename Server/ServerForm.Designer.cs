@@ -35,6 +35,7 @@
             this.randomStudent = new System.Windows.Forms.ToolStripSplitButton();
             this.registerStudent = new System.Windows.Forms.ToolStripSplitButton();
             this.sendWork = new System.Windows.Forms.ToolStripSplitButton();
+            this.toolStripButton5 = new System.Windows.Forms.ToolStripButton();
             this.Lock = new System.Windows.Forms.ToolStripButton();
             this.unlock = new System.Windows.Forms.ToolStripButton();
             this.quickLauch = new System.Windows.Forms.ToolStripSplitButton();
@@ -67,13 +68,14 @@
             this.randomStudent,
             this.registerStudent,
             this.sendWork,
+            this.toolStripButton5,
             this.Lock,
             this.unlock,
             this.quickLauch,
             this.refresh});
             this.toolStrip1.Location = new System.Drawing.Point(0, 0);
             this.toolStrip1.Name = "toolStrip1";
-            this.toolStrip1.Size = new System.Drawing.Size(2115, 114);
+            this.toolStrip1.Size = new System.Drawing.Size(1710, 107);
             this.toolStrip1.TabIndex = 0;
             this.toolStrip1.Text = "toolStrip1";
             // 
@@ -82,7 +84,7 @@
             this.toolStripSplitButton5.Image = global::Server.Properties.Resources.planning;
             this.toolStripSplitButton5.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolStripSplitButton5.Name = "toolStripSplitButton5";
-            this.toolStripSplitButton5.Size = new System.Drawing.Size(142, 109);
+            this.toolStripSplitButton5.Size = new System.Drawing.Size(119, 104);
             this.toolStripSplitButton5.Text = "Manage Class";
             this.toolStripSplitButton5.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
             // 
@@ -91,7 +93,7 @@
             this.basicMode.Image = global::Server.Properties.Resources.application;
             this.basicMode.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.basicMode.Name = "basicMode";
-            this.basicMode.Size = new System.Drawing.Size(124, 109);
+            this.basicMode.Size = new System.Drawing.Size(105, 104);
             this.basicMode.Text = "Basic Mode";
             this.basicMode.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
             // 
@@ -100,7 +102,7 @@
             this.randomStudent.Image = global::Server.Properties.Resources.dices;
             this.randomStudent.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.randomStudent.Name = "randomStudent";
-            this.randomStudent.Size = new System.Drawing.Size(167, 109);
+            this.randomStudent.Size = new System.Drawing.Size(139, 104);
             this.randomStudent.Text = "Random Student";
             this.randomStudent.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
             // 
@@ -109,7 +111,7 @@
             this.registerStudent.Image = global::Server.Properties.Resources.register;
             this.registerStudent.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.registerStudent.Name = "registerStudent";
-            this.registerStudent.Size = new System.Drawing.Size(151, 109);
+            this.registerStudent.Size = new System.Drawing.Size(128, 104);
             this.registerStudent.Text = "Register Stuent";
             this.registerStudent.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
             // 
@@ -118,25 +120,35 @@
             this.sendWork.Image = global::Server.Properties.Resources.portfolio;
             this.sendWork.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.sendWork.Name = "sendWork";
-            this.sendWork.Size = new System.Drawing.Size(176, 109);
+            this.sendWork.Size = new System.Drawing.Size(148, 104);
             this.sendWork.Text = "Send/Recive Work";
             this.sendWork.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
+            // 
+            // toolStripButton5
+            // 
+            this.toolStripButton5.Image = global::Server.Properties.Resources._lock;
+            this.toolStripButton5.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.toolStripButton5.Name = "toolStripButton5";
+            this.toolStripButton5.Size = new System.Drawing.Size(84, 104);
+            this.toolStripButton5.Text = "Lock";
+            this.toolStripButton5.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
             // 
             // Lock
             // 
             this.Lock.Image = global::Server.Properties.Resources._lock;
             this.Lock.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.Lock.Name = "Lock";
-            this.Lock.Size = new System.Drawing.Size(84, 109);
-            this.Lock.Text = "Lock";
+            this.Lock.Size = new System.Drawing.Size(103, 104);
+            this.Lock.Text = "Lock Network";
             this.Lock.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
+            this.Lock.Click += new System.EventHandler(this.Lock_Click);
             // 
             // unlock
             // 
             this.unlock.Image = global::Server.Properties.Resources.unlock;
             this.unlock.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.unlock.Name = "unlock";
-            this.unlock.Size = new System.Drawing.Size(84, 109);
+            this.unlock.Size = new System.Drawing.Size(84, 104);
             this.unlock.Text = "Unlock";
             this.unlock.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
             // 
@@ -145,7 +157,7 @@
             this.quickLauch.Image = global::Server.Properties.Resources.send;
             this.quickLauch.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.quickLauch.Name = "quickLauch";
-            this.quickLauch.Size = new System.Drawing.Size(128, 109);
+            this.quickLauch.Size = new System.Drawing.Size(107, 104);
             this.quickLauch.Text = "Quick Lauch";
             this.quickLauch.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
             // 
@@ -154,9 +166,10 @@
             this.refresh.Image = global::Server.Properties.Resources.loading_arrow;
             this.refresh.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.refresh.Name = "refresh";
-            this.refresh.Size = new System.Drawing.Size(84, 109);
+            this.refresh.Size = new System.Drawing.Size(84, 104);
             this.refresh.Text = "Refresh";
             this.refresh.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
+            this.refresh.Click += new System.EventHandler(this.refresh_Click);
             // 
             // toolStrip2
             // 
@@ -167,9 +180,9 @@
             this.toolStripButton3,
             this.toolStripButton2,
             this.toolStripButton1});
-            this.toolStrip2.Location = new System.Drawing.Point(0, 114);
+            this.toolStrip2.Location = new System.Drawing.Point(0, 107);
             this.toolStrip2.Name = "toolStrip2";
-            this.toolStrip2.Size = new System.Drawing.Size(106, 915);
+            this.toolStrip2.Size = new System.Drawing.Size(105, 716);
             this.toolStrip2.TabIndex = 1;
             this.toolStrip2.Text = "toolStrip2";
             // 
@@ -179,7 +192,7 @@
             this.toolStripButton4.Image = global::Server.Properties.Resources.home;
             this.toolStripButton4.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolStripButton4.Name = "toolStripButton4";
-            this.toolStripButton4.Size = new System.Drawing.Size(101, 104);
+            this.toolStripButton4.Size = new System.Drawing.Size(102, 104);
             this.toolStripButton4.Text = "Refresh";
             this.toolStripButton4.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
             // 
@@ -189,7 +202,7 @@
             this.toolStripButton3.Image = global::Server.Properties.Resources.keyboard;
             this.toolStripButton3.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolStripButton3.Name = "toolStripButton3";
-            this.toolStripButton3.Size = new System.Drawing.Size(101, 104);
+            this.toolStripButton3.Size = new System.Drawing.Size(102, 104);
             this.toolStripButton3.Text = "Refresh";
             this.toolStripButton3.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
             // 
@@ -199,7 +212,7 @@
             this.toolStripButton2.Image = global::Server.Properties.Resources.world_wide_web;
             this.toolStripButton2.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolStripButton2.Name = "toolStripButton2";
-            this.toolStripButton2.Size = new System.Drawing.Size(101, 104);
+            this.toolStripButton2.Size = new System.Drawing.Size(102, 104);
             this.toolStripButton2.Text = "Refresh";
             this.toolStripButton2.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
             // 
@@ -209,7 +222,7 @@
             this.toolStripButton1.Image = global::Server.Properties.Resources.monitor;
             this.toolStripButton1.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolStripButton1.Name = "toolStripButton1";
-            this.toolStripButton1.Size = new System.Drawing.Size(101, 104);
+            this.toolStripButton1.Size = new System.Drawing.Size(102, 104);
             this.toolStripButton1.Text = "Refresh";
             this.toolStripButton1.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
             // 
@@ -217,10 +230,9 @@
             // 
             this.flowLayoutPanel1.Controls.Add(this.dgv_lst_client);
             this.flowLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.flowLayoutPanel1.Location = new System.Drawing.Point(106, 114);
-            this.flowLayoutPanel1.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            this.flowLayoutPanel1.Location = new System.Drawing.Point(105, 107);
             this.flowLayoutPanel1.Name = "flowLayoutPanel1";
-            this.flowLayoutPanel1.Size = new System.Drawing.Size(2009, 915);
+            this.flowLayoutPanel1.Size = new System.Drawing.Size(1605, 716);
             this.flowLayoutPanel1.TabIndex = 2;
             // 
             // dgv_lst_client
@@ -242,11 +254,12 @@
             dataGridViewCellStyle1.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
             dataGridViewCellStyle1.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
             this.dgv_lst_client.DefaultCellStyle = dataGridViewCellStyle1;
-            this.dgv_lst_client.Location = new System.Drawing.Point(3, 3);
+            this.dgv_lst_client.Location = new System.Drawing.Point(3, 2);
+            this.dgv_lst_client.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.dgv_lst_client.Name = "dgv_lst_client";
             this.dgv_lst_client.RowHeadersWidth = 62;
             this.dgv_lst_client.RowTemplate.Height = 28;
-            this.dgv_lst_client.Size = new System.Drawing.Size(2006, 912);
+            this.dgv_lst_client.Size = new System.Drawing.Size(1783, 730);
             this.dgv_lst_client.TabIndex = 0;
             // 
             // tenmay
@@ -294,14 +307,13 @@
             // 
             // svForm
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoSize = true;
-            this.ClientSize = new System.Drawing.Size(2115, 1029);
+            this.ClientSize = new System.Drawing.Size(1710, 823);
             this.Controls.Add(this.flowLayoutPanel1);
             this.Controls.Add(this.toolStrip2);
             this.Controls.Add(this.toolStrip1);
-            this.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.Name = "svForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Server Form";
@@ -343,6 +355,7 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn ram;
         private System.Windows.Forms.DataGridViewTextBoxColumn mssv;
         private System.Windows.Forms.DataGridViewTextBoxColumn IPC;
+        private System.Windows.Forms.ToolStripButton toolStripButton5;
     }
 }
 

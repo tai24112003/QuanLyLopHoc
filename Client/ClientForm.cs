@@ -32,18 +32,106 @@ namespace testUdpTcp
         private List<string> mssvLst = new List<string>();
         private bool sended = false;
         private string hostName;
+        TcpListener listener;
+        private Thread listenThread;
+
 
         private void Form1_Load(object sender, EventArgs e)
         {
+            Console.WriteLine("vao form");
             udpClient = new UdpClient(11312);
             udpReceiverThread = new Thread(new ThreadStart(ReceiveDataOnce));
             udpReceiverThread.Start();
             inf = GetDeviceInfo();
             updateBox();
+            udpReceiverThread.Join();
+            Console.WriteLine("Da Gui info");
+            listenThread = new Thread(new ThreadStart(ListenForClients));
+            listenThread.Start();
+
         }
+        private void ListenForClients()
+        {
+            Console.WriteLine("akaj");
+            listener = new TcpListener(IPAddress.Any, 18890);
+            listener.Start();
 
+            Console.WriteLine("Server is listening for clients...");
 
-        private string getIPServer()
+            while (true)
+            {
+                try
+                {
+                    TcpClient client = listener.AcceptTcpClient();
+
+                    // Bạn có thể xử lý kết nối client ở đây
+                    HandleClient(client);
+
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex);
+                    break;
+                }
+            }
+        }
+        private void HandleClient(TcpClient tcpClient)
+        {
+            NetworkStream clientStream = tcpClient.GetStream();
+
+            byte[] messageBuffer = new byte[1024];
+            int bytesRead;
+            string receivedMessage = "";
+            while ((bytesRead = clientStream.Read(messageBuffer, 0, messageBuffer.Length)) > 0)
+            {
+                // Xử lý dữ liệu nhận được từ client
+                receivedMessage += Encoding.UTF8.GetString(messageBuffer, 0, bytesRead);
+
+            }
+
+            switch (receivedMessage)
+            {
+                case "LOCK_ACCESS": LockWeb(); MessageBox.Show("nhan dc tin hieu"); break;
+            }
+        
+
+            
+        }
+        private void LockWeb()
+        {
+            try
+            {
+                // Đường dẫn tới tập tin hosts
+                string hostsFilePath = Environment.GetFolderPath(Environment.SpecialFolder.System) + @"\drivers\etc\hosts";
+
+                // Kiểm tra xem tập tin hosts có tồn tại không
+                if (!File.Exists(hostsFilePath))
+                {
+                    Console.WriteLine("Tập tin hosts không tồn tại.");
+                    return;
+                }
+
+                // Địa chỉ IP loopback
+                string loopbackIP = "127.0.0.1";
+
+                // Mở tập tin hosts để ghi đè
+                using (StreamWriter writer = new StreamWriter(hostsFilePath, false))
+                {
+                    // Ghi đè nội dung tập tin hosts với mỗi yêu cầu trang web được điều hướng đến địa chỉ loopback
+                    writer.WriteLine($"{loopbackIP} localhost");
+                    writer.WriteLine($"{loopbackIP} localhost.localdomain");
+                    writer.WriteLine($"{loopbackIP} 0.0.0.0");
+                    writer.WriteLine($"{loopbackIP} 255.255.255.255");
+                }
+
+                Console.WriteLine("Tập tin hosts đã được cập nhật thành công!");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Đã xảy ra lỗi khi cập nhật tập tin hosts: " + ex.Message);
+            }
+        }
+            private string getIPServer()
         {
             // Lấy tên máy tính hiện tại
             hostName = Dns.GetHostName();
@@ -61,6 +149,7 @@ namespace testUdpTcp
         }
         private void ReceiveDataOnce()
         {
+            Console.WriteLine("Vo luon r1");
             try
             {
                 IPEndPoint remoteEndPoint = new IPEndPoint(IPAddress.Any, 0);
@@ -70,7 +159,7 @@ namespace testUdpTcp
                 string receivedMessage = Encoding.UTF8.GetString(receivedBytes);
                 IpServer = receivedMessage;
                 // Xử lý dữ liệu nhận được
-                
+                //DisplayMessage(IpServer);
                 sendInfToServer();
                 //if (sended) MessageBox.Show("Gửi thành công", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 //else MessageBox.Show("Gửi thất bại", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -185,6 +274,7 @@ namespace testUdpTcp
 
         private void sendInfToServer()
         {
+            Console.WriteLine("aaana");
             sended = false;
             try
             {
@@ -192,18 +282,20 @@ namespace testUdpTcp
                 {
                     // Tạo đối tượng TcpClient để kết nối đến server
                     TcpClient client = new TcpClient(IpServer, 8765);
-                    
-                    // Lấy luồng mạng từ TcpClient
+
+                    //// Lấy luồng mạng từ TcpClient
                     NetworkStream stream = client.GetStream();
                     SendData(stream, string.Join("", inf.ToArray()));
                     byte[] buffer = new byte[1024];
                     sended = true;// Định kích thước buffer tùy ý
                     client.Close();
+
                 }
+                
             }
-            catch (Exception)
+            catch (Exception q)
             {
-                Console.WriteLine("Lỗi");
+                Console.WriteLine(q);
             }
         }
 
@@ -226,6 +318,8 @@ namespace testUdpTcp
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
             udpClient.Close();
+            if (listener != null)
+            listener.Stop();
         }
     }
 }

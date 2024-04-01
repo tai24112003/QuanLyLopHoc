@@ -132,22 +132,36 @@ namespace testUdpTcp
                 Console.WriteLine("Đã xảy ra lỗi khi cập nhật tập tin hosts: " + ex.Message);
             }
         }
-            private string getIPServer()
+        private string getIPServer()
         {
-            // Lấy tên máy tính hiện tại
-            hostName = Dns.GetHostName();
             string ip = string.Empty;
-            // Lấy địa chỉ IP của máy tính hiện tại
-            IPAddress[] addresses = Dns.GetHostAddresses(hostName);
+            // Lấy tất cả card mạng của máy tính
+            NetworkInterface[] networkInterfaces = NetworkInterface.GetAllNetworkInterfaces();
 
-
-            foreach (IPAddress address in addresses)
+            foreach (NetworkInterface networkInterface in networkInterfaces)
             {
-                if (address.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
-                    ip = address.ToString();
+                // Lọc ra các card mạng LAN
+                if (networkInterface.NetworkInterfaceType == NetworkInterfaceType.Ethernet ||
+                    networkInterface.NetworkInterfaceType == NetworkInterfaceType.Wireless80211)
+                {
+                    // Lấy danh sách địa chỉ IP của card mạng này
+                    UnicastIPAddressInformationCollection ipInfo = networkInterface.GetIPProperties().UnicastAddresses;
+
+                    foreach (UnicastIPAddressInformation info in ipInfo)
+                    {
+                        // Chỉ lấy địa chỉ IPv4
+                        if (info.Address.AddressFamily == AddressFamily.InterNetwork)
+                        {
+                            ip = info.Address.ToString();
+                            // Trả về địa chỉ IP đầu tiên tìm thấy
+                            return ip;
+                        }
+                    }
+                }
             }
             return ip;
         }
+
         private void ReceiveDataOnce()
         {
             Console.WriteLine("Vo luon r1");

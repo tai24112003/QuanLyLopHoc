@@ -14,6 +14,7 @@ using System.Threading;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 using System.IO;
 using System.Net.Http;
+using System.Net.NetworkInformation;
 
 namespace testUdpTcp
 {
@@ -161,6 +162,7 @@ namespace testUdpTcp
             }
             return ip;
         }
+
 
         private void ReceiveDataOnce()
         {

@@ -19,16 +19,31 @@ namespace Server
 {
     public partial class svForm : Form
     {
+        private bool isFullInfoMode = true;
         private WinFormsTimer timer;
         private string hostName;
         private string Ip;
         private TcpListener tcpListener;
         private Thread listenThread;
         private NetworkInterface[] networkInterfaces = NetworkInterface.GetAllNetworkInterfaces();
+        private List<List<string>> fullInfoList = new List<List<string>>();
+        private List<List<string>> summaryInfoList = new List<List<string>>();
+        private ImageList smallImageList;
+        private ImageList largeImageList;
         public svForm()
         {
             InitializeComponent();
             Ip = getIPServer();
+            InitializeContextMenu();
+            
+            smallImageList = new ImageList();
+            largeImageList = new ImageList();
+            // Thêm biểu tượng "user" vào ImageList
+            largeImageList.ImageSize = new Size(100, 100);
+            smallImageList.Images.Add("user", Properties.Resources.user);
+            largeImageList.Images.Add("user", Properties.Resources.user);
+            lv_client.SmallImageList=smallImageList;
+            lv_client.LargeImageList=largeImageList;
         }
 
         private void Form1_Load(object sender, EventArgs e)
@@ -41,7 +56,7 @@ namespace Server
 
             // Bắt đầu Timer
             timer.Start();
-
+            lv_client.MouseClick += lv_client_MouseClick;
             IPAddress ip = IPAddress.Parse(Ip);
             int tcpPort = 8765;
 
@@ -91,6 +106,48 @@ namespace Server
             return ip;
         }
 
+        private ContextMenuStrip contextMenuStrip;
+
+        private void InitializeContextMenu()
+        {
+            contextMenuStrip = new ContextMenuStrip();
+
+            ToolStripMenuItem viewDetailsItem = new ToolStripMenuItem("Chế độ xem Chi tiết");
+            viewDetailsItem.Click += ViewDetailsItem_Click;
+            contextMenuStrip.Items.Add(viewDetailsItem);
+
+            ToolStripMenuItem viewListItem = new ToolStripMenuItem("Chế độ xem Danh sách");
+            viewListItem.Click += ViewListItem_Click;
+            contextMenuStrip.Items.Add(viewListItem);
+
+            ToolStripMenuItem viewLargeIconItem = new ToolStripMenuItem("Chế độ xem Biểu tượng lớn");
+            viewLargeIconItem.Click += ViewLargeIconItem_Click;
+            contextMenuStrip.Items.Add(viewLargeIconItem);
+
+            ToolStripMenuItem viewSmallIconItem = new ToolStripMenuItem("Chế độ xem Biểu tượng nhỏ");
+            viewSmallIconItem.Click += ViewSmallIconItem_Click;
+            contextMenuStrip.Items.Add(viewSmallIconItem);
+        }
+
+        private void ViewDetailsItem_Click(object sender, EventArgs e)
+        {
+            lv_client.View = View.Details;
+        }
+
+        private void ViewListItem_Click(object sender, EventArgs e)
+        {
+            lv_client.View = View.List;
+        }
+
+        private void ViewLargeIconItem_Click(object sender, EventArgs e)
+        {
+            lv_client.View = View.LargeIcon;
+        }
+
+        private void ViewSmallIconItem_Click(object sender, EventArgs e)
+        {
+            lv_client.View = View.SmallIcon;
+        }
 
         private void sendAllIPInLan()
         {
@@ -154,7 +211,7 @@ namespace Server
 
                     // Bạn có thể xử lý kết nối client ở đây
                     HandleClient(client);
-                    
+
                 }
                 catch (Exception ex)
                 {
@@ -174,87 +231,214 @@ namespace Server
             {
                 // Xử lý dữ liệu nhận được từ client
                 receivedMessage += Encoding.UTF8.GetString(messageBuffer, 0, bytesRead);
-
             }
-            string[] infC = receivedMessage.Split(new string[] { "Tenmay: ", "MSSV: ", "Ocung: ","CPU: ","RAM: ","IPC: " }, StringSplitOptions.None);
-             
-          
 
-            if (infC.Length >= 6)
+            string[] tmp = receivedMessage.Split(new char[] { '-' }, 2);
+
+
+            if (tmp[0] == "InfoClient")
             {
-                AddOrUpdateRowToDataGridView(infC[2], infC[3], infC[4], infC[5], infC[6], infC[1]);
+                ReciveInfo(tmp[1]);
             }
-            //else
-            //{
-            //   // AddOrUpdateRowToDataGridView( infC[2], infC[3], infC[4],infC[5], "", infC[1]);
-            // }
-                // Đóng kết nối khi client đóng kết nối
-                tcpClient.Close();
+
             
+            // Đóng kết nối khi client đóng kết nối
+            tcpClient.Close();
         }
 
-        
-
-        private void AddOrUpdateRowToDataGridView(string Tenmay, string Ocung,string cpu, string ram, string MSSV, string IPC)
+        private void ReciveInfo(string info)
         {
+            Console.WriteLine(info);
+            string[] infC = info.Split(new string[] { "Tenmay: ", "MSSV: ", "Ocung: ", "CPU: ", "RAM: ", "IPC: ", "Chuot: ", "Banphim: ", "Manhinh: " }, StringSplitOptions.None);
+           
+            //Tạo danh sách mới
+            List<string> newEntry = new List<string>();
+            //Thêm thông tin vào danh sách mới
+            newEntry.Add(infC[2]);  // Tên máy
+            newEntry.Add(infC[6]);  // Ổ cứng
+            newEntry.Add(infC[7]);  // CPU
+            newEntry.Add(infC[8]);  // RAM
+            newEntry.Add(infC[9]);  // MSSV
+            newEntry.Add(infC[1]);  // IPC
+            newEntry.Add(infC[3]);  // Chuột
+            newEntry.Add(infC[4]);  // Bàn phím
+            newEntry.Add(infC[5]);  // Màn hình
 
-            if (dgv_lst_client.InvokeRequired)
+            // Thêm danh sách mới vào danh sách đầy đủ và tóm tắt
+            fullInfoList.Add(newEntry);
+            if (isFullInfoMode)
+                AddOrUpdateRowToListView(newEntry);
+            Console.WriteLine(newEntry[3]);
+            List<string> newEntryCopy = new List<string>(newEntry);
+            //Làm ngắn thông tin RAM chỉ chừa lại dung lượng 
+            int capacityIndex = infC[8].IndexOf("Capacity:");
+            int bytesIndex = infC[8].IndexOf("bytes", capacityIndex);
+            string capacityStr = infC[8].Substring(capacityIndex + "Capacity:".Length, bytesIndex - capacityIndex - "Capacity:".Length).Trim();
+            double capacityBytes = double.Parse(capacityStr);
+            double capacityGB = capacityBytes / (1024 * 1024 * 1024);
+            Console.WriteLine("length: " + fullInfoList.Count);
+
+            newEntryCopy[3] = capacityGB + " GB";
+            Console.WriteLine(newEntryCopy[3]);
+            //Xử lí thông tin cần rút gọn tiếp tục ở đây
+            //
+            summaryInfoList.Add(newEntryCopy);
+
+            // Hiển thị dữ liệu trên DataGridView
+            if (!isFullInfoMode)
+                AddOrUpdateRowToListView(newEntry);
+            
+
+        }
+        private void AddOrUpdateRowToListView(List<string> entry)
+        {
+            if (lv_client.InvokeRequired)
             {
-                dgv_lst_client.Invoke(new Action(() =>
+                lv_client.Invoke(new Action(() =>
                 {
-                    foreach(DataGridViewRow row in dgv_lst_client.Rows)
+                    ListViewItem item = null;
+                    foreach (ListViewItem listItem in lv_client.Items)
                     {
-                        if (row.Cells["tenmay"].Value != null)
+                        if (listItem.SubItems[0].Text == entry[0])
                         {
-                            string cellValue = row.Cells["tenmay"].Value.ToString();
-                            if (cellValue == Tenmay)
-                            {
-                                row.Cells["tenmay"].Value = Tenmay;
-                                row.Cells["Ocung"].Value = Ocung;
-                                row.Cells["cpu"].Value = cpu;
-                                row.Cells["ram"].Value = ram;
-                                row.Cells["mssv"].Value = MSSV;
-                                row.Cells["IPC"].Value = IPC;
-                                return;
-                            }
+                            item = listItem;
+                            break;
                         }
                     }
-                    dgv_lst_client.Rows.Add(Tenmay, Ocung,cpu,ram, MSSV, IPC);
+                    if (item != null)
+                    {
+                        // Cập nhật dữ liệu nếu dòng đã tồn tại
+                        for (int i = 0; i < entry.Count; i++)
+                        {
+                            item.SubItems[i].Text = entry[i];
+                        }
+                    }
+                    else
+                    {
+                        // Thêm dòng mới nếu không tồn tại
+                        item = new ListViewItem(entry.ToArray());
+                        item.ImageIndex = 0;
+                        lv_client.Items.Add(item);
+                    }
                 }));
             }
             else
             {
-                foreach (DataGridViewRow row in dgv_lst_client.Rows)
+                ListViewItem item = null;
+                foreach (ListViewItem listItem in lv_client.Items)
                 {
-                    string cellValue = row.Cells["tenmay"].Value.ToString();
-                    if (cellValue == Tenmay)
+                    if (listItem.SubItems[0].Text == entry[0])
                     {
-                        row.Cells["tenmay"].Value = Tenmay;
-                        row.Cells["Ocung"].Value = Ocung;
-                        row.Cells["cpu"].Value = cpu;
-                        row.Cells["ram"].Value = ram;
-                        row.Cells["mssv"].Value = MSSV;
-                        row.Cells["IPC"].Value = IPC;
-
-                        return;
+                        item = listItem;
+                        break;
                     }
                 }
-                dgv_lst_client.Rows.Add(Tenmay, Ocung,cpu,ram, MSSV, IPC);
+                if (item != null)
+                {
+                    // Cập nhật dữ liệu nếu dòng đã tồn tại
+                    for (int i = 0; i < entry.Count; i++)
+                    {
+                        item.SubItems[i].Text = entry[i];
+                    }
+                }
+                else
+                {
+                    // Thêm dòng mới nếu không tồn tại
+                    item = new ListViewItem(entry.ToArray());
+                    lv_client.Items.Add(item);
+                }
             }
-            // Thêm một dòng mới vào DataGridView
-
         }
+
+        private void AddRow(DataGridView dataGridView, List<string> entry)
+        {
+            dataGridView.Rows.Add(entry.ToArray());
+        }
+
+        private void UpdateRow(DataGridViewRow row, List<string> entry)
+        {
+            row.Cells["tenmay"].Value = entry[0];
+            row.Cells["Ocung"].Value = entry[1];
+            row.Cells["cpu"].Value = entry[2];
+            row.Cells["ram"].Value = entry[3];
+            row.Cells["mssv"].Value = entry[4];
+            row.Cells["IPC"].Value = entry[5];
+            row.Cells["chuot"].Value = entry[6];
+            row.Cells["banphim"].Value = entry[7];
+            row.Cells["manhinh"].Value = entry[8];
+        }
+
+
+        private void SlideShowClick(object sender, EventArgs e)
+        {
+            // Tạo và bắt đầu một luồng mới
+            string message = "SlideShow";
+            byte[] messageData = Encoding.UTF8.GetBytes(message);
+            foreach (ListViewItem item in lv_client.Items)
+            {
+                // Lấy địa chỉ IP từ cột IPC
+                Console.WriteLine(item.SubItems[5].Text);
+                string clientIP = item.SubItems[5].Text;
+
+                // Kiểm tra xem địa chỉ IP có hợp lệ không
+                if (IsValidIPAddress(clientIP))
+                {
+                    // Tạo kết nối tới client
+                    Console.WriteLine("IP HOP LE");
+                    TcpClient client = new TcpClient(clientIP, 8888);
+                    NetworkStream stream = client.GetStream();
+                    stream.Write(messageData, 0, messageData.Length); // Gửi thông điệp
+                }
+            }
+            //Thread screenshotThread = new Thread(new ThreadStart(CaptureAndSendScreenshot));
+            //screenshotThread.Start();
+        }
+
+        private void CaptureAndSendScreenshot()
+        {
+            // Lặp qua từng mục trong ListView
+            foreach (ListViewItem item in lv_client.Items)
+            {
+                // Lấy địa chỉ IP từ cột IPC
+                string clientIP = item.SubItems["IPC"].Text;
+
+                // Kiểm tra xem địa chỉ IP có hợp lệ không
+                if (IsValidIPAddress(clientIP))
+                {
+                    // Tạo kết nối tới client
+                    TcpClient client = new TcpClient(clientIP, 8888);
+
+                    // Chụp màn hình
+                    Bitmap screenshot = new Bitmap(Screen.PrimaryScreen.Bounds.Width, Screen.PrimaryScreen.Bounds.Height);
+                    Graphics graphics = Graphics.FromImage(screenshot as Image);
+                    graphics.CopyFromScreen(0, 0, 0, 0, screenshot.Size);
+
+                    // Chuyển đổi hình ảnh thành mảng byte
+                    ImageConverter converter = new ImageConverter();
+                    byte[] imageData = (byte[])converter.ConvertTo(screenshot, typeof(byte[]));
+
+                    // Gửi dữ liệu màn hình tới client
+                    NetworkStream stream = client.GetStream();
+                    stream.Write(imageData, 0, imageData.Length);
+
+                    // Đóng kết nối
+                    client.Close();
+                }
+            }
+        }
+
+        private bool IsValidIPAddress(string ipAddress)
+        {
+            IPAddress tempIPAddress;
+            return IPAddress.TryParse(ipAddress, out tempIPAddress);
+        }
+
 
         private void Lock_Click(object sender, EventArgs e)
         {
-            // Lấy thông tin máy Client đã chọn từ DataGridView
-            string selectedIPAddress = dgv_lst_client.SelectedRows[0].Cells["IPC"].Value.ToString();
 
-            // Gửi yêu cầu khóa tới máy Client
-            SendLockRequestToClient(selectedIPAddress);
-
-        
         }
+
         private void SendLockRequestToClient(string ipAddress)
         {
             try
@@ -269,15 +453,67 @@ namespace Server
                 // Đóng kết nối
                 //stream.Close();
                 client.Close();
-            }catch(Exception e)
+            }
+            catch (Exception e)
             {
-                MessageBox.Show("Mất kết nối với máy khách","Cảnh báo",MessageBoxButtons.OK,MessageBoxIcon.Warning);
+                MessageBox.Show("Mất kết nối với máy khách", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
         }
 
         private void refresh_Click(object sender, EventArgs e)
         {
             sendAllIPInLan();
+        }
+
+        private void toolStripButton6_Click(object sender, EventArgs e)
+        {
+            lv_client.Items.Clear();
+            isFullInfoMode = !isFullInfoMode;
+            LogElementFromList(fullInfoList, 0, 3);
+            LogElementFromList(summaryInfoList, 0, 3);
+            List<List<string>> targetList = isFullInfoMode ? fullInfoList : summaryInfoList;
+            foreach (List<string> entry in targetList)
+            {
+                lv_client.Items.Add(new ListViewItem(entry.ToArray()));
+            }
+        }
+        private void LogElementFromList(List<List<string>> myList, int rowIndex, int colIndex)
+        {
+            if (rowIndex < 0 || rowIndex >= myList.Count)
+            {
+                Console.WriteLine("Index hàng nằm ngoài phạm vi của danh sách.");
+                return;
+            }
+
+            List<string> row = myList[rowIndex];
+            if (colIndex < 0 || colIndex >= row.Count)
+            {
+                Console.WriteLine("Index cột nằm ngoài phạm vi của hàng này.");
+                return;
+            }
+
+            string element = row[colIndex];
+            Console.WriteLine("Phần tử ở hàng {0}, cột {1} là: {2}", rowIndex, colIndex, element);
+        }
+
+        private void lv_client_MouseClick(object sender, MouseEventArgs e)
+        {
+
+            Console.WriteLine("Nhan chuot");
+            if (e.Button == MouseButtons.Right)
+            {
+                Console.WriteLine("Chuot phai ne");
+                // Xác định vị trí của chuột trên ListView
+                Point clickPoint = lv_client.PointToClient(new Point(e.X, e.Y));
+
+                // Hiển thị ContextMenuStrip tại vị trí của chuột
+                contextMenuStrip.Show(lv_client, e.Location);
+            }
+        }
+
+        private void lv_client_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
         }
     }
 }

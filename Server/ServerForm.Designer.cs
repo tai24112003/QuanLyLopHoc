@@ -28,7 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
+            this.components = new System.ComponentModel.Container();
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
             this.toolStripSplitButton5 = new System.Windows.Forms.ToolStripSplitButton();
             this.basicMode = new System.Windows.Forms.ToolStripSplitButton();
@@ -36,27 +36,29 @@
             this.registerStudent = new System.Windows.Forms.ToolStripSplitButton();
             this.sendWork = new System.Windows.Forms.ToolStripSplitButton();
             this.toolStripButton5 = new System.Windows.Forms.ToolStripButton();
-            this.Lock = new System.Windows.Forms.ToolStripButton();
             this.unlock = new System.Windows.Forms.ToolStripButton();
             this.quickLauch = new System.Windows.Forms.ToolStripSplitButton();
+            this.switchMode = new System.Windows.Forms.ToolStripButton();
             this.refresh = new System.Windows.Forms.ToolStripButton();
+            this.Lock = new System.Windows.Forms.ToolStripButton();
             this.toolStrip2 = new System.Windows.Forms.ToolStrip();
             this.toolStripButton4 = new System.Windows.Forms.ToolStripButton();
             this.toolStripButton3 = new System.Windows.Forms.ToolStripButton();
             this.toolStripButton2 = new System.Windows.Forms.ToolStripButton();
             this.toolStripButton1 = new System.Windows.Forms.ToolStripButton();
-            this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
-            this.dgv_lst_client = new System.Windows.Forms.DataGridView();
-            this.tenmay = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.Ocung = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.cpu = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.ram = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.mssv = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.IPC = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.tenmay = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.Ocung = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.CPU = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.ram = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.mssv = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.IPC = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.chuot = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.banphim = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.manhinh = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.lv_client = new System.Windows.Forms.ListView();
+            this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.toolStrip1.SuspendLayout();
             this.toolStrip2.SuspendLayout();
-            this.flowLayoutPanel1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.dgv_lst_client)).BeginInit();
             this.SuspendLayout();
             // 
             // toolStrip1
@@ -69,107 +71,151 @@
             this.registerStudent,
             this.sendWork,
             this.toolStripButton5,
-            this.Lock,
             this.unlock,
             this.quickLauch,
-            this.refresh});
+            this.switchMode,
+            this.refresh,
+            this.Lock});
             this.toolStrip1.Location = new System.Drawing.Point(0, 0);
             this.toolStrip1.Name = "toolStrip1";
-            this.toolStrip1.Size = new System.Drawing.Size(1710, 107);
+            this.toolStrip1.Size = new System.Drawing.Size(1710, 110);
             this.toolStrip1.TabIndex = 0;
             this.toolStrip1.Text = "toolStrip1";
             // 
             // toolStripSplitButton5
             // 
+            this.toolStripSplitButton5.AutoSize = false;
+            this.toolStripSplitButton5.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+            this.toolStripSplitButton5.Font = new System.Drawing.Font("Segoe UI", 10F);
             this.toolStripSplitButton5.Image = global::Server.Properties.Resources.planning;
+            this.toolStripSplitButton5.ImageAlign = System.Drawing.ContentAlignment.TopCenter;
             this.toolStripSplitButton5.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.toolStripSplitButton5.Margin = new System.Windows.Forms.Padding(10, 1, 10, 2);
             this.toolStripSplitButton5.Name = "toolStripSplitButton5";
-            this.toolStripSplitButton5.Size = new System.Drawing.Size(119, 104);
+            this.toolStripSplitButton5.Size = new System.Drawing.Size(134, 107);
             this.toolStripSplitButton5.Text = "Manage Class";
             this.toolStripSplitButton5.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
             // 
             // basicMode
             // 
+            this.basicMode.AutoSize = false;
+            this.basicMode.Font = new System.Drawing.Font("Segoe UI", 10F);
             this.basicMode.Image = global::Server.Properties.Resources.application;
             this.basicMode.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.basicMode.Margin = new System.Windows.Forms.Padding(10, 1, 10, 2);
             this.basicMode.Name = "basicMode";
-            this.basicMode.Size = new System.Drawing.Size(105, 104);
+            this.basicMode.Size = new System.Drawing.Size(116, 107);
             this.basicMode.Text = "Basic Mode";
             this.basicMode.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
             // 
             // randomStudent
             // 
+            this.randomStudent.AutoSize = false;
+            this.randomStudent.Font = new System.Drawing.Font("Segoe UI", 10F);
             this.randomStudent.Image = global::Server.Properties.Resources.dices;
             this.randomStudent.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.randomStudent.Margin = new System.Windows.Forms.Padding(10, 1, 10, 2);
             this.randomStudent.Name = "randomStudent";
-            this.randomStudent.Size = new System.Drawing.Size(139, 104);
+            this.randomStudent.Size = new System.Drawing.Size(157, 107);
             this.randomStudent.Text = "Random Student";
             this.randomStudent.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
             // 
             // registerStudent
             // 
+            this.registerStudent.AutoSize = false;
+            this.registerStudent.Font = new System.Drawing.Font("Segoe UI", 10F);
             this.registerStudent.Image = global::Server.Properties.Resources.register;
             this.registerStudent.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.registerStudent.Margin = new System.Windows.Forms.Padding(10, 1, 10, 2);
             this.registerStudent.Name = "registerStudent";
-            this.registerStudent.Size = new System.Drawing.Size(128, 104);
+            this.registerStudent.Size = new System.Drawing.Size(144, 107);
             this.registerStudent.Text = "Register Stuent";
             this.registerStudent.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
             // 
             // sendWork
             // 
+            this.sendWork.AutoSize = false;
+            this.sendWork.Font = new System.Drawing.Font("Segoe UI", 10F);
             this.sendWork.Image = global::Server.Properties.Resources.portfolio;
             this.sendWork.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.sendWork.Margin = new System.Windows.Forms.Padding(10, 1, 10, 2);
             this.sendWork.Name = "sendWork";
-            this.sendWork.Size = new System.Drawing.Size(148, 104);
+            this.sendWork.Size = new System.Drawing.Size(166, 107);
             this.sendWork.Text = "Send/Recive Work";
             this.sendWork.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
             // 
             // toolStripButton5
             // 
+            this.toolStripButton5.AutoSize = false;
+            this.toolStripButton5.Font = new System.Drawing.Font("Segoe UI", 10F);
             this.toolStripButton5.Image = global::Server.Properties.Resources._lock;
             this.toolStripButton5.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.toolStripButton5.Margin = new System.Windows.Forms.Padding(10, 1, 10, 2);
             this.toolStripButton5.Name = "toolStripButton5";
-            this.toolStripButton5.Size = new System.Drawing.Size(84, 104);
+            this.toolStripButton5.Size = new System.Drawing.Size(84, 107);
             this.toolStripButton5.Text = "Lock";
             this.toolStripButton5.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
             // 
-            // Lock
-            // 
-            this.Lock.Image = global::Server.Properties.Resources._lock;
-            this.Lock.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.Lock.Name = "Lock";
-            this.Lock.Size = new System.Drawing.Size(103, 104);
-            this.Lock.Text = "Lock Network";
-            this.Lock.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
-            this.Lock.Click += new System.EventHandler(this.Lock_Click);
-            // 
             // unlock
             // 
+            this.unlock.AutoSize = false;
+            this.unlock.Font = new System.Drawing.Font("Segoe UI", 10F);
             this.unlock.Image = global::Server.Properties.Resources.unlock;
             this.unlock.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.unlock.Margin = new System.Windows.Forms.Padding(10, 1, 10, 2);
             this.unlock.Name = "unlock";
-            this.unlock.Size = new System.Drawing.Size(84, 104);
+            this.unlock.Size = new System.Drawing.Size(84, 107);
             this.unlock.Text = "Unlock";
             this.unlock.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
             // 
             // quickLauch
             // 
+            this.quickLauch.AutoSize = false;
+            this.quickLauch.Font = new System.Drawing.Font("Segoe UI", 10F);
             this.quickLauch.Image = global::Server.Properties.Resources.send;
             this.quickLauch.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.quickLauch.Margin = new System.Windows.Forms.Padding(10, 1, 10, 2);
             this.quickLauch.Name = "quickLauch";
-            this.quickLauch.Size = new System.Drawing.Size(107, 104);
+            this.quickLauch.Size = new System.Drawing.Size(122, 107);
             this.quickLauch.Text = "Quick Lauch";
             this.quickLauch.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
             // 
+            // switchMode
+            // 
+            this.switchMode.Font = new System.Drawing.Font("Segoe UI", 10F);
+            this.switchMode.Image = global::Server.Properties.Resources.loading_arrow;
+            this.switchMode.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.switchMode.Margin = new System.Windows.Forms.Padding(10, 1, 10, 2);
+            this.switchMode.Name = "switchMode";
+            this.switchMode.Size = new System.Drawing.Size(112, 107);
+            this.switchMode.Text = "Switch Mode";
+            this.switchMode.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
+            this.switchMode.Click += new System.EventHandler(this.toolStripButton6_Click);
+            // 
             // refresh
             // 
+            this.refresh.Font = new System.Drawing.Font("Segoe UI", 10F);
             this.refresh.Image = global::Server.Properties.Resources.loading_arrow;
             this.refresh.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.refresh.Margin = new System.Windows.Forms.Padding(10, 1, 10, 2);
             this.refresh.Name = "refresh";
-            this.refresh.Size = new System.Drawing.Size(84, 104);
+            this.refresh.Size = new System.Drawing.Size(84, 107);
             this.refresh.Text = "Refresh";
             this.refresh.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
             this.refresh.Click += new System.EventHandler(this.refresh_Click);
+            // 
+            // Lock
+            // 
+            this.Lock.AutoSize = false;
+            this.Lock.Font = new System.Drawing.Font("Segoe UI", 10F);
+            this.Lock.Image = global::Server.Properties.Resources.slide_show;
+            this.Lock.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.Lock.Margin = new System.Windows.Forms.Padding(10, 1, 10, 2);
+            this.Lock.Name = "Lock";
+            this.Lock.Size = new System.Drawing.Size(117, 107);
+            this.Lock.Text = "Lock Network";
+            this.Lock.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
+            this.Lock.Click += new System.EventHandler(this.SlideShowClick);
             // 
             // toolStrip2
             // 
@@ -180,130 +226,128 @@
             this.toolStripButton3,
             this.toolStripButton2,
             this.toolStripButton1});
-            this.toolStrip2.Location = new System.Drawing.Point(0, 107);
+            this.toolStrip2.Location = new System.Drawing.Point(0, 110);
             this.toolStrip2.Name = "toolStrip2";
-            this.toolStrip2.Size = new System.Drawing.Size(105, 716);
+            this.toolStrip2.Size = new System.Drawing.Size(51, 713);
             this.toolStrip2.TabIndex = 1;
             this.toolStrip2.Text = "toolStrip2";
             // 
             // toolStripButton4
             // 
+            this.toolStripButton4.AutoSize = false;
             this.toolStripButton4.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
             this.toolStripButton4.Image = global::Server.Properties.Resources.home;
+            this.toolStripButton4.ImageAlign = System.Drawing.ContentAlignment.TopCenter;
             this.toolStripButton4.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.toolStripButton4.Margin = new System.Windows.Forms.Padding(0);
             this.toolStripButton4.Name = "toolStripButton4";
-            this.toolStripButton4.Size = new System.Drawing.Size(102, 104);
+            this.toolStripButton4.Size = new System.Drawing.Size(50, 50);
             this.toolStripButton4.Text = "Refresh";
             this.toolStripButton4.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
             // 
             // toolStripButton3
             // 
+            this.toolStripButton3.AutoSize = false;
             this.toolStripButton3.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
             this.toolStripButton3.Image = global::Server.Properties.Resources.keyboard;
+            this.toolStripButton3.ImageAlign = System.Drawing.ContentAlignment.TopCenter;
             this.toolStripButton3.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolStripButton3.Name = "toolStripButton3";
-            this.toolStripButton3.Size = new System.Drawing.Size(102, 104);
+            this.toolStripButton3.Size = new System.Drawing.Size(50, 50);
             this.toolStripButton3.Text = "Refresh";
             this.toolStripButton3.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
             // 
             // toolStripButton2
             // 
+            this.toolStripButton2.AutoSize = false;
             this.toolStripButton2.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
             this.toolStripButton2.Image = global::Server.Properties.Resources.world_wide_web;
+            this.toolStripButton2.ImageAlign = System.Drawing.ContentAlignment.TopCenter;
             this.toolStripButton2.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolStripButton2.Name = "toolStripButton2";
-            this.toolStripButton2.Size = new System.Drawing.Size(102, 104);
+            this.toolStripButton2.Size = new System.Drawing.Size(50, 50);
             this.toolStripButton2.Text = "Refresh";
             this.toolStripButton2.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
             // 
             // toolStripButton1
             // 
+            this.toolStripButton1.AutoSize = false;
             this.toolStripButton1.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
             this.toolStripButton1.Image = global::Server.Properties.Resources.monitor;
+            this.toolStripButton1.ImageAlign = System.Drawing.ContentAlignment.TopCenter;
             this.toolStripButton1.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolStripButton1.Name = "toolStripButton1";
-            this.toolStripButton1.Size = new System.Drawing.Size(102, 104);
+            this.toolStripButton1.Size = new System.Drawing.Size(50, 50);
             this.toolStripButton1.Text = "Refresh";
             this.toolStripButton1.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
             // 
-            // flowLayoutPanel1
-            // 
-            this.flowLayoutPanel1.Controls.Add(this.dgv_lst_client);
-            this.flowLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.flowLayoutPanel1.Location = new System.Drawing.Point(105, 107);
-            this.flowLayoutPanel1.Name = "flowLayoutPanel1";
-            this.flowLayoutPanel1.Size = new System.Drawing.Size(1605, 716);
-            this.flowLayoutPanel1.TabIndex = 2;
-            // 
-            // dgv_lst_client
-            // 
-            this.dgv_lst_client.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.dgv_lst_client.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dgv_lst_client.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
-            this.tenmay,
-            this.Ocung,
-            this.cpu,
-            this.ram,
-            this.mssv,
-            this.IPC});
-            dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle1.BackColor = System.Drawing.SystemColors.Window;
-            dataGridViewCellStyle1.Font = new System.Drawing.Font("Microsoft Sans Serif", 8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            dataGridViewCellStyle1.ForeColor = System.Drawing.SystemColors.ControlText;
-            dataGridViewCellStyle1.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-            dataGridViewCellStyle1.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            dataGridViewCellStyle1.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
-            this.dgv_lst_client.DefaultCellStyle = dataGridViewCellStyle1;
-            this.dgv_lst_client.Location = new System.Drawing.Point(3, 2);
-            this.dgv_lst_client.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.dgv_lst_client.Name = "dgv_lst_client";
-            this.dgv_lst_client.RowHeadersWidth = 62;
-            this.dgv_lst_client.RowTemplate.Height = 28;
-            this.dgv_lst_client.Size = new System.Drawing.Size(1783, 730);
-            this.dgv_lst_client.TabIndex = 0;
-            // 
             // tenmay
             // 
-            this.tenmay.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
-            this.tenmay.HeaderText = "Tên máy";
-            this.tenmay.MinimumWidth = 8;
-            this.tenmay.Name = "tenmay";
+            this.tenmay.Text = "Tên Máy";
             // 
             // Ocung
             // 
-            this.Ocung.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
-            this.Ocung.HeaderText = "Ổ cứng";
-            this.Ocung.MinimumWidth = 8;
-            this.Ocung.Name = "Ocung";
+            this.Ocung.Text = "Ổ Cứng";
             // 
-            // cpu
+            // CPU
             // 
-            this.cpu.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
-            this.cpu.HeaderText = "CPU";
-            this.cpu.MinimumWidth = 8;
-            this.cpu.Name = "cpu";
+            this.CPU.Text = "CPU";
             // 
             // ram
             // 
-            this.ram.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
-            this.ram.HeaderText = "RAM";
-            this.ram.MinimumWidth = 8;
-            this.ram.Name = "ram";
+            this.ram.Text = "Ram";
             // 
             // mssv
             // 
-            this.mssv.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
-            this.mssv.HeaderText = "MSSV";
-            this.mssv.MinimumWidth = 8;
-            this.mssv.Name = "mssv";
+            this.mssv.Text = "MSSV";
             // 
             // IPC
             // 
-            this.IPC.HeaderText = "IPC";
-            this.IPC.MinimumWidth = 8;
-            this.IPC.Name = "IPC";
-            this.IPC.Visible = false;
-            this.IPC.Width = 150;
+            this.IPC.Text = "IPC";
+            this.IPC.Width = 0;
+            // 
+            // chuot
+            // 
+            this.chuot.Text = "Chuột";
+            // 
+            // banphim
+            // 
+            this.banphim.Text = "Bàn Phím";
+            // 
+            // manhinh
+            // 
+            this.manhinh.Text = "Màn Hình";
+            // 
+            // lv_client
+            // 
+            this.lv_client.CausesValidation = false;
+            this.lv_client.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
+            this.tenmay,
+            this.Ocung,
+            this.CPU,
+            this.ram,
+            this.mssv,
+            this.IPC,
+            this.chuot,
+            this.banphim,
+            this.manhinh});
+            this.lv_client.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.lv_client.FullRowSelect = true;
+            this.lv_client.HideSelection = false;
+            this.lv_client.Location = new System.Drawing.Point(51, 110);
+            this.lv_client.Name = "lv_client";
+            this.lv_client.Size = new System.Drawing.Size(1659, 713);
+            this.lv_client.TabIndex = 2;
+            this.lv_client.UseCompatibleStateImageBehavior = false;
+            this.lv_client.View = System.Windows.Forms.View.Details;
+            this.lv_client.SelectedIndexChanged += new System.EventHandler(this.lv_client_SelectedIndexChanged);
+            this.lv_client.MouseClick += new System.Windows.Forms.MouseEventHandler(this.lv_client_MouseClick);
+            // 
+            // contextMenuStrip1
+            // 
+            this.contextMenuStrip1.ImageScalingSize = new System.Drawing.Size(20, 20);
+            this.contextMenuStrip1.Name = "contextMenuStrip1";
+            this.contextMenuStrip1.Size = new System.Drawing.Size(61, 4);
             // 
             // svForm
             // 
@@ -311,7 +355,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoSize = true;
             this.ClientSize = new System.Drawing.Size(1710, 823);
-            this.Controls.Add(this.flowLayoutPanel1);
+            this.Controls.Add(this.lv_client);
             this.Controls.Add(this.toolStrip2);
             this.Controls.Add(this.toolStrip1);
             this.Name = "svForm";
@@ -323,8 +367,6 @@
             this.toolStrip1.PerformLayout();
             this.toolStrip2.ResumeLayout(false);
             this.toolStrip2.PerformLayout();
-            this.flowLayoutPanel1.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.dgv_lst_client)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -347,15 +389,19 @@
         private System.Windows.Forms.ToolStripButton toolStripButton4;
         private System.Windows.Forms.ToolStripButton toolStripButton3;
         private System.Windows.Forms.ToolStripButton toolStripButton2;
-        private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel1;
-        private System.Windows.Forms.DataGridView dgv_lst_client;
-        private System.Windows.Forms.DataGridViewTextBoxColumn tenmay;
-        private System.Windows.Forms.DataGridViewTextBoxColumn Ocung;
-        private System.Windows.Forms.DataGridViewTextBoxColumn cpu;
-        private System.Windows.Forms.DataGridViewTextBoxColumn ram;
-        private System.Windows.Forms.DataGridViewTextBoxColumn mssv;
-        private System.Windows.Forms.DataGridViewTextBoxColumn IPC;
         private System.Windows.Forms.ToolStripButton toolStripButton5;
+        private System.Windows.Forms.ToolStripButton switchMode;
+        private System.Windows.Forms.ColumnHeader tenmay;
+        private System.Windows.Forms.ColumnHeader Ocung;
+        private System.Windows.Forms.ColumnHeader CPU;
+        private System.Windows.Forms.ColumnHeader ram;
+        private System.Windows.Forms.ColumnHeader mssv;
+        private System.Windows.Forms.ColumnHeader IPC;
+        private System.Windows.Forms.ColumnHeader chuot;
+        private System.Windows.Forms.ColumnHeader banphim;
+        private System.Windows.Forms.ColumnHeader manhinh;
+        private System.Windows.Forms.ListView lv_client;
+        private System.Windows.Forms.ContextMenuStrip contextMenuStrip1;
     }
 }
 

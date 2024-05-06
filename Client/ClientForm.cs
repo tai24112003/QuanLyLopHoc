@@ -40,24 +40,24 @@ namespace testUdpTcp
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            Console.WriteLine("vao form");
+            
             udpClient = new UdpClient(11312);
             udpReceiverThread = new Thread(new ThreadStart(ReceiveDataOnce));
             udpReceiverThread.Start();
             udpReceiverThread.Join();
             updateBox();
-            Console.WriteLine("Da Gui info");
+            
             listenThread = new Thread(new ThreadStart(ListenForClients));
             listenThread.Start();
 
         }
         private void ListenForClients()
         {
-            Console.WriteLine("akaj");
+            
             listener = new TcpListener(IPAddress.Parse(myIp), 8888);
             listener.Start();
 
-            Console.WriteLine("Server is listening for clients...");
+            Console.WriteLine("Client is listening...");
             while (true)
             {
                 try
@@ -65,7 +65,7 @@ namespace testUdpTcp
 
                     TcpClient client = listener.AcceptTcpClient();
                     // Bạn có thể xử lý kết nối client ở đây
-                    Console.WriteLine("lụm");
+                    
                     HandleClient(client);
 
                 }
@@ -87,13 +87,18 @@ namespace testUdpTcp
             {
                 // Xử lý dữ liệu nhận được từ client
                 receivedMessage += Encoding.UTF8.GetString(messageBuffer, 0, bytesRead);
-                Console.WriteLine(receivedMessage);
+                
 
             }
 
             switch (receivedMessage)
             {
                 case "LOCK_ACCESS": LockWeb(); Console.WriteLine("nhan dc tin hieu"); break;
+                case "SlideShow":
+                    Console.WriteLine("Nhan SlideShow");
+                    Thread t = new Thread(() => Application.Run(new SlideShowForm()));
+                    t.Start();
+                    break;
             }
             tcpClient.Close();
 
@@ -166,7 +171,7 @@ namespace testUdpTcp
 
         private void ReceiveDataOnce()
         {
-            Console.WriteLine("Vo luon r1");
+            
             try
             {
                 IPEndPoint remoteEndPoint = new IPEndPoint(IPAddress.Any, 0);
@@ -199,14 +204,62 @@ namespace testUdpTcp
                 label1.Text = message;
             }
         }
+        List<string> stringList = new List<string>();
+        public static bool HasDevice(string strtype)
+{
+    ManagementObjectSearcher searcher = new ManagementObjectSearcher("root\\CIMV2", "SELECT * FROM Win32_" + strtype);
+
+    foreach (ManagementObject mobj in searcher.Get())
+    {
+        // Kiểm tra xem trường "Name" có giá trị hay không để xác định thiết bị có sẵn và hoạt động
+        if (!string.IsNullOrEmpty(mobj["Name"] as string))
+        {
+            return true; // Thiết bị có sẵn và hoạt động
+        }
+    }
+
+    return false; // Không tìm thấy thiết bị hoặc không hoạt động
+}
+
         private List<string> GetDeviceInfo()
         {
-            List<string> stringList = new List<string>();
+            stringList.Add($"InfoClient-");
+
             // Lấy thông tin về tên máy
             string machineName = Environment.MachineName;
             stringList.Add($"IPC: {myIp}");
-            stringList.Add($"Tenmay: {machineName}Ocung: ");
+            stringList.Add($"Tenmay: {machineName}");
+
+            // Kiểm tra kết nối chuột
+            if (HasDevice("PointingDevice"))
+            {
+                stringList.Add("Chuot: Đã kết nối");
+            }
+            else
+            {
+                stringList.Add("Chuot: Không kết nối");
+            }
+
            
+            if (HasDevice("Keyboard"))
+            {
+                stringList.Add("Banphim: Đã kết nối");
+            }
+            else
+            {
+                stringList.Add("Banphim: Không kết nối");
+            }
+
+            Screen[] screens = Screen.AllScreens;
+            if (screens.Length == 1 && screens[0].Primary)
+            {
+                stringList.Add("Manhinh: Đã kết nối");
+            }
+            else
+            {
+                stringList.Add("Manhinh: Không kết nối");
+            }
+            stringList.Add($"Ocung: ");
 
             // Lấy thông tin về ổ cứng
             DriveInfo[] drives = DriveInfo.GetDrives();
@@ -214,9 +267,9 @@ namespace testUdpTcp
             {
                 if (drive.IsReady)
                 {
-                    stringList.Add($"{drive.Name}, Dungluong: {drive.TotalSize / (1024 * 1024)} MB");
+                    stringList.Add($"{drive.Name}, {drive.TotalSize / (1024 * 1024 * 1024)} GB\n");
                 }
-               
+
             }
 
             ManagementObjectSearcher searcher = new ManagementObjectSearcher("SELECT * FROM Win32_Processor");
@@ -226,11 +279,9 @@ namespace testUdpTcp
             foreach (ManagementObject obj in searcher.Get())
             {
                 // In ra một số thông tin CPU
-                
                 stringList.Add($"{obj["Name"]}\n");
-
-
             }
+
             stringList.Add($"RAM: ");
             searcher = new ManagementObjectSearcher("SELECT * FROM Win32_PhysicalMemory");
             foreach (ManagementObject obj in searcher.Get())
@@ -240,6 +291,7 @@ namespace testUdpTcp
             stringList.Add("MSSV: ");
             return stringList;
         }
+
 
         private void listBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
@@ -291,7 +343,7 @@ namespace testUdpTcp
 
         private void sendInfToServer()
         {
-            Console.WriteLine("Gui thong tin may");
+            
             sended = false;
             try
             {
@@ -299,7 +351,7 @@ namespace testUdpTcp
                 {
                     // Tạo đối tượng TcpClient để kết nối đến server
                     TcpClient client = new TcpClient(IpServer, 8765);
-                    Console.WriteLine(string.Join("", inf.ToArray()));
+                    //Console.WriteLine("Send: "+string.Join("", inf.ToArray()));
                     //// Lấy luồng mạng từ TcpClient
                     NetworkStream stream = client.GetStream();
                     SendData(stream, string.Join("", inf.ToArray()));

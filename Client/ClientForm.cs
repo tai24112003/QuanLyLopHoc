@@ -95,9 +95,13 @@ namespace testUdpTcp
             {
                 case "LOCK_ACCESS": LockWeb(); Console.WriteLine("nhan dc tin hieu"); break;
                 case "SlideShow":
-                    Console.WriteLine("Nhan SlideShow");
-                    Thread t = new Thread(() => Application.Run(new SlideShowForm()));
-                    t.Start();
+                    SlideShowForm slideShowForm = new SlideShowForm();
+
+                    // Gán địa chỉ IP của máy chủ từ ClientForm sang SlideShowForm
+                    slideShowForm.ServerIP = IpServer;
+
+                    // Hiển thị SlideShowForm
+                    slideShowForm.Show();
                     break;
             }
             tcpClient.Close();

@@ -35,15 +35,15 @@ namespace Server
             InitializeComponent();
             Ip = getIPServer();
             InitializeContextMenu();
-            
+
             smallImageList = new ImageList();
             largeImageList = new ImageList();
             // Thêm biểu tượng "user" vào ImageList
             largeImageList.ImageSize = new Size(100, 100);
             smallImageList.Images.Add("user", Properties.Resources.user);
             largeImageList.Images.Add("user", Properties.Resources.user);
-            lv_client.SmallImageList=smallImageList;
-            lv_client.LargeImageList=largeImageList;
+            lv_client.SmallImageList = smallImageList;
+            lv_client.LargeImageList = largeImageList;
         }
 
         private void Form1_Load(object sender, EventArgs e)
@@ -240,8 +240,13 @@ namespace Server
             {
                 ReciveInfo(tmp[1]);
             }
+            else if (tmp[0] == "LOAD_DONE")
+            {
+                Thread screenshotThread = new Thread(new ThreadStart(CaptureAndSendScreenshot));
+                screenshotThread.Start();
+            }
 
-            
+
             // Đóng kết nối khi client đóng kết nối
             tcpClient.Close();
         }
@@ -250,7 +255,7 @@ namespace Server
         {
             Console.WriteLine(info);
             string[] infC = info.Split(new string[] { "Tenmay: ", "MSSV: ", "Ocung: ", "CPU: ", "RAM: ", "IPC: ", "Chuot: ", "Banphim: ", "Manhinh: " }, StringSplitOptions.None);
-           
+
             //Tạo danh sách mới
             List<string> newEntry = new List<string>();
             //Thêm thông tin vào danh sách mới
@@ -287,7 +292,7 @@ namespace Server
             // Hiển thị dữ liệu trên DataGridView
             if (!isFullInfoMode)
                 AddOrUpdateRowToListView(newEntry);
-            
+
 
         }
         private void AddOrUpdateRowToListView(List<string> entry)
@@ -371,8 +376,7 @@ namespace Server
 
         private void SlideShowClick(object sender, EventArgs e)
         {
-            // Tạo và bắt đầu một luồng mới
-            string message = "SlideShow";
+            string message = "SLIDESHOW";
             byte[] messageData = Encoding.UTF8.GetBytes(message);
             foreach (ListViewItem item in lv_client.Items)
             {
@@ -390,8 +394,6 @@ namespace Server
                     stream.Write(messageData, 0, messageData.Length); // Gửi thông điệp
                 }
             }
-            //Thread screenshotThread = new Thread(new ThreadStart(CaptureAndSendScreenshot));
-            //screenshotThread.Start();
         }
 
         private void CaptureAndSendScreenshot()
@@ -406,26 +408,36 @@ namespace Server
                 if (IsValidIPAddress(clientIP))
                 {
                     // Tạo kết nối tới client
-                    TcpClient client = new TcpClient(clientIP, 8888);
+                    using (TcpClient client = new TcpClient(clientIP, 8888))
+                    {
+                        // Gửi tín hiệu "PicSS-" tới client
+                        byte[] signalBytes = Encoding.UTF8.GetBytes("PicSS-");
+                        NetworkStream signalStream = client.GetStream();
+                        signalStream.Write(signalBytes, 0, signalBytes.Length);
 
-                    // Chụp màn hình
-                    Bitmap screenshot = new Bitmap(Screen.PrimaryScreen.Bounds.Width, Screen.PrimaryScreen.Bounds.Height);
-                    Graphics graphics = Graphics.FromImage(screenshot as Image);
-                    graphics.CopyFromScreen(0, 0, 0, 0, screenshot.Size);
+                        // Chụp màn hình
+                        using (Bitmap screenshot = new Bitmap(Screen.PrimaryScreen.Bounds.Width, Screen.PrimaryScreen.Bounds.Height))
+                        {
+                            using (Graphics graphics = Graphics.FromImage(screenshot as Image))
+                            {
+                                graphics.CopyFromScreen(0, 0, 0, 0, screenshot.Size);
 
-                    // Chuyển đổi hình ảnh thành mảng byte
-                    ImageConverter converter = new ImageConverter();
-                    byte[] imageData = (byte[])converter.ConvertTo(screenshot, typeof(byte[]));
+                                // Chuyển đổi hình ảnh thành mảng byte
+                                ImageConverter converter = new ImageConverter();
+                                byte[] imageData = (byte[])converter.ConvertTo(screenshot, typeof(byte[]));
 
-                    // Gửi dữ liệu màn hình tới client
-                    NetworkStream stream = client.GetStream();
-                    stream.Write(imageData, 0, imageData.Length);
-
-                    // Đóng kết nối
-                    client.Close();
+                                // Gửi dữ liệu màn hình tới client
+                                using (NetworkStream stream = client.GetStream())
+                                {
+                                    stream.Write(imageData, 0, imageData.Length);
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
+
 
         private bool IsValidIPAddress(string ipAddress)
         {
@@ -433,11 +445,6 @@ namespace Server
             return IPAddress.TryParse(ipAddress, out tempIPAddress);
         }
 
-
-        private void Lock_Click(object sender, EventArgs e)
-        {
-
-        }
 
         private void SendLockRequestToClient(string ipAddress)
         {

@@ -35,12 +35,13 @@
             this.randomStudent = new System.Windows.Forms.ToolStripSplitButton();
             this.registerStudent = new System.Windows.Forms.ToolStripSplitButton();
             this.sendWork = new System.Windows.Forms.ToolStripSplitButton();
-            this.toolStripButton5 = new System.Windows.Forms.ToolStripButton();
-            this.unlock = new System.Windows.Forms.ToolStripButton();
+            this.sendFileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.reciveFileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripButton6 = new System.Windows.Forms.ToolStripButton();
             this.quickLauch = new System.Windows.Forms.ToolStripSplitButton();
             this.switchMode = new System.Windows.Forms.ToolStripButton();
-            this.refresh = new System.Windows.Forms.ToolStripButton();
-            this.Lock = new System.Windows.Forms.ToolStripButton();
+            this.SlideShow = new System.Windows.Forms.ToolStripButton();
+            this.StopSlideShow = new System.Windows.Forms.ToolStripButton();
             this.toolStrip2 = new System.Windows.Forms.ToolStrip();
             this.toolStripButton4 = new System.Windows.Forms.ToolStripButton();
             this.toolStripButton3 = new System.Windows.Forms.ToolStripButton();
@@ -63,6 +64,7 @@
             // 
             // toolStrip1
             // 
+            this.toolStrip1.AutoSize = false;
             this.toolStrip1.ImageScalingSize = new System.Drawing.Size(80, 80);
             this.toolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripSplitButton5,
@@ -70,15 +72,14 @@
             this.randomStudent,
             this.registerStudent,
             this.sendWork,
-            this.toolStripButton5,
-            this.unlock,
+            this.toolStripButton6,
             this.quickLauch,
             this.switchMode,
-            this.refresh,
-            this.Lock});
+            this.SlideShow,
+            this.StopSlideShow});
             this.toolStrip1.Location = new System.Drawing.Point(0, 0);
             this.toolStrip1.Name = "toolStrip1";
-            this.toolStrip1.Size = new System.Drawing.Size(1710, 110);
+            this.toolStrip1.Size = new System.Drawing.Size(1028, 80);
             this.toolStrip1.TabIndex = 0;
             this.toolStrip1.Text = "toolStrip1";
             // 
@@ -86,136 +87,143 @@
             // 
             this.toolStripSplitButton5.AutoSize = false;
             this.toolStripSplitButton5.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.toolStripSplitButton5.Font = new System.Drawing.Font("Segoe UI", 10F);
+            this.toolStripSplitButton5.Font = new System.Drawing.Font("Arial", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.toolStripSplitButton5.Image = global::Server.Properties.Resources.planning;
             this.toolStripSplitButton5.ImageAlign = System.Drawing.ContentAlignment.TopCenter;
             this.toolStripSplitButton5.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.toolStripSplitButton5.Margin = new System.Windows.Forms.Padding(10, 1, 10, 2);
+            this.toolStripSplitButton5.Margin = new System.Windows.Forms.Padding(15, 1, 10, 2);
             this.toolStripSplitButton5.Name = "toolStripSplitButton5";
-            this.toolStripSplitButton5.Size = new System.Drawing.Size(134, 107);
+            this.toolStripSplitButton5.Size = new System.Drawing.Size(60, 70);
             this.toolStripSplitButton5.Text = "Manage Class";
             this.toolStripSplitButton5.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
             // 
             // basicMode
             // 
             this.basicMode.AutoSize = false;
-            this.basicMode.Font = new System.Drawing.Font("Segoe UI", 10F);
+            this.basicMode.Font = new System.Drawing.Font("Arial", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.basicMode.Image = global::Server.Properties.Resources.application;
             this.basicMode.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.basicMode.Margin = new System.Windows.Forms.Padding(10, 1, 10, 2);
+            this.basicMode.Margin = new System.Windows.Forms.Padding(15, 1, 10, 2);
             this.basicMode.Name = "basicMode";
-            this.basicMode.Size = new System.Drawing.Size(116, 107);
+            this.basicMode.Size = new System.Drawing.Size(60, 70);
             this.basicMode.Text = "Basic Mode";
             this.basicMode.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
             // 
             // randomStudent
             // 
             this.randomStudent.AutoSize = false;
-            this.randomStudent.Font = new System.Drawing.Font("Segoe UI", 10F);
+            this.randomStudent.Font = new System.Drawing.Font("Arial", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.randomStudent.Image = global::Server.Properties.Resources.dices;
             this.randomStudent.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.randomStudent.Margin = new System.Windows.Forms.Padding(10, 1, 10, 2);
+            this.randomStudent.Margin = new System.Windows.Forms.Padding(15, 1, 10, 2);
             this.randomStudent.Name = "randomStudent";
-            this.randomStudent.Size = new System.Drawing.Size(157, 107);
+            this.randomStudent.Size = new System.Drawing.Size(60, 70);
             this.randomStudent.Text = "Random Student";
             this.randomStudent.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
             // 
             // registerStudent
             // 
             this.registerStudent.AutoSize = false;
-            this.registerStudent.Font = new System.Drawing.Font("Segoe UI", 10F);
+            this.registerStudent.Font = new System.Drawing.Font("Arial", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.registerStudent.Image = global::Server.Properties.Resources.register;
             this.registerStudent.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.registerStudent.Margin = new System.Windows.Forms.Padding(10, 1, 10, 2);
+            this.registerStudent.Margin = new System.Windows.Forms.Padding(15, 1, 10, 2);
             this.registerStudent.Name = "registerStudent";
-            this.registerStudent.Size = new System.Drawing.Size(144, 107);
-            this.registerStudent.Text = "Register Stuent";
+            this.registerStudent.Size = new System.Drawing.Size(60, 70);
+            this.registerStudent.Text = "Register Student";
             this.registerStudent.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
             // 
             // sendWork
             // 
             this.sendWork.AutoSize = false;
-            this.sendWork.Font = new System.Drawing.Font("Segoe UI", 10F);
+            this.sendWork.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.sendFileToolStripMenuItem,
+            this.reciveFileToolStripMenuItem});
+            this.sendWork.Font = new System.Drawing.Font("Arial", 6.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.sendWork.Image = global::Server.Properties.Resources.portfolio;
             this.sendWork.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.sendWork.Margin = new System.Windows.Forms.Padding(10, 1, 10, 2);
+            this.sendWork.Margin = new System.Windows.Forms.Padding(15, 1, 10, 2);
             this.sendWork.Name = "sendWork";
-            this.sendWork.Size = new System.Drawing.Size(166, 107);
+            this.sendWork.Size = new System.Drawing.Size(70, 70);
             this.sendWork.Text = "Send/Recive Work";
             this.sendWork.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
             // 
-            // toolStripButton5
+            // sendFileToolStripMenuItem
             // 
-            this.toolStripButton5.AutoSize = false;
-            this.toolStripButton5.Font = new System.Drawing.Font("Segoe UI", 10F);
-            this.toolStripButton5.Image = global::Server.Properties.Resources._lock;
-            this.toolStripButton5.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.toolStripButton5.Margin = new System.Windows.Forms.Padding(10, 1, 10, 2);
-            this.toolStripButton5.Name = "toolStripButton5";
-            this.toolStripButton5.Size = new System.Drawing.Size(84, 107);
-            this.toolStripButton5.Text = "Lock";
-            this.toolStripButton5.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
+            this.sendFileToolStripMenuItem.Name = "sendFileToolStripMenuItem";
+            this.sendFileToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.sendFileToolStripMenuItem.Text = "Send File";
+            this.sendFileToolStripMenuItem.Click += new System.EventHandler(this.sendFileToolStripMenuItem_Click);
             // 
-            // unlock
+            // reciveFileToolStripMenuItem
             // 
-            this.unlock.AutoSize = false;
-            this.unlock.Font = new System.Drawing.Font("Segoe UI", 10F);
-            this.unlock.Image = global::Server.Properties.Resources.unlock;
-            this.unlock.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.unlock.Margin = new System.Windows.Forms.Padding(10, 1, 10, 2);
-            this.unlock.Name = "unlock";
-            this.unlock.Size = new System.Drawing.Size(84, 107);
-            this.unlock.Text = "Unlock";
-            this.unlock.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
+            this.reciveFileToolStripMenuItem.Name = "reciveFileToolStripMenuItem";
+            this.reciveFileToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.reciveFileToolStripMenuItem.Text = "Recive File";
+            this.reciveFileToolStripMenuItem.Click += new System.EventHandler(this.reciveFileToolStripMenuItem_Click);
+            // 
+            // toolStripButton6
+            // 
+            this.toolStripButton6.AutoSize = false;
+            this.toolStripButton6.Font = new System.Drawing.Font("Arial", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.toolStripButton6.Image = global::Server.Properties.Resources._lock;
+            this.toolStripButton6.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.toolStripButton6.Margin = new System.Windows.Forms.Padding(15, 1, 10, 2);
+            this.toolStripButton6.Name = "toolStripButton6";
+            this.toolStripButton6.Size = new System.Drawing.Size(70, 70);
+            this.toolStripButton6.Text = "Lock";
+            this.toolStripButton6.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
             // 
             // quickLauch
             // 
             this.quickLauch.AutoSize = false;
-            this.quickLauch.Font = new System.Drawing.Font("Segoe UI", 10F);
+            this.quickLauch.Font = new System.Drawing.Font("Arial", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.quickLauch.Image = global::Server.Properties.Resources.send;
             this.quickLauch.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.quickLauch.Margin = new System.Windows.Forms.Padding(10, 1, 10, 2);
+            this.quickLauch.Margin = new System.Windows.Forms.Padding(15, 1, 10, 2);
             this.quickLauch.Name = "quickLauch";
-            this.quickLauch.Size = new System.Drawing.Size(122, 107);
+            this.quickLauch.Size = new System.Drawing.Size(60, 70);
             this.quickLauch.Text = "Quick Lauch";
             this.quickLauch.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
             // 
             // switchMode
             // 
-            this.switchMode.Font = new System.Drawing.Font("Segoe UI", 10F);
+            this.switchMode.AutoSize = false;
+            this.switchMode.Font = new System.Drawing.Font("Arial", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.switchMode.Image = global::Server.Properties.Resources.loading_arrow;
             this.switchMode.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.switchMode.Margin = new System.Windows.Forms.Padding(10, 1, 10, 2);
+            this.switchMode.Margin = new System.Windows.Forms.Padding(15, 1, 10, 2);
             this.switchMode.Name = "switchMode";
-            this.switchMode.Size = new System.Drawing.Size(112, 107);
+            this.switchMode.Size = new System.Drawing.Size(50, 70);
             this.switchMode.Text = "Switch Mode";
             this.switchMode.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
             this.switchMode.Click += new System.EventHandler(this.toolStripButton6_Click);
             // 
-            // refresh
+            // SlideShow
             // 
-            this.refresh.Font = new System.Drawing.Font("Segoe UI", 10F);
-            this.refresh.Image = global::Server.Properties.Resources.loading_arrow;
-            this.refresh.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.refresh.Margin = new System.Windows.Forms.Padding(10, 1, 10, 2);
-            this.refresh.Name = "refresh";
-            this.refresh.Size = new System.Drawing.Size(84, 107);
-            this.refresh.Text = "Refresh";
-            this.refresh.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
-            this.refresh.Click += new System.EventHandler(this.refresh_Click);
+            this.SlideShow.AutoSize = false;
+            this.SlideShow.Font = new System.Drawing.Font("Arial", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.SlideShow.Image = global::Server.Properties.Resources.slide_show;
+            this.SlideShow.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.SlideShow.Margin = new System.Windows.Forms.Padding(15, 1, 10, 2);
+            this.SlideShow.Name = "SlideShow";
+            this.SlideShow.Size = new System.Drawing.Size(60, 70);
+            this.SlideShow.Text = "SlideShow";
+            this.SlideShow.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
+            this.SlideShow.Click += new System.EventHandler(this.SlideShowClick);
             // 
-            // Lock
+            // StopSlideShow
             // 
-            this.Lock.AutoSize = false;
-            this.Lock.Font = new System.Drawing.Font("Segoe UI", 10F);
-            this.Lock.Image = global::Server.Properties.Resources.slide_show;
-            this.Lock.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.Lock.Margin = new System.Windows.Forms.Padding(10, 1, 10, 2);
-            this.Lock.Name = "Lock";
-            this.Lock.Size = new System.Drawing.Size(117, 107);
-            this.Lock.Text = "Lock Network";
-            this.Lock.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
-            this.Lock.Click += new System.EventHandler(this.SlideShowClick);
+            this.StopSlideShow.AutoSize = false;
+            this.StopSlideShow.Font = new System.Drawing.Font("Arial", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.StopSlideShow.Image = global::Server.Properties.Resources.slide_show;
+            this.StopSlideShow.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.StopSlideShow.Margin = new System.Windows.Forms.Padding(15, 1, 10, 2);
+            this.StopSlideShow.Name = "StopSlideShow";
+            this.StopSlideShow.Size = new System.Drawing.Size(60, 70);
+            this.StopSlideShow.Text = "Stop SlideShow";
+            this.StopSlideShow.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
+            this.StopSlideShow.Click += new System.EventHandler(this.StopSlideShow_Click);
             // 
             // toolStrip2
             // 
@@ -226,9 +234,9 @@
             this.toolStripButton3,
             this.toolStripButton2,
             this.toolStripButton1});
-            this.toolStrip2.Location = new System.Drawing.Point(0, 110);
+            this.toolStrip2.Location = new System.Drawing.Point(0, 80);
             this.toolStrip2.Name = "toolStrip2";
-            this.toolStrip2.Size = new System.Drawing.Size(51, 713);
+            this.toolStrip2.Size = new System.Drawing.Size(41, 529);
             this.toolStrip2.TabIndex = 1;
             this.toolStrip2.Text = "toolStrip2";
             // 
@@ -241,7 +249,7 @@
             this.toolStripButton4.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolStripButton4.Margin = new System.Windows.Forms.Padding(0);
             this.toolStripButton4.Name = "toolStripButton4";
-            this.toolStripButton4.Size = new System.Drawing.Size(50, 50);
+            this.toolStripButton4.Size = new System.Drawing.Size(40, 40);
             this.toolStripButton4.Text = "Refresh";
             this.toolStripButton4.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
             // 
@@ -253,7 +261,7 @@
             this.toolStripButton3.ImageAlign = System.Drawing.ContentAlignment.TopCenter;
             this.toolStripButton3.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolStripButton3.Name = "toolStripButton3";
-            this.toolStripButton3.Size = new System.Drawing.Size(50, 50);
+            this.toolStripButton3.Size = new System.Drawing.Size(40, 40);
             this.toolStripButton3.Text = "Refresh";
             this.toolStripButton3.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
             // 
@@ -265,7 +273,7 @@
             this.toolStripButton2.ImageAlign = System.Drawing.ContentAlignment.TopCenter;
             this.toolStripButton2.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolStripButton2.Name = "toolStripButton2";
-            this.toolStripButton2.Size = new System.Drawing.Size(50, 50);
+            this.toolStripButton2.Size = new System.Drawing.Size(40, 40);
             this.toolStripButton2.Text = "Refresh";
             this.toolStripButton2.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
             // 
@@ -277,46 +285,54 @@
             this.toolStripButton1.ImageAlign = System.Drawing.ContentAlignment.TopCenter;
             this.toolStripButton1.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolStripButton1.Name = "toolStripButton1";
-            this.toolStripButton1.Size = new System.Drawing.Size(50, 50);
+            this.toolStripButton1.Size = new System.Drawing.Size(40, 40);
             this.toolStripButton1.Text = "Refresh";
             this.toolStripButton1.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
             // 
             // tenmay
             // 
             this.tenmay.Text = "Tên Máy";
+            this.tenmay.Width = 90;
             // 
             // Ocung
             // 
             this.Ocung.Text = "Ổ Cứng";
+            this.Ocung.Width = 90;
             // 
             // CPU
             // 
             this.CPU.Text = "CPU";
+            this.CPU.Width = 90;
             // 
             // ram
             // 
             this.ram.Text = "Ram";
+            this.ram.Width = 90;
             // 
             // mssv
             // 
             this.mssv.Text = "MSSV";
+            this.mssv.Width = 90;
             // 
             // IPC
             // 
             this.IPC.Text = "IPC";
-            this.IPC.Width = 0;
+            this.IPC.Width = 90;
             // 
             // chuot
             // 
             this.chuot.Text = "Chuột";
+            this.chuot.Width = 90;
             // 
             // banphim
             // 
             this.banphim.Text = "Bàn Phím";
+            this.banphim.Width = 90;
             // 
             // manhinh
             // 
             this.manhinh.Text = "Màn Hình";
+            this.manhinh.Width = 90;
             // 
             // lv_client
             // 
@@ -334,9 +350,10 @@
             this.lv_client.Dock = System.Windows.Forms.DockStyle.Fill;
             this.lv_client.FullRowSelect = true;
             this.lv_client.HideSelection = false;
-            this.lv_client.Location = new System.Drawing.Point(51, 110);
+            this.lv_client.Location = new System.Drawing.Point(41, 80);
+            this.lv_client.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.lv_client.Name = "lv_client";
-            this.lv_client.Size = new System.Drawing.Size(1659, 713);
+            this.lv_client.Size = new System.Drawing.Size(987, 529);
             this.lv_client.TabIndex = 2;
             this.lv_client.UseCompatibleStateImageBehavior = false;
             this.lv_client.View = System.Windows.Forms.View.Details;
@@ -351,13 +368,14 @@
             // 
             // svForm
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoSize = true;
-            this.ClientSize = new System.Drawing.Size(1710, 823);
+            this.ClientSize = new System.Drawing.Size(1028, 609);
             this.Controls.Add(this.lv_client);
             this.Controls.Add(this.toolStrip2);
             this.Controls.Add(this.toolStrip1);
+            this.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.Name = "svForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Server Form";
@@ -375,22 +393,16 @@
         #endregion
 
         private System.Windows.Forms.ToolStrip toolStrip1;
-        private System.Windows.Forms.ToolStripSplitButton quickLauch;
         private System.Windows.Forms.ToolStripSplitButton toolStripSplitButton5;
         private System.Windows.Forms.ToolStripSplitButton basicMode;
         private System.Windows.Forms.ToolStripSplitButton randomStudent;
         private System.Windows.Forms.ToolStripSplitButton registerStudent;
         private System.Windows.Forms.ToolStripSplitButton sendWork;
-        private System.Windows.Forms.ToolStripButton Lock;
-        private System.Windows.Forms.ToolStripButton unlock;
-        private System.Windows.Forms.ToolStripButton refresh;
         private System.Windows.Forms.ToolStrip toolStrip2;
         private System.Windows.Forms.ToolStripButton toolStripButton1;
         private System.Windows.Forms.ToolStripButton toolStripButton4;
         private System.Windows.Forms.ToolStripButton toolStripButton3;
         private System.Windows.Forms.ToolStripButton toolStripButton2;
-        private System.Windows.Forms.ToolStripButton toolStripButton5;
-        private System.Windows.Forms.ToolStripButton switchMode;
         private System.Windows.Forms.ColumnHeader tenmay;
         private System.Windows.Forms.ColumnHeader Ocung;
         private System.Windows.Forms.ColumnHeader CPU;
@@ -402,6 +414,13 @@
         private System.Windows.Forms.ColumnHeader manhinh;
         private System.Windows.Forms.ListView lv_client;
         private System.Windows.Forms.ContextMenuStrip contextMenuStrip1;
+        private System.Windows.Forms.ToolStripButton toolStripButton6;
+        private System.Windows.Forms.ToolStripSplitButton quickLauch;
+        private System.Windows.Forms.ToolStripButton switchMode;
+        private System.Windows.Forms.ToolStripButton SlideShow;
+        private System.Windows.Forms.ToolStripButton StopSlideShow;
+        private System.Windows.Forms.ToolStripMenuItem sendFileToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem reciveFileToolStripMenuItem;
     }
 }
 

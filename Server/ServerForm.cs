@@ -13,7 +13,10 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using WinFormsTimer = System.Windows.Forms.Timer;
-
+using System.IO;
+using System.Drawing.Imaging;
+using System.Drawing.Drawing2D;
+using System.IO.Compression;
 
 namespace Server
 {
@@ -25,17 +28,18 @@ namespace Server
         private string Ip;
         private TcpListener tcpListener;
         private Thread listenThread;
+        private Thread screenshotThread;
         private NetworkInterface[] networkInterfaces = NetworkInterface.GetAllNetworkInterfaces();
         private List<List<string>> fullInfoList = new List<List<string>>();
         private List<List<string>> summaryInfoList = new List<List<string>>();
         private ImageList smallImageList;
-        private ImageList largeImageList;
+        private ImageList largeImageList; private volatile bool isRunning = true;
         public svForm()
         {
             InitializeComponent();
             Ip = getIPServer();
             InitializeContextMenu();
-
+            Console.WriteLine("IP:" + Ip);
             smallImageList = new ImageList();
             largeImageList = new ImageList();
             // Thêm biểu tượng "user" vào ImageList
@@ -44,8 +48,18 @@ namespace Server
             largeImageList.Images.Add("user", Properties.Resources.user);
             lv_client.SmallImageList = smallImageList;
             lv_client.LargeImageList = largeImageList;
+            initialStateUI();
         }
-
+        private void initialStateUI()
+        {
+            int countItem = toolStrip1.Items.Count;
+            for (int i = 0; i < countItem; i++)
+            {
+                Console.WriteLine(toolStrip1.Items[i].Name);
+                toolStrip1.Items[i].Text = toolStrip1.Items[i].Text.Replace(' ', '\n');
+            }
+            lv_client.AutoResizeColumns(ColumnHeaderAutoResizeStyle.HeaderSize);
+        }
         private void Form1_Load(object sender, EventArgs e)
         {
             sendAllIPInLan();
@@ -84,19 +98,21 @@ namespace Server
 
             foreach (NetworkInterface networkInterface in networkInterfaces)
             {
-                // Lọc ra các card mạng LAN
-                if (networkInterface.NetworkInterfaceType == NetworkInterfaceType.Ethernet ||
-                    networkInterface.NetworkInterfaceType == NetworkInterfaceType.Wireless80211)
+                // Kiểm tra chỉ lấy card mạng có cấu hình IP cục bộ (Local Area Network)
+                if ((networkInterface.NetworkInterfaceType == NetworkInterfaceType.Ethernet &&
+            networkInterface.Name.Contains("Ethernet") &&
+                    networkInterface.OperationalStatus == OperationalStatus.Up) || networkInterface.NetworkInterfaceType == NetworkInterfaceType.Wireless80211)
                 {
                     // Lấy danh sách địa chỉ IP của card mạng này
-                    UnicastIPAddressInformationCollection ipInfo = networkInterface.GetIPProperties().UnicastAddresses;
-
-                    foreach (UnicastIPAddressInformation info in ipInfo)
+                    IPInterfaceProperties ipProperties = networkInterface.GetIPProperties();
+                    foreach (UnicastIPAddressInformation ipInfo in ipProperties.UnicastAddresses)
                     {
-                        // Chỉ lấy địa chỉ IPv4
-                        if (info.Address.AddressFamily == AddressFamily.InterNetwork)
+                        // Chỉ lấy địa chỉ IPv4 của mạng LAN cục bộ
+                        if (ipInfo.Address.AddressFamily == AddressFamily.InterNetwork &&
+                            !IPAddress.IsLoopback(ipInfo.Address) &&
+                            !ipInfo.Address.ToString().StartsWith("169.254")) // Loại bỏ các địa chỉ APIPA
                         {
-                            ip = info.Address.ToString();
+                            ip = ipInfo.Address.ToString();
                             // Trả về địa chỉ IP đầu tiên tìm thấy
                             return ip;
                         }
@@ -105,6 +121,7 @@ namespace Server
             }
             return ip;
         }
+
 
         private ContextMenuStrip contextMenuStrip;
 
@@ -151,27 +168,16 @@ namespace Server
 
         private void sendAllIPInLan()
         {
-            if (Ip.Length == 0) return;
-            // IPAddress[] allIPsInNetwork = GetAddresses();
-            String[] IpC = Ip.Split('.');
+
 
             // Gửi tin nhắn UDP đến từng địa chỉ IP trong mạng
-            for (int i = 2; i < 255; i++)
-            {
-                string ipAddressString = $"{IpC[0]}.{IpC[1]}.{IpC[2]}.{i}";
 
-                // Tạo đối tượng IPAddress từ chuỗi
-                IPAddress ipAddress;
-                if (IPAddress.TryParse(ipAddressString, out ipAddress))
-                {
-                    //Console.WriteLine($"Địa chỉ IP hợp lệ: {ipAddress}");
-                }
-                else
-                {
-                    Console.WriteLine("Chuỗi không phải là một địa chỉ IP hợp lệ.");
-                }
-                SendUDPMessage(ipAddress, 11312, Ip);
-            }
+
+            IPAddress broadcastAddress = GetBroadcastAddress();
+
+
+            SendUDPMessage(broadcastAddress, 11312, Ip);
+
         }
         private void SendUDPMessage(IPAddress ipAddress, int port, String mes)
         {
@@ -215,7 +221,7 @@ namespace Server
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine(ex);
+                    Console.WriteLine("TCP: " + ex);
                     break;
                 }
             }
@@ -242,13 +248,15 @@ namespace Server
             }
             else if (tmp[0] == "LOAD_DONE")
             {
-                Thread screenshotThread = new Thread(new ThreadStart(CaptureAndSendScreenshot));
+                isRunning = true;
+
+                screenshotThread = new Thread(new ThreadStart(CaptureAndSendScreenshotsContinuously));
                 screenshotThread.Start();
             }
 
 
             // Đóng kết nối khi client đóng kết nối
-            tcpClient.Close();
+            //tcpClient.Close();
         }
 
         private void ReciveInfo(string info)
@@ -256,45 +264,113 @@ namespace Server
             Console.WriteLine(info);
             string[] infC = info.Split(new string[] { "Tenmay: ", "MSSV: ", "Ocung: ", "CPU: ", "RAM: ", "IPC: ", "Chuot: ", "Banphim: ", "Manhinh: " }, StringSplitOptions.None);
 
-            //Tạo danh sách mới
-            List<string> newEntry = new List<string>();
-            //Thêm thông tin vào danh sách mới
-            newEntry.Add(infC[2]);  // Tên máy
-            newEntry.Add(infC[6]);  // Ổ cứng
-            newEntry.Add(infC[7]);  // CPU
-            newEntry.Add(infC[8]);  // RAM
-            newEntry.Add(infC[9]);  // MSSV
-            newEntry.Add(infC[1]);  // IPC
-            newEntry.Add(infC[3]);  // Chuột
-            newEntry.Add(infC[4]);  // Bàn phím
-            newEntry.Add(infC[5]);  // Màn hình
+            // Tạo danh sách mới
+            List<string> newEntry = new List<string>
+    {
+        infC[2],  // Tên máy
+        infC[6],  // Ổ cứng
+        infC[7],  // CPU
+        infC[8],  // RAM
+        infC[9],  // MSSV
+        infC[1],  // IPC
+        infC[3],  // Chuột
+        infC[4],  // Bàn phím
+        infC[5]   // Màn hình
+    };
 
-            // Thêm danh sách mới vào danh sách đầy đủ và tóm tắt
-            fullInfoList.Add(newEntry);
-            if (isFullInfoMode)
-                AddOrUpdateRowToListView(newEntry);
+            // Kiểm tra xem tên máy đã tồn tại trong danh sách hay chưa
+            bool entryExists = false;
+            for (int i = 0; i < fullInfoList.Count; i++)
+            {
+                if (fullInfoList[i][0] == newEntry[0]) // So sánh tên máy
+                {
+                    // Cập nhật thông tin cho danh sách đầy đủ
+                    fullInfoList[i] = newEntry;
+                    entryExists = true;
+
+                    // Nếu đang ở chế độ xem đầy đủ, cập nhật hiển thị
+                    if (isFullInfoMode)
+                    {
+                        AddOrUpdateRowToListView(newEntry);
+                    }
+                    break;
+                }
+            }
+
+            // Nếu tên máy không tồn tại, thêm danh sách mới vào danh sách đầy đủ
+            if (!entryExists)
+            {
+                fullInfoList.Add(newEntry);
+                if (isFullInfoMode)
+                {
+                    AddOrUpdateRowToListView(newEntry);
+                }
+            }
+
             Console.WriteLine(newEntry[3]);
-            List<string> newEntryCopy = new List<string>(newEntry);
-            //Làm ngắn thông tin RAM chỉ chừa lại dung lượng 
-            int capacityIndex = infC[8].IndexOf("Capacity:");
-            int bytesIndex = infC[8].IndexOf("bytes", capacityIndex);
-            string capacityStr = infC[8].Substring(capacityIndex + "Capacity:".Length, bytesIndex - capacityIndex - "Capacity:".Length).Trim();
-            double capacityBytes = double.Parse(capacityStr);
-            double capacityGB = capacityBytes / (1024 * 1024 * 1024);
-            Console.WriteLine("length: " + fullInfoList.Count);
 
-            newEntryCopy[3] = capacityGB + " GB";
-            Console.WriteLine(newEntryCopy[3]);
-            //Xử lí thông tin cần rút gọn tiếp tục ở đây
-            //
-            summaryInfoList.Add(newEntryCopy);
+            // Tạo bản sao của danh sách mới để rút gọn thông tin
+            List<string> newEntryCopy = new List<string>(newEntry);
+
+            // Xử lý thông tin RAM để tách dung lượng của từng RAM và kết hợp chúng
+            string ramInfo = infC[8];
+            string combinedRamCapacities = CombineRamCapacities(ramInfo);
+            Console.WriteLine(combinedRamCapacities);
+            // Cập nhật thông tin RAM đã kết hợp trong danh sách tóm tắt
+            newEntryCopy[3] = combinedRamCapacities;
+
+            // Kiểm tra và cập nhật thông tin trong danh sách tóm tắt
+            entryExists = false;
+            for (int i = 0; i < summaryInfoList.Count; i++)
+            {
+                if (summaryInfoList[i][0] == newEntryCopy[0]) // So sánh tên máy
+                {
+                    // Cập nhật thông tin cho danh sách tóm tắt
+                    summaryInfoList[i] = newEntryCopy;
+                    entryExists = true;
+                    break;
+                }
+            }
+
+            // Nếu tên máy không tồn tại trong danh sách tóm tắt, thêm danh sách mới
+            if (!entryExists)
+            {
+                summaryInfoList.Add(newEntryCopy);
+            }
 
             // Hiển thị dữ liệu trên DataGridView
             if (!isFullInfoMode)
-                AddOrUpdateRowToListView(newEntry);
+            {
+                AddOrUpdateRowToListView(newEntryCopy);
+            }
 
-
+            Console.WriteLine("length: " + fullInfoList.Count);
         }
+
+        private string CombineRamCapacities(string ramInfo)
+        {
+            List<string> ramCapacities = new List<string>();
+
+            // Tách các thông tin về RAM
+            string[] ramModules = ramInfo.Split(new string[] { "Capacity:" }, StringSplitOptions.RemoveEmptyEntries);
+            foreach (string ramModule in ramModules)
+            {
+                int bytesIndex = ramModule.IndexOf("bytes");
+                if (bytesIndex > 0)
+                {
+                    string capacityStr = ramModule.Substring(0, bytesIndex).Trim();
+                    if (double.TryParse(capacityStr, out double capacityBytes))
+                    {
+                        double capacityGB = capacityBytes / (1024 * 1024 * 1024);
+                        ramCapacities.Add(capacityGB + " GB\r\n");
+                    }
+                }
+            }
+
+            // Kết hợp các dung lượng RAM vào một chuỗi duy nhất
+            return string.Join("\n", ramCapacities);
+        }
+
         private void AddOrUpdateRowToListView(List<string> entry)
         {
             if (lv_client.InvokeRequired)
@@ -376,67 +452,227 @@ namespace Server
 
         private void SlideShowClick(object sender, EventArgs e)
         {
-            string message = "SLIDESHOW";
-            byte[] messageData = Encoding.UTF8.GetBytes(message);
+            string message = "SlideShow";
+            byte[] data = Encoding.UTF8.GetBytes(message);
+
+            List<Thread> clientThreads = new List<Thread>();
+
             foreach (ListViewItem item in lv_client.Items)
             {
-                // Lấy địa chỉ IP từ cột IPC
-                Console.WriteLine(item.SubItems[5].Text);
-                string clientIP = item.SubItems[5].Text;
-
-                // Kiểm tra xem địa chỉ IP có hợp lệ không
-                if (IsValidIPAddress(clientIP))
+                try
                 {
-                    // Tạo kết nối tới client
-                    Console.WriteLine("IP HOP LE");
-                    TcpClient client = new TcpClient(clientIP, 8888);
-                    NetworkStream stream = client.GetStream();
-                    stream.Write(messageData, 0, messageData.Length); // Gửi thông điệp
+                    Console.WriteLine(item.SubItems[5].Text);
+                    string clientIP = item.SubItems[5].Text;
+
+                    // Kiểm tra xem địa chỉ IP có hợp lệ không
+                    if (IsValidIPAddress(clientIP))
+                    {
+                        // Tạo một luồng riêng biệt cho mỗi client
+                        Thread clientThread = new Thread(() =>
+                        {
+                            try
+                            {
+                                TcpClient client = new TcpClient(clientIP, 8888);
+
+                                // Gửi yêu cầu khóa tới máy Client
+                                NetworkStream stream = client.GetStream();
+                                stream.Write(data, 0, data.Length);
+                                // Đóng kết nối
+                                client.Close();
+                            }
+                            catch (Exception ex)
+                            {
+                                MessageBox.Show("Mất kết nối với: " + item.SubItems[0].Text);
+                            }
+                        });
+
+                        // Bắt đầu luồng cho client hiện tại
+                        clientThreads.Add(clientThread);
+                        clientThread.Start();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Mất kết nối với: " + item.SubItems[0].Text);
+                }
+            }
+
+            // Chờ tất cả các luồng kết thúc trước khi tiếp tục
+            foreach (Thread t in clientThreads)
+            {
+                t.Join();
+            }
+
+        }
+
+
+
+
+
+        private void CaptureAndSendScreenshotsContinuously()
+        {
+            UdpClient udpClient = new UdpClient(); // Tạo UDP client
+            //udpClient.Client.SendBufferSize = 70000;
+            int udpBufferSize = udpClient.Client.SendBufferSize;
+
+            // Lấy địa chỉ broadcast của mạng local
+            IPAddress broadcastAddress = GetBroadcastAddress();
+            int i = 1;
+            int fps = 120;
+            while (isRunning)
+            {
+                try
+                {
+                    // Lấy kích thước của vùng hiển thị thực sự của màn hình
+                    int screenLeft = SystemInformation.VirtualScreen.Left;
+                    int screenTop = SystemInformation.VirtualScreen.Top;
+                    int screenWidth = SystemInformation.VirtualScreen.Width;
+                    int screenHeight = SystemInformation.VirtualScreen.Height;
+
+                    using (Bitmap screenshot = new Bitmap(screenWidth, screenHeight, PixelFormat.Format32bppArgb))
+                    {
+                        using (Graphics graphics = Graphics.FromImage(screenshot))
+                        {
+                            graphics.CopyFromScreen(screenLeft, screenTop, 0, 0, screenshot.Size, CopyPixelOperation.SourceCopy);
+
+                            // Draw the cursor
+                            DrawCursorOnScreenshot(graphics);
+
+                            // Compress and send the screenshot
+                            using (MemoryStream stream = new MemoryStream())
+                            {
+                                CompressAndSendImage(i, screenshot, stream, udpBufferSize, udpClient, broadcastAddress);
+                            }
+                        }
+                    }
+                    if (i > fps - 1) i = 1;
+                    i++;
+                    // Chờ khoảng thời gian trước khi chụp và gửi tiếp
+                    Thread.Sleep(1000 / fps); // Chờ 1/60 giây (mili giây) trước khi gửi hình tiếp theo
+                }
+                catch (ThreadInterruptedException ex)
+                {
+                    // Xử lý ngoại lệ ở đây
+                    Console.WriteLine("Thread interrupted: " + ex.Message);
                 }
             }
         }
 
-        private void CaptureAndSendScreenshot()
+        private void CompressAndSendImage(int i, Bitmap image, MemoryStream stream, int bufferSize, UdpClient udpClient, IPAddress broadcastAddress)
         {
-            // Lặp qua từng mục trong ListView
-            foreach (ListViewItem item in lv_client.Items)
+            long quality = 100L; // Bắt đầu với chất lượng 90%
+
+            byte[] imageData;
+            do
             {
-                // Lấy địa chỉ IP từ cột IPC
-                string clientIP = item.SubItems["IPC"].Text;
+                stream.SetLength(0); // Đặt lại stream cho mỗi lần nén
+                SaveJpeg(stream, image, quality);
+                imageData = stream.ToArray();
+                quality -= 10; // Giảm chất lượng đi 10% cho lần tiếp theo nếu cần
+            } while (imageData.Length > bufferSize && quality > 10);
 
-                // Kiểm tra xem địa chỉ IP có hợp lệ không
-                if (IsValidIPAddress(clientIP))
+            int bytesSent = 0;
+            int index = 0;
+            int cutCount = (imageData.Length / (bufferSize - 100)) + 1;
+            int cutCounter = 1;
+            while (bytesSent < imageData.Length)
+            {
+                string str = $"{i:D4}{cutCount:D4}{cutCounter:D4}+";
+                byte[] signal = Encoding.UTF8.GetBytes(str);
+                int signalLength = signal.Length;
+
+                int remainingBytes = imageData.Length - bytesSent;
+                int bytesToSend = Math.Min(bufferSize - signalLength - 100, remainingBytes); // Đảm bảo có chỗ cho tín hiệu
+
+                // Tạo một mảng byte mới để chứa tín hiệu và dữ liệu cần gửi
+                byte[] dataToSend = new byte[signalLength + bytesToSend];
+                Console.WriteLine(imageData.Length + " " + cutCount + " " + i + " " + quality);
+                // Sao chép tín hiệu và dữ liệu vào mảng mới
+                Array.Copy(signal, 0, dataToSend, 0, signalLength);
+                Array.Copy(imageData, index, dataToSend, signalLength, bytesToSend);
+
+                // Gửi dữ liệu bao gồm tín hiệu
+                udpClient.Send(dataToSend, dataToSend.Length, new IPEndPoint(broadcastAddress, 8889)); // Gửi dữ liệu qua UDP
+
+                // Cập nhật số byte đã gửi và vị trí index
+                bytesSent += bytesToSend;
+                index += bytesToSend;
+                cutCounter++;
+            }
+        }
+
+        private void SaveJpeg(Stream stream, Bitmap image, long quality)
+        {
+            var qualityParam = new EncoderParameter(System.Drawing.Imaging.Encoder.Quality, quality);
+            var jpegCodec = GetEncoder(ImageFormat.Jpeg);
+            if (jpegCodec == null)
+                return;
+
+            var encoderParams = new EncoderParameters(1);
+            encoderParams.Param[0] = qualityParam;
+            image.Save(stream, jpegCodec, encoderParams);
+        }
+
+        private ImageCodecInfo GetEncoder(ImageFormat format)
+        {
+            var codecs = ImageCodecInfo.GetImageDecoders();
+            foreach (var codec in codecs)
+            {
+                if (codec.FormatID == format.Guid)
                 {
-                    // Tạo kết nối tới client
-                    using (TcpClient client = new TcpClient(clientIP, 8888))
+                    return codec;
+                }
+            }
+            return null;
+        }
+
+        private void DrawCursorOnScreenshot(Graphics graphics)
+        {
+            // Get the cursor position
+            Point cursorPosition = Cursor.Position;
+
+            // Adjust for the screen bounds
+            cursorPosition.X -= SystemInformation.VirtualScreen.Left;
+            cursorPosition.Y -= SystemInformation.VirtualScreen.Top;
+
+            // Draw the cursor on the screenshot
+            Cursor cursor = Cursors.Default;
+            cursor.Draw(graphics, new Rectangle(cursorPosition, cursor.Size));
+        }
+
+        // Hàm để lấy địa chỉ broadcast của mạng local
+        private IPAddress GetBroadcastAddress()
+        {
+            foreach (NetworkInterface ni in NetworkInterface.GetAllNetworkInterfaces())
+            {
+                if ((ni.NetworkInterfaceType == NetworkInterfaceType.Ethernet &&
+            ni.Name.Contains("Ethernet") &&
+                    ni.OperationalStatus == OperationalStatus.Up) || ni.NetworkInterfaceType == NetworkInterfaceType.Wireless80211)
+                {
+                    foreach (UnicastIPAddressInformation ip in ni.GetIPProperties().UnicastAddresses)
                     {
-                        // Gửi tín hiệu "PicSS-" tới client
-                        byte[] signalBytes = Encoding.UTF8.GetBytes("PicSS-");
-                        NetworkStream signalStream = client.GetStream();
-                        signalStream.Write(signalBytes, 0, signalBytes.Length);
-
-                        // Chụp màn hình
-                        using (Bitmap screenshot = new Bitmap(Screen.PrimaryScreen.Bounds.Width, Screen.PrimaryScreen.Bounds.Height))
+                        if (ip.Address.AddressFamily == AddressFamily.InterNetwork)
                         {
-                            using (Graphics graphics = Graphics.FromImage(screenshot as Image))
+                            var subnetMask = ip.IPv4Mask;
+                            byte[] subnetMaskBytes = subnetMask.GetAddressBytes();
+                            byte[] ipAddressBytes = ip.Address.GetAddressBytes();
+
+                            if (subnetMaskBytes.Length == 4 && ipAddressBytes.Length == 4)
                             {
-                                graphics.CopyFromScreen(0, 0, 0, 0, screenshot.Size);
-
-                                // Chuyển đổi hình ảnh thành mảng byte
-                                ImageConverter converter = new ImageConverter();
-                                byte[] imageData = (byte[])converter.ConvertTo(screenshot, typeof(byte[]));
-
-                                // Gửi dữ liệu màn hình tới client
-                                using (NetworkStream stream = client.GetStream())
+                                byte[] broadcastAddressBytes = new byte[4];
+                                for (int i = 0; i < 4; i++)
                                 {
-                                    stream.Write(imageData, 0, imageData.Length);
+                                    broadcastAddressBytes[i] = (byte)(ipAddressBytes[i] | (subnetMaskBytes[i] ^ 255));
                                 }
+                                return new IPAddress(broadcastAddressBytes);
                             }
                         }
                     }
                 }
             }
+            return null;
         }
+
 
 
         private bool IsValidIPAddress(string ipAddress)
@@ -446,27 +682,24 @@ namespace Server
         }
 
 
+        private void Lock_Click(object sender, EventArgs e)
+        {
+
+        }
         private void SendLockRequestToClient(string ipAddress)
         {
-            try
-            {
-                // Tạo kết nối TCP tới máy Client
-                TcpClient client = new TcpClient(ipAddress, 8888);
+            // Tạo kết nối TCP tới máy Client
+            TcpClient client = new TcpClient(ipAddress, 8888);
 
-                // Gửi yêu cầu khóa tới máy Client
-                NetworkStream stream = client.GetStream();
-                byte[] data = Encoding.UTF8.GetBytes("LOCK_ACCESS");
-                stream.Write(data, 0, data.Length);
-                // Đóng kết nối
-                //stream.Close();
-                client.Close();
-            }
-            catch (Exception e)
-            {
-                MessageBox.Show("Mất kết nối với máy khách", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-            }
+            // Gửi yêu cầu khóa tới máy Client
+            NetworkStream stream = client.GetStream();
+            byte[] data = Encoding.UTF8.GetBytes("LOCK_ACCESS");
+            stream.Write(data, 0, data.Length);
+            MessageBox.Show("Sendlockweb ne");
+            // Đóng kết nối
+            //stream.Close();
+            client.Close();
         }
-
         private void refresh_Click(object sender, EventArgs e)
         {
             sendAllIPInLan();
@@ -522,5 +755,265 @@ namespace Server
         {
 
         }
+
+        private void StopSlideShow_Click(object sender, EventArgs e)
+        {
+            string message = "CloseSlideShow";
+            byte[] data = Encoding.UTF8.GetBytes(message);
+
+            List<Thread> clientThreads = new List<Thread>();
+
+            foreach (ListViewItem item in lv_client.Items)
+            {
+                try
+
+                {
+                    Console.WriteLine(item.SubItems[5].Text);
+                    string clientIP = item.SubItems[5].Text;
+
+                    // Kiểm tra xem địa chỉ IP có hợp lệ không
+                    if (IsValidIPAddress(clientIP))
+                    {
+                        // Tạo một luồng riêng biệt cho mỗi client
+                        Thread clientThread = new Thread(() =>
+                        {
+                            try
+                            {
+                                TcpClient client = new TcpClient(clientIP, 8888);
+
+                                // Gửi yêu cầu khóa tới máy Client
+                                NetworkStream stream = client.GetStream();
+                                stream.Write(data, 0, data.Length);
+                                // Đóng kết nối
+                                client.Close();
+                            }
+                            catch (Exception ex)
+                            {
+                                MessageBox.Show("Mất kết nối với: " + item.SubItems[0].Text);
+                            }
+                        });
+
+                        // Bắt đầu luồng cho client hiện tại
+                        clientThreads.Add(clientThread);
+                        clientThread.Start();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Mất kết nối với: " + item.SubItems[0].Text);
+                }
+            }
+
+            // Chờ tất cả các luồng kết thúc trước khi tiếp tục
+            foreach (Thread t in clientThreads)
+            {
+                t.Join();
+            }
+
+            isRunning = false;
+        }
+
+        private void sendFileToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            SendForm sendForm = new SendForm();
+            sendForm.FilesSelected += SendFileForm_FilePathSelected;
+            sendForm.Show();
+        }
+        private void SendFileForm_FilePathSelected(List<string> filePaths, string toPath)
+        {
+            foreach (string filePath in filePaths)
+            {
+                // Xử lý từng đường dẫn tệp trong danh sách
+
+                List<Thread> clientThreads = new List<Thread>();
+
+                foreach (ListViewItem item in lv_client.Items)
+                {
+                    try
+                    {
+                        Console.WriteLine(item.SubItems[5].Text);
+                        string clientIP = item.SubItems[5].Text;
+
+                        // Kiểm tra xem địa chỉ IP có hợp lệ không
+                        if (IsValidIPAddress(clientIP))
+                        {
+                            // Tạo một luồng riêng biệt cho mỗi client
+                            Thread clientThread = new Thread(() =>
+                            {
+                                TcpClient client = null;
+                                NetworkStream stream = null;
+                                try
+                                {
+                                    client = new TcpClient(clientIP, 8888);
+                                    stream = client.GetStream();
+
+                                    // Gửi tín hiệu thông báo
+                                    string fileName = Path.GetFileName(filePath);
+                                    string signal = $"SendFile-{fileName}-{toPath}";
+                                    byte[] signalBytes = Encoding.UTF8.GetBytes(signal);
+                                    stream.Write(signalBytes, 0, signalBytes.Length); // Gửi tín hiệu
+                                    stream.Flush(); // Đảm bảo dữ liệu được gửi đi ngay lập tức
+                                    Console.WriteLine("Đã gửi tín hiệu send");
+
+                                    // Đợi client xác nhận đã nhận tín hiệu
+                                    byte[] ackBytes = new byte[4];
+                                    stream.Read(ackBytes, 0, 4);
+                                    int ack = BitConverter.ToInt32(ackBytes, 0);
+                                    if (ack != 1)
+                                    {
+                                        throw new Exception("Client không xác nhận tín hiệu.");
+                                    }
+
+                                    // Gửi nội dung tệp
+                                    byte[] fileBytes = File.ReadAllBytes(filePath);
+                                    stream.Write(BitConverter.GetBytes(fileBytes.Length), 0, 4); // Gửi độ dài nội dung tệp
+                                    stream.Write(fileBytes, 0, fileBytes.Length); // Gửi nội dung tệp
+                                    stream.Flush(); // Đảm bảo dữ liệu được gửi đi ngay lập tức
+
+                                    Console.WriteLine("Tệp đã được gửi thành công.");
+                                }
+                                catch (Exception ex)
+                                {
+                                    Console.WriteLine("Lỗi khi gửi tệp: " + ex.Message);
+                                }
+                                finally
+                                {
+                                    // Đảm bảo rằng kết nối được đóng đúng cách
+                                    if (stream != null) stream.Close();
+                                    if (client != null) client.Close();
+                                }
+                            });
+
+                            // Bắt đầu luồng cho client hiện tại
+                            clientThreads.Add(clientThread);
+                            clientThread.Start();
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show("Mất kết nối với: " + item.SubItems[0].Text);
+                    }
+                }
+
+                // Chờ tất cả các luồng kết thúc trước khi tiếp tục
+                foreach (Thread t in clientThreads)
+                {
+                    t.Join();
+                }
+            }
+        }
+
+        private void reciveFileToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            ReciveForm sendForm = new ReciveForm();
+            sendForm.FilePathSelected += ReciveFileForm_FilePathSelected;
+            sendForm.Show();
+        }
+        private void ReciveFileForm_FilePathSelected(string filePath, string folderPath, string folderToSavePath, bool check)
+        {
+            // Xử lý đường dẫn tệp nhận được từ FormSendFile
+            Console.WriteLine("Đường dẫn tệp nhận được: " + filePath);
+            Console.WriteLine("Đường dẫn tệp đến: " + folderPath);
+            Console.WriteLine("Đường dẫn tệp đến: " + folderToSavePath);
+
+            List<Thread> clientThreads = new List<Thread>();
+
+            foreach (ListViewItem item in lv_client.Items)
+            {
+                try
+                {
+                    Console.WriteLine(item.SubItems[5].Text);
+                    string clientIP = item.SubItems[5].Text;
+
+                    // Kiểm tra xem địa chỉ IP có hợp lệ không
+                    if (IsValidIPAddress(clientIP))
+                    {
+                        // Tạo một luồng riêng biệt cho mỗi client
+                        Thread clientThread = new Thread(() =>
+                        {
+                            TcpClient client = null;
+                            NetworkStream stream = null;
+                            try
+                            {
+                                client = new TcpClient(clientIP, 8888);
+                                stream = client.GetStream();
+
+                                // Gửi tín hiệu thông báo
+                                string fileName = Path.GetFileName(filePath);
+                                string signal = $"CollectFile-{fileName}-{folderPath}-{check}";
+                                byte[] signalBytes = Encoding.UTF8.GetBytes(signal);
+                                stream.Write(signalBytes, 0, signalBytes.Length); // Gửi tín hiệu
+                                stream.Flush(); // Đảm bảo dữ liệu được gửi đi ngay lập tức
+                                Console.WriteLine("Đã gửi tín hiệu send");
+
+                                using (BinaryReader reader = new BinaryReader(stream))
+                                {
+                                    try
+                                    {
+                                        // Đọc độ dài của tên file zip
+                                        int fileNameLength = reader.ReadInt32();
+                                        // Đọc tên file zip
+                                        string receivedFileName = Encoding.UTF8.GetString(reader.ReadBytes(fileNameLength));
+
+                                        // Đọc độ dài của tệp zip
+                                        int fileLength = reader.ReadInt32();
+                                        // Đọc dữ liệu tệp zip
+                                        byte[] fileBytes = reader.ReadBytes(fileLength);
+
+                                        // Lưu file zip vào đường dẫn tạm thời
+                                        string tempZipPath = Path.Combine(Path.GetTempPath(), receivedFileName);
+                                        File.WriteAllBytes(tempZipPath, fileBytes);
+
+                                        // Giải nén file zip
+                                        ZipFile.ExtractToDirectory(tempZipPath, folderToSavePath);
+
+                                        // Xóa file zip tạm thời
+                                        File.Delete(tempZipPath);
+
+                                        MessageBox.Show("Các tệp đã được nhận và lưu thành công tại: " + folderToSavePath);
+                                    }
+                                    catch (EndOfStreamException eosEx)
+                                    {
+                                        Console.WriteLine("Lỗi khi nhận tệp: " + eosEx.Message);
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        Console.WriteLine("Lỗi khi nhận tệp: " + ex.Message);
+                                    }
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                Console.WriteLine("Lỗi khi nhận tệp: " + ex.Message);
+                            }
+                            finally
+                            {
+                                // Đảm bảo rằng kết nối được đóng đúng cách
+                                if (stream != null) stream.Close();
+                                if (client != null) client.Close();
+                            }
+                        });
+
+                        // Bắt đầu luồng cho client hiện tại
+                        clientThreads.Add(clientThread);
+                        clientThread.Start();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Mất kết nối với: " + item.SubItems[0].Text);
+                }
+            }
+
+            // Chờ tất cả các luồng kết thúc trước khi tiếp tục
+            foreach (Thread t in clientThreads)
+            {
+                t.Join();
+            }
+        }
+
+
+
+
     }
 }

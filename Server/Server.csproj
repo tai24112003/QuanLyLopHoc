@@ -50,6 +50,18 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="FirewallHelper.cs" />
+    <Compile Include="QuickLaunchForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="QuickLaunchForm.Designer.cs">
+      <DependentUpon>QuickLaunchForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="RandomStudentForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="RandomStudentForm.Designer.cs">
+      <DependentUpon>RandomStudentForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="ReciveForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -70,6 +82,12 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="QuickLaunchForm.resx">
+      <DependentUpon>QuickLaunchForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="RandomStudentForm.resx">
+      <DependentUpon>RandomStudentForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="ReciveForm.resx">
       <DependentUpon>ReciveForm.cs</DependentUpon>
     </EmbeddedResource>
@@ -143,6 +161,33 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\user.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\home-office.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\home-button.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\keyboard %281%29.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\web.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\monitor %282%29.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\briefcase.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\briefcase %281%29.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\management-service.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\dice.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

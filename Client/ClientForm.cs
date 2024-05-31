@@ -362,20 +362,45 @@ namespace testUdpTcp
             }
         }
         List<string> stringList = new List<string>();
-        public static bool HasDevice(string strtype)
+        public static bool HasUsbDevice(string deviceType)
         {
-            ManagementObjectSearcher searcher = new ManagementObjectSearcher("root\\CIMV2", "SELECT * FROM Win32_" + strtype);
+            // Xác định PNPClass tương ứng với loại thiết bị
+            string pnpClass = deviceType.Equals("Mouse", StringComparison.OrdinalIgnoreCase) ? "Mouse" :
+                              deviceType.Equals("Keyboard", StringComparison.OrdinalIgnoreCase) ? "Keyboard" : null;
 
-            foreach (ManagementObject mobj in searcher.Get())
+            if (pnpClass == null)
             {
-                // Kiểm tra xem trường "Name" có giá trị hay không để xác định thiết bị có sẵn và hoạt động
-                if (mobj["Status"].ToString().Contains("OK"))
+                throw new ArgumentException("Invalid device type. Only 'Mouse' and 'Keyboard' are supported.");
+            }
+
+            // Truy vấn tất cả các thiết bị USB
+            ManagementObjectSearcher usbSearcher = new ManagementObjectSearcher(
+                "root\\CIMV2",
+                "SELECT * FROM Win32_USBControllerDevice"
+            );
+
+            foreach (ManagementObject usbDevice in usbSearcher.Get())
+            {
+                // Lấy DeviceID của thiết bị USB
+                string dependent = usbDevice["Dependent"].ToString();
+                string deviceId = dependent.Split('=')[1].Trim('\"');
+
+                // Truy vấn thông tin chi tiết của thiết bị dựa trên DeviceID và PNPClass tương ứng
+                ManagementObjectSearcher deviceSearcher = new ManagementObjectSearcher(
+                    "root\\CIMV2",
+                    $"SELECT * FROM Win32_PnPEntity WHERE DeviceID = '{deviceId}' AND PNPClass = '{pnpClass}'"
+                );
+
+                foreach (ManagementObject device in deviceSearcher.Get())
                 {
-                    return true; // Thiết bị có sẵn và hoạt động
+                    if (device["Status"] != null && device["Status"].ToString().Contains("OK"))
+                    {
+                        return true; // Thiết bị USB có sẵn và hoạt động
+                    }
                 }
             }
 
-            return false; // Không tìm thấy thiết bị hoặc không hoạt động
+            return false; // Không tìm thấy thiết bị USB hoặc không hoạt động
         }
 
         private List<string> GetDeviceInfo()
@@ -388,7 +413,7 @@ namespace testUdpTcp
             stringList.Add($"Tenmay: {machineName}");
 
             // Kiểm tra kết nối chuột
-            if (HasDevice("PointingDevice"))
+            if (HasUsbDevice("Mouse"))
             {
                 stringList.Add("Chuot: Đã kết nối");
             }
@@ -398,7 +423,7 @@ namespace testUdpTcp
             }
 
 
-            if (HasDevice("Keyboard"))
+            if (HasUsbDevice("Keyboard"))
             {
                 stringList.Add("Banphim: Đã kết nối");
             }

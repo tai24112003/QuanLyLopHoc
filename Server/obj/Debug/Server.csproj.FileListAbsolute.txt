@@ -96,3 +96,6 @@ D:\QuanLyLopHoc-Tai\Server\obj\Debug\Server.pdb
 D:\QuanLyLopHoc-Tai\Server\obj\Debug\Server.ReciveForm.resources
 D:\QuanLyLopHoc\Server\obj\Debug\Server.ReciveForm.resources
 D:\QuanLyLopHoc\Server\obj\Debug\Server.SendForm.resources
+C:\Users\aniga\Desktop\test\QuanLyLopHoc\Server\obj\Debug\Server.ReciveForm.resources
+C:\Users\aniga\Desktop\test\QuanLyLopHoc\Server\obj\Debug\Server.RandomStudentForm.resources
+C:\Users\aniga\Desktop\test\QuanLyLopHoc\Server\obj\Debug\Server.QuickLaunchForm.resources

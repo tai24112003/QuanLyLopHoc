@@ -48,7 +48,7 @@ namespace Server
             largeImageList.Images.Add("user", Properties.Resources.user);
             lv_client.SmallImageList = smallImageList;
             lv_client.LargeImageList = largeImageList;
-            initialStateUI();
+           // initialStateUI();
         }
         private void initialStateUI()
         {
@@ -176,7 +176,7 @@ namespace Server
             IPAddress broadcastAddress = GetBroadcastAddress();
 
 
-            SendUDPMessage(broadcastAddress, 11312, Ip);
+           // SendUDPMessage(broadcastAddress, 11312, Ip);
 
         }
         private void SendUDPMessage(IPAddress ipAddress, int port, String mes)
@@ -1012,8 +1012,12 @@ namespace Server
             }
         }
 
+        private void sendWork_ButtonClick(object sender, EventArgs e)
+        {
+
+        }
 
 
-
+        
     }
 }

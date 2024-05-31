@@ -16,6 +16,7 @@ namespace testUdpTcp
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
+            FirewallHelper.AddFirewallRule();
             Application.Run(new ClientForm());
         }
     }

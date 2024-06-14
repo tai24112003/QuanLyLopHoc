@@ -17,6 +17,7 @@ using System.Net.Http;
 using System.Net.NetworkInformation;
 using System.Text.RegularExpressions;
 using System.IO.Compression;
+using Newtonsoft.Json;
 
 namespace testUdpTcp
 {
@@ -28,6 +29,10 @@ namespace testUdpTcp
             //myIp = getIPServer();
             myIp = getIPServer();
             inf = GetDeviceInfo();
+            foreach (var ip in inf)
+            {
+                Console.Write(ip);
+            }
 
         }
         private UdpClient udpClient;
@@ -449,7 +454,7 @@ namespace testUdpTcp
             {
                 if (drive.IsReady)
                 {
-                    stringList.Add($"{drive.Name}, {drive.TotalSize / (1024 * 1024 * 1024)} GB\n");
+                    stringList.Add($"{drive.Name}, {drive.TotalSize / (1024 * 1024 * 1024)} GB");
                 }
 
             }
@@ -461,14 +466,14 @@ namespace testUdpTcp
             foreach (ManagementObject obj in searcher.Get())
             {
                 // In ra một số thông tin CPU
-                stringList.Add($"{obj["Name"]}\n");
+                stringList.Add($"{obj["Name"]}");
             }
 
             stringList.Add($"RAM: ");
             searcher = new ManagementObjectSearcher("SELECT * FROM Win32_PhysicalMemory");
             foreach (ManagementObject obj in searcher.Get())
             {
-                stringList.Add($"Capacity: {obj["Capacity"]} bytes Speed: {obj["Speed"]} Manufacturer: {obj["Manufacturer"]}  Part Number: {obj["PartNumber"]}\n");
+                stringList.Add($"Capacity: {obj["Capacity"]} bytes Speed: {obj["Speed"]} Manufacturer: {obj["Manufacturer"]}  Part Number: {obj["PartNumber"]}|");
             }
             stringList.Add("MSSV: ");
             return stringList;
@@ -574,6 +579,50 @@ namespace testUdpTcp
             Cursor.Show();
             if (listener != null)
                 listener.Stop();
+        }
+
+        private void btnDoExam_Click(object sender, EventArgs e)
+        {
+            string jsonText = File.ReadAllText("D:\\demo1\\DATAQUANLYLOPHOC\\123456.json");
+            
+            Quiz quiz = JsonConvert.DeserializeObject<Quiz>(jsonText);
+            quiz.Questions = convertType(quiz);
+            ExamForm examform = new ExamForm(quiz);
+            examform.ShowDialog();
+        }
+        private List<Question> convertType(Quiz quiz)
+        {
+            List<Question> questions = new List<Question>();
+            foreach(var question in quiz.Questions)
+            {
+                if(question.Type == QuestionType.multipleType)
+                {
+                    MultipleChoiceQuestion multiQuestion = new MultipleChoiceQuestion();
+                    multiQuestion.Type = question.Type;
+                    multiQuestion.QuestionText = question.QuestionText;
+                    multiQuestion.Answer = question.Answer;
+                    multiQuestion.Options = question.Options;
+                    questions.Add(multiQuestion);
+                }
+                else if (question.Type == QuestionType.singleType)
+                {
+                    SingleChoiceQuestion multiQuestion = new SingleChoiceQuestion();
+                    multiQuestion.Type = question.Type;
+                    multiQuestion.QuestionText = question.QuestionText;
+                    multiQuestion.Answer = question.Answer;
+                    multiQuestion.Options = question.Options;
+                    questions.Add(multiQuestion);
+                }else if(question.Type == QuestionType.orderingType)
+                {
+                    OrderingQuestion multiQuestion = new OrderingQuestion();
+                    multiQuestion.Type = question.Type;
+                    multiQuestion.QuestionText = question.QuestionText;
+                    multiQuestion.Answer = question.Answer;
+                    multiQuestion.Options = question.Options;
+                    questions.Add(multiQuestion);
+                }
+            }
+            return questions;
         }
     }
 }

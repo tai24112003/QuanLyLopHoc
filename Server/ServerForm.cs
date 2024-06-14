@@ -16,7 +16,9 @@ using WinFormsTimer = System.Windows.Forms.Timer;
 using System.IO;
 using System.Drawing.Imaging;
 using System.Drawing.Drawing2D;
+using OfficeOpenXml;
 using System.IO.Compression;
+using OfficeOpenXml.Style;
 
 namespace Server
 {
@@ -34,12 +36,17 @@ namespace Server
         private List<List<string>> summaryInfoList = new List<List<string>>();
         private ImageList smallImageList;
         private ImageList largeImageList; private volatile bool isRunning = true;
+        private List<Dictionary<string, string>> standardInfoList = new List<Dictionary<string, string>>();
+        private List<Dictionary<string, string>> privateStandardInfoList = new List<Dictionary<string, string>>();
         public svForm()
         {
             InitializeComponent();
             Ip = getIPServer();
             InitializeContextMenu();
+            InitializeStandard();
+            InitializeFullInfoList(30, "F711");
             Console.WriteLine("IP:" + Ip);
+            LoadFullInfoListIntoListView(fullInfoList);
             smallImageList = new ImageList();
             largeImageList = new ImageList();
             // Thêm biểu tượng "user" vào ImageList
@@ -48,7 +55,7 @@ namespace Server
             largeImageList.Images.Add("user", Properties.Resources.user);
             lv_client.SmallImageList = smallImageList;
             lv_client.LargeImageList = largeImageList;
-           // initialStateUI();
+            // initialStateUI();
         }
         private void initialStateUI()
         {
@@ -85,6 +92,40 @@ namespace Server
         }
 
 
+        private void LoadFullInfoListIntoListView(List<List<string>> fullInfoList)
+        {
+            lv_client.Items.Clear(); // Xóa các mục cũ trước khi thêm mới
+            foreach (List<string> infoList in fullInfoList)
+            {
+                ListViewItem item = new ListViewItem(infoList[0]); // Giả sử chỉ hiển thị phần tử đầu tiên của mỗi danh sách
+                for (int i = 1; i < infoList.Count; i++)
+                {
+                    item.SubItems.Add(infoList[i]);
+                }
+                lv_client.Items.Add(item);
+            }
+        }
+
+        private void lv_client_DrawSubItem(object sender, DrawListViewSubItemEventArgs e)
+        {
+            using (StringFormat sf = new StringFormat())
+            {
+                sf.Alignment = StringAlignment.Near;
+                sf.LineAlignment = StringAlignment.Center;
+                sf.Trimming = StringTrimming.EllipsisWord;
+
+                // Thiết lập kích thước và vẽ văn bản
+                Rectangle bounds = e.Bounds;
+                bounds.Inflate(-2, 0); // Để tránh việc văn bản bị cắt ở mép
+                e.Graphics.DrawString(e.SubItem.Text.Replace("\\n", "\n"), lv_client.Font, Brushes.Black, bounds, sf); // Thay thế "\\n" bằng "\n" để hiển thị xuống dòng
+            }
+        }
+
+        private void SetListViewHeightBasedOnItems()
+        {
+            int totalHeight = lv_client.Items.Count * (lv_client.Items[0].Bounds.Height + 1);
+            lv_client.ClientSize = new Size(lv_client.ClientSize.Width, totalHeight);
+        }
 
 
 
@@ -176,7 +217,7 @@ namespace Server
             IPAddress broadcastAddress = GetBroadcastAddress();
 
 
-           // SendUDPMessage(broadcastAddress, 11312, Ip);
+            SendUDPMessage(broadcastAddress, 11312, Ip);
 
         }
         private void SendUDPMessage(IPAddress ipAddress, int port, String mes)
@@ -258,13 +299,136 @@ namespace Server
             // Đóng kết nối khi client đóng kết nối
             //tcpClient.Close();
         }
+        public void InitializeStandard()
+        {
+            string keysString = "Tên máy,Ổ cứng,CPU,RAM,MSSV,IPC,Chuột,Bàn phím,Màn hình";
+            // Chuỗi chứa các value cho standardInfoList
+            string privateStandardValuesString = "F711-11,500GB,Intel(R) Core(TM) i5-10500 CPU @ 3.10GHz, 16 gb, ,192.168.1.1,đang kết nối,đang kết nối,đang kết nối";
+            // Chuỗi chứa các value cho privateStandardInfoList
+            string standardValuesString = "F711-02,1TB,Intel i7,16GB\n16GB,654321,192.168.1.2,đang kết nối,đang kết nối,đang kết nối";
 
-        private void ReciveInfo(string info)
+            // Tách các key và value từ chuỗi
+            var keys = keysString.Split(',');
+            var standardValues = standardValuesString.Split(',');
+            var privateStandardValues = privateStandardValuesString.Split(',');
+
+            // Khởi tạo standardInfoList
+            var standardInfo = new Dictionary<string, string>();
+            for (int i = 0; i < keys.Length; i++)
+            {
+                standardInfo[keys[i]] = standardValues[i];
+            }
+            // Thay thế ký tự xuống dòng trong chuỗi "16GB\n16GB" bằng ký tự xuống dòng thực sự
+            standardInfo["RAM"] = standardInfo["RAM"].Replace("\\n", Environment.NewLine);
+            standardInfoList.Add(standardInfo);
+
+            // Khởi tạo privateStandardInfoList
+            var privateStandardInfo = new Dictionary<string, string>();
+            for (int i = 0; i < keys.Length; i++)
+            {
+                privateStandardInfo[keys[i]] = privateStandardValues[i];
+            }
+            privateStandardInfoList.Add(privateStandardInfo);
+        }
+
+        public void InitializeFullInfoList(int machineCount, string roomName)
+        {
+            for (int i = 1; i <= machineCount; i++)
+            {
+                string machineName = $"{roomName}-{i:D2}";
+                var newEntry = new List<string>();
+
+                //Kiểm tra nếu máy tồn tại trong privateStandardInfoList
+                var privateInfo = privateStandardInfoList.FirstOrDefault(info => info.ContainsKey("Tên máy") && info["Tên máy"] == machineName);
+                if (privateInfo != null)
+                {
+                    newEntry.Add(privateInfo["Tên máy"]);
+                    newEntry.Add(privateInfo["Ổ cứng"]);
+                    newEntry.Add(privateInfo["CPU"]);
+                    newEntry.Add(privateInfo["RAM"]);
+                    newEntry.Add(privateInfo["MSSV"]);
+                    newEntry.Add(privateInfo["IPC"]);
+                    newEntry.Add(privateInfo["Chuột"]);
+                    newEntry.Add(privateInfo["Bàn phím"]);
+                    newEntry.Add(privateInfo["Màn hình"]);
+                }
+                else
+                {
+                    // Tự lấy thông tin chuẩn và khởi tạo máy nếu máy không tồn tại trong privateStandardInfoList
+                    var standardInfo = standardInfoList[0];
+                    newEntry.Add(machineName); // "Tên máy"
+                    newEntry.Add(standardInfo["Ổ cứng"]);
+                    newEntry.Add(standardInfo["CPU"]);
+                    newEntry.Add(standardInfo["RAM"]);
+                    newEntry.Add(standardInfo["MSSV"]);
+                    newEntry.Add(standardInfo["IPC"]);
+                    newEntry.Add(standardInfo["Chuột"]);
+                    newEntry.Add(standardInfo["Bàn phím"]);
+                    newEntry.Add(standardInfo["Màn hình"]);
+                }
+
+                fullInfoList.Add(newEntry);
+            }
+        }
+
+        public Dictionary<string, string> CompareInfo(Dictionary<string, string> newInfo)
+        {
+            Dictionary<string, string> result = new Dictionary<string, string>();
+            Dictionary<string, string> matchedInfo = null;
+
+            // Check privateStandardInfoList first
+            foreach (var info in privateStandardInfoList)
+            {
+                if (info.ContainsKey("Tên máy") && newInfo.ContainsKey("Tên máy") && info["Tên máy"] == newInfo["Tên máy"])
+                {
+                    matchedInfo = info;
+                    break;
+                }
+            }
+
+            // If not found, check standardInfoList
+            if (matchedInfo == null)
+            {
+                foreach (var info in standardInfoList)
+                {
+                    if (info.ContainsKey("Tên máy") && newInfo.ContainsKey("Tên máy") && info["Tên máy"] == newInfo["Tên máy"])
+                    {
+                        matchedInfo = info;
+                        break;
+                    }
+                }
+            }
+
+            // Compare and update result
+            foreach (var key in newInfo.Keys)
+            {
+                if (key == "Chuột" || key == "Bàn phím" || key == "Màn hình")
+                {
+                    result[key] = newInfo[key] == "Đã kết nối" ? newInfo[key] + ":1" : newInfo[key] + ":0";
+                }
+                else
+                {
+                    if(key!= "Tên máy"&&key!= "MSSV"&&key!="IPC")
+                    if (matchedInfo != null && matchedInfo.ContainsKey(key) && matchedInfo[key] == newInfo[key])
+                    {
+                        result[key] = newInfo[key] + ":1";
+                    }
+                    else
+                    {
+                        result[key] = newInfo[key] + ":0";
+                    }
+                }
+            }
+
+            return result;
+        }
+
+
+        public void ReciveInfo(string info)
         {
             Console.WriteLine(info);
             string[] infC = info.Split(new string[] { "Tenmay: ", "MSSV: ", "Ocung: ", "CPU: ", "RAM: ", "IPC: ", "Chuot: ", "Banphim: ", "Manhinh: " }, StringSplitOptions.None);
 
-            // Tạo danh sách mới
             List<string> newEntry = new List<string>
     {
         infC[2],  // Tên máy
@@ -278,6 +442,54 @@ namespace Server
         infC[5]   // Màn hình
     };
 
+            // Tạo dictionary mới từ danh sách thông tin nhận được
+            var newInfoDict = new Dictionary<string, string>
+    {
+        { "Tên máy", newEntry[0] },
+        { "Ổ cứng", newEntry[1] },
+        { "CPU", newEntry[2] },
+        { "RAM", newEntry[3] },
+        { "MSSV", newEntry[4] },
+        { "IPC", newEntry[5] },
+        { "Chuột", newEntry[6] },
+        { "Bàn phím", newEntry[7] },
+        { "Màn hình", newEntry[8] }
+    };
+
+            // So sánh và cập nhật thông tin
+            var comparedInfo = CompareInfo(newInfoDict);
+
+            // Cập nhật danh sách đầy đủ và tóm tắt
+            UpdateInfoList(newEntry, comparedInfo);
+
+            
+
+            // Tạo bản sao của danh sách mới để rút gọn thông tin
+            List<string> newEntryCopy = new List<string>(newEntry);
+
+            // Xử lý thông tin RAM để tách dung lượng của từng RAM và kết hợp chúng
+            string ramInfo = infC[8];
+            string combinedRamCapacities = CombineRamCapacities(ramInfo);
+            Console.WriteLine(combinedRamCapacities);
+            // Cập nhật thông tin RAM đã kết hợp trong danh sách tóm tắt
+            newEntryCopy[3] = combinedRamCapacities;
+            Console.WriteLine("Ram sau khi tom tat: " + combinedRamCapacities);
+            // Kiểm tra và cập nhật thông tin trong danh sách tóm tắt
+            UpdateSummaryInfoList(newEntryCopy);
+
+            // Hiển thị dữ liệu trên ListView và so sánh
+            AddOrUpdateRowToListView(newEntryCopy);
+
+            Console.WriteLine("length: " + fullInfoList.Count);
+        }
+
+        private void UpdateInfoList(List<string> newEntry, Dictionary<string, string> comparedInfo)
+        {
+            // Cập nhật danh sách tóm tắt
+            foreach (var key in comparedInfo.Keys)
+            {
+                newEntry[GetIndexForKey(key)] = comparedInfo[key];
+            }
             // Kiểm tra xem tên máy đã tồn tại trong danh sách hay chưa
             bool entryExists = false;
             for (int i = 0; i < fullInfoList.Count; i++)
@@ -307,20 +519,29 @@ namespace Server
                 }
             }
 
-            Console.WriteLine(newEntry[3]);
+           
+        }
 
-            // Tạo bản sao của danh sách mới để rút gọn thông tin
-            List<string> newEntryCopy = new List<string>(newEntry);
+        private int GetIndexForKey(string key)
+        {
+            switch (key)
+            {
+                case "Tên máy": return 0;
+                case "Ổ cứng": return 1;
+                case "CPU": return 2;
+                case "RAM": return 3;
+                case "MSSV": return 4;
+                case "IPC": return 5;
+                case "Chuột": return 6;
+                case "Bàn phím": return 7;
+                case "Màn hình": return 8;
+                default: return -1;
+            }
+        }
 
-            // Xử lý thông tin RAM để tách dung lượng của từng RAM và kết hợp chúng
-            string ramInfo = infC[8];
-            string combinedRamCapacities = CombineRamCapacities(ramInfo);
-            Console.WriteLine(combinedRamCapacities);
-            // Cập nhật thông tin RAM đã kết hợp trong danh sách tóm tắt
-            newEntryCopy[3] = combinedRamCapacities;
-
-            // Kiểm tra và cập nhật thông tin trong danh sách tóm tắt
-            entryExists = false;
+        private void UpdateSummaryInfoList(List<string> newEntryCopy)
+        {
+            bool entryExists = false;
             for (int i = 0; i < summaryInfoList.Count; i++)
             {
                 if (summaryInfoList[i][0] == newEntryCopy[0]) // So sánh tên máy
@@ -337,14 +558,6 @@ namespace Server
             {
                 summaryInfoList.Add(newEntryCopy);
             }
-
-            // Hiển thị dữ liệu trên DataGridView
-            if (!isFullInfoMode)
-            {
-                AddOrUpdateRowToListView(newEntryCopy);
-            }
-
-            Console.WriteLine("length: " + fullInfoList.Count);
         }
 
         private string CombineRamCapacities(string ramInfo)
@@ -352,17 +565,18 @@ namespace Server
             List<string> ramCapacities = new List<string>();
 
             // Tách các thông tin về RAM
-            string[] ramModules = ramInfo.Split(new string[] { "Capacity:" }, StringSplitOptions.RemoveEmptyEntries);
+            string[] ramModules = ramInfo.Split(new string[] { "|" }, StringSplitOptions.RemoveEmptyEntries);
             foreach (string ramModule in ramModules)
             {
                 int bytesIndex = ramModule.IndexOf("bytes");
+                int capaIndex = ramModule.IndexOf(":");
                 if (bytesIndex > 0)
                 {
-                    string capacityStr = ramModule.Substring(0, bytesIndex).Trim();
+                    string capacityStr = ramModule.Substring(capaIndex + 1, bytesIndex - capaIndex - 1).Trim();
                     if (double.TryParse(capacityStr, out double capacityBytes))
                     {
                         double capacityGB = capacityBytes / (1024 * 1024 * 1024);
-                        ramCapacities.Add(capacityGB + " GB\r\n");
+                        ramCapacities.Add($"{capacityGB} GB");
                     }
                 }
             }
@@ -370,84 +584,62 @@ namespace Server
             // Kết hợp các dung lượng RAM vào một chuỗi duy nhất
             return string.Join("\n", ramCapacities);
         }
-
         private void AddOrUpdateRowToListView(List<string> entry)
         {
             if (lv_client.InvokeRequired)
             {
                 lv_client.Invoke(new Action(() =>
                 {
-                    ListViewItem item = null;
-                    foreach (ListViewItem listItem in lv_client.Items)
-                    {
-                        if (listItem.SubItems[0].Text == entry[0])
-                        {
-                            item = listItem;
-                            break;
-                        }
-                    }
-                    if (item != null)
-                    {
-                        // Cập nhật dữ liệu nếu dòng đã tồn tại
-                        for (int i = 0; i < entry.Count; i++)
-                        {
-                            item.SubItems[i].Text = entry[i];
-                        }
-                    }
-                    else
-                    {
-                        // Thêm dòng mới nếu không tồn tại
-                        item = new ListViewItem(entry.ToArray());
-                        item.ImageIndex = 0;
-                        lv_client.Items.Add(item);
-                    }
+                    AddOrUpdateRow(entry);
                 }));
             }
             else
             {
-                ListViewItem item = null;
-                foreach (ListViewItem listItem in lv_client.Items)
-                {
-                    if (listItem.SubItems[0].Text == entry[0])
-                    {
-                        item = listItem;
-                        break;
-                    }
-                }
-                if (item != null)
-                {
-                    // Cập nhật dữ liệu nếu dòng đã tồn tại
-                    for (int i = 0; i < entry.Count; i++)
-                    {
-                        item.SubItems[i].Text = entry[i];
-                    }
-                }
-                else
-                {
-                    // Thêm dòng mới nếu không tồn tại
-                    item = new ListViewItem(entry.ToArray());
-                    lv_client.Items.Add(item);
-                }
+                AddOrUpdateRow(entry);
             }
         }
 
-        private void AddRow(DataGridView dataGridView, List<string> entry)
+        private void AddOrUpdateRow(List<string> entry)
         {
-            dataGridView.Rows.Add(entry.ToArray());
+            ListViewItem item = null;
+            foreach (ListViewItem listItem in lv_client.Items)
+            {
+                if (entry[0].Contains(listItem.SubItems[0].Text))
+                {
+                    item = listItem;
+                    break;
+                }
+            }
+            if (item != null)
+            {
+                // Cập nhật dữ liệu nếu dòng đã tồn tại
+                for (int i = 0; i < entry.Count; i++)
+                {
+                    item.UseItemStyleForSubItems = true;
+
+                    int indexOf = entry[i].LastIndexOf(":");
+                    indexOf = indexOf == -1 ? entry[i].Length : indexOf;
+                     item.SubItems[i].Text = entry[i].Substring(0,indexOf);
+                    string tmp = entry[i].Substring(indexOf);
+                    if (tmp.Contains("0"))
+                    {
+                        item.SubItems[i].ForeColor = Color.Red;
+                    }
+                    else
+                    {
+                        item.SubItems[i].ForeColor = Color.Black; // Màu mặc định
+                    }
+                }
+            }
+            else
+            {
+                // Thêm dòng mới nếu không tồn tại
+                item = new ListViewItem(entry.ToArray());
+                lv_client.Items.Add(item);
+            }
+            lv_client.Refresh();
         }
 
-        private void UpdateRow(DataGridViewRow row, List<string> entry)
-        {
-            row.Cells["tenmay"].Value = entry[0];
-            row.Cells["Ocung"].Value = entry[1];
-            row.Cells["cpu"].Value = entry[2];
-            row.Cells["ram"].Value = entry[3];
-            row.Cells["mssv"].Value = entry[4];
-            row.Cells["IPC"].Value = entry[5];
-            row.Cells["chuot"].Value = entry[6];
-            row.Cells["banphim"].Value = entry[7];
-            row.Cells["manhinh"].Value = entry[8];
-        }
 
 
         private void SlideShowClick(object sender, EventArgs e)
@@ -709,8 +901,7 @@ namespace Server
         {
             lv_client.Items.Clear();
             isFullInfoMode = !isFullInfoMode;
-            LogElementFromList(fullInfoList, 0, 3);
-            LogElementFromList(summaryInfoList, 0, 3);
+            
             List<List<string>> targetList = isFullInfoMode ? fullInfoList : summaryInfoList;
             foreach (List<string> entry in targetList)
             {
@@ -1018,6 +1209,85 @@ namespace Server
         }
 
 
-        
+        private void ExportToExcel(string fileName)
+        {
+            try
+            {
+                // Thiết lập LicenseContext
+                OfficeOpenXml.ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
+
+                FileInfo newFile = new FileInfo(fileName);
+                if (newFile.Exists)
+                {
+                    newFile.Delete();  // Xóa tệp đã tồn tại
+                    newFile = new FileInfo(fileName);
+                }
+
+                using (ExcelPackage package = new ExcelPackage(newFile))
+                {
+                    ExcelWorksheet worksheet = package.Workbook.Worksheets.Add("PhongMayInfo");
+
+                    // Đặt tiêu đề cho các cột
+                    for (int i = 1; i <= lv_client.Columns.Count; i++)
+                    {
+                        worksheet.Cells[1, i].Value = lv_client.Columns[i - 1].Text;
+                    }
+
+                    // Đổ dữ liệu từ ListView vào tệp Excel và kiểm tra sự khác biệt
+                    for (int i = 0; i < lv_client.Items.Count; i++)
+                    {
+                        for (int j = 0; j < lv_client.Items[i].SubItems.Count; j++)
+                        {
+                            var cell = worksheet.Cells[i + 2, j + 1];
+                            cell.Value = lv_client.Items[i].SubItems[j].Text;
+
+                            // Kiểm tra nếu ô có màu đỏ thì tô màu trong Excel
+                            if (lv_client.Items[i].SubItems[j].ForeColor == Color.Red)
+                            {
+                                cell.Style.Fill.PatternType = ExcelFillStyle.Solid;
+                                cell.Style.Fill.BackgroundColor.SetColor(Color.Red);
+                            }
+                        }
+                    }
+
+                    package.Save();
+                }
+
+                Console.WriteLine("Exported data to Excel successfully.");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("An error occurred while exporting data to Excel: " + ex.Message);
+            }
+        }
+
+        private void btnUnlock_Click(object sender, EventArgs e)
+        {
+            string thongTinMayTinh = "InfoClient-IPC: 192.168.0.104Tenmay: F711-11Chuot: Đã kết nốiBanphim: Đã kết nốiManhinh: Đã kết nốiOcung: C:\\, 465 GBCPU: 13th Gen Intel(R) Core(TM) i5-13400FRAM: Capacity: 17179869184 bytes Speed: 3200 Manufacturer: Golden Empire  Part Number: CL16-20-20 D4-3200  |Capacity: 17179869184 bytes Speed: 3200 Manufacturer: Golden Empire  Part Number: CL16-20-20 D4-3200  |MSSV: ";
+            ReciveInfo(thongTinMayTinh);
+        }
+
+        private void btnLock_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void toolStripButton5_Click(object sender, EventArgs e)
+        {
+            using (FolderBrowserDialog folderBrowserDialog = new FolderBrowserDialog())
+            {
+                folderBrowserDialog.Description = "Chọn thư mục lưu trữ";
+                folderBrowserDialog.RootFolder = Environment.SpecialFolder.MyComputer;
+                folderBrowserDialog.ShowNewFolderButton = true;
+
+                if (folderBrowserDialog.ShowDialog() == DialogResult.OK)
+                {
+                    string folderPath = folderBrowserDialog.SelectedPath;
+                    Console.WriteLine($"{folderPath}");
+                    // Hiển thị đường dẫn thư mục đã chọn, ví dụ trên một label
+                    ExportToExcel(folderPath + @"\F711-Info.xlsx");
+                }
+            }
+        }
     }
 }

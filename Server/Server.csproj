@@ -76,6 +76,11 @@
       <DependentUpon>CreateQuestion.cs</DependentUpon>
     </Compile>
     <Compile Include="FirewallHelper.cs" />
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
     <Compile Include="QuickLaunchForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -131,14 +136,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
       <SubType>Designer</SubType>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-    <Compile Include="Properties\Resources.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Resources.resx</DependentUpon>
-      <DesignTime>True</DesignTime>
-    </Compile>
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -166,61 +166,13 @@
     <None Include="Resources\lock.png" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\portfolio.png" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="Resources\dices.png" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\register.png" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\application.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\planning.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\monitor.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\keyboard.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\world-wide-web.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\home.png" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="Resources\user.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\home-office.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\home-button.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\keyboard %281%29.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\web.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\monitor %282%29.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\briefcase.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\briefcase %281%29.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\management-service.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\dice.png" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\export.png" />
@@ -230,6 +182,42 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\briefcase %281%291.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\monitor %281%29.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\monitor.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\world-wide-web %281%29.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\world-wide-web.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\home %281%29.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\home.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\briefcase %281%29.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\briefcase %281%29 %281%29.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\home %281%291.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\world-wide-web %281%291.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\monitor %281%291.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\multiple-users-silhouette %281%29.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

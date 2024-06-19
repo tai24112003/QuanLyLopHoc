@@ -83,26 +83,6 @@ namespace Server.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap application {
-            get {
-                object obj = ResourceManager.GetObject("application", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap briefcase {
-            get {
-                object obj = ResourceManager.GetObject("briefcase", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
         internal static System.Drawing.Bitmap briefcase__1_ {
             get {
                 object obj = ResourceManager.GetObject("briefcase (1)", resourceCulture);
@@ -113,9 +93,9 @@ namespace Server.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap briefcase__1_1 {
+        internal static System.Drawing.Bitmap briefcase__1___1_ {
             get {
-                object obj = ResourceManager.GetObject("briefcase (1)1", resourceCulture);
+                object obj = ResourceManager.GetObject("briefcase (1) (1)", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -123,9 +103,9 @@ namespace Server.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap dice {
+        internal static System.Drawing.Bitmap briefcase__1_1 {
             get {
-                object obj = ResourceManager.GetObject("dice", resourceCulture);
+                object obj = ResourceManager.GetObject("briefcase (1)1", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -163,9 +143,9 @@ namespace Server.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap home_button {
+        internal static System.Drawing.Bitmap home__1_ {
             get {
-                object obj = ResourceManager.GetObject("home-button", resourceCulture);
+                object obj = ResourceManager.GetObject("home (1)", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -173,29 +153,9 @@ namespace Server.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap home_office {
+        internal static System.Drawing.Bitmap home__1_1 {
             get {
-                object obj = ResourceManager.GetObject("home-office", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap keyboard {
-            get {
-                object obj = ResourceManager.GetObject("keyboard", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap keyboard__1_ {
-            get {
-                object obj = ResourceManager.GetObject("keyboard (1)", resourceCulture);
+                object obj = ResourceManager.GetObject("home (1)1", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -213,16 +173,6 @@ namespace Server.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap management_service {
-            get {
-                object obj = ResourceManager.GetObject("management-service", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
         internal static System.Drawing.Bitmap monitor {
             get {
                 object obj = ResourceManager.GetObject("monitor", resourceCulture);
@@ -233,9 +183,9 @@ namespace Server.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap monitor__2_ {
+        internal static System.Drawing.Bitmap monitor__1_ {
             get {
-                object obj = ResourceManager.GetObject("monitor (2)", resourceCulture);
+                object obj = ResourceManager.GetObject("monitor (1)", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -243,9 +193,9 @@ namespace Server.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap planning {
+        internal static System.Drawing.Bitmap monitor__1_1 {
             get {
-                object obj = ResourceManager.GetObject("planning", resourceCulture);
+                object obj = ResourceManager.GetObject("monitor (1)1", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -253,9 +203,9 @@ namespace Server.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap portfolio {
+        internal static System.Drawing.Bitmap multiple_users_silhouette__1_ {
             get {
-                object obj = ResourceManager.GetObject("portfolio", resourceCulture);
+                object obj = ResourceManager.GetObject("multiple-users-silhouette (1)", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -313,9 +263,9 @@ namespace Server.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap web {
+        internal static System.Drawing.Bitmap world_wide_web {
             get {
-                object obj = ResourceManager.GetObject("web", resourceCulture);
+                object obj = ResourceManager.GetObject("world-wide-web", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -323,9 +273,19 @@ namespace Server.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap world_wide_web {
+        internal static System.Drawing.Bitmap world_wide_web__1_ {
             get {
-                object obj = ResourceManager.GetObject("world-wide-web", resourceCulture);
+                object obj = ResourceManager.GetObject("world-wide-web (1)", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap world_wide_web__1_1 {
+            get {
+                object obj = ResourceManager.GetObject("world-wide-web (1)1", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

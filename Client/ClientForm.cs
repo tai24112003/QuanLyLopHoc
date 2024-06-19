@@ -15,6 +15,9 @@ using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 using System.IO;
 using System.Net.Http;
 using System.Net.NetworkInformation;
+using System.Text.RegularExpressions;
+using System.IO.Compression;
+using Newtonsoft.Json;
 
 namespace testUdpTcp
 {
@@ -23,10 +26,17 @@ namespace testUdpTcp
         public ClientForm()
         {
             InitializeComponent();
+            //myIp = getIPServer();
             myIp = getIPServer();
             inf = GetDeviceInfo();
+            foreach (var ip in inf)
+            {
+                Console.Write(ip);
+            }
+
         }
         private UdpClient udpClient;
+        SlideShowForm form1;
         private Thread udpReceiverThread;
         private string IpServer = "";
         private string myIp = "";
@@ -40,24 +50,24 @@ namespace testUdpTcp
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            Console.WriteLine("vao form");
+
             udpClient = new UdpClient(11312);
             udpReceiverThread = new Thread(new ThreadStart(ReceiveDataOnce));
             udpReceiverThread.Start();
             udpReceiverThread.Join();
             updateBox();
-            Console.WriteLine("Da Gui info");
+
             listenThread = new Thread(new ThreadStart(ListenForClients));
             listenThread.Start();
 
         }
         private void ListenForClients()
         {
-            Console.WriteLine("akaj");
+
             listener = new TcpListener(IPAddress.Parse(myIp), 8888);
             listener.Start();
 
-            Console.WriteLine("Server is listening for clients...");
+            Console.WriteLine("Client is listening...");
             while (true)
             {
                 try
@@ -65,7 +75,7 @@ namespace testUdpTcp
 
                     TcpClient client = listener.AcceptTcpClient();
                     // Bạn có thể xử lý kết nối client ở đây
-                    Console.WriteLine("lụm");
+
                     HandleClient(client);
 
                 }
@@ -76,6 +86,20 @@ namespace testUdpTcp
                 }
             }
         }
+        private string ConvertWildcardToRegexPattern(string wildcardPattern)
+        {
+            // Thay thế '*' thành '.*' trong mẫu regex
+            string regexPattern = wildcardPattern.Replace("*", ".*");
+
+            // Nếu mẫu không chứa ký tự '*', thêm '^' ở đầu và '$' ở cuối để đảm bảo so khớp chính xác
+            if (!regexPattern.Contains(".*"))
+            {
+                regexPattern = "^" + regexPattern + "$";
+            }
+
+            return regexPattern;
+        }
+
         private void HandleClient(TcpClient tcpClient)
         {
             NetworkStream clientStream = tcpClient.GetStream();
@@ -83,22 +107,161 @@ namespace testUdpTcp
             byte[] messageBuffer = new byte[1024];
             int bytesRead;
             string receivedMessage = "";
+
+            // Đọc dữ liệu từ client
             while ((bytesRead = clientStream.Read(messageBuffer, 0, messageBuffer.Length)) > 0)
             {
-                // Xử lý dữ liệu nhận được từ client
                 receivedMessage += Encoding.UTF8.GetString(messageBuffer, 0, bytesRead);
-                Console.WriteLine(receivedMessage);
 
+                // Nếu nhận đủ thông điệp
+                if (receivedMessage.Contains("-"))
+                {
+                    break;
+                }
             }
 
-            switch (receivedMessage)
+            if (receivedMessage.StartsWith("SendFile"))
             {
-                case "LOCK_ACCESS": LockWeb(); Console.WriteLine("nhan dc tin hieu"); break;
-            }
-            tcpClient.Close();
+                // Parse the signal
+                string[] parts = receivedMessage.Split('-');
+                if (parts.Length >= 3)
+                {
+                    string fileName = parts[1];
+                    string destinationPath = parts[2];
 
-            
+                    // Tạo thư mục đích nếu chưa tồn tại
+                    if (!Directory.Exists(destinationPath))
+                    {
+                        Directory.CreateDirectory(destinationPath);
+                    }
+
+                    // Gửi xác nhận
+                    clientStream.Write(BitConverter.GetBytes(1), 0, 4);
+                    clientStream.Flush();
+
+                    // Nhận nội dung tệp
+                    byte[] fileLengthBytes = new byte[4];
+                    clientStream.Read(fileLengthBytes, 0, 4);
+                    int fileLength = BitConverter.ToInt32(fileLengthBytes, 0);
+
+                    byte[] fileBytes = new byte[fileLength];
+                    int totalBytesRead = 0;
+                    while (totalBytesRead < fileLength)
+                    {
+                        bytesRead = clientStream.Read(fileBytes, totalBytesRead, fileLength - totalBytesRead);
+                        if (bytesRead == 0)
+                        {
+                            break;
+                        }
+                        totalBytesRead += bytesRead;
+                    }
+
+                    // Lưu tệp vào đường dẫn đích
+                    string fullFilePath = Path.Combine(destinationPath, fileName);
+                    File.WriteAllBytes(fullFilePath, fileBytes);
+
+                    Console.WriteLine("Tệp đã được nhận và lưu thành công: " + fullFilePath);
+                }
+            }
+            else if (receivedMessage.StartsWith("CollectFile"))
+            {
+                // Parse the signal
+                string[] parts = receivedMessage.Split('-');
+                if (parts.Length >= 4)
+                {
+                    string fileNamePattern = ConvertWildcardToRegexPattern(parts[1]);
+                    string destinationPath = parts[2];
+                    string check = parts[3];
+
+                    try
+                    {
+                        var matchingFiles = Directory.GetFiles(destinationPath)
+                            .Where(path => Regex.Match(Path.GetFileName(path), fileNamePattern).Success)
+                            .ToList();
+
+                        if (matchingFiles.Any())
+                        {
+                            string tempZipPath = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString() + ".zip");
+
+                            using (ZipArchive zip = ZipFile.Open(tempZipPath, ZipArchiveMode.Create))
+                            {
+                                foreach (string filePath in matchingFiles)
+                                {
+                                    zip.CreateEntryFromFile(filePath, Path.GetFileName(filePath));
+                                }
+                            }
+
+                            byte[] zipBytes = File.ReadAllBytes(tempZipPath);
+                            byte[] zipNameBytes = Encoding.UTF8.GetBytes(Path.GetFileName(tempZipPath));
+
+                            // Gửi độ dài của tên file zip
+                            clientStream.Write(BitConverter.GetBytes(zipNameBytes.Length), 0, 4);
+                            clientStream.Write(zipNameBytes, 0, zipNameBytes.Length);
+
+                            // Gửi độ dài nội dung file zip
+                            clientStream.Write(BitConverter.GetBytes(zipBytes.Length), 0, 4);
+                            clientStream.Write(zipBytes, 0, zipBytes.Length);
+
+                            clientStream.Flush(); // Đảm bảo dữ liệu được gửi đi ngay lập tức 
+
+                            File.Delete(tempZipPath); // Xóa file zip tạm thời
+                            Console.WriteLine(check);
+                            if (check == "True")
+                            {
+                                foreach (string filePath in matchingFiles)
+                                {
+                                    File.Delete(filePath);
+                                }
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine("Lỗi khi tìm kiếm tệp: " + ex.Message);
+                    }
+                }
+            }
+            else
+            {
+                switch (receivedMessage)
+                {
+                    case "LOCK_ACCESS": LockWeb(); Console.WriteLine("nhan dc tin hieu"); tcpClient.Close(); break;
+                    case "SlideShow":
+                        //SlideShowForm slideShowForm = new SlideShowForm();
+
+                        // Gán địa chỉ IP của máy chủ từ ClientForm sang SlideShowForm
+                        //slideShowForm.ServerIP = IpServer;
+                        //slideShowForm.Listener = listener;
+                        listener.Stop();
+                        OpenNewForm(tcpClient);
+                        // Hiển thị SlideShowForm
+                        //slideShowForm.Show();
+                        break;
+                }
+
+            }
+
+            Console.WriteLine("Đóng kết nối");
+            tcpClient.Close();
         }
+
+        private void OpenNewForm(TcpClient tcpclient)
+        {
+            if (this.InvokeRequired)
+            {
+                this.BeginInvoke((MethodInvoker)delegate { OpenNewForm(tcpclient); });
+            }
+            else
+            {
+                if (form1 == null)
+                {
+                    form1 = new SlideShowForm();
+                    form1.ServerIP = IpServer;
+                    form1.Show();
+                }
+            }
+        }
+
         private void LockWeb()
         {
             try
@@ -141,19 +304,21 @@ namespace testUdpTcp
 
             foreach (NetworkInterface networkInterface in networkInterfaces)
             {
-                // Lọc ra các card mạng LAN
-                if (networkInterface.NetworkInterfaceType == NetworkInterfaceType.Ethernet ||
-                    networkInterface.NetworkInterfaceType == NetworkInterfaceType.Wireless80211)
+                // Kiểm tra chỉ lấy card mạng có cấu hình IP cục bộ (Local Area Network)
+                if ((networkInterface.NetworkInterfaceType == NetworkInterfaceType.Ethernet &&
+            networkInterface.Name.Contains("Ethernet") &&
+                    networkInterface.OperationalStatus == OperationalStatus.Up) || networkInterface.NetworkInterfaceType == NetworkInterfaceType.Wireless80211)
                 {
                     // Lấy danh sách địa chỉ IP của card mạng này
-                    UnicastIPAddressInformationCollection ipInfo = networkInterface.GetIPProperties().UnicastAddresses;
-
-                    foreach (UnicastIPAddressInformation info in ipInfo)
+                    IPInterfaceProperties ipProperties = networkInterface.GetIPProperties();
+                    foreach (UnicastIPAddressInformation ipInfo in ipProperties.UnicastAddresses)
                     {
-                        // Chỉ lấy địa chỉ IPv4
-                        if (info.Address.AddressFamily == AddressFamily.InterNetwork)
+                        // Chỉ lấy địa chỉ IPv4 của mạng LAN cục bộ
+                        if (ipInfo.Address.AddressFamily == AddressFamily.InterNetwork &&
+                            !IPAddress.IsLoopback(ipInfo.Address) &&
+                            !ipInfo.Address.ToString().StartsWith("169.254")) // Loại bỏ các địa chỉ APIPA
                         {
-                            ip = info.Address.ToString();
+                            ip = ipInfo.Address.ToString();
                             // Trả về địa chỉ IP đầu tiên tìm thấy
                             return ip;
                         }
@@ -164,9 +329,11 @@ namespace testUdpTcp
         }
 
 
+
+
         private void ReceiveDataOnce()
         {
-            Console.WriteLine("Vo luon r1");
+
             try
             {
                 IPEndPoint remoteEndPoint = new IPEndPoint(IPAddress.Any, 0);
@@ -199,14 +366,87 @@ namespace testUdpTcp
                 label1.Text = message;
             }
         }
+        List<string> stringList = new List<string>();
+        public static bool HasUsbDevice(string deviceType)
+        {
+            // Xác định PNPClass tương ứng với loại thiết bị
+            string pnpClass = deviceType.Equals("Mouse", StringComparison.OrdinalIgnoreCase) ? "Mouse" :
+                              deviceType.Equals("Keyboard", StringComparison.OrdinalIgnoreCase) ? "Keyboard" : null;
+
+            if (pnpClass == null)
+            {
+                throw new ArgumentException("Invalid device type. Only 'Mouse' and 'Keyboard' are supported.");
+            }
+
+            // Truy vấn tất cả các thiết bị USB
+            ManagementObjectSearcher usbSearcher = new ManagementObjectSearcher(
+                "root\\CIMV2",
+                "SELECT * FROM Win32_USBControllerDevice"
+            );
+
+            foreach (ManagementObject usbDevice in usbSearcher.Get())
+            {
+                // Lấy DeviceID của thiết bị USB
+                string dependent = usbDevice["Dependent"].ToString();
+                string deviceId = dependent.Split('=')[1].Trim('\"');
+
+                // Truy vấn thông tin chi tiết của thiết bị dựa trên DeviceID và PNPClass tương ứng
+                ManagementObjectSearcher deviceSearcher = new ManagementObjectSearcher(
+                    "root\\CIMV2",
+                    $"SELECT * FROM Win32_PnPEntity WHERE DeviceID = '{deviceId}' AND PNPClass = '{pnpClass}'"
+                );
+
+                foreach (ManagementObject device in deviceSearcher.Get())
+                {
+                    if (device["Status"] != null && device["Status"].ToString().Contains("OK"))
+                    {
+                        return true; // Thiết bị USB có sẵn và hoạt động
+                    }
+                }
+            }
+
+            return false; // Không tìm thấy thiết bị USB hoặc không hoạt động
+        }
+
         private List<string> GetDeviceInfo()
         {
-            List<string> stringList = new List<string>();
+            stringList.Add($"InfoClient-");
+
             // Lấy thông tin về tên máy
             string machineName = Environment.MachineName;
             stringList.Add($"IPC: {myIp}");
-            stringList.Add($"Tenmay: {machineName}Ocung: ");
-           
+            stringList.Add($"Tenmay: {machineName}");
+
+            // Kiểm tra kết nối chuột
+            if (HasUsbDevice("Mouse"))
+            {
+                stringList.Add("Chuot: Đã kết nối");
+            }
+            else
+            {
+                stringList.Add("Chuot: Không kết nối");
+            }
+
+
+            if (HasUsbDevice("Keyboard"))
+            {
+                stringList.Add("Banphim: Đã kết nối");
+            }
+            else
+            {
+                stringList.Add("Banphim: Không kết nối");
+            }
+
+            Screen[] screens = Screen.AllScreens;
+            if (screens.Length == 1 && screens[0].Primary)
+            {
+                stringList.Add("Manhinh: Đã kết nối");
+            }
+            else
+            {
+                stringList.Add("Manhinh: Không kết nối");
+            }
+            stringList.Add($"Ocung: ");
 
             // Lấy thông tin về ổ cứng
             DriveInfo[] drives = DriveInfo.GetDrives();
@@ -214,9 +454,9 @@ namespace testUdpTcp
             {
                 if (drive.IsReady)
                 {
-                    stringList.Add($"{drive.Name}, Dungluong: {drive.TotalSize / (1024 * 1024)} MB");
+                    stringList.Add($"{drive.Name}, {drive.TotalSize / (1024 * 1024 * 1024)} GB");
                 }
-               
+
             }
 
             ManagementObjectSearcher searcher = new ManagementObjectSearcher("SELECT * FROM Win32_Processor");
@@ -226,31 +466,30 @@ namespace testUdpTcp
             foreach (ManagementObject obj in searcher.Get())
             {
                 // In ra một số thông tin CPU
-                
-                stringList.Add($"{obj["Name"]}\n");
-
-
+                stringList.Add($"{obj["Name"]}");
             }
+
             stringList.Add($"RAM: ");
             searcher = new ManagementObjectSearcher("SELECT * FROM Win32_PhysicalMemory");
             foreach (ManagementObject obj in searcher.Get())
             {
-                stringList.Add($"Capacity: {obj["Capacity"]} bytes Speed: {obj["Speed"]} Manufacturer: {obj["Manufacturer"]}  Part Number: {obj["PartNumber"]}\n");
+                stringList.Add($"Capacity: {obj["Capacity"]} bytes Speed: {obj["Speed"]} Manufacturer: {obj["Manufacturer"]}  Part Number: {obj["PartNumber"]}|");
             }
             stringList.Add("MSSV: ");
             return stringList;
         }
 
+
         private void listBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
-            
+
         }
 
-     
+
 
         private void textBox1_TextChanged(object sender, EventArgs e)
         {
-            
+
         }
 
         private void updateBox()
@@ -261,7 +500,7 @@ namespace testUdpTcp
 
         private void textBox1_MultilineChanged(object sender, EventArgs e)
         {
-            
+
         }
 
         private void button1_Click_1(object sender, EventArgs e)
@@ -269,37 +508,38 @@ namespace testUdpTcp
             if (IpServer == String.Empty) return;
             string[] mssvs = textBox1.Text.Split(new[] { '\r', '\n', ' ' }, StringSplitOptions.RemoveEmptyEntries);
             string tmp = string.Join(" ", mssvs);
-            if(tmp != String.Empty)
+            if (tmp != String.Empty)
             {
                 mssvLst.Add(tmp);
             }
-            if (inf[inf.Count -1] != tmp && tmp != String.Empty)
+            if (inf[inf.Count - 1] != tmp && tmp != String.Empty)
             {
                 inf.Add($" {string.Join("-", mssvLst)}");
                 mssvLst.Clear();
             }
-                
-            
-            
+
+
+
             updateBox();
             textBox1.Text = String.Empty;
-            
+
             sendInfToServer();
-            if (sended) MessageBox.Show("Gửi thành công","Thông báo",MessageBoxButtons.OK,MessageBoxIcon.Information);
+            if (sended) MessageBox.Show("Gửi thành công", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
             else MessageBox.Show("Gửi thất bại", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
 
         private void sendInfToServer()
         {
-            Console.WriteLine("Gui thong tin may");
+
             sended = false;
             try
             {
                 if (IpServer != String.Empty)
                 {
+                    Console.WriteLine(IpServer);
                     // Tạo đối tượng TcpClient để kết nối đến server
                     TcpClient client = new TcpClient(IpServer, 8765);
-                    Console.WriteLine(string.Join("", inf.ToArray()));
+                    //Console.WriteLine("Send: "+string.Join("", inf.ToArray()));
                     //// Lấy luồng mạng từ TcpClient
                     NetworkStream stream = client.GetStream();
                     SendData(stream, string.Join("", inf.ToArray()));
@@ -308,7 +548,7 @@ namespace testUdpTcp
                     client.Close();
 
                 }
-                
+
             }
             catch (Exception q)
             {
@@ -316,16 +556,16 @@ namespace testUdpTcp
             }
         }
 
-        static void SendData(NetworkStream stream,string message)
+        static void SendData(NetworkStream stream, string message)
         {
-            
-                byte[] buffer = Encoding.UTF8.GetBytes(message);
-                stream.Write(buffer, 0, buffer.Length);
-            
+
+            byte[] buffer = Encoding.UTF8.GetBytes(message);
+            stream.Write(buffer, 0, buffer.Length);
+
         }
         static void ReceiveData(NetworkStream stream)
         {
-            
+
 
             //// Chuyển dữ liệu nhận được sang dạng chuỗi
             //string response = Encoding.UTF8.GetString(buffer, 0, bytesRead);
@@ -335,8 +575,54 @@ namespace testUdpTcp
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
             udpClient.Close();
+            listenThread.Abort();
+            Cursor.Show();
             if (listener != null)
-            listener.Stop();
+                listener.Stop();
+        }
+
+        private void btnDoExam_Click(object sender, EventArgs e)
+        {
+            string jsonText = File.ReadAllText("D:\\demo1\\DATAQUANLYLOPHOC\\123456.json");
+            
+            Quiz quiz = JsonConvert.DeserializeObject<Quiz>(jsonText);
+            quiz.Questions = convertType(quiz);
+            ExamForm examform = new ExamForm(quiz);
+            examform.ShowDialog();
+        }
+        private List<Question> convertType(Quiz quiz)
+        {
+            List<Question> questions = new List<Question>();
+            foreach(var question in quiz.Questions)
+            {
+                if(question.Type == QuestionType.multipleType)
+                {
+                    MultipleChoiceQuestion multiQuestion = new MultipleChoiceQuestion();
+                    multiQuestion.Type = question.Type;
+                    multiQuestion.QuestionText = question.QuestionText;
+                    multiQuestion.Answer = question.Answer;
+                    multiQuestion.Options = question.Options;
+                    questions.Add(multiQuestion);
+                }
+                else if (question.Type == QuestionType.singleType)
+                {
+                    SingleChoiceQuestion multiQuestion = new SingleChoiceQuestion();
+                    multiQuestion.Type = question.Type;
+                    multiQuestion.QuestionText = question.QuestionText;
+                    multiQuestion.Answer = question.Answer;
+                    multiQuestion.Options = question.Options;
+                    questions.Add(multiQuestion);
+                }else if(question.Type == QuestionType.orderingType)
+                {
+                    OrderingQuestion multiQuestion = new OrderingQuestion();
+                    multiQuestion.Type = question.Type;
+                    multiQuestion.QuestionText = question.QuestionText;
+                    multiQuestion.Answer = question.Answer;
+                    multiQuestion.Options = question.Options;
+                    questions.Add(multiQuestion);
+                }
+            }
+            return questions;
         }
     }
 }

@@ -16,6 +16,7 @@ namespace Server
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
+            FirewallHelper.AddFirewallRule();
             Application.Run(new svForm());
         }
     }

@@ -29,11 +29,14 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            this.toolStrip1 = new System.Windows.Forms.ToolStrip();
-            this.toolStripSplitButton5 = new System.Windows.Forms.ToolStripSplitButton();
-            this.sendWork = new System.Windows.Forms.ToolStripSplitButton();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
+            this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
+            this.btnAll = new System.Windows.Forms.Button();
             this.sendFileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.reciveFileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSplitButton5 = new System.Windows.Forms.ToolStripSplitButton();
+            this.sendWork = new System.Windows.Forms.ToolStripSplitButton();
             this.btnLock = new System.Windows.Forms.ToolStripButton();
             this.btnUnlock = new System.Windows.Forms.ToolStripButton();
             this.quickLauch = new System.Windows.Forms.ToolStripSplitButton();
@@ -43,208 +46,48 @@
             this.StopSlideShow = new System.Windows.Forms.ToolStripButton();
             this.kiemTra = new System.Windows.Forms.ToolStripSplitButton();
             this.exportFile = new System.Windows.Forms.ToolStripButton();
-            this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
-            this.tenmay = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.Ocung = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.CPU = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.ram = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.mssv = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.IPC = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.chuot = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.banphim = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.manhinh = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.lv_client = new System.Windows.Forms.ListView();
-            this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
-            this.toolStrip2 = new System.Windows.Forms.ToolStrip();
             this.toolStripButton4 = new System.Windows.Forms.ToolStripButton();
             this.toolStripButton3 = new System.Windows.Forms.ToolStripButton();
             this.toolStripButton2 = new System.Windows.Forms.ToolStripButton();
             this.toolStripButton1 = new System.Windows.Forms.ToolStripButton();
+            this.toolStrip1 = new System.Windows.Forms.ToolStrip();
+            this.tsManageClass = new System.Windows.Forms.ToolStripSplitButton();
+            this.kếtThúcLớpHọcToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsGroup = new System.Windows.Forms.ToolStripButton();
+            this.tsRandom = new System.Windows.Forms.ToolStripButton();
+            this.tsSlideShow = new System.Windows.Forms.ToolStripSplitButton();
+            this.tsDungChieu = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsSendAndCollect = new System.Windows.Forms.ToolStripDropDownButton();
+            this.tsCollect = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsSend = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsLock = new System.Windows.Forms.ToolStripButton();
+            this.tsUnlock = new System.Windows.Forms.ToolStripButton();
+            this.tsQuickLauch = new System.Windows.Forms.ToolStripButton();
+            this.tsUpdate = new System.Windows.Forms.ToolStripButton();
+            this.tsExport = new System.Windows.Forms.ToolStripButton();
+            this.tsExam = new System.Windows.Forms.ToolStripDropDownButton();
+            this.tsCreateQuestion = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsCreateExam = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStrip2 = new System.Windows.Forms.ToolStrip();
+            this.toolStripButton17 = new System.Windows.Forms.ToolStripButton();
+            this.toolStripButton16 = new System.Windows.Forms.ToolStripButton();
+            this.toolStripButton15 = new System.Windows.Forms.ToolStripButton();
+            this.dgv_client = new System.Windows.Forms.DataGridView();
+            this.NameComputer = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Disk = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.CPU = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Ram = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.StudentID = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.IPC = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Mouse = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Keyboard = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Monitor = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.tsStartSlideShow = new System.Windows.Forms.ToolStripMenuItem();
+            this.flowLayoutPanel1.SuspendLayout();
             this.toolStrip1.SuspendLayout();
             this.toolStrip2.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.dgv_client)).BeginInit();
             this.SuspendLayout();
-            // 
-            // toolStrip1
-            // 
-            this.toolStrip1.AutoSize = false;
-            this.toolStrip1.BackColor = System.Drawing.Color.White;
-            this.toolStrip1.ImageScalingSize = new System.Drawing.Size(80, 80);
-            this.toolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.toolStripSplitButton5,
-            this.sendWork,
-            this.btnLock,
-            this.btnUnlock,
-            this.quickLauch,
-            this.switchMode,
-            this.randomStudent,
-            this.SlideShow,
-            this.StopSlideShow,
-            this.kiemTra,
-            this.exportFile});
-            this.toolStrip1.Location = new System.Drawing.Point(0, 0);
-            this.toolStrip1.Name = "toolStrip1";
-            this.toolStrip1.Size = new System.Drawing.Size(1652, 87);
-            this.toolStrip1.TabIndex = 0;
-            this.toolStrip1.Text = "toolStrip1";
-            // 
-            // toolStripSplitButton5
-            // 
-            this.toolStripSplitButton5.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
-            this.toolStripSplitButton5.Font = new System.Drawing.Font("Arial", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.toolStripSplitButton5.Image = global::Server.Properties.Resources._13;
-            this.toolStripSplitButton5.ImageAlign = System.Drawing.ContentAlignment.TopCenter;
-            this.toolStripSplitButton5.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
-            this.toolStripSplitButton5.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.toolStripSplitButton5.Margin = new System.Windows.Forms.Padding(0, 1, 10, 2);
-            this.toolStripSplitButton5.Name = "toolStripSplitButton5";
-            this.toolStripSplitButton5.Size = new System.Drawing.Size(89, 84);
-            this.toolStripSplitButton5.Text = "QL lớp";
-            this.toolStripSplitButton5.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
-            // 
-            // sendWork
-            // 
-            this.sendWork.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.sendFileToolStripMenuItem,
-            this.reciveFileToolStripMenuItem});
-            this.sendWork.Font = new System.Drawing.Font("Arial", 6.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.sendWork.Image = global::Server.Properties.Resources.briefcase__1_1;
-            this.sendWork.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
-            this.sendWork.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.sendWork.Margin = new System.Windows.Forms.Padding(15, 1, 40, 2);
-            this.sendWork.Name = "sendWork";
-            this.sendWork.Size = new System.Drawing.Size(94, 84);
-            this.sendWork.Text = "Gửi/Thu Tệp";
-            this.sendWork.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
-            this.sendWork.ButtonClick += new System.EventHandler(this.sendWork_ButtonClick);
-            // 
-            // sendFileToolStripMenuItem
-            // 
-            this.sendFileToolStripMenuItem.Name = "sendFileToolStripMenuItem";
-            this.sendFileToolStripMenuItem.Size = new System.Drawing.Size(224, 26);
-            this.sendFileToolStripMenuItem.Text = "Send File";
-            this.sendFileToolStripMenuItem.Click += new System.EventHandler(this.sendFileToolStripMenuItem_Click);
-            // 
-            // reciveFileToolStripMenuItem
-            // 
-            this.reciveFileToolStripMenuItem.Name = "reciveFileToolStripMenuItem";
-            this.reciveFileToolStripMenuItem.Size = new System.Drawing.Size(224, 26);
-            this.reciveFileToolStripMenuItem.Text = "Recive File";
-            this.reciveFileToolStripMenuItem.Click += new System.EventHandler(this.reciveFileToolStripMenuItem_Click);
-            // 
-            // btnLock
-            // 
-            this.btnLock.Font = new System.Drawing.Font("Arial", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnLock.Image = global::Server.Properties.Resources._lock;
-            this.btnLock.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
-            this.btnLock.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.btnLock.Margin = new System.Windows.Forms.Padding(15, 1, 10, 2);
-            this.btnLock.Name = "btnLock";
-            this.btnLock.Size = new System.Drawing.Size(516, 84);
-            this.btnLock.Text = "Khóa Máy";
-            this.btnLock.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
-            this.btnLock.Click += new System.EventHandler(this.btnLock_Click);
-            // 
-            // btnUnlock
-            // 
-            this.btnUnlock.Font = new System.Drawing.Font("Arial", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnUnlock.Image = global::Server.Properties.Resources.unlock;
-            this.btnUnlock.ImageAlign = System.Drawing.ContentAlignment.MiddleRight;
-            this.btnUnlock.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
-            this.btnUnlock.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.btnUnlock.Margin = new System.Windows.Forms.Padding(15, 1, 40, 2);
-            this.btnUnlock.Name = "btnUnlock";
-            this.btnUnlock.Size = new System.Drawing.Size(516, 84);
-            this.btnUnlock.Text = "Mở khóa";
-            this.btnUnlock.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
-            this.btnUnlock.Click += new System.EventHandler(this.btnUnlock_Click);
-            // 
-            // quickLauch
-            // 
-            this.quickLauch.Font = new System.Drawing.Font("Arial", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.quickLauch.Image = global::Server.Properties.Resources.send;
-            this.quickLauch.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
-            this.quickLauch.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.quickLauch.Margin = new System.Windows.Forms.Padding(15, 1, 10, 2);
-            this.quickLauch.Name = "quickLauch";
-            this.quickLauch.Size = new System.Drawing.Size(531, 532);
-            this.quickLauch.Text = "Mở Nhanh";
-            this.quickLauch.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
-            // 
-            // switchMode
-            // 
-            this.switchMode.Font = new System.Drawing.Font("Arial", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.switchMode.Image = global::Server.Properties.Resources.loading_arrow;
-            this.switchMode.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
-            this.switchMode.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.switchMode.Margin = new System.Windows.Forms.Padding(15, 1, 40, 2);
-            this.switchMode.Name = "switchMode";
-            this.switchMode.Size = new System.Drawing.Size(516, 532);
-            this.switchMode.Text = "Đổi";
-            this.switchMode.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
-            this.switchMode.Click += new System.EventHandler(this.toolStripButton6_Click);
-            // 
-            // randomStudent
-            // 
-            this.randomStudent.Font = new System.Drawing.Font("Arial", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.randomStudent.Image = global::Server.Properties.Resources.dices;
-            this.randomStudent.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
-            this.randomStudent.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.randomStudent.Margin = new System.Windows.Forms.Padding(15, 1, 10, 2);
-            this.randomStudent.Name = "randomStudent";
-            this.randomStudent.Size = new System.Drawing.Size(516, 532);
-            this.randomStudent.Text = "Ngẫu nhiên";
-            this.randomStudent.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
-            // 
-            // SlideShow
-            // 
-            this.SlideShow.Font = new System.Drawing.Font("Arial", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.SlideShow.Image = global::Server.Properties.Resources.slide_show;
-            this.SlideShow.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
-            this.SlideShow.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.SlideShow.Margin = new System.Windows.Forms.Padding(15, 1, 10, 2);
-            this.SlideShow.Name = "SlideShow";
-            this.SlideShow.Size = new System.Drawing.Size(516, 532);
-            this.SlideShow.Text = "Trình Chiếu";
-            this.SlideShow.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
-            this.SlideShow.Click += new System.EventHandler(this.SlideShowClick);
-            // 
-            // StopSlideShow
-            // 
-            this.StopSlideShow.Font = new System.Drawing.Font("Arial", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.StopSlideShow.Image = global::Server.Properties.Resources.slide_show;
-            this.StopSlideShow.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
-            this.StopSlideShow.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.StopSlideShow.Margin = new System.Windows.Forms.Padding(15, 1, 10, 2);
-            this.StopSlideShow.Name = "StopSlideShow";
-            this.StopSlideShow.Size = new System.Drawing.Size(516, 532);
-            this.StopSlideShow.Text = "Dừng Chiếu";
-            this.StopSlideShow.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
-            // 
-            // kiemTra
-            // 
-            this.kiemTra.Font = new System.Drawing.Font("Arial", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.kiemTra.Image = global::Server.Properties.Resources.register;
-            this.kiemTra.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
-            this.kiemTra.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.kiemTra.Margin = new System.Windows.Forms.Padding(15, 1, 10, 2);
-            this.kiemTra.Name = "kiemTra";
-            this.kiemTra.Size = new System.Drawing.Size(531, 532);
-            this.kiemTra.Text = "Kiểm tra";
-            this.kiemTra.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
-            this.kiemTra.Click += new System.EventHandler(this.StopSlideShow_Click);
-            // 
-            // exportFile
-            // 
-            this.exportFile.Font = new System.Drawing.Font("Arial", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.exportFile.Image = global::Server.Properties.Resources.export;
-            this.exportFile.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
-            this.exportFile.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.exportFile.Margin = new System.Windows.Forms.Padding(15, 1, 10, 2);
-            this.exportFile.Name = "exportFile";
-            this.exportFile.Size = new System.Drawing.Size(516, 532);
-            this.exportFile.Text = "Xuất file";
-            this.exportFile.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
-            this.exportFile.Click += new System.EventHandler(this.toolStripButton5_Click);
             // 
             // contextMenuStrip1
             // 
@@ -252,161 +95,479 @@
             this.contextMenuStrip1.Name = "contextMenuStrip1";
             this.contextMenuStrip1.Size = new System.Drawing.Size(61, 4);
             // 
-            // tenmay
-            // 
-            this.tenmay.Text = "Tên Máy";
-            this.tenmay.Width = 90;
-            // 
-            // Ocung
-            // 
-            this.Ocung.Text = "Ổ Cứng";
-            this.Ocung.Width = 90;
-            // 
-            // CPU
-            // 
-            this.CPU.Text = "CPU";
-            this.CPU.Width = 90;
-            // 
-            // ram
-            // 
-            this.ram.Text = "Ram";
-            this.ram.Width = 90;
-            // 
-            // mssv
-            // 
-            this.mssv.Text = "MSSV";
-            this.mssv.Width = 90;
-            // 
-            // IPC
-            // 
-            this.IPC.Text = "IPC";
-            this.IPC.Width = 90;
-            // 
-            // chuot
-            // 
-            this.chuot.Text = "Chuột";
-            this.chuot.Width = 90;
-            // 
-            // banphim
-            // 
-            this.banphim.Text = "Bàn Phím";
-            this.banphim.Width = 90;
-            // 
-            // manhinh
-            // 
-            this.manhinh.Text = "Màn Hình";
-            this.manhinh.Width = 90;
-            // 
-            // lv_client
-            // 
-            this.lv_client.CausesValidation = false;
-            this.lv_client.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-            this.tenmay,
-            this.Ocung,
-            this.CPU,
-            this.ram,
-            this.mssv,
-            this.IPC,
-            this.chuot,
-            this.banphim,
-            this.manhinh});
-            this.lv_client.Dock = System.Windows.Forms.DockStyle.Left;
-            this.lv_client.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lv_client.FullRowSelect = true;
-            this.lv_client.HideSelection = false;
-            this.lv_client.Location = new System.Drawing.Point(100, 135);
-            this.lv_client.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.lv_client.Name = "lv_client";
-            this.lv_client.Size = new System.Drawing.Size(1295, 615);
-            this.lv_client.TabIndex = 2;
-            this.lv_client.UseCompatibleStateImageBehavior = false;
-            this.lv_client.View = System.Windows.Forms.View.Details;
-            this.lv_client.SelectedIndexChanged += new System.EventHandler(this.lv_client_SelectedIndexChanged);
-            // 
             // flowLayoutPanel1
             // 
             this.flowLayoutPanel1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(149)))), ((int)(((byte)(179)))), ((int)(((byte)(255)))));
+            this.flowLayoutPanel1.Controls.Add(this.btnAll);
             this.flowLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Top;
-            this.flowLayoutPanel1.Location = new System.Drawing.Point(0, 87);
+            this.flowLayoutPanel1.Location = new System.Drawing.Point(0, 97);
+            this.flowLayoutPanel1.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.flowLayoutPanel1.Name = "flowLayoutPanel1";
             this.flowLayoutPanel1.Size = new System.Drawing.Size(1652, 48);
             this.flowLayoutPanel1.TabIndex = 3;
+            // 
+            // btnAll
+            // 
+            this.btnAll.Font = new System.Drawing.Font("Arial Narrow", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnAll.Location = new System.Drawing.Point(133, 6);
+            this.btnAll.Margin = new System.Windows.Forms.Padding(133, 6, 4, 4);
+            this.btnAll.Name = "btnAll";
+            this.btnAll.Size = new System.Drawing.Size(175, 44);
+            this.btnAll.TabIndex = 0;
+            this.btnAll.Text = "All: 30";
+            this.btnAll.UseVisualStyleBackColor = true;
+            // 
+            // sendFileToolStripMenuItem
+            // 
+            this.sendFileToolStripMenuItem.Name = "sendFileToolStripMenuItem";
+            this.sendFileToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.sendFileToolStripMenuItem.Text = "Send File";
+            this.sendFileToolStripMenuItem.Click += new System.EventHandler(this.sendFileToolStripMenuItem_Click);
+            // 
+            // reciveFileToolStripMenuItem
+            // 
+            this.reciveFileToolStripMenuItem.Name = "reciveFileToolStripMenuItem";
+            this.reciveFileToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.reciveFileToolStripMenuItem.Text = "Recive File";
+            this.reciveFileToolStripMenuItem.Click += new System.EventHandler(this.reciveFileToolStripMenuItem_Click);
+            // 
+            // toolStripSplitButton5
+            // 
+            this.toolStripSplitButton5.Name = "toolStripSplitButton5";
+            this.toolStripSplitButton5.Size = new System.Drawing.Size(23, 23);
+            // 
+            // sendWork
+            // 
+            this.sendWork.Name = "sendWork";
+            this.sendWork.Size = new System.Drawing.Size(23, 23);
+            // 
+            // btnLock
+            // 
+            this.btnLock.Name = "btnLock";
+            this.btnLock.Size = new System.Drawing.Size(23, 23);
+            // 
+            // btnUnlock
+            // 
+            this.btnUnlock.Name = "btnUnlock";
+            this.btnUnlock.Size = new System.Drawing.Size(23, 23);
+            // 
+            // quickLauch
+            // 
+            this.quickLauch.Name = "quickLauch";
+            this.quickLauch.Size = new System.Drawing.Size(23, 23);
+            // 
+            // switchMode
+            // 
+            this.switchMode.Name = "switchMode";
+            this.switchMode.Size = new System.Drawing.Size(23, 23);
+            // 
+            // randomStudent
+            // 
+            this.randomStudent.Name = "randomStudent";
+            this.randomStudent.Size = new System.Drawing.Size(23, 23);
+            // 
+            // SlideShow
+            // 
+            this.SlideShow.Name = "SlideShow";
+            this.SlideShow.Size = new System.Drawing.Size(23, 23);
+            // 
+            // StopSlideShow
+            // 
+            this.StopSlideShow.Name = "StopSlideShow";
+            this.StopSlideShow.Size = new System.Drawing.Size(23, 23);
+            // 
+            // kiemTra
+            // 
+            this.kiemTra.Name = "kiemTra";
+            this.kiemTra.Size = new System.Drawing.Size(23, 23);
+            // 
+            // exportFile
+            // 
+            this.exportFile.Name = "exportFile";
+            this.exportFile.Size = new System.Drawing.Size(23, 23);
+            // 
+            // toolStripButton4
+            // 
+            this.toolStripButton4.Name = "toolStripButton4";
+            this.toolStripButton4.Size = new System.Drawing.Size(23, 23);
+            // 
+            // toolStripButton3
+            // 
+            this.toolStripButton3.Name = "toolStripButton3";
+            this.toolStripButton3.Size = new System.Drawing.Size(23, 23);
+            // 
+            // toolStripButton2
+            // 
+            this.toolStripButton2.Name = "toolStripButton2";
+            this.toolStripButton2.Size = new System.Drawing.Size(23, 23);
+            // 
+            // toolStripButton1
+            // 
+            this.toolStripButton1.Name = "toolStripButton1";
+            this.toolStripButton1.Size = new System.Drawing.Size(23, 23);
+            // 
+            // toolStrip1
+            // 
+            this.toolStrip1.ImageScalingSize = new System.Drawing.Size(20, 20);
+            this.toolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.tsManageClass,
+            this.tsGroup,
+            this.tsRandom,
+            this.tsSlideShow,
+            this.tsSendAndCollect,
+            this.tsLock,
+            this.tsUnlock,
+            this.tsQuickLauch,
+            this.tsUpdate,
+            this.tsExport,
+            this.tsExam});
+            this.toolStrip1.Location = new System.Drawing.Point(0, 0);
+            this.toolStrip1.Name = "toolStrip1";
+            this.toolStrip1.Size = new System.Drawing.Size(1652, 97);
+            this.toolStrip1.TabIndex = 4;
+            this.toolStrip1.Text = "toolStrip1";
+            // 
+            // tsManageClass
+            // 
+            this.tsManageClass.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.kếtThúcLớpHọcToolStripMenuItem});
+            this.tsManageClass.Image = global::Server.Properties.Resources._13;
+            this.tsManageClass.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
+            this.tsManageClass.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsManageClass.Name = "tsManageClass";
+            this.tsManageClass.Size = new System.Drawing.Size(129, 94);
+            this.tsManageClass.Tag = "";
+            this.tsManageClass.Text = "Quản lí lớp học";
+            this.tsManageClass.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
+            // 
+            // kếtThúcLớpHọcToolStripMenuItem
+            // 
+            this.kếtThúcLớpHọcToolStripMenuItem.Font = new System.Drawing.Font("Arial Narrow", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.kếtThúcLớpHọcToolStripMenuItem.Name = "kếtThúcLớpHọcToolStripMenuItem";
+            this.kếtThúcLớpHọcToolStripMenuItem.Size = new System.Drawing.Size(198, 26);
+            this.kếtThúcLớpHọcToolStripMenuItem.Text = "Kết Thúc Lớp Học";
+            // 
+            // tsGroup
+            // 
+            this.tsGroup.Image = global::Server.Properties.Resources.multiple_users_silhouette__1_;
+            this.tsGroup.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
+            this.tsGroup.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsGroup.Name = "tsGroup";
+            this.tsGroup.Size = new System.Drawing.Size(80, 94);
+            this.tsGroup.Tag = "";
+            this.tsGroup.Text = "Tạo nhóm";
+            this.tsGroup.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
+            // 
+            // tsRandom
+            // 
+            this.tsRandom.Image = global::Server.Properties.Resources.dices;
+            this.tsRandom.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
+            this.tsRandom.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsRandom.Margin = new System.Windows.Forms.Padding(0, 1, 50, 2);
+            this.tsRandom.Name = "tsRandom";
+            this.tsRandom.Size = new System.Drawing.Size(130, 94);
+            this.tsRandom.Tag = "";
+            this.tsRandom.Text = "Chọn Ngẫu Nhiên";
+            this.tsRandom.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
+            // 
+            // tsSlideShow
+            // 
+            this.tsSlideShow.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.tsDungChieu,
+            this.tsStartSlideShow});
+            this.tsSlideShow.Image = global::Server.Properties.Resources.slide_show;
+            this.tsSlideShow.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
+            this.tsSlideShow.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsSlideShow.Name = "tsSlideShow";
+            this.tsSlideShow.Size = new System.Drawing.Size(101, 94);
+            this.tsSlideShow.Tag = "";
+            this.tsSlideShow.Text = "Trình Chiếu";
+            this.tsSlideShow.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
+            // 
+            // tsDungChieu
+            // 
+            this.tsDungChieu.Font = new System.Drawing.Font("Arial", 9F);
+            this.tsDungChieu.Name = "tsDungChieu";
+            this.tsDungChieu.Size = new System.Drawing.Size(224, 26);
+            this.tsDungChieu.Text = "Dừng chiếu";
+            this.tsDungChieu.Click += new System.EventHandler(this.StopSlideShow_Click);
+            // 
+            // tsSendAndCollect
+            // 
+            this.tsSendAndCollect.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.tsCollect,
+            this.tsSend});
+            this.tsSendAndCollect.Image = global::Server.Properties.Resources.briefcase__1___1_;
+            this.tsSendAndCollect.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
+            this.tsSendAndCollect.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsSendAndCollect.Margin = new System.Windows.Forms.Padding(0, 1, 50, 2);
+            this.tsSendAndCollect.Name = "tsSendAndCollect";
+            this.tsSendAndCollect.Size = new System.Drawing.Size(99, 94);
+            this.tsSendAndCollect.Tag = "";
+            this.tsSendAndCollect.Text = "Gửi/thu tệp";
+            this.tsSendAndCollect.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
+            // 
+            // tsCollect
+            // 
+            this.tsCollect.Font = new System.Drawing.Font("Arial Narrow", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.tsCollect.Name = "tsCollect";
+            this.tsCollect.Size = new System.Drawing.Size(224, 26);
+            this.tsCollect.Text = "Thu tệp";
+            this.tsCollect.Click += new System.EventHandler(this.reciveFileToolStripMenuItem_Click);
+            // 
+            // tsSend
+            // 
+            this.tsSend.Font = new System.Drawing.Font("Arial Narrow", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.tsSend.Name = "tsSend";
+            this.tsSend.Size = new System.Drawing.Size(224, 26);
+            this.tsSend.Text = "Gửi tệp";
+            this.tsSend.Click += new System.EventHandler(this.sendWork_ButtonClick);
+            // 
+            // tsLock
+            // 
+            this.tsLock.Image = global::Server.Properties.Resources._lock;
+            this.tsLock.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
+            this.tsLock.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsLock.Name = "tsLock";
+            this.tsLock.Size = new System.Drawing.Size(74, 94);
+            this.tsLock.Tag = "";
+            this.tsLock.Text = "Khóa";
+            this.tsLock.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
+            // 
+            // tsUnlock
+            // 
+            this.tsUnlock.Image = global::Server.Properties.Resources.unlock;
+            this.tsUnlock.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
+            this.tsUnlock.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsUnlock.Margin = new System.Windows.Forms.Padding(0, 1, 50, 2);
+            this.tsUnlock.Name = "tsUnlock";
+            this.tsUnlock.Size = new System.Drawing.Size(74, 94);
+            this.tsUnlock.Tag = "";
+            this.tsUnlock.Text = "Mở Khóa";
+            this.tsUnlock.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
+            this.tsUnlock.Click += new System.EventHandler(this.btnUnlock_Click);
+            // 
+            // tsQuickLauch
+            // 
+            this.tsQuickLauch.Image = global::Server.Properties.Resources.send;
+            this.tsQuickLauch.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
+            this.tsQuickLauch.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsQuickLauch.Name = "tsQuickLauch";
+            this.tsQuickLauch.Size = new System.Drawing.Size(110, 94);
+            this.tsQuickLauch.Tag = "";
+            this.tsQuickLauch.Text = "Mở phần mềm";
+            this.tsQuickLauch.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
+            // 
+            // tsUpdate
+            // 
+            this.tsUpdate.Image = global::Server.Properties.Resources.loading_arrow;
+            this.tsUpdate.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
+            this.tsUpdate.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsUpdate.Name = "tsUpdate";
+            this.tsUpdate.Size = new System.Drawing.Size(74, 94);
+            this.tsUpdate.Tag = "";
+            this.tsUpdate.Text = "Cập nhật";
+            this.tsUpdate.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
+            this.tsUpdate.Click += new System.EventHandler(this.toolStripButton6_Click);
+            // 
+            // tsExport
+            // 
+            this.tsExport.Image = global::Server.Properties.Resources.export;
+            this.tsExport.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
+            this.tsExport.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsExport.Name = "tsExport";
+            this.tsExport.Size = new System.Drawing.Size(108, 94);
+            this.tsExport.Tag = "";
+            this.tsExport.Text = "Xuất File Excel";
+            this.tsExport.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
+            this.tsExport.Click += new System.EventHandler(this.Export_Click);
+            // 
+            // tsExam
+            // 
+            this.tsExam.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.tsCreateQuestion,
+            this.tsCreateExam});
+            this.tsExam.Image = global::Server.Properties.Resources.register;
+            this.tsExam.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
+            this.tsExam.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsExam.Name = "tsExam";
+            this.tsExam.Size = new System.Drawing.Size(84, 94);
+            this.tsExam.Tag = "";
+            this.tsExam.Text = "Thi ";
+            this.tsExam.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
+            this.tsExam.Click += new System.EventHandler(this.tsExam_Click);
+            // 
+            // tsCreateQuestion
+            // 
+            this.tsCreateQuestion.Name = "tsCreateQuestion";
+            this.tsCreateQuestion.Size = new System.Drawing.Size(224, 26);
+            this.tsCreateQuestion.Text = "Tạo câu hỏi";
+            this.tsCreateQuestion.Click += new System.EventHandler(this.tsCreateQuestion_Click);
+            // 
+            // tsCreateExam
+            // 
+            this.tsCreateExam.Name = "tsCreateExam";
+            this.tsCreateExam.Size = new System.Drawing.Size(224, 26);
+            this.tsCreateExam.Text = "Tạo đề thi";
+            this.tsCreateExam.Click += new System.EventHandler(this.tsCreateExam_Click);
             // 
             // toolStrip2
             // 
             this.toolStrip2.AutoSize = false;
             this.toolStrip2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(217)))), ((int)(((byte)(217)))), ((int)(((byte)(217)))));
             this.toolStrip2.Dock = System.Windows.Forms.DockStyle.Left;
-            this.toolStrip2.ImageScalingSize = new System.Drawing.Size(100, 100);
+            this.toolStrip2.ImageScalingSize = new System.Drawing.Size(20, 20);
             this.toolStrip2.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.toolStripButton4,
-            this.toolStripButton3,
-            this.toolStripButton2,
-            this.toolStripButton1});
-            this.toolStrip2.Location = new System.Drawing.Point(0, 135);
+            this.toolStripButton17,
+            this.toolStripButton16,
+            this.toolStripButton15});
+            this.toolStrip2.Location = new System.Drawing.Point(0, 145);
             this.toolStrip2.Name = "toolStrip2";
-            this.toolStrip2.Size = new System.Drawing.Size(100, 615);
-            this.toolStrip2.TabIndex = 4;
+            this.toolStrip2.Size = new System.Drawing.Size(133, 605);
+            this.toolStrip2.TabIndex = 5;
             this.toolStrip2.Text = "toolStrip2";
             // 
-            // toolStripButton4
+            // toolStripButton17
             // 
-            this.toolStripButton4.AutoSize = false;
-            this.toolStripButton4.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.toolStripButton4.Image = global::Server.Properties.Resources.home_button;
-            this.toolStripButton4.ImageAlign = System.Drawing.ContentAlignment.TopCenter;
-            this.toolStripButton4.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.toolStripButton4.Margin = new System.Windows.Forms.Padding(0);
-            this.toolStripButton4.Name = "toolStripButton4";
-            this.toolStripButton4.Size = new System.Drawing.Size(50, 50);
-            this.toolStripButton4.Text = "Refresh";
-            this.toolStripButton4.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
+            this.toolStripButton17.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.toolStripButton17.Image = global::Server.Properties.Resources.home__1_1;
+            this.toolStripButton17.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
+            this.toolStripButton17.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.toolStripButton17.Name = "toolStripButton17";
+            this.toolStripButton17.Size = new System.Drawing.Size(131, 74);
+            this.toolStripButton17.Text = "toolStripButton15";
             // 
-            // toolStripButton3
+            // toolStripButton16
             // 
-            this.toolStripButton3.AutoSize = false;
-            this.toolStripButton3.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.toolStripButton3.Image = global::Server.Properties.Resources.keyboard__1_;
-            this.toolStripButton3.ImageAlign = System.Drawing.ContentAlignment.TopCenter;
-            this.toolStripButton3.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.toolStripButton3.Name = "toolStripButton3";
-            this.toolStripButton3.Size = new System.Drawing.Size(50, 50);
-            this.toolStripButton3.Text = "Refresh";
-            this.toolStripButton3.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
+            this.toolStripButton16.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.toolStripButton16.Image = global::Server.Properties.Resources.monitor__1_;
+            this.toolStripButton16.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
+            this.toolStripButton16.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.toolStripButton16.Name = "toolStripButton16";
+            this.toolStripButton16.Size = new System.Drawing.Size(131, 74);
+            this.toolStripButton16.Text = "toolStripButton15";
             // 
-            // toolStripButton2
+            // toolStripButton15
             // 
-            this.toolStripButton2.AutoSize = false;
-            this.toolStripButton2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(217)))), ((int)(((byte)(217)))), ((int)(((byte)(217)))));
-            this.toolStripButton2.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.toolStripButton2.Image = global::Server.Properties.Resources.web;
-            this.toolStripButton2.ImageAlign = System.Drawing.ContentAlignment.TopCenter;
-            this.toolStripButton2.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.toolStripButton2.Name = "toolStripButton2";
-            this.toolStripButton2.Size = new System.Drawing.Size(50, 50);
-            this.toolStripButton2.Text = "Refresh";
-            this.toolStripButton2.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
+            this.toolStripButton15.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.toolStripButton15.Image = global::Server.Properties.Resources.world_wide_web__1_;
+            this.toolStripButton15.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
+            this.toolStripButton15.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.toolStripButton15.Name = "toolStripButton15";
+            this.toolStripButton15.Size = new System.Drawing.Size(131, 74);
+            this.toolStripButton15.Text = "toolStripButton15";
             // 
-            // toolStripButton1
+            // dgv_client
             // 
-            this.toolStripButton1.AutoSize = false;
-            this.toolStripButton1.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.toolStripButton1.Image = global::Server.Properties.Resources.monitor__2_;
-            this.toolStripButton1.ImageAlign = System.Drawing.ContentAlignment.TopCenter;
-            this.toolStripButton1.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.toolStripButton1.Name = "toolStripButton1";
-            this.toolStripButton1.Size = new System.Drawing.Size(50, 50);
-            this.toolStripButton1.Text = "Refresh";
-            this.toolStripButton1.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
+            this.dgv_client.AllowUserToDeleteRows = false;
+            this.dgv_client.AutoSizeRowsMode = System.Windows.Forms.DataGridViewAutoSizeRowsMode.AllCells;
+            this.dgv_client.BackgroundColor = System.Drawing.Color.White;
+            this.dgv_client.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dgv_client.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
+            this.NameComputer,
+            this.Disk,
+            this.CPU,
+            this.Ram,
+            this.StudentID,
+            this.IPC,
+            this.Mouse,
+            this.Keyboard,
+            this.Monitor});
+            dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle2.BackColor = System.Drawing.SystemColors.Window;
+            dataGridViewCellStyle2.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            dataGridViewCellStyle2.ForeColor = System.Drawing.SystemColors.ControlText;
+            dataGridViewCellStyle2.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle2.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle2.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.dgv_client.DefaultCellStyle = dataGridViewCellStyle2;
+            this.dgv_client.Dock = System.Windows.Forms.DockStyle.Left;
+            this.dgv_client.GridColor = System.Drawing.Color.White;
+            this.dgv_client.Location = new System.Drawing.Point(133, 145);
+            this.dgv_client.Margin = new System.Windows.Forms.Padding(4);
+            this.dgv_client.Name = "dgv_client";
+            this.dgv_client.RowHeadersWidth = 51;
+            this.dgv_client.Size = new System.Drawing.Size(1217, 605);
+            this.dgv_client.TabIndex = 6;
+            // 
+            // NameComputer
+            // 
+            this.NameComputer.HeaderText = "Tên máy";
+            this.NameComputer.MinimumWidth = 6;
+            this.NameComputer.Name = "NameComputer";
+            this.NameComputer.Width = 97;
+            // 
+            // Disk
+            // 
+            this.Disk.HeaderText = "Ổ Cứng";
+            this.Disk.MinimumWidth = 6;
+            this.Disk.Name = "Disk";
+            this.Disk.Width = 96;
+            // 
+            // CPU
+            // 
+            this.CPU.HeaderText = "CPU";
+            this.CPU.MinimumWidth = 6;
+            this.CPU.Name = "CPU";
+            this.CPU.Width = 97;
+            // 
+            // Ram
+            // 
+            this.Ram.HeaderText = "Ram";
+            this.Ram.MinimumWidth = 6;
+            this.Ram.Name = "Ram";
+            this.Ram.Width = 97;
+            // 
+            // StudentID
+            // 
+            this.StudentID.HeaderText = "MSSV";
+            this.StudentID.MinimumWidth = 6;
+            this.StudentID.Name = "StudentID";
+            this.StudentID.Width = 96;
+            // 
+            // IPC
+            // 
+            this.IPC.HeaderText = "IPC";
+            this.IPC.MinimumWidth = 6;
+            this.IPC.Name = "IPC";
+            this.IPC.Width = 97;
+            // 
+            // Mouse
+            // 
+            this.Mouse.HeaderText = "Chuột";
+            this.Mouse.MinimumWidth = 6;
+            this.Mouse.Name = "Mouse";
+            this.Mouse.Width = 97;
+            // 
+            // Keyboard
+            // 
+            this.Keyboard.HeaderText = "Bàn Phím";
+            this.Keyboard.MinimumWidth = 6;
+            this.Keyboard.Name = "Keyboard";
+            this.Keyboard.Width = 96;
+            // 
+            // Monitor
+            // 
+            this.Monitor.HeaderText = "Màn Hình";
+            this.Monitor.MinimumWidth = 6;
+            this.Monitor.Name = "Monitor";
+            this.Monitor.Width = 97;
+            // 
+            // tsStartSlideShow
+            // 
+            this.tsStartSlideShow.Name = "tsStartSlideShow";
+            this.tsStartSlideShow.Size = new System.Drawing.Size(224, 26);
+            this.tsStartSlideShow.Text = "Trình chiếu";
+            this.tsStartSlideShow.Click += new System.EventHandler(this.SlideShowClick);
             // 
             // svForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoSize = true;
-            this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
+            this.BackColor = System.Drawing.Color.White;
             this.ClientSize = new System.Drawing.Size(1652, 750);
-            this.Controls.Add(this.lv_client);
+            this.Controls.Add(this.dgv_client);
             this.Controls.Add(this.toolStrip2);
             this.Controls.Add(this.flowLayoutPanel1);
             this.Controls.Add(this.toolStrip1);
@@ -417,18 +578,19 @@
             this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.serverForm_FormClosing);
             this.Load += new System.EventHandler(this.Form1_Load);
-            this.MouseClick += new System.Windows.Forms.MouseEventHandler(this.lv_client_MouseClick);
+            this.Click += new System.EventHandler(this.svForm_Click);
+            this.flowLayoutPanel1.ResumeLayout(false);
             this.toolStrip1.ResumeLayout(false);
             this.toolStrip1.PerformLayout();
             this.toolStrip2.ResumeLayout(false);
             this.toolStrip2.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.dgv_client)).EndInit();
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
         #endregion
-
-        private System.Windows.Forms.ToolStrip toolStrip1;
         private System.Windows.Forms.ToolStripSplitButton toolStripSplitButton5;
         private System.Windows.Forms.ToolStripSplitButton sendWork;
         private System.Windows.Forms.ContextMenuStrip contextMenuStrip1;
@@ -443,22 +605,45 @@
         private System.Windows.Forms.ToolStripButton exportFile;
         private System.Windows.Forms.ToolStripSplitButton kiemTra;
         private System.Windows.Forms.ToolStripButton StopSlideShow;
-        private System.Windows.Forms.ColumnHeader tenmay;
-        private System.Windows.Forms.ColumnHeader Ocung;
-        private System.Windows.Forms.ColumnHeader CPU;
-        private System.Windows.Forms.ColumnHeader ram;
-        private System.Windows.Forms.ColumnHeader mssv;
-        private System.Windows.Forms.ColumnHeader IPC;
-        private System.Windows.Forms.ColumnHeader chuot;
-        private System.Windows.Forms.ColumnHeader banphim;
-        private System.Windows.Forms.ColumnHeader manhinh;
-        private System.Windows.Forms.ListView lv_client;
         private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel1;
-        private System.Windows.Forms.ToolStrip toolStrip2;
         private System.Windows.Forms.ToolStripButton toolStripButton4;
         private System.Windows.Forms.ToolStripButton toolStripButton3;
         private System.Windows.Forms.ToolStripButton toolStripButton2;
         private System.Windows.Forms.ToolStripButton toolStripButton1;
+        private System.Windows.Forms.ToolStrip toolStrip1;
+        private System.Windows.Forms.ToolStrip toolStrip2;
+        private System.Windows.Forms.ToolStripButton tsRandom;
+        private System.Windows.Forms.ToolStripButton tsUpdate;
+        private System.Windows.Forms.ToolStripButton tsExport;
+        private System.Windows.Forms.ToolStripButton tsLock;
+        private System.Windows.Forms.ToolStripButton tsQuickLauch;
+        private System.Windows.Forms.ToolStripButton tsUnlock;
+        private System.Windows.Forms.ToolStripButton tsGroup;
+        private System.Windows.Forms.ToolStripButton toolStripButton15;
+        private System.Windows.Forms.ToolStripButton toolStripButton17;
+        private System.Windows.Forms.ToolStripButton toolStripButton16;
+        private System.Windows.Forms.Button btnAll;
+        private System.Windows.Forms.ToolStripSplitButton tsManageClass;
+        private System.Windows.Forms.ToolStripSplitButton tsSlideShow;
+        private System.Windows.Forms.ToolStripMenuItem tsDungChieu;
+        private System.Windows.Forms.ToolStripDropDownButton tsSendAndCollect;
+        private System.Windows.Forms.ToolStripMenuItem tsSend;
+        private System.Windows.Forms.ToolStripMenuItem tsCollect;
+        private System.Windows.Forms.ToolStripMenuItem kếtThúcLớpHọcToolStripMenuItem;
+        private System.Windows.Forms.DataGridView dgv_client;
+        private System.Windows.Forms.DataGridViewTextBoxColumn NameComputer;
+        private System.Windows.Forms.DataGridViewTextBoxColumn Disk;
+        private System.Windows.Forms.DataGridViewTextBoxColumn CPU;
+        private System.Windows.Forms.DataGridViewTextBoxColumn Ram;
+        private System.Windows.Forms.DataGridViewTextBoxColumn StudentID;
+        private System.Windows.Forms.DataGridViewTextBoxColumn IPC;
+        private System.Windows.Forms.DataGridViewTextBoxColumn Mouse;
+        private System.Windows.Forms.DataGridViewTextBoxColumn Keyboard;
+        private System.Windows.Forms.DataGridViewTextBoxColumn Monitor;
+        private System.Windows.Forms.ToolStripDropDownButton tsExam;
+        private System.Windows.Forms.ToolStripMenuItem tsCreateQuestion;
+        private System.Windows.Forms.ToolStripMenuItem tsCreateExam;
+        private System.Windows.Forms.ToolStripMenuItem tsStartSlideShow;
     }
 }
 

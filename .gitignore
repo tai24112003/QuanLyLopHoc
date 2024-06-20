@@ -1,0 +1,54 @@
+# Thư mục .vs (Visual Studio)
+.vs/
+
+# Thư mục cấu hình người dùng
+*.user
+*.userosscache
+*.suo
+
+# Các tệp tạm thời
+*.tmp
+*.temp
+*.log
+
+# Thư mục build output cho tất cả các dự án con
+**/bin/
+**/obj/
+
+# Thư mục chứa các gói NuGet
+packages/
+
+# Thư mục chứa các thư viện khôi phục từ NuGet
+project.lock.json
+project.fragment.lock.json
+
+# Thư mục TFS (Team Foundation Server)
+$tf/
+
+# Thư mục Azure DevOps
+.azuredevops/
+
+# Các tệp cấu hình cho IIS Express
+iisexpress/
+
+# Thư mục phục vụ cho localdb
+.vscode/
+
+# Thư mục Test Results
+TestResults/
+
+# Các tệp cấu hình cài đặt
+appsettings.json
+appsettings.Development.json
+appsettings.Production.json
+
+# Rider (JetBrains)
+.idea/
+.idea_modules/
+
+# User-specific files
+*.rsuser
+*.sln.docstates
+
+# Thư mục để quản lý các extension của Visual Studio
+.ionide/

@@ -1298,7 +1298,5 @@ namespace Server
             CreateExam createExam = new CreateExam();
             createExam.ShowDialog();
         }
-
-
     }
 }

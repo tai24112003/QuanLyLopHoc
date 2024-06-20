@@ -29,7 +29,7 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
             this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
             this.btnAll = new System.Windows.Forms.Button();
@@ -82,6 +82,7 @@
             this.Mouse = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Keyboard = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Monitor = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.tsStartSlideShow = new System.Windows.Forms.ToolStripMenuItem();
             this.flowLayoutPanel1.SuspendLayout();
             this.toolStrip1.SuspendLayout();
             this.toolStrip2.SuspendLayout();
@@ -272,7 +273,8 @@
             // tsSlideShow
             // 
             this.tsSlideShow.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.tsDungChieu});
+            this.tsDungChieu,
+            this.tsStartSlideShow});
             this.tsSlideShow.Image = global::Server.Properties.Resources.slide_show;
             this.tsSlideShow.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
             this.tsSlideShow.ImageTransparentColor = System.Drawing.Color.Magenta;
@@ -281,13 +283,12 @@
             this.tsSlideShow.Tag = "";
             this.tsSlideShow.Text = "Trình Chiếu";
             this.tsSlideShow.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
-            this.tsSlideShow.Click += new System.EventHandler(this.SlideShowClick);
             // 
             // tsDungChieu
             // 
             this.tsDungChieu.Font = new System.Drawing.Font("Arial", 9F);
             this.tsDungChieu.Name = "tsDungChieu";
-            this.tsDungChieu.Size = new System.Drawing.Size(167, 26);
+            this.tsDungChieu.Size = new System.Drawing.Size(224, 26);
             this.tsDungChieu.Text = "Dừng chiếu";
             this.tsDungChieu.Click += new System.EventHandler(this.StopSlideShow_Click);
             // 
@@ -305,13 +306,12 @@
             this.tsSendAndCollect.Tag = "";
             this.tsSendAndCollect.Text = "Gửi/thu tệp";
             this.tsSendAndCollect.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
-            this.tsSendAndCollect.Click += new System.EventHandler(this.sendFileToolStripMenuItem_Click);
             // 
             // tsCollect
             // 
             this.tsCollect.Font = new System.Drawing.Font("Arial Narrow", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.tsCollect.Name = "tsCollect";
-            this.tsCollect.Size = new System.Drawing.Size(136, 26);
+            this.tsCollect.Size = new System.Drawing.Size(224, 26);
             this.tsCollect.Text = "Thu tệp";
             this.tsCollect.Click += new System.EventHandler(this.reciveFileToolStripMenuItem_Click);
             // 
@@ -319,7 +319,7 @@
             // 
             this.tsSend.Font = new System.Drawing.Font("Arial Narrow", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.tsSend.Name = "tsSend";
-            this.tsSend.Size = new System.Drawing.Size(136, 26);
+            this.tsSend.Size = new System.Drawing.Size(224, 26);
             this.tsSend.Text = "Gửi tệp";
             this.tsSend.Click += new System.EventHandler(this.sendWork_ButtonClick);
             // 
@@ -473,14 +473,14 @@
             this.Mouse,
             this.Keyboard,
             this.Monitor});
-            dataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle3.BackColor = System.Drawing.SystemColors.Window;
-            dataGridViewCellStyle3.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            dataGridViewCellStyle3.ForeColor = System.Drawing.SystemColors.ControlText;
-            dataGridViewCellStyle3.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-            dataGridViewCellStyle3.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            dataGridViewCellStyle3.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
-            this.dgv_client.DefaultCellStyle = dataGridViewCellStyle3;
+            dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle2.BackColor = System.Drawing.SystemColors.Window;
+            dataGridViewCellStyle2.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            dataGridViewCellStyle2.ForeColor = System.Drawing.SystemColors.ControlText;
+            dataGridViewCellStyle2.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle2.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle2.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.dgv_client.DefaultCellStyle = dataGridViewCellStyle2;
             this.dgv_client.Dock = System.Windows.Forms.DockStyle.Left;
             this.dgv_client.GridColor = System.Drawing.Color.White;
             this.dgv_client.Location = new System.Drawing.Point(133, 145);
@@ -552,6 +552,13 @@
             this.Monitor.MinimumWidth = 6;
             this.Monitor.Name = "Monitor";
             this.Monitor.Width = 97;
+            // 
+            // tsStartSlideShow
+            // 
+            this.tsStartSlideShow.Name = "tsStartSlideShow";
+            this.tsStartSlideShow.Size = new System.Drawing.Size(224, 26);
+            this.tsStartSlideShow.Text = "Trình chiếu";
+            this.tsStartSlideShow.Click += new System.EventHandler(this.SlideShowClick);
             // 
             // svForm
             // 
@@ -636,6 +643,7 @@
         private System.Windows.Forms.ToolStripDropDownButton tsExam;
         private System.Windows.Forms.ToolStripMenuItem tsCreateQuestion;
         private System.Windows.Forms.ToolStripMenuItem tsCreateExam;
+        private System.Windows.Forms.ToolStripMenuItem tsStartSlideShow;
     }
 }
 

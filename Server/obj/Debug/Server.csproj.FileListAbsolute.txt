@@ -162,3 +162,10 @@ C:\Users\locng\OneDrive\Desktop\DOAN\QuanLyLopHoc\Server\obj\Debug\Server.csproj
 C:\Users\locng\OneDrive\Desktop\DOAN\QuanLyLopHoc\Server\obj\Debug\Server.csproj.Up2Date
 C:\Users\locng\OneDrive\Desktop\DOAN\QuanLyLopHoc\Server\obj\Debug\Server.exe
 C:\Users\locng\OneDrive\Desktop\DOAN\QuanLyLopHoc\Server\obj\Debug\Server.pdb
+C:\Users\aniga\Desktop\test\QuanLyLopHoc\Server\bin\Debug\EPPlus.dll
+C:\Users\aniga\Desktop\test\QuanLyLopHoc\Server\bin\Debug\EPPlus.Interfaces.dll
+C:\Users\aniga\Desktop\test\QuanLyLopHoc\Server\bin\Debug\EPPlus.System.Drawing.dll
+C:\Users\aniga\Desktop\test\QuanLyLopHoc\Server\bin\Debug\EPPlus.xml
+C:\Users\aniga\Desktop\test\QuanLyLopHoc\Server\obj\Debug\Server.CreateExam.resources
+C:\Users\aniga\Desktop\test\QuanLyLopHoc\Server\obj\Debug\Server.CreateQuestion.resources
+C:\Users\aniga\Desktop\test\QuanLyLopHoc\Server\obj\Debug\Server.csproj.CopyComplete

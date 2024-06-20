@@ -1293,5 +1293,23 @@ private void ReciveFileForm_FilePathSelected(string filePath, string folderPath,
         {
 
         }
+
+        private void tsExam_Click(object sender, EventArgs e)
+        {
+            CreateQuestion createQuestion = new CreateQuestion();
+            createQuestion.ShowDialog();
+        }
+
+        private void tsCreateQuestion_Click(object sender, EventArgs e)
+        {
+            CreateQuestion createQuestion = new CreateQuestion();
+            createQuestion.ShowDialog();
+        }
+
+        private void tsCreateExam_Click(object sender, EventArgs e)
+        {
+            CreateExam createExam = new CreateExam();
+            createExam.ShowDialog();
+        }
     }
 }

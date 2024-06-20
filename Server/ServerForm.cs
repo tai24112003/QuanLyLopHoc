@@ -143,7 +143,7 @@ namespace Server
         //    contextMenuStrip.Items.Add(viewSmallIconItem);
         //}
 
-      
+
 
         private void sendAllIPInLan()
         {
@@ -346,15 +346,15 @@ namespace Server
                 }
                 else
                 {
-                    if(key!= "Tên máy"&&key!= "MSSV"&&key!="IPC")
-                    if (matchedInfo != null && matchedInfo.ContainsKey(key) && matchedInfo[key] == newInfo[key])
-                    {
-                        result[key] = newInfo[key] + ":1";
-                    }
-                    else
-                    {
-                        result[key] = newInfo[key] + ":0";
-                    }
+                    if (key != "Tên máy" && key != "MSSV" && key != "IPC")
+                        if (matchedInfo != null && matchedInfo.ContainsKey(key) && matchedInfo[key] == newInfo[key])
+                        {
+                            result[key] = newInfo[key] + ":1";
+                        }
+                        else
+                        {
+                            result[key] = newInfo[key] + ":0";
+                        }
                 }
             }
 
@@ -400,7 +400,7 @@ namespace Server
             // Cập nhật danh sách đầy đủ và tóm tắt
             UpdateInfoList(newEntry, comparedInfo);
 
-            
+
 
             // Tạo bản sao của danh sách mới để rút gọn thông tin
             List<string> newEntryCopy = new List<string>(newEntry);
@@ -457,7 +457,7 @@ namespace Server
                 }
             }
 
-           
+
         }
 
         private int GetIndexForKey(string key)
@@ -539,7 +539,6 @@ namespace Server
         }
 
 
-        private Dictionary<(int rowIndex, int colIndex), Color> cellColors = new Dictionary<(int rowIndex, int colIndex), Color>();
 
         private void AddOrUpdateRow(List<string> entry)
         {
@@ -581,12 +580,10 @@ namespace Server
                     if (tmp.Contains("0"))
                     {
                         row.Cells[i].Style.ForeColor = Color.Red;
-                        cellColors[(rowIndex, i)] = Color.Red;
                     }
                     else
                     {
                         row.Cells[i].Style.ForeColor = Color.Black;
-                        cellColors[(rowIndex, i)] = Color.Black;
                     }
                 }
             }
@@ -618,12 +615,10 @@ namespace Server
                     if (tmp.Contains("0"))
                     {
                         newRow.Cells[i].Style.ForeColor = Color.Red;
-                        cellColors[(rowIndex, i)] = Color.Red;
                     }
                     else
                     {
                         newRow.Cells[i].Style.ForeColor = Color.Black;
-                        cellColors[(rowIndex, i)] = Color.Black;
                     }
                 }
             }
@@ -643,7 +638,9 @@ namespace Server
             {
                 try
                 {
-                    string clientIP = row.Cells[5].Value.ToString();
+                    string clientIP = "";
+                    if (row.Cells[5].Value.ToString() != null)
+                        clientIP = row.Cells[5].Value.ToString();
 
                     // Kiểm tra xem địa chỉ IP có hợp lệ không
                     if (IsValidIPAddress(clientIP))
@@ -889,23 +886,12 @@ namespace Server
 
         private void toolStripButton6_Click(object sender, EventArgs e)
         {
-            dgv_client.Rows.Clear();
             isFullInfoMode = !isFullInfoMode;
 
             List<List<string>> targetList = isFullInfoMode ? fullInfoList : summaryInfoList;
             foreach (List<string> entry in targetList)
             {
-                int rowIndex = dgv_client.Rows.Add(entry.ToArray());
-                DataGridViewRow newRow = dgv_client.Rows[rowIndex];
-
-                // Khôi phục màu sắc từ cellColors
-                for (int i = 0; i < entry.Count; i++)
-                {
-                    if (cellColors.TryGetValue((rowIndex, i), out Color color))
-                    {
-                        newRow.Cells[i].Style.ForeColor = color;
-                    }
-                }
+                AddOrUpdateRow(entry);
             }
         }
         private void LogElementFromList(List<List<string>> myList, int rowIndex, int colIndex)
@@ -1101,115 +1087,116 @@ namespace Server
             sendForm.FilePathSelected += ReciveFileForm_FilePathSelected;
             sendForm.Show();
         }
-       
-private void ReciveFileForm_FilePathSelected(string filePath, string folderPath, string folderToSavePath, bool check)
-{
-    // Xử lý đường dẫn tệp nhận được từ FormSendFile
-    Console.WriteLine("Đường dẫn tệp nhận được: " + filePath);
-    Console.WriteLine("Đường dẫn tệp đến: " + folderPath);
-    Console.WriteLine("Đường dẫn tệp đến: " + folderToSavePath);
 
-    List<Thread> clientThreads = new List<Thread>();
-
-    foreach (DataGridViewRow row in dgv_client.Rows)
-    {
-        try
+        private void ReciveFileForm_FilePathSelected(string filePath, string folderPath, string folderToSavePath, bool check)
         {
-            if (row.Cells[5].Value != null)
+            // Xử lý đường dẫn tệp nhận được từ FormSendFile
+            Console.WriteLine("Đường dẫn tệp nhận được: " + filePath);
+            Console.WriteLine("Đường dẫn tệp đến: " + folderPath);
+            Console.WriteLine("Đường dẫn tệp đến: " + folderToSavePath);
+
+            List<Thread> clientThreads = new List<Thread>();
+
+            foreach (DataGridViewRow row in dgv_client.Rows)
             {
-                string clientIP = row.Cells[5].Value.ToString();
-
-                // Kiểm tra xem địa chỉ IP có hợp lệ không
-                if (IsValidIPAddress(clientIP))
+                try
                 {
-                    // Tạo một luồng riêng biệt cho mỗi client
-                    Thread clientThread = new Thread(() =>
+                    if (row.Cells[5].Value != null)
                     {
-                        TcpClient client = null;
-                        NetworkStream stream = null;
-                        try
+                        string clientIP = row.Cells[5].Value.ToString();
+
+                        // Kiểm tra xem địa chỉ IP có hợp lệ không
+                        if (IsValidIPAddress(clientIP))
                         {
-                            client = new TcpClient(clientIP, 8888);
-                            stream = client.GetStream();
-
-                            // Gửi tín hiệu thông báo
-                            string fileName = Path.GetFileName(filePath);
-                            string signal = $"CollectFile-{fileName}-{folderPath}-{check}";
-                            byte[] signalBytes = Encoding.UTF8.GetBytes(signal);
-                            stream.Write(signalBytes, 0, signalBytes.Length); // Gửi tín hiệu
-                            stream.Flush(); // Đảm bảo dữ liệu được gửi đi ngay lập tức
-                            Console.WriteLine("Đã gửi tín hiệu send");
-
-                            using (BinaryReader reader = new BinaryReader(stream))
+                            // Tạo một luồng riêng biệt cho mỗi client
+                            Thread clientThread = new Thread(() =>
                             {
+                                TcpClient client = null;
+                                NetworkStream stream = null;
                                 try
                                 {
-                                    // Đọc độ dài của tên file zip
-                                    int fileNameLength = reader.ReadInt32();
-                                    // Đọc tên file zip
-                                    string receivedFileName = Encoding.UTF8.GetString(reader.ReadBytes(fileNameLength));
+                                    client = new TcpClient(clientIP, 8888);
+                                    stream = client.GetStream();
 
-                                    // Đọc độ dài của tệp zip
-                                    int fileLength = reader.ReadInt32();
-                                    // Đọc dữ liệu tệp zip
-                                    byte[] fileBytes = reader.ReadBytes(fileLength);
+                                    // Gửi tín hiệu thông báo
+                                    string fileName = Path.GetFileName(filePath);
+                                    string signal = $"CollectFile-{fileName}-{folderPath}-{check}";
+                                    byte[] signalBytes = Encoding.UTF8.GetBytes(signal);
+                                    stream.Write(signalBytes, 0, signalBytes.Length); // Gửi tín hiệu
+                                    stream.Flush(); // Đảm bảo dữ liệu được gửi đi ngay lập tức
+                                    Console.WriteLine("Đã gửi tín hiệu send");
 
-                                    // Lưu file zip vào đường dẫn tạm thời
-                                    string tempZipPath = Path.Combine(Path.GetTempPath(), receivedFileName);
-                                    File.WriteAllBytes(tempZipPath, fileBytes);
+                                    using (BinaryReader reader = new BinaryReader(stream))
+                                    {
+                                        try
+                                        {
+                                            // Đọc độ dài của tên file zip
+                                            int fileNameLength = reader.ReadInt32();
+                                            // Đọc tên file zip
+                                            string receivedFileName = Encoding.UTF8.GetString(reader.ReadBytes(fileNameLength));
 
-                                    // Giải nén file zip
-                                    ZipFile.ExtractToDirectory(tempZipPath, folderToSavePath);
+                                            // Đọc độ dài của tệp zip
+                                            int fileLength = reader.ReadInt32();
+                                            // Đọc dữ liệu tệp zip
+                                            byte[] fileBytes = reader.ReadBytes(fileLength);
 
-                                    // Xóa file zip tạm thời
-                                    File.Delete(tempZipPath);
+                                            // Lưu file zip vào đường dẫn tạm thời
+                                            string tempZipPath = Path.Combine(Path.GetTempPath(), receivedFileName);
+                                            File.WriteAllBytes(tempZipPath, fileBytes);
 
-                                    MessageBox.Show("Các tệp đã được nhận và lưu thành công tại: " + folderToSavePath);
-                                }
-                                catch (EndOfStreamException eosEx)
-                                {
-                                    Console.WriteLine("Lỗi khi nhận tệp: " + eosEx.Message);
+                                            // Giải nén file zip
+                                            ZipFile.ExtractToDirectory(tempZipPath, folderToSavePath);
+
+                                            // Xóa file zip tạm thời
+                                            File.Delete(tempZipPath);
+
+                                            MessageBox.Show("Các tệp đã được nhận và lưu thành công tại: " + folderToSavePath);
+                                        }
+                                        catch (EndOfStreamException eosEx)
+                                        {
+                                            Console.WriteLine("Lỗi khi nhận tệp: " + eosEx.Message);
+                                        }
+                                        catch (Exception ex)
+                                        {
+                                            Console.WriteLine("Lỗi khi nhận tệp: " + ex.Message);
+                                        }
+                                    }
                                 }
                                 catch (Exception ex)
                                 {
                                     Console.WriteLine("Lỗi khi nhận tệp: " + ex.Message);
                                 }
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            Console.WriteLine("Lỗi khi nhận tệp: " + ex.Message);
-                        }
-                        finally
-                        {
-                            // Đảm bảo rằng kết nối được đóng đúng cách
-                            if (stream != null) stream.Close();
-                            if (client != null) client.Close();
-                        }
-                    });
+                                finally
+                                {
+                                    // Đảm bảo rằng kết nối được đóng đúng cách
+                                    if (stream != null) stream.Close();
+                                    if (client != null) client.Close();
+                                }
+                            });
 
-                    // Bắt đầu luồng cho client hiện tại
-                    clientThreads.Add(clientThread);
-                    clientThread.Start();
+                            // Bắt đầu luồng cho client hiện tại
+                            clientThreads.Add(clientThread);
+                            clientThread.Start();
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Mất kết nối với: " + row.Cells[0].Value.ToString());
                 }
             }
-        }
-        catch (Exception ex)
-        {
-            MessageBox.Show("Mất kết nối với: " + row.Cells[0].Value.ToString());
-        }
-    }
 
-    // Chờ tất cả các luồng kết thúc trước khi tiếp tục
-    foreach (Thread t in clientThreads)
-    {
-        t.Join();
-    }
-}
+            // Chờ tất cả các luồng kết thúc trước khi tiếp tục
+            foreach (Thread t in clientThreads)
+            {
+                t.Join();
+            }
+        }
 
         private void sendWork_ButtonClick(object sender, EventArgs e)
         {
-
+            SendForm sendForm = new SendForm();
+            sendForm.ShowDialog();
         }
 
 
@@ -1223,7 +1210,7 @@ private void ReciveFileForm_FilePathSelected(string filePath, string folderPath,
                 FileInfo newFile = new FileInfo(fileName);
                 if (newFile.Exists)
                 {
-                    newFile.Delete();  // Xóa tệp đã tồn tại
+                    newFile.Delete();  // Xóa tệp đã tồn tại    
                     newFile = new FileInfo(fileName);
                 }
 
@@ -1232,18 +1219,18 @@ private void ReciveFileForm_FilePathSelected(string filePath, string folderPath,
                     ExcelWorksheet worksheet = package.Workbook.Worksheets.Add("PhongMayInfo");
 
                     // Đặt tiêu đề cho các cột
-                    for (int i = 1; i <= dgv_client.Columns.Count; i++)
+                    for (int i = 0; i < dgv_client.Columns.Count; i++)
                     {
-                        worksheet.Cells[1, i].Value = dgv_client.Columns[i - 1].HeaderText;
+                        worksheet.Cells[1, i + 1].Value = dgv_client.Columns[i].HeaderText;
                     }
 
                     // Đổ dữ liệu từ DataGridView vào tệp Excel và kiểm tra sự khác biệt
                     for (int i = 0; i < dgv_client.Rows.Count; i++)
                     {
-                        for (int j = 0; j < dgv_client.Rows[i].Cells.Count; j++)
+                        for (int j = 0; j < dgv_client.Columns.Count; j++)
                         {
                             var cell = worksheet.Cells[i + 2, j + 1];
-                            cell.Value = dgv_client.Rows[i].Cells[j].Value.ToString();
+                            cell.Value = dgv_client.Rows[i].Cells[j].Value?.ToString() ?? "";
 
                             // Kiểm tra nếu ô có màu đỏ thì tô màu trong Excel
                             if (dgv_client.Rows[i].Cells[j].Style.ForeColor == Color.Red)
@@ -1311,5 +1298,7 @@ private void ReciveFileForm_FilePathSelected(string filePath, string folderPath,
             CreateExam createExam = new CreateExam();
             createExam.ShowDialog();
         }
+
+
     }
 }

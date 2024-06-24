@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Extensions.DependencyInjection;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -13,11 +14,26 @@ namespace Server
         /// </summary>
         [STAThread]
         static void Main()
-        {
+        {// Khởi tạo Service Collection
+            var services = new ServiceCollection();
+
+            // Đăng ký các dịch vụ
+            services.AddSingleton<IDataService, ApiService>();
+            services.AddTransient<UserDAL>();
+            services.AddTransient<SubjectDAL>();
+            services.AddTransient<UserBLL>();
+            services.AddTransient<SubjectBLL>();
+
+            // Build ServiceProvider từ Service Collection
+            var serviceProvider = services.BuildServiceProvider();
+
+            // Sử dụng DI để khởi tạo MainForm
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            FirewallHelper.AddFirewallRule();
-            Application.Run(new svForm());
+            Application.Run(new StartClassForm(
+                serviceProvider.GetRequiredService<UserBLL>(),
+                serviceProvider.GetRequiredService<SubjectBLL>()
+            ));
         }
     }
 }

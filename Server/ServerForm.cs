@@ -120,30 +120,6 @@ namespace Server
         }
 
 
-        private ContextMenuStrip contextMenuStrip;
-
-        //private void InitializeContextMenu()
-        //{
-        //    contextMenuStrip = new ContextMenuStrip();
-
-        //    ToolStripMenuItem viewDetailsItem = new ToolStripMenuItem("Chế độ xem Chi tiết");
-        //    viewDetailsItem.Click += ViewDetailsItem_Click;
-        //    contextMenuStrip.Items.Add(viewDetailsItem);
-
-        //    ToolStripMenuItem viewListItem = new ToolStripMenuItem("Chế độ xem Danh sách");
-        //    viewListItem.Click += ViewListItem_Click;
-        //    contextMenuStrip.Items.Add(viewListItem);
-
-        //    ToolStripMenuItem viewLargeIconItem = new ToolStripMenuItem("Chế độ xem Biểu tượng lớn");
-        //    viewLargeIconItem.Click += ViewLargeIconItem_Click;
-        //    contextMenuStrip.Items.Add(viewLargeIconItem);
-
-        //    ToolStripMenuItem viewSmallIconItem = new ToolStripMenuItem("Chế độ xem Biểu tượng nhỏ");
-        //    viewSmallIconItem.Click += ViewSmallIconItem_Click;
-        //    contextMenuStrip.Items.Add(viewSmallIconItem);
-        //}
-
-
 
         private void sendAllIPInLan()
         {

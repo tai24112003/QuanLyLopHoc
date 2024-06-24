@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Xml.Linq;
 
 namespace Server
 {
@@ -47,10 +48,9 @@ namespace Server
                 {
                     userCollection.Add(user.Name);
                 }
-
-                cbName.AutoCompleteCustomSource = userCollection;
-                cbName.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
-                cbName.AutoCompleteSource = AutoCompleteSource.CustomSource;
+                txtName.AutoCompleteCustomSource = userCollection;
+                txtName.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
+                txtName.AutoCompleteSource = AutoCompleteSource.CustomSource;
             }
             catch (Exception ex)
             {
@@ -69,15 +69,37 @@ namespace Server
                 {
                     subjectCollection.Add(subject.name);
                 }
-
-                cbSubject.AutoCompleteCustomSource = subjectCollection;
-                cbSubject.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
-                cbSubject.AutoCompleteSource = AutoCompleteSource.CustomSource;
+                txtSubject.AutoCompleteCustomSource = subjectCollection;
+                txtSubject.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
+                txtSubject.AutoCompleteSource = AutoCompleteSource.CustomSource;
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex);
             }
+        }
+
+        private void cbbSession_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (cbbSession.SelectedIndex == 0) { 
+                cbbStart.SelectedIndex = 0;
+                cbbEnd.SelectedIndex = 0;
+            }
+            else if (cbbSession.SelectedIndex == 1) { cbbStart.SelectedIndex = 1; cbbEnd.SelectedIndex = 1; }
+            else if (cbbSession.SelectedIndex == 2) { cbbStart.SelectedIndex = 2; cbbEnd.SelectedIndex = 2; }
+            else if(cbbSession.SelectedIndex == 3) { cbbStart.SelectedIndex = 3; cbbEnd.SelectedIndex = 3; }
+            else { cbbEnd.SelectedIndex = -1; cbbStart.SelectedIndex = -1; }
+        }
+
+        private void btnExit_Click(object sender, EventArgs e)
+        {
+            this.Close();
+        }
+
+        private void btnSubmit_Click(object sender, EventArgs e)
+        {
+            this.Hide();
+
         }
     }
 }

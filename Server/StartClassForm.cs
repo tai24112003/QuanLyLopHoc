@@ -41,7 +41,7 @@ namespace Server
             try
             {
                 string role = "GV"; // Role cần lấy
-                List<User> users = await _userBLL.GetUsersListByRole(role);
+                List<User> users = await _userBLL.GetListUser(role);
 
                 AutoCompleteStringCollection userCollection = new AutoCompleteStringCollection();
                 foreach (var user in users)

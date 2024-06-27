@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 public class User
 {
@@ -13,4 +14,10 @@ public class UserResponse
 {
     public string Status { get; set; }
     public List<User> Data { get; set; }
+}
+
+public class LocalDataResponse
+{
+    public string UsersJson { get; set; }
+    public DateTime LastTimeUpdateUser { get; set; }
 }

@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json;
-using System;
 using System.Collections.Generic;
 using System.IO;
+using System;
 using System.Threading.Tasks;
 
 public class LocalDataHandler
@@ -30,9 +30,9 @@ public class LocalDataHandler
 
             // Save local session computers
             var sessionComputers = LoadLocalSessionComputers();
-            foreach (var sessionID in sessionComputers.Keys)
+            foreach (var kvp in sessionComputers)
             {
-                await _sessionComputerBLL.InsertSessionComputers(sessionID, sessionComputers[sessionID]);
+                await _sessionComputerBLL.InsertSessionComputers(kvp.Key, kvp.Value);
             }
 
             // Delete local files after successful save
@@ -45,6 +45,18 @@ public class LocalDataHandler
             Console.WriteLine("Error saving local data to database: " + ex.Message);
             return false;
         }
+    }
+
+    public void SaveLocalSessionId(int sessionId)
+    {
+        File.WriteAllText("localSessionId.txt", sessionId.ToString());
+    }
+
+    public void SaveLocalClassSession(ClassSession classSession)
+    {
+        var classSessions = LoadLocalClassSessions();
+        classSessions.Add(classSession);
+        File.WriteAllText(localClassSessionsFilePath, JsonConvert.SerializeObject(classSessions));
     }
 
     private List<ClassSession> LoadLocalClassSessions()
@@ -80,33 +92,10 @@ public class LocalDataHandler
         {
             File.Delete(localSessionComputersFilePath);
         }
-    }
-}
 
-public class ClassSessionController
-{
-    private readonly LocalDataHandler _localDataHandler;
-
-    public ClassSessionController(LocalDataHandler localDataHandler)
-    {
-        _localDataHandler = localDataHandler ?? throw new ArgumentNullException(nameof(localDataHandler));
-    }
-
-    public async Task StartNewClassSession(ClassSession classSession)
-    {
-        // Check and save local data before starting new session
-        bool isLocalDataSaved = await _localDataHandler.SaveLocalDataToDatabase();
-
-        if (isLocalDataSaved)
+        if (File.Exists("localSessionId.txt"))
         {
-            Console.WriteLine("Local data saved successfully.");
+            File.Delete("localSessionId.txt");
         }
-        else
-        {
-            Console.WriteLine("Failed to save local data.");
-        }
-
-        // Start new class session
-        await _localDataHandler._classSessionBLL.InsertClassSession(classSession);
     }
 }

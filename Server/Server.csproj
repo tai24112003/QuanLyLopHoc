@@ -272,9 +272,17 @@
       <Project>{e3a032f0-2031-4c8b-a197-8dd2d422fc42}</Project>
       <Name>BLL</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Controllers\Controllers.csproj">
+      <Project>{cba5e268-6a6a-4c34-a68f-1b66d60513e9}</Project>
+      <Name>Controllers</Name>
+    </ProjectReference>
     <ProjectReference Include="..\DAL\DAL.csproj">
       <Project>{9a412145-8c54-4661-b434-518ef7ed96f7}</Project>
       <Name>DAL</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Services\Services.csproj">
+      <Project>{66cbf489-74e1-42af-9775-5ab558b3b826}</Project>
+      <Name>Services</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

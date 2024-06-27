@@ -1,5 +1,4 @@
-﻿// SessionComputerBLL.cs
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -8,51 +7,46 @@ using System.Threading.Tasks;
 public class SessionComputerBLL
 {
     private readonly SessionComputerDAL _sessionComputerDAL;
-    private readonly string localFilePath = "localSessionComputers.json";
+    private readonly string localSessionComputersFilePath = "localSessionComputers.json";
 
     public SessionComputerBLL(SessionComputerDAL sessionComputerDAL)
     {
         _sessionComputerDAL = sessionComputerDAL ?? throw new ArgumentNullException(nameof(sessionComputerDAL));
     }
 
-    public async Task<string> InsertSessionComputers(int sessionID, List<SessionComputer> sessionComputers)
+    public async Task InsertSessionComputers(int sessionId, List<SessionComputer> sessionComputers)
     {
         try
         {
-            // Delete existing session computers by session ID
-            await _sessionComputerDAL.DeleteSessionComputerBySessionID(sessionID);
-
-            // Insert new session computers using DAL
-            string responseJson = await _sessionComputerDAL.InsertSessionComputer(sessionComputers);
-
-            // Save session computers to local file
-            SaveLocalSessionComputers(sessionID, sessionComputers);
-
-            return responseJson;
+            sessionComputers.ForEach(computer => computer.SessionID = sessionId);
+            await _sessionComputerDAL.InsertSessionComputer(sessionComputers);
         }
         catch (Exception ex)
         {
-            throw new Exception("Error inserting session computers in BLL", ex);
+            Console.WriteLine("Error inserting session computer in BLL: " + ex.Message);
+            SaveLocalSessionComputers(sessionComputers);
+            throw new Exception("Error inserting session computer in BLL", ex);
         }
     }
 
-    private void SaveLocalSessionComputers(int sessionID, List<SessionComputer> sessionComputers)
+    private void SaveLocalSessionComputers(List<SessionComputer> sessionComputers)
     {
-        // Load existing session computers
-        var sessions = LoadLocalSessionComputers();
+        var localSessionComputers = LoadLocalSessionComputers();
+        int sessionId = sessionComputers[0].SessionID; // Assuming all computers have the same SessionID
 
-        // Add new session computers
-        sessions[sessionID] = sessionComputers;
-
-        // Save sessions to local file
-        File.WriteAllText(localFilePath, JsonConvert.SerializeObject(sessions));
+        if (!localSessionComputers.ContainsKey(sessionId))
+        {
+            localSessionComputers[sessionId] = new List<SessionComputer>();
+        }
+        localSessionComputers[sessionId].AddRange(sessionComputers);
+        File.WriteAllText(localSessionComputersFilePath, JsonConvert.SerializeObject(localSessionComputers));
     }
 
     private Dictionary<int, List<SessionComputer>> LoadLocalSessionComputers()
     {
-        if (File.Exists(localFilePath))
+        if (File.Exists(localSessionComputersFilePath))
         {
-            var localData = File.ReadAllText(localFilePath);
+            var localData = File.ReadAllText(localSessionComputersFilePath);
             return JsonConvert.DeserializeObject<Dictionary<int, List<SessionComputer>>>(localData) ?? new Dictionary<int, List<SessionComputer>>();
         }
 

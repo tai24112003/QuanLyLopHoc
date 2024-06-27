@@ -1,55 +1,47 @@
-﻿// ClassSessionBLL.cs
-using Newtonsoft.Json;
-using System;
+﻿using Newtonsoft.Json;
 using System.Collections.Generic;
-using System.IO;
 using System.Threading.Tasks;
+using System;
+using System.IO;
 
 public class ClassSessionBLL
 {
     private readonly ClassSessionDAL _classSessionDAL;
-    private readonly string localFilePath = "localClassSessions.json";
+    private readonly string localClassSessionsFilePath = "localClassSessions.json";
 
     public ClassSessionBLL(ClassSessionDAL classSessionDAL)
     {
         _classSessionDAL = classSessionDAL ?? throw new ArgumentNullException(nameof(classSessionDAL));
     }
 
-    public async Task<string> InsertClassSession(ClassSession classSession)
+    public async Task<ClassSession> InsertClassSession(ClassSession classSession)
     {
         try
         {
-            // Insert class session using DAL
             string responseJson = await _classSessionDAL.InsertClassSession(classSession);
-
-            // Save class session to local file
-            SaveLocalClassSession(classSession);
-
-            return responseJson;
+            var insertedSession = JsonConvert.DeserializeObject<ClassSession>(responseJson);
+            return insertedSession;
         }
         catch (Exception ex)
         {
+            Console.WriteLine("Error inserting class session in BLL: " + ex.Message);
+            SaveLocalClassSession(classSession);
             throw new Exception("Error inserting class session in BLL", ex);
         }
     }
 
     private void SaveLocalClassSession(ClassSession classSession)
     {
-        // Load existing sessions
-        var sessions = LoadLocalClassSessions();
-
-        // Add new session
-        sessions.Add(classSession);
-
-        // Save sessions to local file
-        File.WriteAllText(localFilePath, JsonConvert.SerializeObject(sessions));
+        var localSessions = LoadLocalClassSessions();
+        localSessions.Add(classSession);
+        File.WriteAllText(localClassSessionsFilePath, JsonConvert.SerializeObject(localSessions));
     }
 
     private List<ClassSession> LoadLocalClassSessions()
     {
-        if (File.Exists(localFilePath))
+        if (File.Exists(localClassSessionsFilePath))
         {
-            var localData = File.ReadAllText(localFilePath);
+            var localData = File.ReadAllText(localClassSessionsFilePath);
             return JsonConvert.DeserializeObject<List<ClassSession>>(localData) ?? new List<ClassSession>();
         }
 

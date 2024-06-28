@@ -9,5 +9,5 @@
 
     public int user_id { get; set; }
 
-    public int RoomID { get; set; }
+    public string RoomID { get; set; }
 }

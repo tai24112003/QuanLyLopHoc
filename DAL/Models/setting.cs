@@ -8,5 +8,6 @@ public class LastTimeUpdateResponse
 
 public class LastTimeUpdateData
 {
-    public DateTime lastTimeUpdateUser { get; set; }
+    public string lastTimeUpdateUser { get; set; }
+    public string lastTimeUpdateSubject { get; set; }
 }

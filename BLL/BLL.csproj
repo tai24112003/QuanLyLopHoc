@@ -46,6 +46,7 @@
   <ItemGroup>
     <Compile Include="ClassSessionBLL.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RoomBLL.cs" />
     <Compile Include="SessionComputerBLL.cs" />
     <Compile Include="SubjectBLL.cs" />
     <Compile Include="UserBLL.cs" />

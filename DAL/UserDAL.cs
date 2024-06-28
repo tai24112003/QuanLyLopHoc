@@ -28,7 +28,7 @@ public class UserDAL
     {
         try
         {
-            string lastTimeUpdateJson = await _dataService.GetAsync("setting/getLastTimeUpdateUser");
+            string lastTimeUpdateJson = await _dataService.GetAsync("setting/getSetting");
             return lastTimeUpdateJson;
         }
         catch (HttpRequestException ex) 

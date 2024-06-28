@@ -3,11 +3,11 @@ using System.Collections.Generic;
 
 public class User
 {
-    public int Id { get; set; }
-    public string Name { get; set; }
-    public string Email { get; set; }
-    public string Phone { get; set; }
-    public string Role { get; set; }
+    public int user_id { get; set; }
+    public string name { get; set; }
+    public string email { get; set; }
+    public string phone { get; set; }
+    public string role { get; set; }
 }
 
 public class UserResponse
@@ -19,5 +19,7 @@ public class UserResponse
 public class LocalDataResponse
 {
     public string UsersJson { get; set; }
+    public string SubjectsJson { get; set; }
     public DateTime LastTimeUpdateUser { get; set; }
+    public DateTime LastTimeUpdateSubject { get; set; }
 }

@@ -38,19 +38,32 @@ namespace Server
         private ImageList largeImageList; private volatile bool isRunning = true;
         private List<Dictionary<string, string>> standardInfoList = new List<Dictionary<string, string>>();
         private List<Dictionary<string, string>> privateStandardInfoList = new List<Dictionary<string, string>>();
-        public svForm()
+        private readonly RoomBLL _roomBLL;
+        private string roomID;
+        private int userID;
+        private Room room = new Room(); 
+        public svForm(int userID,string roomID, RoomBLL roomBLL)
         {
             InitializeComponent();
             Ip = getIPServer();
+            this.roomID=roomID;
+            this.userID = userID;
+            _roomBLL = roomBLL;
             //InitializeContextMenu();
-            InitializeStandard();
-            InitializeFullInfoList(30, "F711");
+        }
+        private async Task SetupRoom()
+        {
+            room = await _roomBLL.GetRoomsByID(roomID);
+
+            InitializeStandard(room.StandardCPU,room.StandardRAM,room.StandardHDD);
+            InitializeFullInfoList(room.NumberOfComputers, roomID);
             Console.WriteLine("IP:" + Ip);
             LoadFullInfoListIntoDataGridView(fullInfoList);
         }
-
-        private void Form1_Load(object sender, EventArgs e)
+        private async void Form1_Load(object sender, EventArgs e)
         {
+            await SetupRoom();
+
             sendAllIPInLan();
             timer = new WinFormsTimer();
             timer.Interval = 5000;
@@ -70,7 +83,7 @@ namespace Server
         }
         private void serverForm_FormClosing(object sender, FormClosingEventArgs e)
         {
-            tcpListener.Stop();
+            //tcpListener.Stop();
         }
 
 
@@ -143,10 +156,10 @@ namespace Server
                 string messageToSend = mes;
                 byte[] data = Encoding.UTF8.GetBytes(messageToSend);
 
-                udpClient.Send(data, data.Length, remoteEndPoint);
+                //udpClient.Send(data, data.Length, remoteEndPoint);
 
                 //Console.WriteLine($"Sent message to {ipAddress}");
-                udpClient.Close();
+//                udpClient.Close();
             }
 
         }
@@ -213,13 +226,13 @@ namespace Server
             // Đóng kết nối khi client đóng kết nối
             //tcpClient.Close();
         }
-        public void InitializeStandard()
+        public void InitializeStandard(string cpu,string ram,string hdd)
         {
             string keysString = "Tên máy,Ổ cứng,CPU,RAM,MSSV,IPC,Chuột,Bàn phím,Màn hình";
             // Chuỗi chứa các value cho standardInfoList
             string privateStandardValuesString = "F711-11,500GB,Intel(R) Core(TM) i5-10500 CPU @ 3.10GHz, 16 gb, ,192.168.1.1,đang kết nối,đang kết nối,đang kết nối";
             // Chuỗi chứa các value cho privateStandardInfoList
-            string standardValuesString = "F711-02,1TB,Intel i7,16GB\n16GB,654321,192.168.1.2,đang kết nối,đang kết nối,đang kết nối";
+            string standardValuesString = "F711-02,"+hdd+","+cpu+","+ram+",654321,192.168.1.2,đang kết nối,đang kết nối,đang kết nối";
 
             // Tách các key và value từ chuỗi
             var keys = keysString.Split(',');

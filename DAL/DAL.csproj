@@ -47,12 +47,15 @@
     <Compile Include="ApiService.cs" />
     <Compile Include="ClassSessionDAL.cs" />
     <Compile Include="IDataService.cs" />
-    <Compile Include="Models\class_sessions.cs" />
+    <Compile Include="Models\ClassSession.cs" />
+    <Compile Include="Models\Computer.cs" />
+    <Compile Include="Models\Room.cs" />
     <Compile Include="Models\SessionComputer.cs" />
-    <Compile Include="Models\setting.cs" />
+    <Compile Include="Models\Setting.cs" />
     <Compile Include="Models\Subject.cs" />
     <Compile Include="Models\User.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RoomDAL.cs" />
     <Compile Include="SessionComputerDAL.cs" />
     <Compile Include="SubjectDAL.cs" />
     <Compile Include="UserDAL.cs" />

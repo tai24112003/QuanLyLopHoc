@@ -1,4 +1,6 @@
-﻿using System;
+﻿// /Forms/StartClassForm.cs
+using Microsoft.Extensions.DependencyInjection;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Threading.Tasks;
@@ -35,21 +37,25 @@ namespace Server
         {
             try
             {
-                string role = "GV"; // Role cần lấy
+                string role = "GV";
                 List<User> users = await _userBLL.GetListUser(role);
 
                 AutoCompleteStringCollection userCollection = new AutoCompleteStringCollection();
                 foreach (var user in users)
                 {
-                    userCollection.Add(user.Name);
+                    userCollection.Add(user.name);
                 }
-                txtName.AutoCompleteCustomSource = userCollection;
-                txtName.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
-                txtName.AutoCompleteSource = AutoCompleteSource.CustomSource;
+
+                cbbName.DataSource = users;
+                cbbName.AutoCompleteCustomSource = userCollection;
+                cbbName.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
+                cbbName.AutoCompleteSource = AutoCompleteSource.CustomSource;
+                cbbName.DisplayMember = "name";
+                cbbName.ValueMember = "user_id";
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex);
+                Console.WriteLine("Error: " + ex.Message);
             }
         }
 
@@ -64,9 +70,13 @@ namespace Server
                 {
                     subjectCollection.Add(subject.name);
                 }
-                txtSubject.AutoCompleteCustomSource = subjectCollection;
-                txtSubject.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
-                txtSubject.AutoCompleteSource = AutoCompleteSource.CustomSource;
+
+                cbbSubject.DataSource = subjects;
+                cbbSubject.AutoCompleteCustomSource = subjectCollection;
+                cbbSubject.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
+                cbbSubject.AutoCompleteSource = AutoCompleteSource.CustomSource;
+                cbbSubject.DisplayMember = "name";
+                cbbSubject.ValueMember = "id";
             }
             catch (Exception ex)
             {
@@ -112,36 +122,45 @@ namespace Server
         {
             this.Hide();
 
-            // Lấy thông tin từ form
-            string className = txtSubject.Text;
-            string session = cbbSession.SelectedItem.ToString();
-            DateTime startTime = DateTime.Parse(cbbStart.SelectedItem.ToString());
-            DateTime endTime = DateTime.Parse(cbbEnd.SelectedItem.ToString());
-            string userName = txtName.Text;
-
+            string className = txtClass.Text + " - " + cbbSubject.SelectedItem.ToString();
+            int userID = int.Parse(cbbName.SelectedValue.ToString());
+            string roomID = "F71";
             try
             {
-
-                // Tạo đối tượng ClassSession
                 ClassSession classSession = new ClassSession
                 {
                     ClassName = className,
-                    Session = int.Parse(session),
-                    StartTime = startTime.ToString(),
-                    EndTime = endTime.ToString(),
-    //                UserID = user.ID,
-      //              RoomID = room.RoomID
+                    Session = cbbSession.SelectedIndex + 1,
+                    StartTime = cbbStart.SelectedItem.ToString(),
+                    EndTime = cbbEnd.SelectedItem.ToString(),
+                    user_id = userID,
+                    RoomID = roomID
                 };
 
-                // Gọi ClassSessionController để bắt đầu phiên học mới
                 await _classSessionController.StartNewClassSession(classSession);
 
-                MessageBox.Show("Class session started successfully!");
+                var roomBLL = ServiceLocator.ServiceProvider.GetRequiredService<RoomBLL>();
+
+                svForm svForms = new svForm(userID, roomID, roomBLL);
+                svForms.Show();
+
+                Console.WriteLine("Class session started successfully!");
             }
             catch (Exception ex)
             {
                 MessageBox.Show("Failed to start class session: " + ex.Message);
             }
+        }
+
+        private void cbbName_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            MessageBox.Show(cbbName.SelectedValue + " - " + cbbName.SelectedText);
+        }
+
+        private void cbbSubject_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            MessageBox.Show(cbbSubject.SelectedValue + " - " + cbbSubject.SelectedText);
+
         }
     }
 }

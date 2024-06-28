@@ -23,6 +23,9 @@ public class UserBLL
         }
         catch (Exception ex)
         {
+            string usersJson = LoadLocalData();
+            var userResponse = JsonConvert.DeserializeObject<UserResponse>(usersJson);
+            return userResponse.Data;
             throw new Exception("Error fetching user list by role from BLL", ex);
         }
     }
@@ -36,7 +39,9 @@ public class UserBLL
             // Get last update time from server
             string lastTimeUpdateJson = await _userDAL.GetLastTimeUpdateFromDB();
             var lastTimeUpdateResponse = JsonConvert.DeserializeObject<LastTimeUpdateResponse>(lastTimeUpdateJson);
-            DateTime serverLastUpdateTime = lastTimeUpdateResponse.data[0].lastTimeUpdateUser;
+            DateTime serverLastUpdateTime;
+             DateTime.TryParseExact(lastTimeUpdateResponse.data[0].lastTimeUpdateUser, "dd/MM/yyyy", null, System.Globalization.DateTimeStyles.None, out serverLastUpdateTime);
+
 
             if (localLastUpdateTime.HasValue && localLastUpdateTime.Value >= serverLastUpdateTime)
             {

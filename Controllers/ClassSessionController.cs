@@ -12,7 +12,7 @@ public class ClassSessionController
         _classSessionBLL = classSessionBLL ?? throw new ArgumentNullException(nameof(classSessionBLL));
     }
 
-    public async Task StartNewClassSession(ClassSession classSession)
+    public async Task<int> StartNewClassSession(ClassSession classSession)
     {
         // Check and save local data before starting new session
         bool isLocalDataSaved = await _localDataHandler.SaveLocalDataToDatabase();
@@ -34,14 +34,16 @@ public class ClassSessionController
 
             // Save the session ID locally
             _localDataHandler.SaveLocalSessionId(insertedClassSession.SessionID);
-
             Console.WriteLine("New class session started successfully.");
+            return insertedClassSession.SessionID;
+
         }
         catch (Exception ex)
         {
             Console.WriteLine("Error starting new class session: " + ex.Message);
             // Optionally, handle the error by saving the session locally
             _localDataHandler.SaveLocalClassSession(classSession);
+            return -1;
         }
     }
 }

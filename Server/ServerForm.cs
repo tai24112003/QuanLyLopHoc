@@ -42,13 +42,19 @@ namespace Server
         private string roomID;
         private int userID;
         private Room room = new Room(); 
-        public svForm(int userID,string roomID, RoomBLL roomBLL)
+        private readonly ComputerSessionController _computerSessionController;
+        private readonly int sessionID;
+        private List<SessionComputer> sessionComputers = new List<SessionComputer>();
+
+        public svForm(int userID,string roomID, RoomBLL roomBLL,int sessionID, ComputerSessionController computerSessionController)
         {
             InitializeComponent();
             Ip = getIPServer();
             this.roomID=roomID;
             this.userID = userID;
             _roomBLL = roomBLL;
+            _computerSessionController = computerSessionController;
+            this.sessionID=sessionID;
             //InitializeContextMenu();
         }
         private async Task SetupRoom()
@@ -868,9 +874,28 @@ namespace Server
             //stream.Close();
             client.Close();
         }
-        private void refresh_Click(object sender, EventArgs e)
+        private async void tsUpdate_Click(object sender, EventArgs e)
         {
-            sendAllIPInLan();
+            foreach (DataGridViewRow row in dgv_client.Rows)
+            {
+                SessionComputer sessionComputer = new SessionComputer();
+
+                // Giả sử dgv_client có 2 cột. Bạn cần cập nhật các thuộc tính tương ứng
+                sessionComputer.ComputerID = row.Cells[0].Value?.ToString();
+                sessionComputer.HHD = row.Cells[1].Value?.ToString();
+                sessionComputer.CPU= row.Cells[2].Value?.ToString();
+                sessionComputer.RAM = row.Cells[3].Value?.ToString();
+                sessionComputer.StudentID = row.Cells[4].Value?.ToString();
+                sessionComputer.MouseConnected = row.Cells[6].Value?.ToString()=="Đã kết nối";
+                sessionComputer.KeyboardConnected = row.Cells[7].Value?.ToString()=="Đã kết nối";
+                sessionComputer.MonitorConnected = row.Cells[8].Value?.ToString()=="Đã kết nối";
+                sessionComputer.SessionID = sessionID;
+                // Add more properties as needed corresponding to the columns in your DataGridView
+                sessionComputers.Add(sessionComputer);
+            }
+
+
+            await _computerSessionController.UpdateSessionComputer(sessionID,sessionComputers);
         }
 
         private void toolStripButton6_Click(object sender, EventArgs e)

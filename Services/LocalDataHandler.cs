@@ -23,18 +23,19 @@ public class LocalDataHandler
         {
             // Save local class sessions
             var classSessions = LoadLocalClassSessions();
+            var sessionComputers = LoadLocalSessionComputers();
             foreach (var classSession in classSessions)
+
             {
                 await _classSessionBLL.InsertClassSession(classSession);
+                
             }
 
-            // Save local session computers
-            var sessionComputers = LoadLocalSessionComputers();
+
             foreach (var kvp in sessionComputers)
             {
                 await _sessionComputerBLL.InsertSessionComputers(kvp.Key, kvp.Value);
             }
-
             // Delete local files after successful save
             DeleteLocalFiles();
 

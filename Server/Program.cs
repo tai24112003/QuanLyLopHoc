@@ -36,6 +36,7 @@ namespace Server
             services.AddTransient<SessionComputerBLL>();
             services.AddTransient<LocalDataHandler>();
             services.AddTransient<ClassSessionController>();
+            services.AddTransient<ComputerSessionController>();
 
             services.AddTransient<StartClassForm>();
             services.AddTransient<svForm>();

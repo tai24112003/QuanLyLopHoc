@@ -375,7 +375,7 @@
             this.tsUpdate.Tag = "";
             this.tsUpdate.Text = "Cập nhật";
             this.tsUpdate.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
-            this.tsUpdate.Click += new System.EventHandler(this.toolStripButton6_Click);
+            this.tsUpdate.Click += new System.EventHandler(this.tsUpdate_Click);
             // 
             // tsExport
             // 

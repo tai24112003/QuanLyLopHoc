@@ -13,8 +13,9 @@ namespace Server
         private readonly UserBLL _userBLL;
         private readonly SubjectBLL _subjectBLL;
         private readonly ClassSessionController _classSessionController;
+        private readonly ComputerSessionController _computerSessionController;
 
-        public StartClassForm(UserBLL userBLL, SubjectBLL subjectBLL, ClassSessionController classSessionController)
+        public StartClassForm(UserBLL userBLL, SubjectBLL subjectBLL, ClassSessionController classSessionController, ComputerSessionController computerSessionController)
         {
             InitializeComponent();
 
@@ -23,7 +24,7 @@ namespace Server
             _userBLL = userBLL;
             _subjectBLL = subjectBLL;
             _classSessionController = classSessionController;
-
+            _computerSessionController = computerSessionController;
             this.Load += new EventHandler(MainForm_Load);
         }
 
@@ -44,6 +45,7 @@ namespace Server
                 foreach (var user in users)
                 {
                     userCollection.Add(user.name);
+                    
                 }
 
                 cbbName.DataSource = users;
@@ -69,6 +71,7 @@ namespace Server
                 foreach (var subject in subjects)
                 {
                     subjectCollection.Add(subject.name);
+
                 }
 
                 cbbSubject.DataSource = subjects;
@@ -121,27 +124,44 @@ namespace Server
         private async void btnSubmit_Click(object sender, EventArgs e)
         {
             this.Hide();
-
-            string className = txtClass.Text + " - " + cbbSubject.SelectedItem.ToString();
+            Subject subjectt=(Subject)cbbSubject.SelectedItem ;
+            string className = txtClass.Text + " - " + subjectt.name;
             int userID = int.Parse(cbbName.SelectedValue.ToString());
+            Console.WriteLine(userID);
             string roomID = "F71";
+            string[] start = cbbStart.SelectedItem.ToString().Split('h');
+            int hour = int.Parse(start[0]);
+            int minute = int.Parse(start[1]);
+
+            // Lấy ngày hiện tại
+            DateTime now = DateTime.Now;
+
+            // Tạo đối tượng DateTime với ngày hiện tại và giờ phút từ chuỗi
+            DateTime startTime = new DateTime(now.Year, now.Month, now.Day, hour, minute, 0);
+            string[] end = cbbEnd.SelectedItem.ToString().Split('h');
+             hour = int.Parse(end[0]);
+             minute = int.Parse(end[1]);
+
+
+            // Tạo đối tượng DateTime với ngày hiện tại và giờ phút từ chuỗi
+            DateTime endTime = new DateTime(now.Year, now.Month, now.Day, hour, minute, 0);
             try
             {
                 ClassSession classSession = new ClassSession
                 {
                     ClassName = className,
                     Session = cbbSession.SelectedIndex + 1,
-                    StartTime = cbbStart.SelectedItem.ToString(),
-                    EndTime = cbbEnd.SelectedItem.ToString(),
+                    StartTime = startTime,
+                    EndTime = endTime,
                     user_id = userID,
                     RoomID = roomID
                 };
 
-                await _classSessionController.StartNewClassSession(classSession);
+                int sessionID = await _classSessionController.StartNewClassSession(classSession);
 
                 var roomBLL = ServiceLocator.ServiceProvider.GetRequiredService<RoomBLL>();
 
-                svForm svForms = new svForm(userID, roomID, roomBLL);
+                svForm svForms = new svForm(userID, roomID, roomBLL,sessionID,_computerSessionController);
                 svForms.Show();
 
                 Console.WriteLine("Class session started successfully!");
@@ -154,12 +174,12 @@ namespace Server
 
         private void cbbName_SelectedIndexChanged(object sender, EventArgs e)
         {
-            MessageBox.Show(cbbName.SelectedValue + " - " + cbbName.SelectedText);
+            //MessageBox.Show(cbbName.SelectedValue + " - " + (User)cbbName.SelectedItem);
         }
 
         private void cbbSubject_SelectedIndexChanged(object sender, EventArgs e)
         {
-            MessageBox.Show(cbbSubject.SelectedValue + " - " + cbbSubject.SelectedText);
+            //MessageBox.Show(cbbSubject.SelectedValue + " - " + cbbSubject.SelectedItem);
 
         }
     }

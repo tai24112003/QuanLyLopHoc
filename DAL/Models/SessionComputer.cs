@@ -1,9 +1,8 @@
 ﻿public class SessionComputer
 {
-    public int ID { get; set; }
     public int SessionID { get; set; }
 
-    public string ComputerName { get; set; }
+    public string ComputerID { get; set; }
     public string RAM { get; set; }
     public string HHD { get; set; }
     public string CPU { get; set; }

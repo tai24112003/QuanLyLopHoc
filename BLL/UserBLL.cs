@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 public class UserBLL
 {
     private readonly UserDAL _userDAL;
-    private readonly string localFilePath = "localData.json";
+    private readonly string localFilePath = "localUser.json";
 
     public UserBLL(UserDAL userDAL)
     {

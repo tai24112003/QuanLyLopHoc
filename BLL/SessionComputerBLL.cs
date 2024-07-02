@@ -18,21 +18,22 @@ public class SessionComputerBLL
     {
         try
         {
-            sessionComputers.ForEach(computer => computer.SessionID = sessionId);
             await _sessionComputerDAL.InsertSessionComputer(sessionComputers);
         }
         catch (Exception ex)
         {
             Console.WriteLine("Error inserting session computer in BLL: " + ex.Message);
-            SaveLocalSessionComputers(sessionComputers);
+            SaveLocalSessionComputers(sessionId,sessionComputers);
+            Console.WriteLine("Error inserting session computer in BLL: " + ex);
+
             throw new Exception("Error inserting session computer in BLL", ex);
         }
     }
 
-    private void SaveLocalSessionComputers(List<SessionComputer> sessionComputers)
+    public void SaveLocalSessionComputers(int sessionID,List<SessionComputer> sessionComputers)
     {
         var localSessionComputers = LoadLocalSessionComputers();
-        int sessionId = sessionComputers[0].SessionID; // Assuming all computers have the same SessionID
+        int sessionId = sessionID; // Assuming all computers have the same SessionID
 
         if (!localSessionComputers.ContainsKey(sessionId))
         {

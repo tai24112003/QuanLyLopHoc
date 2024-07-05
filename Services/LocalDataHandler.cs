@@ -24,22 +24,43 @@ public class LocalDataHandler
             // Save local class sessions
             var classSessions = LoadLocalClassSessions();
             var sessionComputers = LoadLocalSessionComputers();
-            foreach (var classSession in classSessions)
-
+            foreach (var entry in classSessions)
             {
-                await _classSessionBLL.InsertClassSession(classSession);
-                
-            }
+                string keyString = entry.Key.ToString();
 
+                // Kiểm tra ký tự đầu của key có phải dấu '-' hay không
+                if (keyString.StartsWith("-"))
+                {
+                    // Thực hiện thao tác chèn (insert)
+                    var classSession = await _classSessionBLL.InsertClassSession(entry.Value);
+
+                    // Tìm kiếm trong sessionComputers có key tương tự
+                    foreach (var sessionEntry in sessionComputers)
+                    {
+                        string sessionKeyString = sessionEntry.Key.ToString();
+
+                        if (sessionKeyString.StartsWith("-") && sessionKeyString == keyString)
+                        {
+                            // Thực hiện thao tác cần thiết khi tìm thấy key tương tự
+                            await _sessionComputerBLL.InsertSessionComputers(sessionEntry.Key, sessionEntry.Value);
+                            break;
+                        }
+                    }
+                }
+            }
 
             foreach (var kvp in sessionComputers)
             {
-                await _sessionComputerBLL.InsertSessionComputers(kvp.Key, kvp.Value);
+                string keyString = kvp.Key.ToString();
+                if (!keyString.StartsWith("-"))
+
+                    await _sessionComputerBLL.InsertSessionComputers(kvp.Key, kvp.Value);
             }
             // Delete local files after successful save
             DeleteLocalFiles();
 
             return true;
+
         }
         catch (Exception ex)
         {
@@ -53,23 +74,38 @@ public class LocalDataHandler
         File.WriteAllText("localSessionId.txt", sessionId.ToString());
     }
 
-    public void SaveLocalClassSession(ClassSession classSession)
+    public void SaveLocalClassSession(int sessionID, ClassSession classSession)
     {
-        var classSessions = LoadLocalClassSessions();
-        classSessions.Add(classSession);
+        // Đọc dữ liệu từ tệp và chuyển đổi thành từ điển
+        Dictionary<int, ClassSession> classSessions;
+        if (File.Exists(localClassSessionsFilePath))
+        {
+            var jsonData = File.ReadAllText(localClassSessionsFilePath);
+            classSessions = JsonConvert.DeserializeObject<Dictionary<int, ClassSession>>(jsonData) ?? new Dictionary<int, ClassSession>();
+        }
+        else
+        {
+            classSessions = new Dictionary<int, ClassSession>();
+        }
+
+        // Thêm hoặc cập nhật phần tử trong từ điển
+        classSessions[sessionID] = classSession;
+
+        // Ghi lại từ điển vào tệp
         File.WriteAllText(localClassSessionsFilePath, JsonConvert.SerializeObject(classSessions));
     }
 
-    private List<ClassSession> LoadLocalClassSessions()
+    private Dictionary<int, ClassSession> LoadLocalClassSessions()
     {
         if (File.Exists(localClassSessionsFilePath))
         {
             var localData = File.ReadAllText(localClassSessionsFilePath);
-            return JsonConvert.DeserializeObject<List<ClassSession>>(localData) ?? new List<ClassSession>();
+            return JsonConvert.DeserializeObject<Dictionary<int, ClassSession>>(localData) ?? new Dictionary<int, ClassSession>();
         }
 
-        return new List<ClassSession>();
+        return new Dictionary<int, ClassSession>();
     }
+
 
     private Dictionary<int, List<SessionComputer>> LoadLocalSessionComputers()
     {

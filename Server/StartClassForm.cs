@@ -31,7 +31,6 @@ namespace Server
         private async void MainForm_Load(object sender, EventArgs e)
         {
             await SetupUserAutoComplete();
-            await SetupSubjectAutoComplete();
         }
 
         private async Task SetupUserAutoComplete()
@@ -61,31 +60,7 @@ namespace Server
             }
         }
 
-        private async Task SetupSubjectAutoComplete()
-        {
-            try
-            {
-                List<Subject> subjects = await _subjectBLL.GetAllSubjects();
-
-                AutoCompleteStringCollection subjectCollection = new AutoCompleteStringCollection();
-                foreach (var subject in subjects)
-                {
-                    subjectCollection.Add(subject.name);
-
-                }
-
-                cbbSubject.DataSource = subjects;
-                cbbSubject.AutoCompleteCustomSource = subjectCollection;
-                cbbSubject.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
-                cbbSubject.AutoCompleteSource = AutoCompleteSource.CustomSource;
-                cbbSubject.DisplayMember = "name";
-                cbbSubject.ValueMember = "id";
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex);
-            }
-        }
+       
 
         private void cbbSession_SelectedIndexChanged(object sender, EventArgs e)
         {
@@ -124,8 +99,7 @@ namespace Server
         private async void btnSubmit_Click(object sender, EventArgs e)
         {
             this.Hide();
-            Subject subjectt=(Subject)cbbSubject.SelectedItem ;
-            string className = txtClass.Text + " - " + subjectt.name;
+            string className = txtClass.Text;
             int userID = int.Parse(cbbName.SelectedValue.ToString());
             Console.WriteLine(userID);
             string roomID = "F71";
@@ -168,7 +142,7 @@ namespace Server
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Failed to start class session: " + ex.Message);
+                Console.WriteLine("Failed to start class session: " + ex);
             }
         }
 
@@ -182,5 +156,7 @@ namespace Server
             //MessageBox.Show(cbbSubject.SelectedValue + " - " + cbbSubject.SelectedItem);
 
         }
+
+
     }
 }

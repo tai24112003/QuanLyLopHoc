@@ -13,22 +13,7 @@ public class RoomBLL
     {
         _RoomDAL = RoomDAL ?? throw new ArgumentNullException(nameof(RoomDAL));
     }
-    //public async Task<List<Room>> GetListRoom(string id)
-    //{
-    //    try
-    //    {
-    //        string RoomsJson = await GetRoomsByID(id);
-    //        var RoomResponse = JsonConvert.DeserializeObject<RoomResponse>(RoomsJson);
-    //        return RoomResponse.Data;
-    //    }
-    //    catch (Exception ex)
-    //    {
-    //        string RoomsJson = LoadLocalData();
-    //        var RoomResponse = JsonConvert.DeserializeObject<RoomResponse>(RoomsJson);
-    //        return RoomResponse.Data;
-    //        throw new Exception("Error fetching Room list by id from BLL", ex);
-    //    }
-    //}
+
     public List<Room> ParseRooms(string json)
     {
         try
@@ -52,33 +37,39 @@ public class RoomBLL
             return new List<Room>();
         }
     }
+
     public async Task<Room> GetRoomsByID(string id)
     {
         try
         {
-            
-                Console.WriteLine("load api");
+            Console.WriteLine("load api");
 
-                // Get Rooms from server
-                string RoomsJson = await _RoomDAL.GetRoomByRoomID(id);
-                // Save Rooms and last update time to local file
-                List<Room> lstRoom=ParseRooms(RoomsJson);
-                if(lstRoom.Count > 0)
+            // Lấy dữ liệu từ server
+            string RoomsJson = await _RoomDAL.GetRoomByRoomID(id);
+            List<Room> lstRoom = ParseRooms(RoomsJson);
+
+            if (lstRoom.Count > 0)
             {
+                SaveLocalData(RoomsJson); // Lưu dữ liệu vào tệp tin cục bộ nếu lấy từ API thành công
                 return lstRoom[0];
             }
-                
-                SaveLocalData(RoomsJson);
-                return null;
-            
+            return null;
         }
         catch (Exception ex)
         {
+            Console.WriteLine("Error fetching Rooms by id from BLL, loading local data: " + ex.Message);
 
-            throw new Exception("Error fetching Rooms by id from BLL", ex);
+            // Tải dữ liệu từ tệp tin cục bộ khi có lỗi
+            string RoomsJson = LoadLocalData();
+            List<Room> lstRoom = ParseRooms(RoomsJson);
+
+            if (lstRoom.Count > 0)
+            {
+                return lstRoom[0];
+            }
+            throw new Exception("Error fetching Rooms by id from BLL and no local data available", ex);
         }
     }
-
 
     private void SaveLocalData(string RoomsJson)
     {
@@ -100,4 +91,3 @@ public class RoomBLL
         return null;
     }
 }
-

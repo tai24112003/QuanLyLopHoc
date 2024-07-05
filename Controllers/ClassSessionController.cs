@@ -42,8 +42,13 @@ public class ClassSessionController
         {
             Console.WriteLine("Error starting new class session: " + ex.Message);
             // Optionally, handle the error by saving the session locally
-            _localDataHandler.SaveLocalClassSession(classSession);
-            return -1;
+            Random random = new Random();
+
+            int randomNumber = random.Next(99999)*-1;
+            Console.WriteLine(randomNumber);
+            _localDataHandler.SaveLocalClassSession(randomNumber,classSession);
+
+            return -randomNumber;
         }
     }
 }

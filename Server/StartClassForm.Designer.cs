@@ -32,7 +32,6 @@
             this.label3 = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
             this.label5 = new System.Windows.Forms.Label();
-            this.label7 = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
             this.btnExit = new System.Windows.Forms.PictureBox();
             this.btnSubmit = new System.Windows.Forms.PictureBox();
@@ -43,7 +42,7 @@
             this.label6 = new System.Windows.Forms.Label();
             this.pictureBox3 = new System.Windows.Forms.PictureBox();
             this.cbbName = new System.Windows.Forms.ComboBox();
-            this.cbbSubject = new System.Windows.Forms.ComboBox();
+            this.label7 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.btnExit)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.btnSubmit)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox3)).BeginInit();
@@ -55,7 +54,7 @@
             this.label2.BackColor = System.Drawing.Color.Transparent;
             this.label2.Font = new System.Drawing.Font("Tahoma", 10.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label2.ForeColor = System.Drawing.Color.White;
-            this.label2.Location = new System.Drawing.Point(349, 199);
+            this.label2.Location = new System.Drawing.Point(349, 180);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(63, 22);
             this.label2.TabIndex = 1;
@@ -67,7 +66,7 @@
             this.label3.BackColor = System.Drawing.Color.Transparent;
             this.label3.Font = new System.Drawing.Font("Tahoma", 10.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label3.ForeColor = System.Drawing.Color.White;
-            this.label3.Location = new System.Drawing.Point(349, 244);
+            this.label3.Location = new System.Drawing.Point(349, 286);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(39, 22);
             this.label3.TabIndex = 3;
@@ -96,18 +95,6 @@
             this.label5.Size = new System.Drawing.Size(76, 22);
             this.label5.TabIndex = 7;
             this.label5.Text = "Kết thúc";
-            // 
-            // label7
-            // 
-            this.label7.AutoSize = true;
-            this.label7.BackColor = System.Drawing.Color.Transparent;
-            this.label7.Font = new System.Drawing.Font("Tahoma", 10.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label7.ForeColor = System.Drawing.Color.White;
-            this.label7.Location = new System.Drawing.Point(349, 289);
-            this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(78, 22);
-            this.label7.TabIndex = 9;
-            this.label7.Text = "Môn học";
             // 
             // label1
             // 
@@ -208,7 +195,7 @@
             // txtClass
             // 
             this.txtClass.Font = new System.Drawing.Font("Tahoma", 10.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.txtClass.Location = new System.Drawing.Point(457, 241);
+            this.txtClass.Location = new System.Drawing.Point(457, 283);
             this.txtClass.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.txtClass.Name = "txtClass";
             this.txtClass.Size = new System.Drawing.Size(432, 29);
@@ -225,7 +212,7 @@
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(143, 118);
             this.label6.TabIndex = 30;
-            this.label6.Text = "*Lưu ý: nếu họ tên hoặc môn học không có hãy nhấn reload";
+            this.label6.Text = "*Lưu ý: nếu họ tên không có hãy nhấn reload";
             // 
             // pictureBox3
             // 
@@ -235,7 +222,7 @@
             this.pictureBox3.BackColor = System.Drawing.Color.Transparent;
             this.pictureBox3.BackgroundImage = global::Server.Properties.Resources.loading_arrow;
             this.pictureBox3.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
-            this.pictureBox3.Location = new System.Drawing.Point(912, 186);
+            this.pictureBox3.Location = new System.Drawing.Point(912, 167);
             this.pictureBox3.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.pictureBox3.Name = "pictureBox3";
             this.pictureBox3.Size = new System.Drawing.Size(61, 48);
@@ -246,21 +233,24 @@
             // 
             this.cbbName.Font = new System.Drawing.Font("Tahoma", 10.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.cbbName.FormattingEnabled = true;
-            this.cbbName.Location = new System.Drawing.Point(457, 196);
+            this.cbbName.Location = new System.Drawing.Point(457, 177);
             this.cbbName.Name = "cbbName";
             this.cbbName.Size = new System.Drawing.Size(433, 30);
             this.cbbName.TabIndex = 32;
             this.cbbName.SelectedIndexChanged += new System.EventHandler(this.cbbName_SelectedIndexChanged);
             // 
-            // cbbSubject
+            // label7
             // 
-            this.cbbSubject.Font = new System.Drawing.Font("Tahoma", 10.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.cbbSubject.FormattingEnabled = true;
-            this.cbbSubject.Location = new System.Drawing.Point(456, 286);
-            this.cbbSubject.Name = "cbbSubject";
-            this.cbbSubject.Size = new System.Drawing.Size(433, 30);
-            this.cbbSubject.TabIndex = 33;
-            this.cbbSubject.SelectedIndexChanged += new System.EventHandler(this.cbbSubject_SelectedIndexChanged);
+            this.label7.AllowDrop = true;
+            this.label7.BackColor = System.Drawing.Color.Transparent;
+            this.label7.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label7.ForeColor = System.Drawing.Color.White;
+            this.label7.Location = new System.Drawing.Point(349, 221);
+            this.label7.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(333, 60);
+            this.label7.TabIndex = 33;
+            this.label7.Text = "Cách đặt tên lớp: \"Môn học - tên lớp\" VD: Lập trình di động - CĐ TH 21 DĐ";
             // 
             // StartClassForm
             // 
@@ -269,7 +259,7 @@
             this.BackgroundImage = global::Server.Properties.Resources.bg;
             this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
             this.ClientSize = new System.Drawing.Size(1280, 720);
-            this.Controls.Add(this.cbbSubject);
+            this.Controls.Add(this.label7);
             this.Controls.Add(this.cbbName);
             this.Controls.Add(this.pictureBox3);
             this.Controls.Add(this.label6);
@@ -278,7 +268,6 @@
             this.Controls.Add(this.btnSubmit);
             this.Controls.Add(this.btnExit);
             this.Controls.Add(this.label1);
-            this.Controls.Add(this.label7);
             this.Controls.Add(this.cbbEnd);
             this.Controls.Add(this.label5);
             this.Controls.Add(this.cbbStart);
@@ -304,7 +293,6 @@
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.Label label5;
-        private System.Windows.Forms.Label label7;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.PictureBox btnExit;
         private System.Windows.Forms.PictureBox btnSubmit;
@@ -315,6 +303,6 @@
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.PictureBox pictureBox3;
         private System.Windows.Forms.ComboBox cbbName;
-        private System.Windows.Forms.ComboBox cbbSubject;
+        private System.Windows.Forms.Label label7;
     }
 }

@@ -25,26 +25,8 @@ public class ClassSessionBLL
         catch (Exception ex)
         {
             Console.WriteLine("Error inserting class session in BLL: " + ex.Message);
-            SaveLocalClassSession(classSession);
             throw new Exception("Error inserting class session in BLL", ex);
         }
     }
 
-    private void SaveLocalClassSession(ClassSession classSession)
-    {
-        var localSessions = LoadLocalClassSessions();
-        localSessions.Add(classSession);
-        File.WriteAllText(localClassSessionsFilePath, JsonConvert.SerializeObject(localSessions));
-    }
-
-    private List<ClassSession> LoadLocalClassSessions()
-    {
-        if (File.Exists(localClassSessionsFilePath))
-        {
-            var localData = File.ReadAllText(localClassSessionsFilePath);
-            return JsonConvert.DeserializeObject<List<ClassSession>>(localData) ?? new List<ClassSession>();
-        }
-
-        return new List<ClassSession>();
-    }
 }

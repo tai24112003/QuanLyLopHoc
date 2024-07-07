@@ -55,12 +55,50 @@ namespace Server
             _roomBLL = roomBLL;
             _computerSessionController = computerSessionController;
             this.sessionID=sessionID;
-            //InitializeContextMenu();
+            InitializeContextMenu();
         }
+
+        private void InitializeContextMenu()
+        {
+            contextMenuStrip = new ContextMenuStrip();
+
+            // Tạo các mục menu
+            var menuItem1 = new ToolStripMenuItem("Chế độ xem đầy đủ");
+            var menuItem2 = new ToolStripMenuItem("Chế độ xem tóm tắt");
+
+            // Thêm các mục menu vào ContextMenuStrip
+            contextMenuStrip.Items.Add(menuItem1);
+            contextMenuStrip.Items.Add(menuItem2);
+
+            menuItem1.Click += MenuItem1_Click;
+            menuItem2.Click += MenuItem2_Click;
+        }
+
+        private void MenuItem1_Click(object sender, EventArgs e)
+        {
+            isFullInfoMode = true;
+
+            List<List<string>> targetList = isFullInfoMode ? fullInfoList : summaryInfoList;
+            foreach (List<string> entry in targetList)
+            {
+                AddOrUpdateRow(entry);
+            }
+        }
+        private void MenuItem2_Click(object sender, EventArgs e)
+        {
+            isFullInfoMode = false;
+
+            List<List<string>> targetList = isFullInfoMode ? fullInfoList : summaryInfoList;
+            foreach (List<string> entry in targetList)
+            {
+                AddOrUpdateRow(entry);
+            }
+        }
+
         private async Task SetupRoom()
         {
             room = await _roomBLL.GetRoomsByID(roomID);
-
+            this.Text = "Server - " + roomID + "Số lượng máy: "+room.NumberOfComputers;
             InitializeStandard(room.StandardCPU,room.StandardRAM,room.StandardHDD);
             InitializeFullInfoList(room.NumberOfComputers, roomID);
             Console.WriteLine("IP:" + Ip);
@@ -75,7 +113,7 @@ namespace Server
             timer.Interval = 5000;
             // Gán sự kiện xảy ra khi Timer đã chạy đủ thời gian
             timer.Tick += OnTimerTick;
-
+            this.ContextMenuStrip = contextMenuStrip;
             // Bắt đầu Timer
             timer.Start();
             //dgv_client.MouseClick += dgv_client_MouseClick;
@@ -96,9 +134,12 @@ namespace Server
         private void LoadFullInfoListIntoDataGridView(List<List<string>> fullInfoList)
         {
             dgv_client.Rows.Clear(); // Xóa các hàng cũ trước khi thêm mới
+            int i = 0;
             foreach (List<string> infoList in fullInfoList)
             {
                 dgv_client.Rows.Add(infoList.ToArray()); // Thêm từng dòng vào DataGridView
+                dgv_client.Rows[i].DefaultCellStyle.ForeColor = Color.Red;
+                i++;
             }
         }
 
@@ -576,9 +617,14 @@ namespace Server
                     {
                         row.Cells[i].Style.ForeColor = Color.Red;
                     }
-                    else
+                    else if(tmp.Contains("1"))
                     {
                         row.Cells[i].Style.ForeColor = Color.Black;
+                    }
+                    else
+                    {
+                        row.Cells[i].Style.ForeColor = Color.Red;
+
                     }
                 }
             }
@@ -926,21 +972,21 @@ namespace Server
             string element = row[colIndex];
             Console.WriteLine("Phần tử ở hàng {0}, cột {1} là: {2}", rowIndex, colIndex, element);
         }
+        ContextMenuStrip contextMenuStrip;
+        private void dgv_client_MouseClick(object sender, MouseEventArgs e)
+        {
 
-        //private void dgv_client_MouseClick(object sender, MouseEventArgs e)
-        //{
+            Console.WriteLine("Nhan chuot");
+            if (e.Button == MouseButtons.Right)
+            {
+                Console.WriteLine("Chuot phai ne");
+                // Xác định vị trí của chuột trên ListView
+                Point clickPoint = dgv_client.PointToClient(new Point(e.X, e.Y));
 
-        //    Console.WriteLine("Nhan chuot");
-        //    if (e.Button == MouseButtons.Right)
-        //    {
-        //        Console.WriteLine("Chuot phai ne");
-        //        // Xác định vị trí của chuột trên ListView
-        //        Point clickPoint = dgv_client.PointToClient(new Point(e.X, e.Y));
-
-        //        // Hiển thị ContextMenuStrip tại vị trí của chuột
-        //        contextMenuStrip.Show(dgv_client, e.Location);
-        //    }
-        //}
+                // Hiển thị ContextMenuStrip tại vị trí của chuột
+                contextMenuStrip.Show(dgv_client, e.Location);
+            }
+        }
 
         private void dgv_client_SelectedIndexChanged(object sender, EventArgs e)
         {
@@ -1292,6 +1338,7 @@ namespace Server
 
         private void svForm_Click(object sender, EventArgs e)
         {
+          
 
         }
 
@@ -1313,6 +1360,6 @@ namespace Server
             createExam.ShowDialog();
         }
 
-
+        
     }
 }

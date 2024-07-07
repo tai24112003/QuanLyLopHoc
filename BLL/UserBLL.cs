@@ -25,8 +25,9 @@ public class UserBLL
         {
             string usersJson = LoadLocalData();
             var userResponse = JsonConvert.DeserializeObject<UserResponse>(usersJson);
-            return userResponse.Data;
             throw new Exception("Error fetching user list by role from BLL", ex);
+            return userResponse.Data;
+
         }
     }
     public async Task<string> GetUsersByRole(string role)
@@ -65,7 +66,20 @@ public class UserBLL
             throw new Exception("Error fetching users by role from BLL", ex);
         }
     }
+    public async Task<List<User>> GetUsersByRoleFromAPI(string role)
+    {
+        string lastTimeUpdateJson = await _userDAL.GetLastTimeUpdateFromDB();
+        var lastTimeUpdateResponse = JsonConvert.DeserializeObject<LastTimeUpdateResponse>(lastTimeUpdateJson);
+        DateTime serverLastUpdateTime;
+        DateTime.TryParseExact(lastTimeUpdateResponse.data[0].lastTimeUpdateUser, "dd/MM/yyyy", null, System.Globalization.DateTimeStyles.None, out serverLastUpdateTime);
 
+        string usersJson = await _userDAL.GetUsersByRole(role);
+        // Save users and last update time to local file
+        SaveLocalData(usersJson, serverLastUpdateTime);
+
+        var userResponse = JsonConvert.DeserializeObject<UserResponse>(usersJson);
+        return userResponse.Data;
+    }
     private DateTime? GetLocalLastTimeUpdate()
     {
         if (File.Exists(localFilePath))

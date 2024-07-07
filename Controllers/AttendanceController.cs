@@ -1,12 +1,12 @@
 ﻿using System.Threading.Tasks;
 using System;
 
-public class ClassSessionController
+public class AttendanceController
 {
     private readonly LocalDataHandler _localDataHandler;
     private readonly ClassSessionBLL _classSessionBLL;
 
-    public ClassSessionController(LocalDataHandler localDataHandler, ClassSessionBLL classSessionBLL)
+    public AttendanceController(LocalDataHandler localDataHandler, ClassSessionBLL classSessionBLL)
     {
         _localDataHandler = localDataHandler ?? throw new ArgumentNullException(nameof(localDataHandler));
         _classSessionBLL = classSessionBLL ?? throw new ArgumentNullException(nameof(classSessionBLL));
@@ -44,9 +44,9 @@ public class ClassSessionController
             // Optionally, handle the error by saving the session locally
             Random random = new Random();
 
-            int randomNumber = random.Next(1000000000)*-1;
+            int randomNumber = random.Next(1000000000) * -1;
             Console.WriteLine(randomNumber);
-            _localDataHandler.SaveLocalClassSession(randomNumber,classSession);
+            _localDataHandler.SaveLocalClassSession(randomNumber, classSession);
 
             return -randomNumber;
         }

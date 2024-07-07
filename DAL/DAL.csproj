@@ -47,11 +47,16 @@
     <Compile Include="ApiService.cs" />
     <Compile Include="ClassSessionDAL.cs" />
     <Compile Include="IDataService.cs" />
+    <Compile Include="Models\Attendance.cs" />
+    <Compile Include="Models\Class.cs" />
     <Compile Include="Models\ClassSession.cs" />
+    <Compile Include="Models\ClassSubject.cs" />
     <Compile Include="Models\Computer.cs" />
+    <Compile Include="Models\ExcelData.cs" />
     <Compile Include="Models\Room.cs" />
     <Compile Include="Models\SessionComputer.cs" />
     <Compile Include="Models\Setting.cs" />
+    <Compile Include="Models\Student.cs" />
     <Compile Include="Models\Subject.cs" />
     <Compile Include="Models\User.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

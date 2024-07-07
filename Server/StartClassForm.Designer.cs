@@ -42,7 +42,7 @@
             this.label6 = new System.Windows.Forms.Label();
             this.pictureBox3 = new System.Windows.Forms.PictureBox();
             this.cbbName = new System.Windows.Forms.ComboBox();
-            this.label7 = new System.Windows.Forms.Label();
+            this.button1 = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.btnExit)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.btnSubmit)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox3)).BeginInit();
@@ -54,7 +54,7 @@
             this.label2.BackColor = System.Drawing.Color.Transparent;
             this.label2.Font = new System.Drawing.Font("Tahoma", 10.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label2.ForeColor = System.Drawing.Color.White;
-            this.label2.Location = new System.Drawing.Point(349, 180);
+            this.label2.Location = new System.Drawing.Point(349, 178);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(63, 22);
             this.label2.TabIndex = 1;
@@ -66,7 +66,7 @@
             this.label3.BackColor = System.Drawing.Color.Transparent;
             this.label3.Font = new System.Drawing.Font("Tahoma", 10.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label3.ForeColor = System.Drawing.Color.White;
-            this.label3.Location = new System.Drawing.Point(349, 286);
+            this.label3.Location = new System.Drawing.Point(349, 238);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(39, 22);
             this.label3.TabIndex = 3;
@@ -78,7 +78,7 @@
             this.label4.BackColor = System.Drawing.Color.Transparent;
             this.label4.Font = new System.Drawing.Font("Tahoma", 10.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label4.ForeColor = System.Drawing.Color.White;
-            this.label4.Location = new System.Drawing.Point(349, 382);
+            this.label4.Location = new System.Drawing.Point(349, 358);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(71, 22);
             this.label4.TabIndex = 5;
@@ -90,7 +90,7 @@
             this.label5.BackColor = System.Drawing.Color.Transparent;
             this.label5.Font = new System.Drawing.Font("Tahoma", 10.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label5.ForeColor = System.Drawing.Color.White;
-            this.label5.Location = new System.Drawing.Point(621, 382);
+            this.label5.Location = new System.Drawing.Point(621, 358);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(76, 22);
             this.label5.TabIndex = 7;
@@ -102,7 +102,7 @@
             this.label1.BackColor = System.Drawing.Color.Transparent;
             this.label1.Font = new System.Drawing.Font("Tahoma", 10.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label1.ForeColor = System.Drawing.Color.White;
-            this.label1.Location = new System.Drawing.Point(349, 334);
+            this.label1.Location = new System.Drawing.Point(349, 298);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(30, 22);
             this.label1.TabIndex = 12;
@@ -151,7 +151,7 @@
             "7h20",
             "8h10",
             "9h10 "});
-            this.cbbStart.Location = new System.Drawing.Point(457, 379);
+            this.cbbStart.Location = new System.Drawing.Point(457, 355);
             this.cbbStart.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.cbbStart.Name = "cbbStart";
             this.cbbStart.Size = new System.Drawing.Size(143, 30);
@@ -168,7 +168,7 @@
             "8h05",
             "8h55",
             "9h55"});
-            this.cbbEnd.Location = new System.Drawing.Point(747, 379);
+            this.cbbEnd.Location = new System.Drawing.Point(747, 355);
             this.cbbEnd.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.cbbEnd.Name = "cbbEnd";
             this.cbbEnd.Size = new System.Drawing.Size(143, 30);
@@ -185,7 +185,7 @@
             "Ca 3",
             "Ca 4",
             "Khác"});
-            this.cbbSession.Location = new System.Drawing.Point(457, 331);
+            this.cbbSession.Location = new System.Drawing.Point(457, 295);
             this.cbbSession.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.cbbSession.Name = "cbbSession";
             this.cbbSession.Size = new System.Drawing.Size(432, 30);
@@ -195,7 +195,7 @@
             // txtClass
             // 
             this.txtClass.Font = new System.Drawing.Font("Tahoma", 10.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.txtClass.Location = new System.Drawing.Point(457, 283);
+            this.txtClass.Location = new System.Drawing.Point(457, 235);
             this.txtClass.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.txtClass.Name = "txtClass";
             this.txtClass.Size = new System.Drawing.Size(432, 29);
@@ -207,12 +207,13 @@
             this.label6.BackColor = System.Drawing.Color.Transparent;
             this.label6.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label6.ForeColor = System.Drawing.Color.White;
-            this.label6.Location = new System.Drawing.Point(908, 262);
+            this.label6.Location = new System.Drawing.Point(453, 405);
             this.label6.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(143, 118);
+            this.label6.Size = new System.Drawing.Size(365, 125);
             this.label6.TabIndex = 30;
-            this.label6.Text = "*Lưu ý: nếu họ tên không có hãy nhấn reload";
+            this.label6.Text = "*Lưu ý: nếu họ tên không có hãy nhấn reload. Nếu lớp không có hãy nhấn chọn và im" +
+    "port file excel theo dạng chuẩn vào";
             // 
             // pictureBox3
             // 
@@ -228,29 +229,29 @@
             this.pictureBox3.Size = new System.Drawing.Size(61, 48);
             this.pictureBox3.TabIndex = 31;
             this.pictureBox3.TabStop = false;
+            this.pictureBox3.Click += new System.EventHandler(this.pictureBox3_Click);
             // 
             // cbbName
             // 
             this.cbbName.Font = new System.Drawing.Font("Tahoma", 10.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.cbbName.FormattingEnabled = true;
-            this.cbbName.Location = new System.Drawing.Point(457, 177);
+            this.cbbName.Location = new System.Drawing.Point(457, 175);
             this.cbbName.Name = "cbbName";
             this.cbbName.Size = new System.Drawing.Size(433, 30);
             this.cbbName.TabIndex = 32;
             this.cbbName.SelectedIndexChanged += new System.EventHandler(this.cbbName_SelectedIndexChanged);
             // 
-            // label7
+            // button1
             // 
-            this.label7.AllowDrop = true;
-            this.label7.BackColor = System.Drawing.Color.Transparent;
-            this.label7.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label7.ForeColor = System.Drawing.Color.White;
-            this.label7.Location = new System.Drawing.Point(349, 221);
-            this.label7.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-            this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(333, 60);
-            this.label7.TabIndex = 33;
-            this.label7.Text = "Cách đặt tên lớp: \"Môn học - tên lớp\" VD: Lập trình di động - CĐ TH 21 DĐ";
+            this.button1.AutoSize = true;
+            this.button1.Font = new System.Drawing.Font("Tahoma", 10.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.button1.Location = new System.Drawing.Point(912, 233);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(61, 32);
+            this.button1.TabIndex = 33;
+            this.button1.Text = "Chọn";
+            this.button1.UseVisualStyleBackColor = true;
+            this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
             // StartClassForm
             // 
@@ -259,7 +260,7 @@
             this.BackgroundImage = global::Server.Properties.Resources.bg;
             this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
             this.ClientSize = new System.Drawing.Size(1280, 720);
-            this.Controls.Add(this.label7);
+            this.Controls.Add(this.button1);
             this.Controls.Add(this.cbbName);
             this.Controls.Add(this.pictureBox3);
             this.Controls.Add(this.label6);
@@ -303,6 +304,6 @@
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.PictureBox pictureBox3;
         private System.Windows.Forms.ComboBox cbbName;
-        private System.Windows.Forms.Label label7;
+        private System.Windows.Forms.Button button1;
     }
 }

@@ -1,8 +1,10 @@
 ﻿// /Forms/StartClassForm.cs
 using Microsoft.Extensions.DependencyInjection;
+using OfficeOpenXml;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.IO;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -157,6 +159,87 @@ namespace Server
 
         }
 
+        private async void pictureBox3_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                string role = "GV";
+                List<User> users = await _userBLL.GetUsersByRoleFromAPI(role);
 
+                AutoCompleteStringCollection userCollection = new AutoCompleteStringCollection();
+                foreach (var user in users)
+                {
+                    userCollection.Add(user.name);
+
+                }
+
+                cbbName.DataSource = users;
+                cbbName.AutoCompleteCustomSource = userCollection;
+                cbbName.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
+                cbbName.AutoCompleteSource = AutoCompleteSource.CustomSource;
+                cbbName.DisplayMember = "name";
+                cbbName.ValueMember = "user_id";
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Không có mạng không thể lấy dữ liệu mới nhất");
+            }
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog openFileDialog = new OpenFileDialog
+            {
+                Filter = "Excel Files|*.xlsx;*.xls",
+                Title = "Select an Excel File"
+            };
+
+            if (openFileDialog.ShowDialog() == DialogResult.OK)
+            {
+                string filePath = openFileDialog.FileName;
+                var excelData = ReadExcelFile(filePath);
+                DisplayExcelData(excelData);
+            }
+        }
+
+        private ExcelData ReadExcelFile(string filePath)
+        {
+            ExcelData excelData = new ExcelData();
+            FileInfo fileInfo = new FileInfo(filePath);
+
+            using (ExcelPackage package = new ExcelPackage(fileInfo))
+            {
+                ExcelWorksheet worksheet = package.Workbook.Worksheets[0];
+                string tmp = worksheet.Cells["D2"].Value?.ToString();
+                string[] tmp1=tmp.Split('-');
+                excelData.ClassName = tmp1[0];
+                excelData.SubjectName = tmp1[1];
+                excelData.TeacherName = worksheet.Cells["D3"].Value?.ToString();
+
+                int row = 6; // Start reading student data from row 8
+                while (worksheet.Cells[row, 2].Value != null)
+                {
+                    Student student = new Student
+                    {
+                        StudentID = worksheet.Cells[row, 2].Value.ToString(),
+                        LastName = worksheet.Cells[row, 3].Value.ToString(),
+                        FirstName = worksheet.Cells[row, 4].Value.ToString(),
+                    };
+                    excelData.Students.Add(student);
+                    row++;
+                }
+            }
+
+            return excelData;
+        }
+
+        private void DisplayExcelData(ExcelData excelData)
+        {
+            //lblClassName.Text = $"Tên lớp: {excelData.ClassName}";
+            //lblSubjectName.Text = $"Tên môn: {excelData.SubjectName}";
+            //lblTeacherName.Text = $"Tên giáo viên: {excelData.TeacherName}";
+
+            //dgvStudents.DataSource = excelData.Students;
+        }
     }
 }

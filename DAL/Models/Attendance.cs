@@ -1,4 +1,6 @@
 ﻿
+using System.Collections.Generic;
+
 public class Attendance
 {
     public int AttendanceID { get; set; }
@@ -9,5 +11,11 @@ public class Attendance
 
     public string Remarks { get; set; }
 
+}
+
+
+public class AttendanceResponse
+{
+    public List<Attendance> data { get; set; }
 }
 

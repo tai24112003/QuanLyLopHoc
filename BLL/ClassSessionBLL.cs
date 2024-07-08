@@ -28,5 +28,5 @@ public class ClassSessionBLL
             throw new Exception("Error inserting class session in BLL", ex);
         }
     }
-
+    
 }

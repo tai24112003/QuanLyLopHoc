@@ -10,4 +10,5 @@ public class LastTimeUpdateData
 {
     public string lastTimeUpdateUser { get; set; }
     public string lastTimeUpdateSubject { get; set; }
+    public string lastTimeUpdateClass { get; set; }
 }

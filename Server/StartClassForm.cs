@@ -13,26 +13,43 @@ namespace Server
     public partial class StartClassForm : Form
     {
         private readonly UserBLL _userBLL;
+        private readonly ClassBLL _classBLL;
         private readonly SubjectBLL _subjectBLL;
+        private readonly ClassSubjectBLL _classSubjectBLL;
         private readonly ClassSessionController _classSessionController;
+        private readonly ExcelController _excelController;
         private readonly ComputerSessionController _computerSessionController;
+        private readonly IServiceProvider _serviceProvider;
 
-        public StartClassForm(UserBLL userBLL, SubjectBLL subjectBLL, ClassSessionController classSessionController, ComputerSessionController computerSessionController)
+        public StartClassForm
+            (UserBLL userBLL, 
+            SubjectBLL subjectBLL, 
+            ClassBLL classBLL,
+            ClassSubjectBLL classSubjectBLL,
+            ClassSessionController classSessionController, 
+            ExcelController excelController,
+            ComputerSessionController computerSessionController, 
+            IServiceProvider serviceProvider)
         {
             InitializeComponent();
 
             this.BackColor = Color.Purple;
             this.TransparencyKey = Color.Purple;
             _userBLL = userBLL;
+            _classBLL = classBLL;
             _subjectBLL = subjectBLL;
+            _classSubjectBLL = classSubjectBLL;
             _classSessionController = classSessionController;
             _computerSessionController = computerSessionController;
+            _excelController = excelController;
+            _serviceProvider = serviceProvider;
             this.Load += new EventHandler(MainForm_Load);
         }
 
         private async void MainForm_Load(object sender, EventArgs e)
         {
             await SetupUserAutoComplete();
+            await SetupClassAutoComplete();
         }
 
         private async Task SetupUserAutoComplete()
@@ -46,7 +63,7 @@ namespace Server
                 foreach (var user in users)
                 {
                     userCollection.Add(user.name);
-                    
+
                 }
 
                 cbbName.DataSource = users;
@@ -62,8 +79,31 @@ namespace Server
             }
         }
 
-       
+        private async Task SetupClassAutoComplete()
+        {
+            try
+            {
+                List<Class> classes = await _classBLL.GetAllClass();
 
+                AutoCompleteStringCollection classCollection = new AutoCompleteStringCollection();
+                foreach (var _class in classes)
+                {
+                    classCollection.Add(_class.ClassName);
+
+                }
+
+                cbbClass.DataSource = classes;
+                cbbClass.AutoCompleteCustomSource = classCollection;
+                cbbClass.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
+                cbbClass.AutoCompleteSource = AutoCompleteSource.CustomSource;
+                cbbClass.DisplayMember = "ClassName";
+                cbbClass.ValueMember = "ClassID";
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error: " + ex.Message);
+            }
+        }
         private void cbbSession_SelectedIndexChanged(object sender, EventArgs e)
         {
             if (cbbSession.SelectedIndex == 0)
@@ -101,7 +141,7 @@ namespace Server
         private async void btnSubmit_Click(object sender, EventArgs e)
         {
             this.Hide();
-            string className = txtClass.Text;
+            int classID = int.Parse(cbbClass.SelectedValue.ToString());
             int userID = int.Parse(cbbName.SelectedValue.ToString());
             Console.WriteLine(userID);
             string roomID = "F71";
@@ -115,8 +155,8 @@ namespace Server
             // Tạo đối tượng DateTime với ngày hiện tại và giờ phút từ chuỗi
             DateTime startTime = new DateTime(now.Year, now.Month, now.Day, hour, minute, 0);
             string[] end = cbbEnd.SelectedItem.ToString().Split('h');
-             hour = int.Parse(end[0]);
-             minute = int.Parse(end[1]);
+            hour = int.Parse(end[0]);
+            minute = int.Parse(end[1]);
 
 
             // Tạo đối tượng DateTime với ngày hiện tại và giờ phút từ chuỗi
@@ -125,7 +165,7 @@ namespace Server
             {
                 ClassSession classSession = new ClassSession
                 {
-                    ClassName = className,
+                    ClassID = classID,
                     Session = cbbSession.SelectedIndex + 1,
                     StartTime = startTime,
                     EndTime = endTime,
@@ -133,11 +173,10 @@ namespace Server
                     RoomID = roomID
                 };
 
-                int sessionID = await _classSessionController.StartNewClassSession(classSession);
+                int sessionID = await _classSessionController.StartNewClassSession(classSession,_excelController);
 
-                var roomBLL = ServiceLocator.ServiceProvider.GetRequiredService<RoomBLL>();
 
-                svForm svForms = new svForm(userID, roomID, roomBLL,sessionID,_computerSessionController);
+                svForm svForms = _serviceProvider.GetRequiredService<svForm>();
                 svForms.Show();
 
                 Console.WriteLine("Class session started successfully!");
@@ -182,15 +221,15 @@ namespace Server
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Không có mạng không thể lấy dữ liệu mới nhất");
+                Console.WriteLine("Không có mạng không thể lấy dữ liệu mới nhất: "+ex);
             }
         }
 
-        private void button1_Click(object sender, EventArgs e)
+        private async void button1_Click(object sender, EventArgs e)
         {
             OpenFileDialog openFileDialog = new OpenFileDialog
             {
-                Filter = "Excel Files|*.xlsx;*.xls",
+                Filter = "Excel Files|*.xlsx;*.xls;*.xlsm",
                 Title = "Select an Excel File"
             };
 
@@ -198,25 +237,41 @@ namespace Server
             {
                 string filePath = openFileDialog.FileName;
                 var excelData = ReadExcelFile(filePath);
-                DisplayExcelData(excelData);
+
+                
+
+                bool success = await _excelController.AddDataFromExcel(excelData);
+
+                if (success)
+                {
+                    MessageBox.Show("Data added successfully.");
+                }
+                else
+                {
+                    MessageBox.Show("Failed to add data. Data has been saved locally.");
+                }
             }
         }
+
 
         private ExcelData ReadExcelFile(string filePath)
         {
             ExcelData excelData = new ExcelData();
             FileInfo fileInfo = new FileInfo(filePath);
 
+
+            OfficeOpenXml.ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
+
             using (ExcelPackage package = new ExcelPackage(fileInfo))
             {
                 ExcelWorksheet worksheet = package.Workbook.Worksheets[0];
                 string tmp = worksheet.Cells["D2"].Value?.ToString();
-                string[] tmp1=tmp.Split('-');
+                string[] tmp1 = tmp.Split('-');
                 excelData.ClassName = tmp1[0];
                 excelData.SubjectName = tmp1[1];
                 excelData.TeacherName = worksheet.Cells["D3"].Value?.ToString();
 
-                int row = 6; // Start reading student data from row 8
+                int row = 6; 
                 while (worksheet.Cells[row, 2].Value != null)
                 {
                     Student student = new Student
@@ -233,13 +288,37 @@ namespace Server
             return excelData;
         }
 
-        private void DisplayExcelData(ExcelData excelData)
-        {
-            //lblClassName.Text = $"Tên lớp: {excelData.ClassName}";
-            //lblSubjectName.Text = $"Tên môn: {excelData.SubjectName}";
-            //lblTeacherName.Text = $"Tên giáo viên: {excelData.TeacherName}";
+       
 
-            //dgvStudents.DataSource = excelData.Students;
+        private async void cbbClass_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            try
+            {
+
+                Console.WriteLine("vua chon"+cbbClass.SelectedValue);
+                int classID = int.Parse(cbbClass.SelectedValue.ToString());
+                List<ClassSubject> classes = await _classSubjectBLL.GetClassSubjectsByClassID(classID);
+
+                AutoCompleteStringCollection classSubjectCollection = new AutoCompleteStringCollection();
+                foreach (var _class in classes)
+                {
+                    classSubjectCollection.Add(_class.SubjectName);
+
+                }
+
+                cbbSubject.DataSource = classes;
+                cbbSubject.AutoCompleteCustomSource = classSubjectCollection;
+                cbbSubject.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
+                cbbSubject.AutoCompleteSource = AutoCompleteSource.CustomSource;
+                cbbSubject.DisplayMember = "SubjectName";
+                cbbSubject.ValueMember = "SubjectID";
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error o day ne: " + ex.Message);
+            }
         }
+
+      
     }
 }

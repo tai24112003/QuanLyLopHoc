@@ -5,14 +5,15 @@ public class ClassSession
 {
     public int SessionID { get; set; }
 
-    public string ClassName { get; set; }
+    public int ClassID { get; set; }
+    public int SubjectID { get; set; }
     public int Session { get; set; }
     public DateTime StartTime { get; set; }
     public DateTime EndTime { get; set; }
 
     public int user_id { get; set; }
 
-    public string RoomID { get; set; }
+    public string RoomID { get; set; }  
 }
 
 

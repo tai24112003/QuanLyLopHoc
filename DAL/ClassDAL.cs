@@ -3,38 +3,38 @@ using System;
 using System.Net.Http;
 using System.Threading.Tasks;
 
-public class SubjectDAL
+public class ClassDAL
 {
     private readonly IDataService _dataService;
 
-    public SubjectDAL(IDataService dataService)
+    public ClassDAL(IDataService dataService)
     {
         _dataService = dataService;
     }
 
-    public async Task<string> GetAllSubjects()
+    public async Task<string> GetAllClass()
     {
         try
         {
-            string subjectsJson = await _dataService.GetAsync("subject");
-            return subjectsJson;
+            string ClassJson = await _dataService.GetAsync("class");
+            return ClassJson;
         }
         catch (Exception ex)
         {
             throw ex;
         }
     }
-    public async Task<string> InsertSubject(Subject student)
+    public async Task<string> InsertClass(Class classSession)
     {
         try
         {
-            string studentJson = JsonConvert.SerializeObject(student);
-            string responseJson = await _dataService.PostAsync("subject/insert", studentJson);
+            string classJson = JsonConvert.SerializeObject(classSession);
+            string responseJson = await _dataService.PostAsync("class/insert", classJson);
             return responseJson;
         }
         catch (Exception ex)
         {
-            throw new Exception("Error inserting Subject in DAL"+ ex);
+            throw new Exception("Error inserting class in DAL", ex);
         }
     }
     public async Task<string> GetLastTimeUpdateFromDB()

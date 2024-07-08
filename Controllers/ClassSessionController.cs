@@ -12,8 +12,11 @@ public class ClassSessionController
         _classSessionBLL = classSessionBLL ?? throw new ArgumentNullException(nameof(classSessionBLL));
     }
 
-    public async Task<int> StartNewClassSession(ClassSession classSession)
+    public async Task<int> StartNewClassSession(ClassSession classSession,ExcelController excelController)
     {
+
+        // Process local data before starting a new session
+        await excelController.ProcessLocalData();
         // Check and save local data before starting new session
         bool isLocalDataSaved = await _localDataHandler.SaveLocalDataToDatabase();
 

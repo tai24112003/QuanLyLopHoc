@@ -10,7 +10,7 @@ public class ApiService : IDataService
     public ApiService()
     {
         _client = new HttpClient();
-        _client.BaseAddress = new Uri($"http://localhost:9999/api/"); // Your Node.js server address
+        _client.BaseAddress = new Uri($"http://localhost:9999/api/"); 
         _client.DefaultRequestHeaders.Accept.Clear();
         _client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
     }

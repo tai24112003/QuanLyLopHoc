@@ -33,6 +33,20 @@ public class SubjectBLL
             throw new Exception("Error fetching subjects from API and local data", ex);
         }
     }
+    public async Task<Subject> InsertSubject(Subject classSession)
+    {
+        try
+        {
+            string responseJson = await _subjectDAL.InsertSubject(classSession);
+            var insertedSession = JsonConvert.DeserializeObject<Subject>(responseJson);
+            return insertedSession;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Error inserting Subject in BLL: " + ex.Message);
+            throw new Exception("Error inserting Subject in BLL", ex);
+        }
+    }
 
     public async Task<string> GetSubjects()
     {

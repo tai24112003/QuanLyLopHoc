@@ -24,19 +24,28 @@ namespace Server
         private static void ConfigureServices(IServiceCollection services)
         {
             services.AddSingleton<IDataService, ApiService>();
+            services.AddTransient<ClassDAL>();
+            services.AddTransient<ClassStudentDAL>();
+            services.AddTransient<ClassSubjectDAL>();
             services.AddTransient<UserDAL>();
             services.AddTransient<RoomDAL>();
             services.AddTransient<SubjectDAL>();
+            services.AddTransient<StudentDAL>();
+            services.AddTransient<StudentBLL>();
             services.AddTransient<UserBLL>();
+            services.AddTransient<ClassBLL>();
             services.AddTransient<RoomBLL>();
             services.AddTransient<SubjectBLL>();
             services.AddTransient<ClassSessionDAL>();
             services.AddTransient<SessionComputerDAL>();
             services.AddTransient<ClassSessionBLL>();
+            services.AddTransient<ClassSubjectBLL>();
+            services.AddTransient<ClassStudentBLL>();
             services.AddTransient<SessionComputerBLL>();
             services.AddTransient<LocalDataHandler>();
             services.AddTransient<ClassSessionController>();
             services.AddTransient<ComputerSessionController>();
+            services.AddTransient<ExcelController>();
 
             services.AddTransient<StartClassForm>();
             services.AddTransient<svForm>();

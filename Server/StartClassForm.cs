@@ -15,7 +15,6 @@ namespace Server
         private readonly UserBLL _userBLL;
         private readonly ClassBLL _classBLL;
         private readonly SubjectBLL _subjectBLL;
-        private readonly ClassSubjectBLL _classSubjectBLL;
         private readonly ClassSessionController _classSessionController;
         private readonly ExcelController _excelController;
         private readonly ComputerSessionController _computerSessionController;
@@ -25,20 +24,18 @@ namespace Server
             (UserBLL userBLL, 
             SubjectBLL subjectBLL, 
             ClassBLL classBLL,
-            ClassSubjectBLL classSubjectBLL,
             ClassSessionController classSessionController, 
             ExcelController excelController,
             ComputerSessionController computerSessionController, 
             IServiceProvider serviceProvider)
         {
             InitializeComponent();
-
+            DataProvider.ConnectAccess();
             this.BackColor = Color.Purple;
             this.TransparencyKey = Color.Purple;
             _userBLL = userBLL;
             _classBLL = classBLL;
             _subjectBLL = subjectBLL;
-            _classSubjectBLL = classSubjectBLL;
             _classSessionController = classSessionController;
             _computerSessionController = computerSessionController;
             _excelController = excelController;
@@ -187,9 +184,31 @@ namespace Server
             }
         }
 
-        private void cbbName_SelectedIndexChanged(object sender, EventArgs e)
+        private async void cbbName_SelectedIndexChanged(object sender, EventArgs e)
         {
-            //MessageBox.Show(cbbName.SelectedValue + " - " + (User)cbbName.SelectedItem);
+            try
+            {
+                int userID = int.Parse(cbbName.SelectedValue.ToString());
+                List<Class> classes = await _classBLL.GetClassByUserID(userID);
+
+                AutoCompleteStringCollection classCollection = new AutoCompleteStringCollection();
+                foreach (var _class in classes)
+                {
+                    classCollection.Add(_class.ClassName);
+
+                }
+
+                cbbClass.DataSource = classes;
+                cbbClass.AutoCompleteCustomSource = classCollection;
+                cbbClass.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
+                cbbClass.AutoCompleteSource = AutoCompleteSource.CustomSource;
+                cbbClass.DisplayMember = "ClassName";
+                cbbClass.ValueMember = "ClassID";
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error: " + ex.Message);
+            }
         }
 
         private void cbbSubject_SelectedIndexChanged(object sender, EventArgs e)
@@ -240,9 +259,9 @@ namespace Server
 
                 
 
-                bool success = await _excelController.AddDataFromExcel(excelData);
+                var success = await _excelController.AddDataFromExcel(excelData);
 
-                if (success)
+                if (success!=null)
                 {
                     MessageBox.Show("Data added successfully.");
                 }
@@ -265,10 +284,7 @@ namespace Server
             using (ExcelPackage package = new ExcelPackage(fileInfo))
             {
                 ExcelWorksheet worksheet = package.Workbook.Worksheets[0];
-                string tmp = worksheet.Cells["D2"].Value?.ToString();
-                string[] tmp1 = tmp.Split('-');
-                excelData.ClassName = tmp1[0];
-                excelData.SubjectName = tmp1[1];
+                excelData.ClassName = worksheet.Cells["D2"].Value?.ToString();
                 excelData.TeacherName = worksheet.Cells["D3"].Value?.ToString();
 
                 int row = 6; 
@@ -290,35 +306,43 @@ namespace Server
 
        
 
-        private async void cbbClass_SelectedIndexChanged(object sender, EventArgs e)
+        //private async void cbbClass_SelectedIndexChanged(object sender, EventArgs e)
+        //{
+        //    try
+        //    {
+
+        //        Console.WriteLine("vua chon"+cbbClass.SelectedValue);
+        //        int classID = int.Parse(cbbClass.SelectedValue.ToString());
+        //        List<ClassSubject> classes = await _classSubjectBLL.GetClassSubjectsByClassID(classID);
+
+        //        AutoCompleteStringCollection classSubjectCollection = new AutoCompleteStringCollection();
+        //        foreach (var _class in classes)
+        //        {
+        //            classSubjectCollection.Add(_class.SubjectName);
+
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Console.WriteLine("Error o day ne: " + ex.Message);
+        //    }
+        //}
+
+       
+
+        private void StartClassForm_Load(object sender, EventArgs e)
         {
-            try
-            {
 
-                Console.WriteLine("vua chon"+cbbClass.SelectedValue);
-                int classID = int.Parse(cbbClass.SelectedValue.ToString());
-                List<ClassSubject> classes = await _classSubjectBLL.GetClassSubjectsByClassID(classID);
-
-                AutoCompleteStringCollection classSubjectCollection = new AutoCompleteStringCollection();
-                foreach (var _class in classes)
-                {
-                    classSubjectCollection.Add(_class.SubjectName);
-
-                }
-
-                cbbSubject.DataSource = classes;
-                cbbSubject.AutoCompleteCustomSource = classSubjectCollection;
-                cbbSubject.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
-                cbbSubject.AutoCompleteSource = AutoCompleteSource.CustomSource;
-                cbbSubject.DisplayMember = "SubjectName";
-                cbbSubject.ValueMember = "SubjectID";
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("Error o day ne: " + ex.Message);
-            }
         }
 
-      
+        private void cbbClass_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void btnAddClass_Click(object sender, EventArgs e)
+        {
+            
+        }
     }
 }

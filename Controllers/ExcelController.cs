@@ -25,7 +25,7 @@ public class ExcelController
         _classStudentBLL = classStudentBLL;
     }
 
-    public async Task<bool> AddDataFromExcel(ExcelData excelData)
+    public async Task<ExcelData> AddDataFromExcel(ExcelData excelData)
     {
         try
         {
@@ -33,9 +33,6 @@ public class ExcelController
             //var teacher = new User { name = excelData.TeacherName, role = "GV" };
             //var addedTeacher = await _userBLL.in(teacher);
 
-            // Add Subject
-            var subject = new Subject { name = excelData.SubjectName };
-            var addedSubject = await _subjectBLL.InsertSubject(subject);
 
             // Add Class
             var classEntity = new Class { ClassName = excelData.ClassName };
@@ -45,19 +42,24 @@ public class ExcelController
             var lstStudent= await _studentBLL.InsertStudent(excelData.Students);
             // Add ClassStudent
             List<ClassStudent> students = new List<ClassStudent>();
-            foreach (var student in excelData.Students) {
+            foreach (var student in excelData.Students) 
+                {
                 var classStudent = new ClassStudent { ClassID = int.Parse(addedClass.ClassID),
                 StudentID=student.StudentID};
                 students.Add(classStudent);
             }
             await _classStudentBLL.InsertClassStudent(students);
-            return true;
+            return excelData;
         }
         catch (Exception ex)
         {
             Console.WriteLine("Error adding data from Excel: " + ex.Message);
+            Random random = new Random();
+
+            int randomNumber = random.Next(1000000000) * -1;
+            excelData.ClassID = randomNumber;
             SaveLocalExcelData(excelData);
-            return false;
+            return excelData;
         }
     }
 
@@ -111,7 +113,7 @@ public class ExcelController
         foreach (var excelData in localData)
         {
             var success = await AddDataFromExcel(excelData);
-            if (success)
+            if (success != null)
             {
                 Console.WriteLine("Successfully added local data to the database.");
             }

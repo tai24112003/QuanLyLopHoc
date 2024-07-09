@@ -47,7 +47,6 @@
     <Compile Include="ClassBLL.cs" />
     <Compile Include="ClassSessionBLL.cs" />
     <Compile Include="ClassStudentBLL.cs" />
-    <Compile Include="ClassSubject.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RoomBLL.cs" />
     <Compile Include="SessionComputerBLL.cs" />

@@ -26,7 +26,7 @@ namespace Server
             services.AddSingleton<IDataService, ApiService>();
             services.AddTransient<ClassDAL>();
             services.AddTransient<ClassStudentDAL>();
-            services.AddTransient<ClassSubjectDAL>();
+            //services.AddTransient<ClassSubjectDAL>();
             services.AddTransient<UserDAL>();
             services.AddTransient<RoomDAL>();
             services.AddTransient<SubjectDAL>();
@@ -39,7 +39,7 @@ namespace Server
             services.AddTransient<ClassSessionDAL>();
             services.AddTransient<SessionComputerDAL>();
             services.AddTransient<ClassSessionBLL>();
-            services.AddTransient<ClassSubjectBLL>();
+            //services.AddTransient<ClassSubjectBLL>();
             services.AddTransient<ClassStudentBLL>();
             services.AddTransient<SessionComputerBLL>();
             services.AddTransient<LocalDataHandler>();

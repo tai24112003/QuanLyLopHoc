@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Data.OleDb;
 using System.IO;
 using System.Threading.Tasks;
 
@@ -13,6 +14,7 @@ public class UserBLL
     {
         _userDAL = userDAL ?? throw new ArgumentNullException(nameof(userDAL));
     }
+
     public async Task<List<User>> GetListUser(string role)
     {
         try
@@ -25,11 +27,11 @@ public class UserBLL
         {
             string usersJson = LoadLocalData();
             var userResponse = JsonConvert.DeserializeObject<UserResponse>(usersJson);
-            throw new Exception("Error fetching user list by role from BLL", ex);
             return userResponse.Data;
-
+            throw new Exception("Error fetching user list by role from BLL", ex);
         }
     }
+
     public async Task<string> GetUsersByRole(string role)
     {
         try
@@ -41,8 +43,7 @@ public class UserBLL
             string lastTimeUpdateJson = await _userDAL.GetLastTimeUpdateFromDB();
             var lastTimeUpdateResponse = JsonConvert.DeserializeObject<LastTimeUpdateResponse>(lastTimeUpdateJson);
             DateTime serverLastUpdateTime;
-             DateTime.TryParseExact(lastTimeUpdateResponse.data[0].lastTimeUpdateUser, "dd/MM/yyyy", null, System.Globalization.DateTimeStyles.None, out serverLastUpdateTime);
-
+            DateTime.TryParseExact(lastTimeUpdateResponse.data[0].lastTimeUpdateUser, "dd/MM/yyyy", null, System.Globalization.DateTimeStyles.None, out serverLastUpdateTime);
 
             if (localLastUpdateTime.HasValue && localLastUpdateTime.Value >= serverLastUpdateTime)
             {
@@ -56,6 +57,8 @@ public class UserBLL
 
                 // Get users from server
                 string usersJson = await _userDAL.GetUsersByRole(role);
+                SaveLocalUserAccessData(usersJson, serverLastUpdateTime);
+
                 // Save users and last update time to local file
                 SaveLocalData(usersJson, serverLastUpdateTime);
                 return usersJson;
@@ -66,6 +69,37 @@ public class UserBLL
             throw new Exception("Error fetching users by role from BLL", ex);
         }
     }
+
+    public void SaveLocalUserAccessData(string usersJson, DateTime lastUpdateTime)
+    {
+        var localData = new LocalDataResponse
+        {
+            UsersJson = usersJson,
+            LastTimeUpdateUser = lastUpdateTime
+        };
+
+        var userResponse = JsonConvert.DeserializeObject<UserResponse>(localData.UsersJson);
+
+        foreach (var user in userResponse.Data)
+        {
+            string query = "INSERT INTO `users` (`id`, `email`, `name`, `phone`, `password`, `role`) VALUES (@userId, @Email, @Name, @Phone, @Password, @Role)";
+
+            OleDbParameter[] parameters = new OleDbParameter[]
+            {
+            new OleDbParameter("@userId", user.user_id),
+            new OleDbParameter("@Email", user.email),
+            new OleDbParameter("@Name", user.name),
+            new OleDbParameter("@Phone", user.phone),
+            new OleDbParameter("@Password", user.password),
+            new OleDbParameter("@Role", user.role)
+            };
+
+            DataProvider.RunNonQuery(query, parameters);
+        }
+    }
+
+
+
     public async Task<List<User>> GetUsersByRoleFromAPI(string role)
     {
         string lastTimeUpdateJson = await _userDAL.GetLastTimeUpdateFromDB();
@@ -80,6 +114,7 @@ public class UserBLL
         var userResponse = JsonConvert.DeserializeObject<UserResponse>(usersJson);
         return userResponse.Data;
     }
+
     private DateTime? GetLocalLastTimeUpdate()
     {
         if (File.Exists(localFilePath))
@@ -112,4 +147,3 @@ public class UserBLL
         return null;
     }
 }
-

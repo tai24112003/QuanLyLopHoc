@@ -38,13 +38,13 @@ public class SubjectBLL
         try
         {
             string responseJson = await _subjectDAL.InsertSubject(classSession);
-            var insertedSession = JsonConvert.DeserializeObject<Subject>(responseJson);
-            return insertedSession;
+            var insertedSession = JsonConvert.DeserializeObject<SubjectResponse>(responseJson);
+            return insertedSession.data[0];
         }
         catch (Exception ex)
         {
             Console.WriteLine("Error inserting Subject in BLL: " + ex.Message);
-            throw new Exception("Error inserting Subject in BLL", ex);
+            throw new Exception("Error inserting Subject in BLL", ex);  
         }
     }
 

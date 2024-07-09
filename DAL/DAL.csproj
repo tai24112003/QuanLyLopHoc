@@ -49,12 +49,12 @@
     <Compile Include="ClassSessionDAL.cs" />
     <Compile Include="ClassStudent.cs" />
     <Compile Include="ClassSubjectDAL.cs" />
+    <Compile Include="DataProvider.cs" />
     <Compile Include="IDataService.cs" />
     <Compile Include="Models\Attendance.cs" />
     <Compile Include="Models\Class.cs" />
     <Compile Include="Models\ClassSession.cs" />
     <Compile Include="Models\ClassStudent.cs" />
-    <Compile Include="Models\ClassSubject.cs" />
     <Compile Include="Models\Computer.cs" />
     <Compile Include="Models\ExcelData.cs" />
     <Compile Include="Models\Room.cs" />

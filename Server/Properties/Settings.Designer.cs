@@ -22,5 +22,16 @@ namespace Server.Properties {
                 return defaultInstance;
             }
         }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.SpecialSettingAttribute(global::System.Configuration.SpecialSetting.ConnectionString)]
+        [global::System.Configuration.DefaultSettingValueAttribute("Provider=Microsoft.ACE.OLEDB.12.0;Data Source=|DataDirectory|\\qlpm.accdb;Persist " +
+            "Security Info=True;Jet OLEDB:Database Password=ckc1234")]
+        public string qlpmConnectionString {
+            get {
+                return ((string)(this["qlpmConnectionString"]));
+            }
+        }
     }
 }

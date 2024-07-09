@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 
@@ -17,9 +18,17 @@ public class ClassBLL
     {
         try
         {
+            var existingClass = await GetClassByName(classSession.ClassName);
+            if (existingClass != null)
+            {
+                // Class already exists, return the existing class
+                return existingClass;
+            }
+
+            // Class does not exist, insert new class
             string responseJson = await _ClassDAL.InsertClass(classSession);
-            var insertedSession = JsonConvert.DeserializeObject<Class>(responseJson);
-            return insertedSession;
+            var insertedClass = JsonConvert.DeserializeObject<Class>(responseJson);
+            return insertedClass;
         }
         catch (Exception ex)
         {
@@ -27,6 +36,13 @@ public class ClassBLL
             throw new Exception("Error inserting class session in BLL", ex);
         }
     }
+
+    private async Task<Class> GetClassByName(string className)
+    {
+        var lstClass = await GetAllClass();
+        return lstClass.FirstOrDefault(c => c.ClassName.Equals(className, StringComparison.OrdinalIgnoreCase));
+    }
+
     public async Task<List<Class>> GetAllClass()
     {
         try
@@ -45,6 +61,12 @@ public class ClassBLL
             }
             throw new Exception("Error fetching Class from API and local data", ex);
         }
+    }
+
+    public async Task<List<Class>> GetClassByUserID(int userID)
+    {
+        var lstClass= await GetAllClass();
+        return lstClass.FindAll(c => c.UserID == userID).ToList();
     }
 
     public async Task<string> GetClass()

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 public class Class
 {
@@ -6,7 +7,7 @@ public class Class
     public string ClassName { get; set; }
     public int UserID { get; set; }
 
-
+    public DateTime LastTime { get; set; }
 }
 public class ClassResponse
 {

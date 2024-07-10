@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 public class Student
 {
@@ -6,7 +7,7 @@ public class Student
     public string FirstName { get; set; }
     public string LastName { get; set; }
 
-
+    public DateTime LastTime { get; set; }
 }
 
 

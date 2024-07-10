@@ -1,4 +1,5 @@
 ﻿// /Forms/StartClassForm.cs
+using Autofac;
 using Microsoft.Extensions.DependencyInjection;
 using OfficeOpenXml;
 using System;
@@ -55,10 +56,6 @@ namespace Server
             {
                 string role = "GV";
                 List<User> users = await _userBLL.GetListUser(role);
-                List<User> users1 = await _userBLL.GetListUser("TK");
-                List<User> users2 = await _userBLL.GetListUser("PK");
-                users.AddRange(users1);
-                users.AddRange(users2);
                 AutoCompleteStringCollection userCollection = new AutoCompleteStringCollection();
                 foreach (var user in users)
                 {
@@ -175,8 +172,12 @@ namespace Server
 
                 int sessionID = await _classSessionController.StartNewClassSession(classSession,_excelController);
 
+                classSession.SessionID = sessionID;
 
-                svForm svForms = _serviceProvider.GetRequiredService<svForm>();
+
+                // Set các thuộc tính cần thiết của svForm
+                var svFormFactory = _serviceProvider.GetRequiredService<svFormFactory>();
+                var svForms = svFormFactory.Create(userID, roomID, sessionID);
                 svForms.Show();
 
                 Console.WriteLine("Class session started successfully!");
@@ -190,7 +191,7 @@ namespace Server
         private async void cbbName_SelectedIndexChanged(object sender, EventArgs e)
         {
             try
-            {
+             {
                 int userID = int.Parse(cbbName.SelectedValue.ToString());
                 List<Class> classes = await _classBLL.GetClassByUserID(userID);
 

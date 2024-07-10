@@ -38,24 +38,30 @@ namespace Server
         private ImageList largeImageList; private volatile bool isRunning = true;
         private List<Dictionary<string, string>> standardInfoList = new List<Dictionary<string, string>>();
         private List<Dictionary<string, string>> privateStandardInfoList = new List<Dictionary<string, string>>();
-        private readonly RoomBLL _roomBLL;
+        private RoomBLL _roomBLL;
         private string roomID;
         private int userID;
         private Room room = new Room(); 
-        private readonly ComputerSessionController _computerSessionController;
-        private readonly int sessionID;
+        private ComputerSessionController _computerSessionController;
+        private  int sessionID;
         private List<SessionComputer> sessionComputers = new List<SessionComputer>();
-
-        public svForm(int userID,string roomID, RoomBLL roomBLL,int sessionID, ComputerSessionController computerSessionController)
+        private readonly IServiceProvider _serviceProvider;
+        public svForm()
         {
             InitializeComponent();
-            Ip = getIPServer();
-            this.roomID=roomID;
+        }
+        public void Initialize(int userID, string roomID, RoomBLL roomBLL, int sessionID, ComputerSessionController computerSessionController)
+        {
             this.userID = userID;
-            _roomBLL = roomBLL;
-            _computerSessionController = computerSessionController;
-            this.sessionID=sessionID;
+            this.roomID = roomID;
+            this._roomBLL = roomBLL;
+            this.sessionID = sessionID;
+            this._computerSessionController = computerSessionController;
+
+            Ip = getIPServer();
             InitializeContextMenu();
+
+            // Thực hiện các logic khởi tạo khác nếu cần thiết
         }
 
         private void InitializeContextMenu()

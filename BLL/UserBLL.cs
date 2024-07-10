@@ -52,7 +52,7 @@ public class UserBLL
             //}
             //else
             //{
-                Console.WriteLine("load api");
+                Console.WriteLine("load api user");
 
                 // Get users from server
                 string usersJson = await _userDAL.GetUsersByRole(role);
@@ -144,7 +144,7 @@ public class UserBLL
     {
         try
         {
-            string query = "SELECT Users.[id], Users.[email], Users.[phone], Users.[password], Users.[role], Users.[name], Users.[last_update] FROM Users";
+            string query = "SELECT Users.[id], Users.[email], Users.[phone], Users.[password], Users.[role], Users.[name], Users.[last_update] FROM Users where   Users.[role] not like 'BT'";
             DataTable dataTable = DataProvider.GetDataTable(query, null);
 
             if (dataTable == null || dataTable.Rows.Count == 0)

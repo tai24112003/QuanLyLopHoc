@@ -47,6 +47,7 @@ namespace Server
             services.AddTransient<ComputerSessionController>();
             services.AddTransient<ExcelController>();
 
+            services.AddTransient<svFormFactory>();
             services.AddTransient<StartClassForm>();
             services.AddTransient<svForm>();
         }

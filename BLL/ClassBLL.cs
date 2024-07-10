@@ -74,31 +74,13 @@ public class ClassBLL
     {
         try
         {
-            // Check local file for last update time
-            DateTime? localLastUpdateTime = GetLocalLastTimeUpdate();
-
-            // Get last update time from server
-            string lastTimeUpdateJson = await _ClassDAL.GetLastTimeUpdateFromDB();
-            var lastTimeUpdateResponse = JsonConvert.DeserializeObject<LastTimeUpdateResponse>(lastTimeUpdateJson);
-            DateTime serverLastUpdateTime;
-            DateTime.TryParseExact(lastTimeUpdateResponse.data[0].lastTimeUpdateClass, "dd/MM/yyyy", null, System.Globalization.DateTimeStyles.None, out serverLastUpdateTime);
-
-            if (localLastUpdateTime.HasValue && localLastUpdateTime.Value >= serverLastUpdateTime)
-            {
-                // Load Class from local database
-                Console.WriteLine("load local");
-                return LoadLocalData();
-            }
-            else
-            {
-                Console.WriteLine("load api");
 
                 // Get Class from server
                 string ClassJson = await _ClassDAL.GetAllClass();
                 // Save Class and last update time to local database
-                SaveLocalData(ClassJson, serverLastUpdateTime);
+                SaveLocalData(ClassJson);
                 return ClassJson;
-            }
+            
         }
         catch (Exception ex)
         {
@@ -106,33 +88,20 @@ public class ClassBLL
         }
     }
 
-    private DateTime? GetLocalLastTimeUpdate()
-    {
-        string query = "SELECT MAX(LastTime) AS LastUpdate FROM classes";
-        DataTable dataTable = DataProvider.GetDataTable(query, null);
 
-        if (dataTable != null && dataTable.Rows.Count > 0 && dataTable.Rows[0]["LastUpdate"] != DBNull.Value)
-        {
-            return Convert.ToDateTime(dataTable.Rows[0]["LastUpdate"]);
-        }
-
-        return null;
-    }
-
-    private void SaveLocalData(string ClassJson, DateTime lastUpdateTime)
+    private void SaveLocalData(string ClassJson)
     {
         var classResponse = JsonConvert.DeserializeObject<ClassResponse>(ClassJson);
 
         foreach (var classSession in classResponse.data)
         {
-            string query = "INSERT INTO `classes` (`ClassID`, `ClassName`, `UserID`, `last_update`) VALUES (@ClassID, @ClassName, @UserID, @LastUpdate)";
+            string query = "INSERT INTO `classes` (`ClassID`, `ClassName`, `UserID`, `LastTime`) VALUES (@ClassID, @ClassName, @UserID)";
 
             OleDbParameter[] parameters = new OleDbParameter[]
             {
                 new OleDbParameter("@ClassID", classSession.ClassID),
                 new OleDbParameter("@ClassName", classSession.ClassName),
                 new OleDbParameter("@UserID", classSession.UserID),
-                new OleDbParameter("@LastUpdate", lastUpdateTime)
             };
 
             DataProvider.RunNonQuery(query, parameters);

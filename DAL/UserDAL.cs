@@ -16,7 +16,7 @@ public class UserDAL
     {
         try
         {
-            string usersJson = await _dataService.GetAsync($"user/{role}");
+            string usersJson = await _dataService.GetAsync($"user/getUserCanTeach");
             return usersJson;
         }
         catch (Exception ex)

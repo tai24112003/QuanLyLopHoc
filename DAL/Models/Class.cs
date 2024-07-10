@@ -2,7 +2,7 @@
 
 public class Class
 {
-    public string ClassID { get; set; }
+    public int ClassID { get; set; }
     public string ClassName { get; set; }
     public int UserID { get; set; }
 

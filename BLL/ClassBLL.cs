@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
+using System.Data;
+using System.Data.OleDb;
 using System.Linq;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
@@ -8,12 +9,12 @@ using Newtonsoft.Json;
 public class ClassBLL
 {
     private readonly ClassDAL _ClassDAL;
-    private readonly string localFilePath = "localClass.json";
 
     public ClassBLL(ClassDAL ClassDAL)
     {
         _ClassDAL = ClassDAL ?? throw new ArgumentNullException(nameof(ClassDAL));
     }
+
     public async Task<Class> InsertClass(Class classSession)
     {
         try
@@ -65,7 +66,7 @@ public class ClassBLL
 
     public async Task<List<Class>> GetClassByUserID(int userID)
     {
-        var lstClass= await GetAllClass();
+        var lstClass = await GetAllClass();
         return lstClass.FindAll(c => c.UserID == userID).ToList();
     }
 
@@ -84,7 +85,7 @@ public class ClassBLL
 
             if (localLastUpdateTime.HasValue && localLastUpdateTime.Value >= serverLastUpdateTime)
             {
-                // Load Class from local file
+                // Load Class from local database
                 Console.WriteLine("load local");
                 return LoadLocalData();
             }
@@ -94,7 +95,7 @@ public class ClassBLL
 
                 // Get Class from server
                 string ClassJson = await _ClassDAL.GetAllClass();
-                // Save Class and last update time to local file
+                // Save Class and last update time to local database
                 SaveLocalData(ClassJson, serverLastUpdateTime);
                 return ClassJson;
             }
@@ -107,33 +108,68 @@ public class ClassBLL
 
     private DateTime? GetLocalLastTimeUpdate()
     {
-        if (File.Exists(localFilePath))
+        string query = "SELECT MAX(LastTime) AS LastUpdate FROM classes";
+        DataTable dataTable = DataProvider.GetDataTable(query, null);
+
+        if (dataTable != null && dataTable.Rows.Count > 0 && dataTable.Rows[0]["LastUpdate"] != DBNull.Value)
         {
-            var localData = File.ReadAllText(localFilePath);
-            var localResponse = JsonConvert.DeserializeObject<LocalDataResponse>(localData);
-            return localResponse.LastTimeUpdateClass;
+            return Convert.ToDateTime(dataTable.Rows[0]["LastUpdate"]);
         }
+
         return null;
     }
 
     private void SaveLocalData(string ClassJson, DateTime lastUpdateTime)
     {
-        var localData = new LocalDataResponse
+        var classResponse = JsonConvert.DeserializeObject<ClassResponse>(ClassJson);
+
+        foreach (var classSession in classResponse.data)
         {
-            ClassJson = ClassJson,
-            LastTimeUpdateClass = lastUpdateTime
-        };
-        File.WriteAllText(localFilePath, JsonConvert.SerializeObject(localData));
+            string query = "INSERT INTO `classes` (`ClassID`, `ClassName`, `UserID`, `last_update`) VALUES (@ClassID, @ClassName, @UserID, @LastUpdate)";
+
+            OleDbParameter[] parameters = new OleDbParameter[]
+            {
+                new OleDbParameter("@ClassID", classSession.ClassID),
+                new OleDbParameter("@ClassName", classSession.ClassName),
+                new OleDbParameter("@UserID", classSession.UserID),
+                new OleDbParameter("@LastUpdate", lastUpdateTime)
+            };
+
+            DataProvider.RunNonQuery(query, parameters);
+        }
     }
 
     private string LoadLocalData()
     {
-        if (File.Exists(localFilePath))
+        try
         {
-            var localData = File.ReadAllText(localFilePath);
-            var localResponse = JsonConvert.DeserializeObject<LocalDataResponse>(localData);
-            return localResponse.ClassJson;
+            string query = "SELECT ClassID, ClassName, UserID FROM classes";
+            DataTable dataTable = DataProvider.GetDataTable(query, null);
+
+            if (dataTable == null || dataTable.Rows.Count == 0)
+            {
+                return null;
+            }
+
+            List<Class> classes = new List<Class>();
+            foreach (DataRow row in dataTable.Rows)
+            {
+                Class classSession = new Class
+                {
+                    ClassID = int.Parse(row["ClassID"].ToString()),
+                    ClassName = row["ClassName"].ToString(),
+                    UserID = int.Parse(row["UserID"].ToString())
+                };
+                classes.Add(classSession);
+            }
+
+            ClassResponse classResponse = new ClassResponse { data = classes };
+            return JsonConvert.SerializeObject(classResponse);
         }
-        return null;
+        catch (Exception ex)
+        {
+            Console.WriteLine("Error loading data from Access: " + ex.Message);
+            return null;
+        }
     }
 }

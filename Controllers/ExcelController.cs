@@ -14,7 +14,7 @@ public class ExcelController
     private readonly UserBLL _userBLL;
     private readonly ClassStudentBLL _classStudentBLL;
 
-    public ExcelController(LocalDataHandler localDataHandler,ClassStudentBLL classStudentBLL, ClassSessionBLL classSessionBLL, StudentBLL studentBLL, SubjectBLL subjectBLL, ClassBLL classBLL, UserBLL userBLL)
+    public ExcelController(LocalDataHandler localDataHandler, ClassStudentBLL classStudentBLL, ClassSessionBLL classSessionBLL, StudentBLL studentBLL, SubjectBLL subjectBLL, ClassBLL classBLL, UserBLL userBLL)
     {
         _localDataHandler = localDataHandler;
         _classSessionBLL = classSessionBLL;
@@ -39,13 +39,16 @@ public class ExcelController
             var addedClass = await _classBLL.InsertClass(classEntity);
 
             // Add Students
-            var lstStudent= await _studentBLL.InsertStudent(excelData.Students);
+            var lstStudent = await _studentBLL.InsertStudent(excelData.Students);
             // Add ClassStudent
             List<ClassStudent> students = new List<ClassStudent>();
-            foreach (var student in excelData.Students) 
+            foreach (var student in excelData.Students)
+            {
+                var classStudent = new ClassStudent
                 {
-                var classStudent = new ClassStudent { ClassID = int.Parse(addedClass.ClassID),
-                StudentID=student.StudentID};
+                    ClassID = addedClass.ClassID,
+                    StudentID = student.StudentID
+                };
                 students.Add(classStudent);
             }
             await _classStudentBLL.InsertClassStudent(students);

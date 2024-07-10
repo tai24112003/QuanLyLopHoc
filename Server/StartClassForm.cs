@@ -55,7 +55,10 @@ namespace Server
             {
                 string role = "GV";
                 List<User> users = await _userBLL.GetListUser(role);
-
+                List<User> users1 = await _userBLL.GetListUser("TK");
+                List<User> users2 = await _userBLL.GetListUser("PK");
+                users.AddRange(users1);
+                users.AddRange(users2);
                 AutoCompleteStringCollection userCollection = new AutoCompleteStringCollection();
                 foreach (var user in users)
                 {

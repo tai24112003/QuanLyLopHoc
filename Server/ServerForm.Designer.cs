@@ -349,6 +349,7 @@
             this.tsLock.Tag = "";
             this.tsLock.Text = "Khóa";
             this.tsLock.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
+            this.tsLock.Click += new System.EventHandler(this.tsLock_Click);
             // 
             // tsUnlock
             // 

@@ -50,6 +50,7 @@
     <Compile Include="ClassSessionDAL.cs" />
     <Compile Include="ClassStudentDAL.cs" />
     <Compile Include="ClassSubjectDAL.cs" />
+    <Compile Include="ComputerDAL.cs" />
     <Compile Include="DataProvider.cs" />
     <Compile Include="IDataService.cs" />
     <Compile Include="Models\Attendance.cs" />

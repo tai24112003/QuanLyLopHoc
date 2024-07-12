@@ -6,7 +6,7 @@ public class Computer
 
     public string ComputerName { get; set; }
     public string RAM { get; set; }
-    public string HHD { get; set; }
+    public string HDD { get; set; }
     public string CPU { get; set; }
    
 }

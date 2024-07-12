@@ -40,6 +40,7 @@ namespace Server
         private ClassSessionBLL _classSessionBLL;
         private ClassStudentBLL _classStudentBLL;
         private AttendanceBLL _attendanceBLL;
+        private StudentBLL _studentBLL;
         private ComputerBLL _computerBLL;
         private string roomID;
         private int classID;
@@ -55,7 +56,7 @@ namespace Server
         {
             InitializeComponent();
         }
-        public void Initialize(int userID, string roomID, int classID, RoomBLL roomBLL, int sessionID, SessionComputerBLL sessionComputer, ClassSessionBLL classSession, ClassStudentBLL classStudentBLL, AttendanceBLL attendanceBLL,ComputerBLL computerBLL)
+        public void Initialize(int userID, string roomID, int classID, RoomBLL roomBLL, int sessionID, SessionComputerBLL sessionComputer, ClassSessionBLL classSession, ClassStudentBLL classStudentBLL, AttendanceBLL attendanceBLL,ComputerBLL computerBLL, StudentBLL studentBLL)
         {
             this.userID = userID;
             this.roomID = roomID;
@@ -67,7 +68,7 @@ namespace Server
             this._attendanceBLL = attendanceBLL;
             this._computerBLL = computerBLL;
             this.sessionID = sessionID;
-
+            this._studentBLL = studentBLL;
             Ip = getIPServer();
             InitializeContextMenu();
 
@@ -199,7 +200,7 @@ namespace Server
             this.Text = "Server - " + roomID + " - Số lượng máy: " + room.NumberOfComputers;
             var computers= await _computerBLL.GetComputersByID(roomID);
             foreach(var computer in computers)
-                InitializeStandard(room.StandardCPU, room.StandardRAM, room.StandardHDD);
+                InitializeStandard(computer.ComputerName,computer.CPU,computer.RAM,computer.HDD);
             InitializeFullInfoList(room.NumberOfComputers, roomID);
             LoadFullInfoListIntoDataGridView(fullInfoList);
         }
@@ -539,7 +540,7 @@ namespace Server
             }
         }
 
-        private void UpdateOrAddRowAttendance(string studentID, int sessionID, string value)
+        private async Task UpdateOrAddRowAttendance(string studentID, int sessionID, string value)
         {
             bool studentExists = false;
 
@@ -565,7 +566,16 @@ namespace Server
                 newRow.Cells[columnIndex].Value = value;
                 newRow.DefaultCellStyle.BackColor = Color.Red; // Highlight new row
                 dgv_attendance.Rows.Add(newRow);
+                List<Student> student1=new List<Student>();
+                var st = new Student();
+                st.StudentID = studentID;
+                st.FirstName = "";
+                st.LastName = "";
+                st.LastTime = DateTime.Now.ToString("dd/MM/yyyy hh/mm/ss");
+                student1.Add(st);
+                await _studentBLL.InsertStudent(student1);
             }
+            
 
             dgv_attendance.Refresh();
         }
@@ -1472,7 +1482,7 @@ namespace Server
 
         private void btnUnlock_Click(object sender, EventArgs e)
         {
-            string thongTinMayTinh = "InfoClient-IPC: 192.168.0.104Tenmay: F711-11Chuot: Đã kết nốiBanphim: Đã kết nốiManhinh: Đã kết nốiOcung: C:\\, 465 GBCPU: 13th Gen Intel(R) Core(TM) i5-13400FRAM: Capacity: 17179869184 bytes Speed: 3200 Manufacturer: Golden Empire  Part Number: CL16-20-20 D4-3200  |Capacity: 17179869184 bytes Speed: 3200 Manufacturer: Golden Empire  Part Number: CL16-20-20 D4-3200  |MSSV: 0468231002";
+            string thongTinMayTinh = "InfoClient-IPC: 192.168.0.104Tenmay: F71-11Chuot: Đã kết nốiBanphim: Đã kết nốiManhinh: Đã kết nốiOcung: C:\\, 465 GBCPU: 13th Gen Intel(R) Core(TM) i5-13400FRAM: Capacity: 17179869184 bytes Speed: 3200 Manufacturer: Golden Empire  Part Number: CL16-20-20 D4-3200  |Capacity: 17179869184 bytes Speed: 3200 Manufacturer: Golden Empire  Part Number: CL16-20-20 D4-3200  |MSSV: 0468231002";
             ReciveInfo(thongTinMayTinh);
         }
 

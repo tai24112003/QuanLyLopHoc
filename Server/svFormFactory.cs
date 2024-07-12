@@ -22,9 +22,10 @@ namespace Server
             var classStudent = _serviceProvider.GetService<ClassStudentBLL>();
             var attendance = _serviceProvider.GetService<AttendanceBLL>();
             var computer = _serviceProvider.GetService<ComputerBLL>();
+            var student = _serviceProvider.GetService<StudentBLL>();
 
             var svForm = new svForm();
-            svForm.Initialize(userID, roomID,classID, roomBLL, sessionID, sessionComputerBLL,classSession,classStudent,attendance,computer);
+            svForm.Initialize(userID, roomID,classID, roomBLL, sessionID, sessionComputerBLL,classSession,classStudent,attendance,computer,student);
 
             return svForm;
         }

@@ -1,7 +1,6 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Net.Http;
 using System.Threading.Tasks;
 
 public class ClassStudentDAL
@@ -36,6 +35,18 @@ public class ClassStudentDAL
         catch (Exception ex)
         {
             throw new Exception("Error inserting ClassStudent in DAL", ex);
+        }
+    }
+    public async Task<string> GetClassStudentsByID(int ID)
+    {
+        try
+        {
+            string ClassStudentsJson = await _dataService.GetAsync("class_student/"+ID);
+            return ClassStudentsJson;
+        }
+        catch (Exception ex)
+        {
+            throw ex;
         }
     }
 

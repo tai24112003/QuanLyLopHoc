@@ -24,9 +24,8 @@ namespace Server
 {
     public partial class svForm : Form
     {
-        private bool isFullInfoMode = true;
+        private bool isFullInfoMode = false;
         private WinFormsTimer timer;
-        private string hostName;
         private string Ip;
         private TcpListener tcpListener;
         private Thread listenThread;
@@ -34,29 +33,39 @@ namespace Server
         private NetworkInterface[] networkInterfaces = NetworkInterface.GetAllNetworkInterfaces();
         private List<List<string>> fullInfoList = new List<List<string>>();
         private List<List<string>> summaryInfoList = new List<List<string>>();
-        private ImageList smallImageList;
-        private ImageList largeImageList; private volatile bool isRunning = true;
+         private bool isRunning = true;
         private List<Dictionary<string, string>> standardInfoList = new List<Dictionary<string, string>>();
         private List<Dictionary<string, string>> privateStandardInfoList = new List<Dictionary<string, string>>();
         private RoomBLL _roomBLL;
+        private SessionComputerBLL _sessionComputerBLL;
+        private ClassSessionBLL _classSessionBLL;
+        private ClassStudentBLL _classStudentBLL;
+        private AttendanceBLL _attendanceBLL;
         private string roomID;
+        private int classID;
         private int userID;
         private Room room = new Room(); 
-        private ComputerSessionController _computerSessionController;
         private  int sessionID;
         private List<SessionComputer> sessionComputers = new List<SessionComputer>();
-        private readonly IServiceProvider _serviceProvider;
+        private List<ClassSession> classSessions= new List<ClassSession>();
+        private List<ClassStudent> classStudents= new List<ClassStudent>();
+        private List<Attendance> attendances= new List<Attendance>();
+        private List<ClassStudent> students;
         public svForm()
         {
             InitializeComponent();
         }
-        public void Initialize(int userID, string roomID, RoomBLL roomBLL, int sessionID, ComputerSessionController computerSessionController)
+        public void Initialize(int userID, string roomID,int classID, RoomBLL roomBLL, int sessionID, SessionComputerBLL sessionComputer, ClassSessionBLL classSession,ClassStudentBLL classStudentBLL,AttendanceBLL attendanceBLL)
         {
             this.userID = userID;
             this.roomID = roomID;
+            this.classID = classID;
+            _classStudentBLL = classStudentBLL;
             this._roomBLL = roomBLL;
+            this._sessionComputerBLL = sessionComputer;
+            this._classSessionBLL = classSession;
+            this._attendanceBLL = attendanceBLL;
             this.sessionID = sessionID;
-            this._computerSessionController = computerSessionController;
 
             Ip = getIPServer();
             InitializeContextMenu();
@@ -100,11 +109,92 @@ namespace Server
                 AddOrUpdateRow(entry);
             }
         }
+        private async Task SetupAttendance(int classID)
+        {
+            try
+            {
+                // Lấy dữ liệu từ API
+                var attendances = await _attendanceBLL.GetAttendanceByClassID(classID);
 
+                // Kiểm tra nếu không có dữ liệu điểm danh
+                if (attendances == null || !attendances.Any())
+                {
+                    // Gọi API để lấy danh sách sinh viên
+                    students = await _classStudentBLL.GetClassStudentsByID(classID);
+
+                    if (students == null || students.Count == 0)
+                    {
+                        MessageBox.Show("Failed to fetch student data.");
+                        return;
+                    }
+
+                    // Thêm cột LastName
+                    dgv_attendance.Columns.Add(sessionID.ToString(), DateTime.Now.ToString("dd/MM/yyyy"));
+
+                    // Thêm cột ngày hiện tại và các cột SessionID
+                    var currentDate = DateTime.Today;
+                    foreach (var student in students)
+                    {
+                        dgv_attendance.Rows.Add(student.StudentID, student.Student.FirstName, student.Student.LastName,'v');
+
+                        
+                    }
+                }
+                else
+                {
+                    // Sắp xếp dữ liệu theo StartTime
+                    var sortedSessions = attendances.OrderBy(a => a.StartTime).ToList();
+
+                    // Thêm các cột vào DataGridView
+                    foreach (var session in sortedSessions)
+                    {
+                        if (!dgv_attendance.Columns.Contains(session.SessionID.ToString()))
+                        {
+                            DataGridViewTextBoxColumn column = new DataGridViewTextBoxColumn
+                            {
+                                HeaderText = session.StartTime.ToString("dd/MM/yyyy"),
+                                Name = session.SessionID.ToString()
+                            };
+                            dgv_attendance.Columns.Add(column);
+                        }
+                    }
+
+                    // Nhóm dữ liệu theo StudentID
+                    var groupedByStudent = sortedSessions.GroupBy(a => a.StudentID);
+
+                    // Thêm các hàng vào DataGridView
+                    foreach (var group in groupedByStudent)
+                    {
+                        var studentSessions = group.ToList();
+                        var firstSession = studentSessions.First();
+
+                        // Tạo một hàng mới với thông tin sinh viên và trạng thái điểm danh cho mỗi buổi học
+                        DataGridViewRow row = new DataGridViewRow();
+                        row.CreateCells(dgv_attendance);
+                        row.Cells[0].Value = firstSession.StudentID;
+                        row.Cells[1].Value = firstSession.FirstName;
+                        row.Cells[2].Value = firstSession.LastName;
+
+                        // Điền trạng thái điểm danh vào các ô tương ứng
+                        foreach (var session in studentSessions)
+                        {
+                            var columnIndex = dgv_attendance.Columns[session.SessionID.ToString()].Index;
+                            row.Cells[columnIndex].Value = session.Present;
+                        }
+
+                        dgv_attendance.Rows.Add(row);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error setting up attendance: {ex.Message}");
+            }
+        }
         private async Task SetupRoom()
         {
             room = await _roomBLL.GetRoomsByID(roomID);
-            this.Text = "Server - " + roomID + "Số lượng máy: "+room.NumberOfComputers;
+            this.Text = "Server - " + roomID + " - Số lượng máy: "+room.NumberOfComputers;
             InitializeStandard(room.StandardCPU,room.StandardRAM,room.StandardHDD);
             InitializeFullInfoList(room.NumberOfComputers, roomID);
             Console.WriteLine("IP:" + Ip);
@@ -113,7 +203,7 @@ namespace Server
         private async void Form1_Load(object sender, EventArgs e)
         {
             await SetupRoom();
-
+            await SetupAttendance(classID);
             sendAllIPInLan();
             timer = new WinFormsTimer();
             timer.Interval = 5000;
@@ -285,7 +375,7 @@ namespace Server
             // Chuỗi chứa các value cho standardInfoList
             string privateStandardValuesString = "F711-11,500GB,Intel(R) Core(TM) i5-10500 CPU @ 3.10GHz, 16 gb, ,192.168.1.1,đang kết nối,đang kết nối,đang kết nối";
             // Chuỗi chứa các value cho privateStandardInfoList
-            string standardValuesString = "F711-02,"+hdd+","+cpu+","+ram+",654321,192.168.1.2,đang kết nối,đang kết nối,đang kết nối";
+            string standardValuesString = "F711-02,"+hdd+","+cpu+","+ram+", , ,đang kết nối,đang kết nối,đang kết nối";
 
             // Tách các key và value từ chuỗi
             var keys = keysString.Split(',');
@@ -460,7 +550,66 @@ namespace Server
             // Hiển thị dữ liệu trên ListView và so sánh
             AddOrUpdateRowToDataGridView(newEntry);
 
+            UpdateAttendanceDataGridView(newEntry);
+
+
             Console.WriteLine("length: " + fullInfoList.Count);
+        }
+        private void UpdateAttendanceDataGridView(List<string> newEntry)
+        {
+            string mssv = newEntry[4]; // MSSV
+            string sessionID = DateTime.Today.ToString("ddMMyyyy"); // SessionID hiện tại
+
+            // Tìm hàng trong DataGridView với MSSV
+            DataGridViewRow row = dgv_attendance.Rows
+                .Cast<DataGridViewRow>()
+                .FirstOrDefault(r => r.Cells[0].Value != null && r.Cells[0].Value.ToString() == mssv);
+
+            if (row != null)
+            {
+                // Cập nhật cột với SessionID hiện tại
+                if (dgv_attendance.Columns.Contains(sessionID))
+                {
+                    row.Cells[sessionID].Value = "cm";
+                }
+            }
+            else
+            {
+                // Thêm dòng mới nếu không tồn tại
+                DataGridViewRow newRow = new DataGridViewRow();
+                newRow.CreateCells(dgv_attendance);
+
+                // Thêm thông tin sinh viên
+                newRow.Cells[0].Value = mssv;
+                newRow.Cells[1].Value = newEntry[0]; // Tên máy
+                newRow.Cells[2].Value = newEntry[1]; // Ổ cứng
+                newRow.Cells[3].Value = newEntry[2]; // CPU
+                newRow.Cells[4].Value = newEntry[3]; // RAM
+                newRow.Cells[5].Value = newEntry[5]; // IPC
+                newRow.Cells[6].Value = newEntry[6]; // Chuột
+                newRow.Cells[7].Value = newEntry[7]; // Bàn phím
+                newRow.Cells[8].Value = newEntry[8]; // Màn hình
+
+                // Thêm cột ngày hiện tại
+                if (!dgv_attendance.Columns.Contains(sessionID))
+                {
+                    DataGridViewTextBoxColumn column = new DataGridViewTextBoxColumn
+                    {
+                        HeaderText = DateTime.Now.ToString("dd/MM/yyyy"),
+                        Name = sessionID
+                    };
+                    dgv_attendance.Columns.Add(column);
+                }
+
+                // Thêm thông tin điểm danh
+                newRow.Cells[dgv_attendance.Columns[sessionID].Index].Value = "cm";
+
+                // Thêm dòng mới vào DataGridView
+                dgv_attendance.Rows.Add(newRow);
+
+                // Tô đỏ dòng mới
+                newRow.DefaultCellStyle.ForeColor = Color.Red;
+            }
         }
 
         private void UpdateInfoList(List<string> newEntry, Dictionary<string, string> comparedInfo)
@@ -928,26 +1077,65 @@ namespace Server
         }
         private async void tsUpdate_Click(object sender, EventArgs e)
         {
-            foreach (DataGridViewRow row in dgv_client.Rows)
+            try
             {
-                SessionComputer sessionComputer = new SessionComputer();
+                sessionComputers.Clear();
+                foreach (DataGridViewRow row in dgv_client.Rows)
+                {
+                    SessionComputer sessionComputer = new SessionComputer();
 
-                // Giả sử dgv_client có 2 cột. Bạn cần cập nhật các thuộc tính tương ứng
-                sessionComputer.ComputerID = row.Cells[0].Value?.ToString();
-                sessionComputer.HHD = row.Cells[1].Value?.ToString();
-                sessionComputer.CPU= row.Cells[2].Value?.ToString();
-                sessionComputer.RAM = row.Cells[3].Value?.ToString();
-                sessionComputer.StudentID = row.Cells[4].Value?.ToString();
-                sessionComputer.MouseConnected = row.Cells[6].Value?.ToString()=="Đã kết nối";
-                sessionComputer.KeyboardConnected = row.Cells[7].Value?.ToString()=="Đã kết nối";
-                sessionComputer.MonitorConnected = row.Cells[8].Value?.ToString()=="Đã kết nối";
-                sessionComputer.SessionID = sessionID;
-                // Add more properties as needed corresponding to the columns in your DataGridView
-                sessionComputers.Add(sessionComputer);
+                    // Giả sử dgv_client có 2 cột. Bạn cần cập nhật các thuộc tính tương ứng
+                    sessionComputer.ComputerName = row.Cells[0].Value?.ToString();
+                    sessionComputer.HDD = row.Cells[1].Value?.ToString();
+                    sessionComputer.CPU = row.Cells[2].Value?.ToString();
+                    sessionComputer.RAM = row.Cells[3].Value?.ToString();
+                    sessionComputer.StudentID = row.Cells[4].Value?.ToString()==" "?students[0].Student.StudentID : row.Cells[4].Value?.ToString();
+                    sessionComputer.MouseConnected = row.Cells[6].Value?.ToString().ToLower() == "đã kết nối";
+                    sessionComputer.KeyboardConnected = row.Cells[7].Value?.ToString().ToLower() == "đã kết nối";
+                    sessionComputer.MonitorConnected = row.Cells[8].Value?.ToString().ToLower() == "đã kết nối";
+                    sessionComputer.SessionID = sessionID;
+                    sessionComputer.MismatchInfo = "";
+                    sessionComputer.RepairNote = "";
+                    // Add more properties as needed corresponding to the columns in your DataGridView
+                    sessionComputers.Add(sessionComputer);
+                }
+
+                await _sessionComputerBLL.InsertSessionComputer(sessionID, sessionComputers);
+                List<Attendance> lstAttendances = new List<Attendance>();
+
+                foreach (DataGridViewRow row in dgv_attendance.Rows)
+                {
+                    string studentID = row.Cells["MSSV"].Value?.ToString();
+
+                    foreach (DataGridViewColumn col in dgv_attendance.Columns)
+                    {
+                        // Kiểm tra xem cột hiện tại có tên là SessionID hay không
+                        if (col.Index>2)
+                        {
+                            string present = row.Cells[col.Index].Value?.ToString().ToLower();
+
+                            Attendance attendance = new Attendance
+                            {
+                                StudentID = studentID,
+                                SessionID = sessionID,
+                                Present = present,
+                            };
+
+                            lstAttendances.Add(attendance);
+                            break; // Thoát khỏi vòng lặp cột sau khi tìm thấy cột SessionID
+                        }
+                    }
+                }
+
+                // Gọi BLL để thực hiện lưu danh sách Attendance vào cơ sở dữ liệu
+                await _attendanceBLL.InsertAttendance(sessionID,lstAttendances);
+
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);  
             }
 
-
-            await _computerSessionController.UpdateSessionComputer(sessionID,sessionComputers);
         }
 
         private void toolStripButton6_Click(object sender, EventArgs e)
@@ -1366,6 +1554,9 @@ namespace Server
             createExam.ShowDialog();
         }
 
-        
+        private void toolStripButton5_Click(object sender, EventArgs e)
+        {
+            dgv_client.Hide();
+        }
     }
 }

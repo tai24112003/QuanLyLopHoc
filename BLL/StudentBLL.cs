@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
+using System.Data;
+using System.Data.OleDb;
 using System.Linq;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
@@ -8,12 +9,12 @@ using Newtonsoft.Json;
 public class StudentBLL
 {
     private readonly StudentDAL _StudentDAL;
-    private readonly string localFilePath = "localStudents.json";
 
     public StudentBLL(StudentDAL StudentDAL)
     {
         _StudentDAL = StudentDAL ?? throw new ArgumentNullException(nameof(StudentDAL));
     }
+
     public async Task<StudentResponse> InsertStudent(List<Student> classSession)
     {
         try
@@ -24,10 +25,17 @@ public class StudentBLL
         }
         catch (Exception ex)
         {
-            Console.WriteLine("Error inserting Student in BLL: " + ex);
-            throw new Exception("Error inserting Student in BLL", ex);
+            Console.WriteLine("Error inserting Student in BLL: " + ex.Message);
+
+            // Save to local if insertion fails
+            var studentResponse = new StudentResponse { data = classSession };
+            string studentJson = JsonConvert.SerializeObject(studentResponse);
+            _StudentDAL.SaveLocalData(studentJson);
+
+            throw new Exception("Error inserting Student in BLL. Data saved locally.", ex);
         }
     }
+
     public async Task<List<Student>> GetAllStudents()
     {
         try
@@ -38,7 +46,7 @@ public class StudentBLL
         }
         catch (Exception ex)
         {
-            string StudentsJson = LoadLocalData();
+            string StudentsJson =_StudentDAL.LoadLocalData();
             if (!string.IsNullOrEmpty(StudentsJson))
             {
                 StudentResponse StudentResponse = JsonConvert.DeserializeObject<StudentResponse>(StudentsJson);
@@ -52,24 +60,11 @@ public class StudentBLL
     {
         try
         {
-
-
-            if (File.Exists(localFilePath))
-            {
-                // Load Students from local file
-                Console.WriteLine("load local");
-                return LoadLocalData();
-            }
-            else
-            {
-                Console.WriteLine("load api");
-
-                // Get Students from server
-                string StudentsJson = await _StudentDAL.GetAllStudents();
-                // Save Students and last update time to local file
-                SaveLocalData(StudentsJson);
-                return StudentsJson;
-            }
+            // Get Students from server
+            string StudentsJson = await _StudentDAL.GetAllStudents();
+            // Save Students and last update time to local database
+            _StudentDAL.SaveLocalData(StudentsJson);
+            return StudentsJson;
         }
         catch (Exception ex)
         {
@@ -77,23 +72,5 @@ public class StudentBLL
         }
     }
 
-    private void SaveLocalData(string StudentsJson)
-    {
-        var localData = new LocalDataResponse
-        {
-            StudentsJson = StudentsJson,
-        };
-        File.WriteAllText(localFilePath, JsonConvert.SerializeObject(localData));
-    }
-
-    private string LoadLocalData()
-    {
-        if (File.Exists(localFilePath))
-        {
-            var localData = File.ReadAllText(localFilePath);
-            var localResponse = JsonConvert.DeserializeObject<LocalDataResponse>(localData);
-            return localResponse.StudentsJson;
-        }
-        return null;
-    }
+  
 }

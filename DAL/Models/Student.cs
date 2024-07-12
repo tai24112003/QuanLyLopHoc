@@ -7,7 +7,7 @@ public class Student
     public string FirstName { get; set; }
     public string LastName { get; set; }
 
-    public DateTime LastTime { get; set; }
+    public string  LastTime { get; set; }
 }
 
 

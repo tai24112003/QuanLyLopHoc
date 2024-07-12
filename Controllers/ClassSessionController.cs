@@ -15,9 +15,6 @@ public class ClassSessionController
     public async Task<int> StartNewClassSession(ClassSession classSession,ExcelController excelController)
     {
 
-        // Process local data before starting a new session
-        await excelController.ProcessLocalData();
-        // Check and save local data before starting new session
         bool isLocalDataSaved = await _localDataHandler.SaveLocalDataToDatabase();
 
         if (isLocalDataSaved)

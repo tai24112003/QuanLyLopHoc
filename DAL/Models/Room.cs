@@ -17,7 +17,7 @@ public class Room
 public class RoomResponse
 {
     public string Status { get; set; }
-    public List<Room> Data { get; set; }
+    public List<Room> data { get; set; }
 }
 
 public class LocalDataRoomResponse

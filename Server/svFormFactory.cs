@@ -14,13 +14,16 @@ namespace Server
             _serviceProvider = serviceProvider;
         }
 
-        public svForm Create(int userID, string roomID, int sessionID)
+        public svForm Create(int userID, string roomID, int sessionID,int classID)
         {
             var roomBLL = _serviceProvider.GetService<RoomBLL>();
-            var computerSessionController = _serviceProvider.GetService<ComputerSessionController>();
+            var sessionComputerBLL = _serviceProvider.GetService<SessionComputerBLL>();
+            var classSession = _serviceProvider.GetService<ClassSessionBLL>();
+            var classStudent = _serviceProvider.GetService<ClassStudentBLL>();
+            var attendance = _serviceProvider.GetService<AttendanceBLL>();
 
             var svForm = new svForm();
-            svForm.Initialize(userID, roomID, roomBLL, sessionID, computerSessionController);
+            svForm.Initialize(userID, roomID,classID, roomBLL, sessionID, sessionComputerBLL,classSession,classStudent,attendance);
 
             return svForm;
         }

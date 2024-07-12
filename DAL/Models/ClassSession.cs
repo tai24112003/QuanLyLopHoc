@@ -6,18 +6,25 @@ public class ClassSession
     public int SessionID { get; set; }
 
     public int ClassID { get; set; }
-    public int SubjectID { get; set; }
     public int Session { get; set; }
     public DateTime StartTime { get; set; }
     public DateTime EndTime { get; set; }
 
     public int user_id { get; set; }
 
-    public string RoomID { get; set; }  
+    public string RoomID { get; set; }
+
+    public int AttendanceID { get; set; }
+    public string StudentID { get; set; }
+    public string Present { get; set; }
+    public string Remarks { get; set; }
+    public string FirstName { get; set; }
+    public string LastName { get; set; }
+    public string LastTime { get; set; }
 }
 
 
-public class ResponseClassSession
+public class ClassSessionResponse
 {
     public string status { get; set; }
     public List<ClassSession> data { get; set; }

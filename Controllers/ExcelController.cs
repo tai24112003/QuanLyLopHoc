@@ -30,20 +30,21 @@ public class ExcelController
         try
         {
             // Add Teacher
-            //var teacher = new User { name = excelData.TeacherName, role = "GV" };
-            //var addedTeacher = await _userBLL.in(teacher);
 
+            var user = await _userBLL.getUserByName(excelData.TeacherName);
+            DateTime currentDate = DateTime.Now;
+            string formattedDateTime = currentDate.ToString("dd/MM/yyyy HH:mm:ss");
 
             // Add Class
-            var classEntity = new Class { ClassName = excelData.ClassName };
+            var classEntity = new Class { ClassName = excelData.ClassName, UserID=user.user_id,  LastTime = formattedDateTime };
             var addedClass = await _classBLL.InsertClass(classEntity);
 
             // Add Students
-            var lstStudent = await _studentBLL.InsertStudent(excelData.Students);
             // Add ClassStudent
             List<ClassStudent> students = new List<ClassStudent>();
             foreach (var student in excelData.Students)
             {
+                student.LastTime = formattedDateTime;
                 var classStudent = new ClassStudent
                 {
                     ClassID = addedClass.ClassID,
@@ -51,82 +52,17 @@ public class ExcelController
                 };
                 students.Add(classStudent);
             }
+            var lstStudent = await _studentBLL.InsertStudent(excelData.Students);
+
             await _classStudentBLL.InsertClassStudent(students);
             return excelData;
         }
         catch (Exception ex)
         {
             Console.WriteLine("Error adding data from Excel: " + ex.Message);
-            Random random = new Random();
-
-            int randomNumber = random.Next(1000000000) * -1;
-            excelData.ClassID = randomNumber;
-            SaveLocalExcelData(excelData);
             return excelData;
         }
     }
 
-    private void SaveLocalExcelData(ExcelData excelData)
-    {
-        string localExcelDataFilePath = "localExcelData.json";
-
-        List<ExcelData> localData;
-        if (File.Exists(localExcelDataFilePath))
-        {
-            var jsonData = File.ReadAllText(localExcelDataFilePath);
-            localData = JsonConvert.DeserializeObject<List<ExcelData>>(jsonData) ?? new List<ExcelData>();
-        }
-        else
-        {
-            localData = new List<ExcelData>();
-        }
-
-        localData.Add(excelData);
-
-        File.WriteAllText(localExcelDataFilePath, JsonConvert.SerializeObject(localData));
-    }
-
-    public List<ExcelData> LoadLocalExcelData()
-    {
-        string localExcelDataFilePath = "localExcelData.json";
-
-        if (File.Exists(localExcelDataFilePath))
-        {
-            var localData = File.ReadAllText(localExcelDataFilePath);
-            return JsonConvert.DeserializeObject<List<ExcelData>>(localData) ?? new List<ExcelData>();
-        }
-
-        return new List<ExcelData>();
-    }
-
-    public void DeleteLocalExcelData()
-    {
-        string localExcelDataFilePath = "localExcelData.json";
-
-        if (File.Exists(localExcelDataFilePath))
-        {
-            File.Delete(localExcelDataFilePath);
-        }
-    }
-
-    public async Task ProcessLocalData()
-    {
-        var localData = LoadLocalExcelData();
-
-        foreach (var excelData in localData)
-        {
-            var success = await AddDataFromExcel(excelData);
-            if (success != null)
-            {
-                Console.WriteLine("Successfully added local data to the database.");
-            }
-            else
-            {
-                Console.WriteLine("Failed to add local data to the database.");
-            }
-        }
-
-        // If all local data is successfully added, delete the local file
-        DeleteLocalExcelData();
-    }
+  
 }

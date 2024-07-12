@@ -50,38 +50,17 @@ public class SubjectBLL
 
     public async Task<string> GetSubjects()
     {
-        try
-        {
-            // Check local file for last update time
-            DateTime? localLastUpdateTime = GetLocalLastTimeUpdate();
-
-            // Get last update time from server
-            string lastTimeUpdateJson = await _subjectDAL.GetLastTimeUpdateFromDB();
-            var lastTimeUpdateResponse = JsonConvert.DeserializeObject<LastTimeUpdateResponse>(lastTimeUpdateJson);
-            DateTime serverLastUpdateTime;
-            DateTime.TryParseExact(lastTimeUpdateResponse.data[0].lastTimeUpdateSubject, "dd/MM/yyyy", null, System.Globalization.DateTimeStyles.None, out serverLastUpdateTime);
-
-            if (localLastUpdateTime.HasValue && localLastUpdateTime.Value >= serverLastUpdateTime)
-            {
-                // Load subjects from local file
-                Console.WriteLine("load local");
-                return LoadLocalData();
-            }
-            else
-            {
+       
                 Console.WriteLine("load api");
 
                 // Get subjects from server
                 string subjectsJson = await _subjectDAL.GetAllSubjects();
                 // Save subjects and last update time to local file
-                SaveLocalData(subjectsJson, serverLastUpdateTime);
+                SaveLocalData(subjectsJson);
                 return subjectsJson;
-            }
-        }
-        catch (Exception ex)
-        {
-            throw new Exception("Error fetching subjects from BLL", ex);
-        }
+            
+        
+        
     }
 
     private DateTime? GetLocalLastTimeUpdate()
@@ -95,12 +74,11 @@ public class SubjectBLL
         return null;
     }
 
-    private void SaveLocalData(string subjectsJson, DateTime lastUpdateTime)
+    private void SaveLocalData(string subjectsJson)
     {
         var localData = new LocalDataResponse
         {
             SubjectsJson = subjectsJson,
-            LastTimeUpdateSubject = lastUpdateTime
         };
         File.WriteAllText(localFilePath, JsonConvert.SerializeObject(localData));
     }

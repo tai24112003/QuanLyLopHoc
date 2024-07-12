@@ -32,6 +32,8 @@ namespace Server
             services.AddTransient<SubjectDAL>();
             services.AddTransient<StudentDAL>();
             services.AddTransient<StudentBLL>();
+            services.AddTransient<AttendanceBLL>();
+            services.AddTransient<AttendanceDAL>();
             services.AddTransient<UserBLL>();
             services.AddTransient<ClassBLL>();
             services.AddTransient<RoomBLL>();
@@ -44,7 +46,6 @@ namespace Server
             services.AddTransient<SessionComputerBLL>();
             services.AddTransient<LocalDataHandler>();
             services.AddTransient<ClassSessionController>();
-            services.AddTransient<ComputerSessionController>();
             services.AddTransient<ExcelController>();
 
             services.AddTransient<svFormFactory>();

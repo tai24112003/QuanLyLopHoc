@@ -33,7 +33,16 @@ public class ClassBLL
         }
         catch (Exception ex)
         {
+            Random random = new Random();
+            var classId=random.Next()*-1;
+            classSession.ClassID = classId;
+            var classList = new List<Class> { classSession };
+            var classResponse = new ClassResponse { data = classList };
+            string classJson = JsonConvert.SerializeObject(classResponse);
+            SaveLocalData(classJson);
+            
             Console.WriteLine("Error inserting class session in BLL: " + ex.Message);
+            return classSession;
             throw new Exception("Error inserting class session in BLL", ex);
         }
     }
@@ -41,7 +50,7 @@ public class ClassBLL
     private async Task<Class> GetClassByName(string className)
     {
         var lstClass = await GetAllClass();
-        return lstClass.FirstOrDefault(c => c.ClassName.Equals(className, StringComparison.OrdinalIgnoreCase));
+        return lstClass.FirstOrDefault(c => c.ClassName.ToLower()==className.ToLower());
     }
 
     public async Task<List<Class>> GetAllClass()
@@ -95,13 +104,14 @@ public class ClassBLL
 
         foreach (var classSession in classResponse.data)
         {
-            string query = "INSERT INTO `classes` (`ClassID`, `ClassName`, `UserID`, `LastTime`) VALUES (@ClassID, @ClassName, @UserID)";
+            string query = "INSERT INTO `classes` (`ClassID`, `ClassName`, `UserID`, `LastTime`) VALUES (@ClassID, @ClassName, @UserID,@LastTime)";
 
             OleDbParameter[] parameters = new OleDbParameter[]
             {
                 new OleDbParameter("@ClassID", classSession.ClassID),
                 new OleDbParameter("@ClassName", classSession.ClassName),
                 new OleDbParameter("@UserID", classSession.UserID),
+                new OleDbParameter("@LastTime", classSession.LastTime),
             };
 
             DataProvider.RunNonQuery(query, parameters);

@@ -18,16 +18,14 @@ namespace Server
         private readonly SubjectBLL _subjectBLL;
         private readonly ClassSessionController _classSessionController;
         private readonly ExcelController _excelController;
-        private readonly ComputerSessionController _computerSessionController;
         private readonly IServiceProvider _serviceProvider;
-
+        List<Class> classes;
         public StartClassForm
             (UserBLL userBLL, 
             SubjectBLL subjectBLL, 
             ClassBLL classBLL,
             ClassSessionController classSessionController, 
             ExcelController excelController,
-            ComputerSessionController computerSessionController, 
             IServiceProvider serviceProvider)
         {
             InitializeComponent();
@@ -38,7 +36,6 @@ namespace Server
             _classBLL = classBLL;
             _subjectBLL = subjectBLL;
             _classSessionController = classSessionController;
-            _computerSessionController = computerSessionController;
             _excelController = excelController;
             _serviceProvider = serviceProvider;
             this.Load += new EventHandler(MainForm_Load);
@@ -80,21 +77,9 @@ namespace Server
         {
             try
             {
-                List<Class> classes = await _classBLL.GetAllClass();
+                classes = await _classBLL.GetAllClass();
+                cbbName.SelectedValue = cbbClass.SelectedValue;
 
-                AutoCompleteStringCollection classCollection = new AutoCompleteStringCollection();
-                foreach (var _class in classes)
-                {
-                    classCollection.Add(_class.ClassName);
-
-                }
-
-                cbbClass.DataSource = classes;
-                cbbClass.AutoCompleteCustomSource = classCollection;
-                cbbClass.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
-                cbbClass.AutoCompleteSource = AutoCompleteSource.CustomSource;
-                cbbClass.DisplayMember = "ClassName";
-                cbbClass.ValueMember = "ClassID";
             }
             catch (Exception ex)
             {
@@ -177,7 +162,7 @@ namespace Server
 
                 // Set các thuộc tính cần thiết của svForm
                 var svFormFactory = _serviceProvider.GetRequiredService<svFormFactory>();
-                var svForms = svFormFactory.Create(userID, roomID, sessionID);
+                var svForms = svFormFactory.Create(userID, roomID, sessionID,classID);
                 svForms.Show();
 
                 Console.WriteLine("Class session started successfully!");
@@ -188,21 +173,21 @@ namespace Server
             }
         }
 
-        private async void cbbName_SelectedIndexChanged(object sender, EventArgs e)
+        private void cbbName_SelectedIndexChanged(object sender, EventArgs e)
         {
             try
              {
                 int userID = int.Parse(cbbName.SelectedValue.ToString());
-                List<Class> classes = await _classBLL.GetClassByUserID(userID);
+                List<Class> classes1 = classes.FindAll(c => c.UserID == userID);
+
 
                 AutoCompleteStringCollection classCollection = new AutoCompleteStringCollection();
-                foreach (var _class in classes)
+                foreach (var _class in classes1)
                 {
                     classCollection.Add(_class.ClassName);
-
                 }
 
-                cbbClass.DataSource = classes;
+                cbbClass.DataSource = classes1;
                 cbbClass.AutoCompleteCustomSource = classCollection;
                 cbbClass.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
                 cbbClass.AutoCompleteSource = AutoCompleteSource.CustomSource;
@@ -225,22 +210,8 @@ namespace Server
         {
             try
             {
-                string role = "GV";
-                List<User> users = await _userBLL.GetUsersByRoleFromAPI(role);
-
-                AutoCompleteStringCollection userCollection = new AutoCompleteStringCollection();
-                foreach (var user in users)
-                {
-                    userCollection.Add(user.name);
-
-                }
-
-                cbbName.DataSource = users;
-                cbbName.AutoCompleteCustomSource = userCollection;
-                cbbName.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
-                cbbName.AutoCompleteSource = AutoCompleteSource.CustomSource;
-                cbbName.DisplayMember = "name";
-                cbbName.ValueMember = "user_id";
+                await SetupUserAutoComplete();
+                await SetupClassAutoComplete();
             }
             catch (Exception ex)
             {
@@ -344,9 +315,12 @@ namespace Server
 
         }
 
-        private void btnAddClass_Click(object sender, EventArgs e)
+        private async void btnAddClass_Click(object sender, EventArgs e)
         {
-            
+            Class classSession = new Class();
+            classSession.ClassName = cbbClass.Text;
+            classSession.UserID =int.Parse(cbbClass.SelectedValue.ToString());
+           await _classBLL.InsertClass(classSession);
         }
     }
 }

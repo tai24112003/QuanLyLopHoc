@@ -267,7 +267,7 @@
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.btnAddClass.BackColor = System.Drawing.Color.Transparent;
-            this.btnAddClass.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("btnAddClass.BackgroundImage")));
+            this.btnAddClass.BackgroundImage = global::Server.Properties.Resources.add__1_;
             this.btnAddClass.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
             this.btnAddClass.Location = new System.Drawing.Point(912, 227);
             this.btnAddClass.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
@@ -305,7 +305,7 @@
             this.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.Name = "StartClassForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "StartClassForm";
+            this.Text = " ";
             this.Load += new System.EventHandler(this.StartClassForm_Load);
             ((System.ComponentModel.ISupportInitialize)(this.btnExit)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.btnSubmit)).EndInit();

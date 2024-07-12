@@ -31,6 +31,8 @@
             this.components = new System.ComponentModel.Container();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle4 = new System.Windows.Forms.DataGridViewCellStyle();
             this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
             this.btnAll = new System.Windows.Forms.Button();
@@ -73,6 +75,7 @@
             this.toolStrip2 = new System.Windows.Forms.ToolStrip();
             this.toolStripButton17 = new System.Windows.Forms.ToolStripButton();
             this.toolStripButton16 = new System.Windows.Forms.ToolStripButton();
+            this.toolStripButton5 = new System.Windows.Forms.ToolStripButton();
             this.toolStripButton15 = new System.Windows.Forms.ToolStripButton();
             this.dgv_client = new System.Windows.Forms.DataGridView();
             this.NameComputer = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -84,17 +87,22 @@
             this.Mouse = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Keyboard = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Monitor = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.dgv_attendance = new System.Windows.Forms.DataGridView();
+            this.MSSV = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.FirstName = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.LastName = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.flowLayoutPanel1.SuspendLayout();
             this.toolStrip1.SuspendLayout();
             this.toolStrip2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgv_client)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dgv_attendance)).BeginInit();
             this.SuspendLayout();
             // 
             // contextMenuStrip1
             // 
             this.contextMenuStrip1.ImageScalingSize = new System.Drawing.Size(20, 20);
             this.contextMenuStrip1.Name = "contextMenuStrip1";
-            this.contextMenuStrip1.Size = new System.Drawing.Size(211, 32);
+            this.contextMenuStrip1.Size = new System.Drawing.Size(61, 4);
             // 
             // flowLayoutPanel1
             // 
@@ -104,7 +112,7 @@
             this.flowLayoutPanel1.Location = new System.Drawing.Point(0, 97);
             this.flowLayoutPanel1.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.flowLayoutPanel1.Name = "flowLayoutPanel1";
-            this.flowLayoutPanel1.Size = new System.Drawing.Size(1652, 48);
+            this.flowLayoutPanel1.Size = new System.Drawing.Size(1924, 48);
             this.flowLayoutPanel1.TabIndex = 3;
             // 
             // btnAll
@@ -224,7 +232,7 @@
             this.tsExam});
             this.toolStrip1.Location = new System.Drawing.Point(0, 0);
             this.toolStrip1.Name = "toolStrip1";
-            this.toolStrip1.Size = new System.Drawing.Size(1652, 97);
+            this.toolStrip1.Size = new System.Drawing.Size(1924, 97);
             this.toolStrip1.TabIndex = 4;
             this.toolStrip1.Text = "toolStrip1";
             // 
@@ -428,6 +436,7 @@
             this.toolStrip2.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripButton17,
             this.toolStripButton16,
+            this.toolStripButton5,
             this.toolStripButton15});
             this.toolStrip2.Location = new System.Drawing.Point(0, 145);
             this.toolStrip2.Name = "toolStrip2";
@@ -454,6 +463,17 @@
             this.toolStripButton16.Name = "toolStripButton16";
             this.toolStripButton16.Size = new System.Drawing.Size(131, 74);
             this.toolStripButton16.Text = "toolStripButton15";
+            // 
+            // toolStripButton5
+            // 
+            this.toolStripButton5.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.toolStripButton5.Image = global::Server.Properties.Resources.attendance__1_;
+            this.toolStripButton5.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
+            this.toolStripButton5.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.toolStripButton5.Name = "toolStripButton5";
+            this.toolStripButton5.Size = new System.Drawing.Size(131, 74);
+            this.toolStripButton5.Text = "toolStripButton15";
+            this.toolStripButton5.Click += new System.EventHandler(this.toolStripButton5_Click);
             // 
             // toolStripButton15
             // 
@@ -500,7 +520,7 @@
             this.dgv_client.Name = "dgv_client";
             this.dgv_client.RowHeadersWidth = 51;
             this.dgv_client.Size = new System.Drawing.Size(1217, 605);
-            this.dgv_client.TabIndex = 6;
+            this.dgv_client.TabIndex = 9;
             // 
             // NameComputer
             // 
@@ -565,13 +585,66 @@
             this.Monitor.Name = "Monitor";
             this.Monitor.Width = 97;
             // 
+            // dgv_attendance
+            // 
+            this.dgv_attendance.AllowUserToAddRows = false;
+            this.dgv_attendance.AllowUserToDeleteRows = false;
+            dataGridViewCellStyle3.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
+            dataGridViewCellStyle3.SelectionBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(149)))), ((int)(((byte)(179)))), ((int)(((byte)(255)))));
+            this.dgv_attendance.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle3;
+            this.dgv_attendance.AutoSizeRowsMode = System.Windows.Forms.DataGridViewAutoSizeRowsMode.AllCells;
+            this.dgv_attendance.BackgroundColor = System.Drawing.Color.White;
+            this.dgv_attendance.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dgv_attendance.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
+            this.MSSV,
+            this.FirstName,
+            this.LastName});
+            dataGridViewCellStyle4.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle4.BackColor = System.Drawing.SystemColors.Window;
+            dataGridViewCellStyle4.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            dataGridViewCellStyle4.ForeColor = System.Drawing.SystemColors.ControlText;
+            dataGridViewCellStyle4.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle4.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle4.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.dgv_attendance.DefaultCellStyle = dataGridViewCellStyle4;
+            this.dgv_attendance.Dock = System.Windows.Forms.DockStyle.Left;
+            this.dgv_attendance.GridColor = System.Drawing.Color.White;
+            this.dgv_attendance.Location = new System.Drawing.Point(1350, 145);
+            this.dgv_attendance.Margin = new System.Windows.Forms.Padding(4);
+            this.dgv_attendance.Name = "dgv_attendance";
+            this.dgv_attendance.RowHeadersWidth = 51;
+            this.dgv_attendance.Size = new System.Drawing.Size(1217, 605);
+            this.dgv_attendance.TabIndex = 10;
+            // 
+            // MSSV
+            // 
+            this.MSSV.HeaderText = "MSSV";
+            this.MSSV.MinimumWidth = 6;
+            this.MSSV.Name = "MSSV";
+            this.MSSV.Width = 125;
+            // 
+            // FirstName
+            // 
+            this.FirstName.HeaderText = "Họ";
+            this.FirstName.MinimumWidth = 6;
+            this.FirstName.Name = "FirstName";
+            this.FirstName.Width = 125;
+            // 
+            // LastName
+            // 
+            this.LastName.HeaderText = "Tên";
+            this.LastName.MinimumWidth = 6;
+            this.LastName.Name = "LastName";
+            this.LastName.Width = 125;
+            // 
             // svForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoSize = true;
             this.BackColor = System.Drawing.Color.White;
-            this.ClientSize = new System.Drawing.Size(1652, 750);
+            this.ClientSize = new System.Drawing.Size(1924, 750);
+            this.Controls.Add(this.dgv_attendance);
             this.Controls.Add(this.dgv_client);
             this.Controls.Add(this.toolStrip2);
             this.Controls.Add(this.flowLayoutPanel1);
@@ -590,6 +663,7 @@
             this.toolStrip2.ResumeLayout(false);
             this.toolStrip2.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgv_client)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dgv_attendance)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -635,6 +709,11 @@
         private System.Windows.Forms.ToolStripMenuItem tsSend;
         private System.Windows.Forms.ToolStripMenuItem tsCollect;
         private System.Windows.Forms.ToolStripMenuItem kếtThúcLớpHọcToolStripMenuItem;
+        private System.Windows.Forms.ToolStripDropDownButton tsExam;
+        private System.Windows.Forms.ToolStripMenuItem tsCreateQuestion;
+        private System.Windows.Forms.ToolStripMenuItem tsCreateExam;
+        private System.Windows.Forms.ToolStripMenuItem tsStartSlideShow;
+        private System.Windows.Forms.ToolStripButton toolStripButton5;
         private System.Windows.Forms.DataGridView dgv_client;
         private System.Windows.Forms.DataGridViewTextBoxColumn NameComputer;
         private System.Windows.Forms.DataGridViewTextBoxColumn Disk;
@@ -645,10 +724,10 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn Mouse;
         private System.Windows.Forms.DataGridViewTextBoxColumn Keyboard;
         private System.Windows.Forms.DataGridViewTextBoxColumn Monitor;
-        private System.Windows.Forms.ToolStripDropDownButton tsExam;
-        private System.Windows.Forms.ToolStripMenuItem tsCreateQuestion;
-        private System.Windows.Forms.ToolStripMenuItem tsCreateExam;
-        private System.Windows.Forms.ToolStripMenuItem tsStartSlideShow;
+        private System.Windows.Forms.DataGridView dgv_attendance;
+        private System.Windows.Forms.DataGridViewTextBoxColumn MSSV;
+        private System.Windows.Forms.DataGridViewTextBoxColumn FirstName;
+        private System.Windows.Forms.DataGridViewTextBoxColumn LastName;
     }
 }
 

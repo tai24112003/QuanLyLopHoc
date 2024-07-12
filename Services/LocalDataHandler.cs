@@ -42,7 +42,7 @@ public class LocalDataHandler
                         if (sessionKeyString.StartsWith("-") && sessionKeyString == keyString)
                         {
                             // Thực hiện thao tác cần thiết khi tìm thấy key tương tự
-                            await _sessionComputerBLL.InsertSessionComputers(sessionEntry.Key, sessionEntry.Value);
+                            //await _sessionComputerBLL.InsertSessionComputers(sessionEntry.Key, sessionEntry.Value);
                             break;
                         }
                     }
@@ -52,9 +52,9 @@ public class LocalDataHandler
             foreach (var kvp in sessionComputers)
             {
                 string keyString = kvp.Key.ToString();
-                if (!keyString.StartsWith("-"))
+                //if (!keyString.StartsWith("-"))
 
-                    await _sessionComputerBLL.InsertSessionComputers(kvp.Key, kvp.Value);
+                    //await _sessionComputerBLL.InsertSessionComputers(kvp.Key, kvp.Value);
             }
             // Delete local files after successful save
             DeleteLocalFiles();

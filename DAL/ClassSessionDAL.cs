@@ -27,5 +27,18 @@ public class ClassSessionDAL
         }
     }
 
+    public async Task<string> getClassSessionByClassID(int ID)
+    {
+        try
+        {
+            string ClassStudentsJson = await _dataService.GetAsync("class_session/" + ID);
+            return ClassStudentsJson;
+        }
+        catch (Exception ex)
+        {
+            throw ex;
+        }
+    }
+
 }
 

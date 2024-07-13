@@ -198,10 +198,11 @@ namespace Server
         {
             room = await _roomBLL.GetRoomsByID(roomID);
             this.Text = "Server - " + roomID + " - Số lượng máy: " + room.NumberOfComputers;
-            var computers= await _computerBLL.GetComputersByID(roomID);
+            roomID = room.RoomID.ToString();
+            var computers= await _computerBLL.GetComputersByID(room.RoomID);
             foreach(var computer in computers)
                 InitializeStandard(computer.ComputerName,computer.CPU,computer.RAM,computer.HDD);
-            InitializeFullInfoList(room.NumberOfComputers, roomID);
+            InitializeFullInfoList(room.NumberOfComputers, room.RoomName);
             LoadFullInfoListIntoDataGridView(fullInfoList);
         }
         private async void Form1_Load(object sender, EventArgs e)
@@ -378,14 +379,14 @@ namespace Server
         }
         public void InitializeStandard(string name,string cpu, string ram, string hdd)
         {
-            string keysString = "Tên máy,Ổ cứng,CPU,RAM,MSSV,IPC,Chuột,Bàn phím,Màn hình";
+            string keysString = "Tên máy?Ổ cứng?CPU?RAM?MSSV?IPC?Chuột?Bàn phím?Màn hình";
             // Chuỗi chứa các value cho standardInfoList
-            string privateStandardValuesString = name+","+hdd+","+cpu+", "+ram+", , ,không kết nối,không kết nối,không kết nối";
+            string privateStandardValuesString = name+"?"+hdd+"?"+cpu+"? "+ram+"? ? ?không kết nối?không kết nối?không kết nối";
             // Chuỗi chứa các value cho privateStandardInfoList
 
             // Tách các key và value từ chuỗi
-            var keys = keysString.Split(',');
-            var privateStandardValues = privateStandardValuesString.Split(',');
+            var keys = keysString.Split('?');
+            var privateStandardValues = privateStandardValuesString.Split('?');
 
 
             // Khởi tạo privateStandardInfoList

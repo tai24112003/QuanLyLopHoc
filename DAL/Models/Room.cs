@@ -3,7 +3,8 @@ using System.Collections.Generic;
 
 public class Room
 {
-    public string RoomID { get; set; }
+    public int RoomID { get; set; }
+    public string RoomName { get; set; }
     public int NumberOfComputers { get; set; }
     public string StandardRAM { get; set; }
     public string StandardHDD { get; set; }

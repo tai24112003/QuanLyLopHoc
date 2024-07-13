@@ -27,7 +27,8 @@ namespace testUdpTcp
         {
             InitializeComponent();
             //myIp = getIPServer();
-            myIp = getIPServer();
+            //myIp = getIPServer();
+            myIp = "192.168.72.228";
             inf = GetDeviceInfo();
             foreach (var ip in inf)
             {
@@ -36,9 +37,11 @@ namespace testUdpTcp
 
         }
         private UdpClient udpClient;
+        private Waiting waitingFrm;
+        private ExamForm examFrm;
         SlideShowForm form1;
         private Thread udpReceiverThread;
-        private string IpServer = "";
+        private string IpServer = "192.168.72.249";
         private string myIp = "";
         private List<string> inf;
         private List<string> mssvLst = new List<string>();
@@ -46,15 +49,15 @@ namespace testUdpTcp
         private string hostName;
         TcpListener listener;
         private Thread listenThread;
-
+        private bool doingExam = false;
 
         private void Form1_Load(object sender, EventArgs e)
         {
 
             udpClient = new UdpClient(11312);
             udpReceiverThread = new Thread(new ThreadStart(ReceiveDataOnce));
-            udpReceiverThread.Start();
-            udpReceiverThread.Join();
+            //udpReceiverThread.Start();
+            //udpReceiverThread.Join();
             updateBox();
 
             listenThread = new Thread(new ThreadStart(ListenForClients));
@@ -100,6 +103,12 @@ namespace testUdpTcp
             return regexPattern;
         }
 
+        public void OpenChildForm()
+        {
+            waitingFrm = new Waiting();
+            waitingFrm.Show();
+        }
+
         private void HandleClient(TcpClient tcpClient)
         {
             NetworkStream clientStream = tcpClient.GetStream();
@@ -114,7 +123,7 @@ namespace testUdpTcp
                 receivedMessage += Encoding.UTF8.GetString(messageBuffer, 0, bytesRead);
 
                 // Nếu nhận đủ thông điệp
-                if (receivedMessage.Contains("-"))
+                if (receivedMessage.Contains("-") && !receivedMessage.StartsWith("Key-Exam-"))
                 {
                     break;
                 }
@@ -162,6 +171,8 @@ namespace testUdpTcp
 
                     Console.WriteLine("Tệp đã được nhận và lưu thành công: " + fullFilePath);
                 }
+                tcpClient.Close();
+
             }
             else if (receivedMessage.StartsWith("CollectFile"))
             {
@@ -220,6 +231,85 @@ namespace testUdpTcp
                         Console.WriteLine("Lỗi khi tìm kiếm tệp: " + ex.Message);
                     }
                 }
+                tcpClient.Close();
+            }
+            else if (receivedMessage.StartsWith("Key-Exam-")&&doingExam==false)
+            {
+                doingExam = true;
+                // Parse the signal
+                Console.WriteLine(receivedMessage);
+                string[] parts = receivedMessage.Split(new[] { "Key-Exam-" }, StringSplitOptions.None);
+                if(parts.Length >= 2){
+                    //Console.WriteLine(parts[1]);
+                    string directoryPath = @"C:\Exam";
+                    string filePath = Path.Combine(directoryPath, "exam.json"); 
+
+                    try
+                    {
+                        // Kiểm tra nếu thư mục chưa tồn tại thì tạo mới
+                        if (!Directory.Exists(directoryPath))
+                        {
+                            Directory.CreateDirectory(directoryPath);
+                        }
+                        Quiz quiz = JsonConvert.DeserializeObject<Quiz>(parts[1]);
+                        quiz.Questions = convertType(quiz);
+                        Shuffle(quiz.Questions);
+                        int idx = 0;
+                        int idxList = 0;
+                        foreach (Question question in quiz.Questions)
+                        {
+                            question.idxList = idxList;
+                            if (question.Type == QuestionType.singleQuestion)
+                            {
+                                question.answer = new List<string>();
+                                question.idx = idx;
+                                idx++;
+                            }
+                            else
+                            {
+                                int idxInQuestions = 0;
+                                foreach (Question subquestion in question.questions)
+                                {
+                                    subquestion.answer = new List<string>();
+                                    subquestion.idx = idx;
+                                    subquestion.idxList = idxList;
+                                    subquestion.idxSub = idxInQuestions;
+                                    idx++;
+                                    idxInQuestions++;
+                                }
+                            }
+                            idxList++;
+                        }
+
+                        string contentExam = JsonConvert.SerializeObject(quiz);
+
+
+                        // Ghi nội dung vào tệp
+                        File.WriteAllText(filePath, contentExam);
+
+                        tcpClient.Close();
+
+
+
+                        sendData("ms-sv0306211215ms-sv" + contentExam);
+
+                        if (this.InvokeRequired)
+                        {
+                            this.Invoke(new Action(OpenChildForm));
+                        }
+                        else
+                        {
+                            OpenChildForm();
+                        }
+                        
+
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"An error occurred: {ex.Message}");
+                        tcpClient.Close();
+                    }
+                }
             }
             else
             {
@@ -237,12 +327,38 @@ namespace testUdpTcp
                         // Hiển thị SlideShowForm
                         //slideShowForm.Show();
                         break;
+                    case "Prepare": Console.WriteLine("Chuẩn bị thi");break;
+                    case "DoExam": Console.WriteLine("Làm bài");break;
+                    case "EndTime":
+                        if (this.InvokeRequired)
+                        {
+                            this.Invoke(new Action(CloseExamForm));
+                        }
+                        else
+                        {
+                            CloseExamForm();
+                        }; break;
+                   
                 }
+                tcpClient.Close();
 
             }
 
             Console.WriteLine("Đóng kết nối");
-            tcpClient.Close();
+           
+        }
+
+        static void Shuffle<T>(List<T> list)
+        {
+            Random rng = new Random();
+            int n = list.Count;
+            while (n > 1)
+            {
+                int k = rng.Next(n--);
+                T temp = list[n];
+                list[n] = list[k];
+                list[k] = temp;
+            }
         }
 
         private void OpenNewForm(TcpClient tcpclient)
@@ -260,6 +376,20 @@ namespace testUdpTcp
                     form1.Show();
                 }
             }
+        }
+
+        private void CloseExamForm()
+        {
+
+
+            string content = File.ReadAllText(PathExam.Path+"\\"+PathExam.fileResult);
+
+            content = "dapan-0306211215dapan-" + content;
+
+            sendData(content);
+            doingExam = true;
+            if (waitingFrm != null) 
+            waitingFrm.Close();
         }
 
         private void LockWeb()
@@ -555,6 +685,34 @@ namespace testUdpTcp
                 Console.WriteLine(q);
             }
         }
+        
+        private void sendData(string data)
+        {
+
+            sended = false;
+            try
+            {
+                if (IpServer != String.Empty)
+                {
+                    Console.WriteLine(IpServer);
+                    // Tạo đối tượng TcpClient để kết nối đến server
+                    TcpClient client = new TcpClient(IpServer, 8765);
+                    //Console.WriteLine("Send: "+string.Join("", inf.ToArray()));
+                    //// Lấy luồng mạng từ TcpClient
+                    NetworkStream stream = client.GetStream();
+                    SendData(stream, data);
+                    byte[] buffer = new byte[1024];
+                    sended = true;// Định kích thước buffer tùy ý
+                    client.Close();
+
+                }
+
+            }
+            catch (Exception q)
+            {
+                Console.WriteLine(q);
+            }
+        }
 
         static void SendData(NetworkStream stream, string message)
         {
@@ -583,42 +741,35 @@ namespace testUdpTcp
 
         private void btnDoExam_Click(object sender, EventArgs e)
         {
-            string jsonText = File.ReadAllText("D:\\demo1\\DATAQUANLYLOPHOC\\123456.json");
+            //string jsonText = File.ReadAllText("D:\\demo1\\DATAQUANLYLOPHOC\\123456.json");
+
+            //Quiz quiz = JsonConvert.DeserializeObject<Quiz>(jsonText);
+            //quiz.Questions = convertType(quiz);
+            //ExamForm examform = new ExamForm(quiz);
             
-            Quiz quiz = JsonConvert.DeserializeObject<Quiz>(jsonText);
-            quiz.Questions = convertType(quiz);
-            ExamForm examform = new ExamForm(quiz);
-            examform.ShowDialog();
+            //examform.ShowDialog();
         }
         private List<Question> convertType(Quiz quiz)
         {
             List<Question> questions = new List<Question>();
-            foreach(var question in quiz.Questions)
+            foreach (var question in quiz.Questions)
             {
-                if(question.Type == QuestionType.multipleType)
+                if (question.Type == QuestionType.singleQuestion)
                 {
-                    MultipleChoiceQuestion multiQuestion = new MultipleChoiceQuestion();
+                    singleQuestion multiQuestion = new singleQuestion();
+                    multiQuestion.id = question.id;
                     multiQuestion.Type = question.Type;
                     multiQuestion.QuestionText = question.QuestionText;
-                    multiQuestion.Answer = question.Answer;
-                    multiQuestion.Options = question.Options;
+                    multiQuestion.answer = question.answer;
+                    multiQuestion.options = question.options;
                     questions.Add(multiQuestion);
                 }
-                else if (question.Type == QuestionType.singleType)
+                else if (question.Type == QuestionType.commonQuestion)
                 {
-                    SingleChoiceQuestion multiQuestion = new SingleChoiceQuestion();
+                    CommonQuestion multiQuestion = new CommonQuestion();
                     multiQuestion.Type = question.Type;
                     multiQuestion.QuestionText = question.QuestionText;
-                    multiQuestion.Answer = question.Answer;
-                    multiQuestion.Options = question.Options;
-                    questions.Add(multiQuestion);
-                }else if(question.Type == QuestionType.orderingType)
-                {
-                    OrderingQuestion multiQuestion = new OrderingQuestion();
-                    multiQuestion.Type = question.Type;
-                    multiQuestion.QuestionText = question.QuestionText;
-                    multiQuestion.Answer = question.Answer;
-                    multiQuestion.Options = question.Options;
+                    multiQuestion.questions = question.questions;
                     questions.Add(multiQuestion);
                 }
             }

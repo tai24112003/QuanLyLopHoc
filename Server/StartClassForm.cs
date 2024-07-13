@@ -15,6 +15,7 @@ namespace Server
     {
         private readonly UserBLL _userBLL;
         private readonly ClassBLL _classBLL;
+        private readonly RoomBLL _roomBLL;
         private readonly SubjectBLL _subjectBLL;
         private readonly ClassSessionController _classSessionController;
         private readonly ExcelController _excelController;
@@ -24,6 +25,7 @@ namespace Server
             (UserBLL userBLL, 
             SubjectBLL subjectBLL, 
             ClassBLL classBLL,
+            RoomBLL roomBLL,
             ClassSessionController classSessionController, 
             ExcelController excelController,
             IServiceProvider serviceProvider)
@@ -37,6 +39,7 @@ namespace Server
             _subjectBLL = subjectBLL;
             _classSessionController = classSessionController;
             _excelController = excelController;
+            _roomBLL= roomBLL;
             _serviceProvider = serviceProvider;
             this.Load += new EventHandler(MainForm_Load);
         }
@@ -140,9 +143,10 @@ namespace Server
             hour = int.Parse(end[0]);
             minute = int.Parse(end[1]);
 
-
+            
             // Tạo đối tượng DateTime với ngày hiện tại và giờ phút từ chuỗi
             DateTime endTime = new DateTime(now.Year, now.Month, now.Day, hour, minute, 0);
+            var room = await _roomBLL.GetRoomsByID(roomID);
             try
             {
                 ClassSession classSession = new ClassSession
@@ -152,7 +156,7 @@ namespace Server
                     StartTime = startTime,
                     EndTime = endTime,
                     user_id = userID,
-                    RoomID = roomID
+                    RoomID = room.RoomID.ToString()
                 };
 
                 int sessionID = await _classSessionController.StartNewClassSession(classSession,_excelController);

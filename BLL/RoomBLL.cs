@@ -97,7 +97,7 @@ public class RoomBLL
     {
         try
         {
-            string query = "SELECT RoomID, NumberOfComputers, StandardRAM, StandardHDD, StandardCPU, Status FROM Rooms";
+            string query = "SELECT * FROM Rooms";
             DataTable dataTable = DataProvider.GetDataTable(query, null);
 
             if (dataTable == null || dataTable.Rows.Count == 0)
@@ -110,7 +110,8 @@ public class RoomBLL
             {
                 Room room = new Room
                 {
-                    RoomID = row["RoomID"].ToString(),
+                    RoomID = int.Parse(row["RoomID"].ToString()),
+                    RoomName = row["RoomName"].ToString(),
                     NumberOfComputers = int.Parse(row["NumberOfComputers"].ToString()),
                     StandardRAM = row["StandardRAM"].ToString(),
                     StandardHDD = row["StandardHDD"].ToString(),

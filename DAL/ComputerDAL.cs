@@ -14,7 +14,7 @@ public class ComputerDAL
         _dataService = dataService;
     }
 
-    public async Task<string> GetComputerByComputerID(string ComputerID)
+    public async Task<string> GetComputerByComputerID(int ComputerID)
     {
         try
         {

@@ -20,16 +20,7 @@ public class ComputerBLL
         {
             // Deserialize JSON to ComputerResponse object
             var ComputerResponse = JsonConvert.DeserializeObject<ComputerResponse>(json);
-
-            if (ComputerResponse != null && ComputerResponse.Status == "success")
-            {
                 return ComputerResponse.data; // Return the list of Computer objects
-            }
-            else
-            {
-                // Handle cases when there's no data or status is not success
-                return new List<Computer>();
-            }
         }
         catch (Exception ex)
         {
@@ -38,7 +29,7 @@ public class ComputerBLL
         }
     }
 
-    public async Task<List<Computer>> GetComputersByID(string id)
+    public async Task<List<Computer>> GetComputersByID(int id)
     {
         try
         {
@@ -82,14 +73,14 @@ public class ComputerBLL
 
         foreach (var Computer in ComputerResponse.data)
         {
-            string query = "INSERT INTO Computers (RoomID, ComputerName, RAM, HHD, CPU) VALUES (@RoomID, @ComputerName, @RAM, @HHD, @CPU)";
+            string query = "INSERT INTO Computers (RoomID, ComputerName, RAM, HDD, CPU) VALUES (@RoomID, @ComputerName, @RAM, @HHD, @CPU)";
 
             OleDbParameter[] parameters = new OleDbParameter[]
             {
                 new OleDbParameter("@RoomID", Computer.RoomID),
                 new OleDbParameter("@ComputerName", Computer.ComputerName),
                 new OleDbParameter("@RAM", Computer.RAM),
-                new OleDbParameter("@HHD", Computer.HHD),
+                new OleDbParameter("@HHD", Computer.HDD),
                 new OleDbParameter("@CPU", Computer.CPU),
             };
 
@@ -117,7 +108,7 @@ public class ComputerBLL
                     RoomID = row["RoomID"].ToString(),
                     ComputerName = row["ComputerName"].ToString(),
                     RAM = row["RAM"].ToString(),
-                    HHD = row["HHD"].ToString(),
+                    HDD = row["HHD"].ToString(),
                     CPU = row["CPU"].ToString(),
                 };
                 Computers.Add(Computer);

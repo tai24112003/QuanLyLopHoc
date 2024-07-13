@@ -40,10 +40,12 @@ namespace Server
             services.AddTransient<SubjectBLL>();
             services.AddTransient<ClassSessionDAL>();
             services.AddTransient<SessionComputerDAL>();
+            services.AddTransient<ComputerDAL>();
             services.AddTransient<ClassSessionBLL>();
             //services.AddTransient<ClassSubjectBLL>();
             services.AddTransient<ClassStudentBLL>();
             services.AddTransient<SessionComputerBLL>();
+            services.AddTransient<ComputerBLL>();
             services.AddTransient<LocalDataHandler>();
             services.AddTransient<ClassSessionController>();
             services.AddTransient<ExcelController>();

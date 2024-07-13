@@ -59,6 +59,12 @@
     <Compile Include="ClientForm.Designer.cs">
       <DependentUpon>ClientForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="CommonQuestionUC.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="CommonQuestionUC.Designer.cs">
+      <DependentUpon>CommonQuestionUC.cs</DependentUpon>
+    </Compile>
     <Compile Include="Constant.cs" />
     <Compile Include="ExamForm.cs">
       <SubType>Form</SubType>
@@ -90,8 +96,17 @@
     <Compile Include="ThongBaoDiemForm.designer.cs">
       <DependentUpon>ThongBaoDiemForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="Waiting.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Waiting.Designer.cs">
+      <DependentUpon>Waiting.cs</DependentUpon>
+    </Compile>
     <EmbeddedResource Include="ClientForm.resx">
       <DependentUpon>ClientForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="CommonQuestionUC.resx">
+      <DependentUpon>CommonQuestionUC.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="ExamForm.resx">
       <DependentUpon>ExamForm.cs</DependentUpon>
@@ -104,6 +119,7 @@
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
     </Compile>
     <EmbeddedResource Include="QuestionUC.resx">
       <DependentUpon>QuestionUC.cs</DependentUpon>
@@ -113,6 +129,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="ThongBaoDiemForm.resx">
       <DependentUpon>ThongBaoDiemForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Waiting.resx">
+      <DependentUpon>Waiting.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
@@ -127,6 +146,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\bgWaiting1.jpg" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

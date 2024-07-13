@@ -23,7 +23,7 @@ namespace Server
             var attendance = _serviceProvider.GetService<AttendanceBLL>();
 
             var svForm = new svForm();
-            svForm.Initialize(userID, roomID,classID, roomBLL, sessionID, sessionComputerBLL,classSession,classStudent,attendance);
+            svForm.Initialize(userID, roomID,classID, roomBLL, sessionID, sessionComputerBLL,classSession,classStudent,attendance,_serviceProvider);
 
             return svForm;
         }

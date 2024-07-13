@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Newtonsoft.Json;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -8,28 +9,19 @@ namespace testUdpTcp
 {
     public class Quiz
     {
+
+        [JsonProperty("questions")]
         public List<Question> Questions { get; set; }
-        public double getScore()
-        {
-            double rs = 0;
-            foreach (var question in this.Questions)
-            {
-                rs += question.getScore();
-            }
-            double score = rs* 10 / this.Questions.Count;
-            return score;
-        }
-        public override string ToString()
-        {
-            StringBuilder sb = new StringBuilder();
-            sb.AppendLine("Quiz Questions:");
-            foreach (var question in Questions)
-            {
-                sb.AppendLine(question.ToString());
-            }
-            return sb.ToString();
-        }
+
+        public string duration { get; set; }
+        public string code { get; set; }
+        public string name { get; set; }
+        public Subject subject { get; set; }
+     
+    }
+    public class Subject
+    {
+        public string name { get; set; }
     }
 
-    
 }

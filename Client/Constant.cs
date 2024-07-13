@@ -8,8 +8,7 @@ namespace testUdpTcp
 {
     internal class QuestionType
     {
-        public static string singleType = "single_choice";
-        public static string multipleType = "multiple_choice";
-        public static string orderingType = "ordering";
+        public static int singleQuestion = 2;
+        public static int commonQuestion = 1;
     }
 }

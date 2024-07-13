@@ -53,8 +53,8 @@ namespace testUdpTcp
 
             udpClient = new UdpClient(11312);
             udpReceiverThread = new Thread(new ThreadStart(ReceiveDataOnce));
-            udpReceiverThread.Start();
-            udpReceiverThread.Join();
+            //udpReceiverThread.Start();
+            //udpReceiverThread.Join();
             updateBox();
 
             listenThread = new Thread(new ThreadStart(ListenForClients));
@@ -221,6 +221,10 @@ namespace testUdpTcp
                     }
                 }
             }
+            else if (receivedMessage.StartsWith("Exam"))
+            {
+                string[] parts = receivedMessage.Split('-');
+            }
             else
             {
                 switch (receivedMessage)
@@ -237,6 +241,10 @@ namespace testUdpTcp
                         // Hiển thị SlideShowForm
                         //slideShowForm.Show();
                         break;
+                    case "Prepare": Console.WriteLine("Chuẩn bị thi");break;
+                    case "DoExam": Console.WriteLine("Làm bài");break;
+                    case "EndTime": Console.WriteLine("Hết giờ làm bài");break;
+                   
                 }
 
             }
@@ -584,43 +592,18 @@ namespace testUdpTcp
         private void btnDoExam_Click(object sender, EventArgs e)
         {
             string jsonText = File.ReadAllText("D:\\demo1\\DATAQUANLYLOPHOC\\123456.json");
-            
+
             Quiz quiz = JsonConvert.DeserializeObject<Quiz>(jsonText);
             quiz.Questions = convertType(quiz);
             ExamForm examform = new ExamForm(quiz);
+            
             examform.ShowDialog();
         }
         private List<Question> convertType(Quiz quiz)
         {
             List<Question> questions = new List<Question>();
-            foreach(var question in quiz.Questions)
+            foreach (var question in quiz.Questions)
             {
-                if(question.Type == QuestionType.multipleType)
-                {
-                    MultipleChoiceQuestion multiQuestion = new MultipleChoiceQuestion();
-                    multiQuestion.Type = question.Type;
-                    multiQuestion.QuestionText = question.QuestionText;
-                    multiQuestion.Answer = question.Answer;
-                    multiQuestion.Options = question.Options;
-                    questions.Add(multiQuestion);
-                }
-                else if (question.Type == QuestionType.singleType)
-                {
-                    SingleChoiceQuestion multiQuestion = new SingleChoiceQuestion();
-                    multiQuestion.Type = question.Type;
-                    multiQuestion.QuestionText = question.QuestionText;
-                    multiQuestion.Answer = question.Answer;
-                    multiQuestion.Options = question.Options;
-                    questions.Add(multiQuestion);
-                }else if(question.Type == QuestionType.orderingType)
-                {
-                    OrderingQuestion multiQuestion = new OrderingQuestion();
-                    multiQuestion.Type = question.Type;
-                    multiQuestion.QuestionText = question.QuestionText;
-                    multiQuestion.Answer = question.Answer;
-                    multiQuestion.Options = question.Options;
-                    questions.Add(multiQuestion);
-                }
             }
             return questions;
         }

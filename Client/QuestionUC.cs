@@ -17,9 +17,11 @@ namespace testUdpTcp
         private int checkboxIndex = 1;
         List<CheckBox> checkBoxes = new List<CheckBox>();
         public Panel PnContain => pnContain;
+
         public QuestionUC()
         {
             InitializeComponent();
+            wbQuestion.DocumentCompleted += WebBrowser_DocumentCompleted;
             idx++;
         }
         private static string WrapText(string text, int maxLength)
@@ -65,23 +67,46 @@ namespace testUdpTcp
         public void SetQuestion(Question question, Boolean isLast = false)
         {
             this.question = question;
+            string htmlContent = $@"
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>Sample HTML</title>
+                </head>
+                <body>
+                    {question.QuestionText}
+                </body>
+                </html>";
             if (!isLast)
-                lblQuestion.Text = WrapText(idx + "." + question.QuestionText, 70);
-            else lblQuestion.Text = string.Empty;
-            this.Height = lblQuestion.Height + 25;
+            {
+                wbQuestion.DocumentText = htmlContent;
+                this.Height = wbQuestion.Height;
+            }
+            else
+            {
+                lblQuestion.Text = string.Empty;
+                wbQuestion.Hide();
+            }
             pnOption.Height = 0;
+        }
+
+        private void WebBrowser_DocumentCompleted(object sender, WebBrowserDocumentCompletedEventArgs e)
+        {
+            // Tự động điều chỉnh kích thước của UserControl theo chiều cao của nội dung HTML
+            wbQuestion.Height = wbQuestion.Document.Body.ScrollRectangle.Height + 30;
+            this.Height = wbQuestion.Height + 30;
             LoadChoices();
         }
         private void LoadChoices()
         {
             pnOption.Controls.Clear();
-            if (question != null && question.Options != null && question.Options.Count > 0)
+            if (question != null && question.options != null && question.options.Count > 0)
             {
-                int top = 0;
-                foreach (var optionText in question.Options)
+                int top = wbQuestion.Bottom - 30;
+                foreach (var optionText in question.options)
                 {
-                    if (question.Type == QuestionType.singleType)
-                    {  
+                    if (question.answer.Count() == 1)
+                    {
                         RadioButton radioButton = new RadioButton();
                         radioButton.Text = optionText;
                         radioButton.AutoSize = true;
@@ -95,7 +120,7 @@ namespace testUdpTcp
                         };
                         pnOption.Controls.Add(radioButton);
                     }
-                    else if (question.Type == QuestionType.multipleType)
+                    else
                     {
                         CheckBox checkBox = new CheckBox();
                         checkBox.Text = optionText;
@@ -115,34 +140,6 @@ namespace testUdpTcp
                         };
                         this.Height = this.Height + checkBox.Height;
                         pnOption.Height = this.Height - lblQuestion.Height - 25;
-                        pnOption.Controls.Add(checkBox);
-                    }
-                    else if (question.Type == QuestionType.orderingType)
-                    {
-                        CheckBox checkBox = new CheckBox();
-                        checkBox.Text = optionText;
-                        checkBox.AutoSize = true;
-                        checkBox.Location = new Point(50, top);
-                        checkBox.CheckedChanged += (s, e) =>
-                        {
-                            CheckBox cb = s as CheckBox;
-                            if (cb.Checked)
-                            {
-                                question.AddAnswer(optionText);
-                                cb.Text = optionText + " - " + checkboxIndex;
-                                checkboxIndex++;
-
-                            }
-                            else
-                            {
-                                question.RemoveAnswer(optionText);
-                                checkboxIndex--;
-                                cb.Text = optionText;
-                            }
-                        };
-                        this.Height = this.Height + checkBox.Height;
-                        pnOption.Height = this.Height - lblQuestion.Height - 25;
-                        checkBoxes.Add(checkBox);
                         pnOption.Controls.Add(checkBox);
                     }
                     top += 25;

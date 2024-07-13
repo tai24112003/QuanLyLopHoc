@@ -31,12 +31,14 @@
             this.pnContain = new System.Windows.Forms.Panel();
             this.pnOption = new System.Windows.Forms.Panel();
             this.lblQuestion = new System.Windows.Forms.Label();
+            this.wbQuestion = new System.Windows.Forms.WebBrowser();
             this.pnContain.SuspendLayout();
             this.SuspendLayout();
             // 
             // pnContain
             // 
             this.pnContain.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.pnContain.Controls.Add(this.wbQuestion);
             this.pnContain.Controls.Add(this.pnOption);
             this.pnContain.Controls.Add(this.lblQuestion);
             this.pnContain.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -56,19 +58,28 @@
             // lblQuestion
             // 
             this.lblQuestion.AutoSize = true;
-            this.lblQuestion.Font = new System.Drawing.Font("Microsoft Sans Serif", 13.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblQuestion.Font = new System.Drawing.Font("Tahoma", 13.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblQuestion.Location = new System.Drawing.Point(50, 15);
             this.lblQuestion.Name = "lblQuestion";
-            this.lblQuestion.Size = new System.Drawing.Size(79, 29);
+            this.lblQuestion.Size = new System.Drawing.Size(72, 28);
             this.lblQuestion.TabIndex = 0;
             this.lblQuestion.Text = "label1";
+            // 
+            // wbQuestion
+            // 
+            this.wbQuestion.Location = new System.Drawing.Point(3, 2);
+            this.wbQuestion.Margin = new System.Windows.Forms.Padding(3, 3, 3, 0);
+            this.wbQuestion.MinimumSize = new System.Drawing.Size(20, 20);
+            this.wbQuestion.Name = "wbQuestion";
+            this.wbQuestion.Size = new System.Drawing.Size(955, 92);
+            this.wbQuestion.TabIndex = 2;
             // 
             // QuestionUC
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.Controls.Add(this.pnContain);
-            this.Margin = new System.Windows.Forms.Padding(3, 3, 3, 30);
+            this.Margin = new System.Windows.Forms.Padding(0, 0, 0, 30);
             this.Name = "QuestionUC";
             this.Size = new System.Drawing.Size(959, 233);
             this.pnContain.ResumeLayout(false);
@@ -82,5 +93,6 @@
         private System.Windows.Forms.Panel pnContain;
         private System.Windows.Forms.Panel pnOption;
         private System.Windows.Forms.Label lblQuestion;
+        private System.Windows.Forms.WebBrowser wbQuestion;
     }
 }

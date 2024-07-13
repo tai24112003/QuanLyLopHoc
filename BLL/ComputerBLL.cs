@@ -29,7 +29,7 @@ public class ComputerBLL
         }
     }
 
-    public async Task<List<Computer>> GetComputersByID(int id)
+    public async Task<List<Computer>> GetComputersByID(string id)
     {
         try
         {
@@ -80,7 +80,7 @@ public class ComputerBLL
                 new OleDbParameter("@RoomID", Computer.RoomID),
                 new OleDbParameter("@ComputerName", Computer.ComputerName),
                 new OleDbParameter("@RAM", Computer.RAM),
-                new OleDbParameter("@HHD", Computer.HDD),
+                new OleDbParameter("@HDD", Computer.HDD),
                 new OleDbParameter("@CPU", Computer.CPU),
             };
 
@@ -108,7 +108,7 @@ public class ComputerBLL
                     RoomID = row["RoomID"].ToString(),
                     ComputerName = row["ComputerName"].ToString(),
                     RAM = row["RAM"].ToString(),
-                    HDD = row["HHD"].ToString(),
+                    HDD = row["HDD"].ToString(),
                     CPU = row["CPU"].ToString(),
                 };
                 Computers.Add(Computer);

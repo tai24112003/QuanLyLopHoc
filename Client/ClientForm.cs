@@ -741,13 +741,13 @@ namespace testUdpTcp
 
         private void btnDoExam_Click(object sender, EventArgs e)
         {
-            //string jsonText = File.ReadAllText("D:\\demo1\\DATAQUANLYLOPHOC\\123456.json");
+            string jsonText = File.ReadAllText("D:\\demo1\\DATAQUANLYLOPHOC\\123456.json");
 
-            //Quiz quiz = JsonConvert.DeserializeObject<Quiz>(jsonText);
-            //quiz.Questions = convertType(quiz);
-            //ExamForm examform = new ExamForm(quiz);
+            Quiz quiz = JsonConvert.DeserializeObject<Quiz>(jsonText);
+            quiz.Questions = convertType(quiz);
+            ExamForm examform = new ExamForm(quiz);
             
-            //examform.ShowDialog();
+            examform.ShowDialog();
         }
         private List<Question> convertType(Quiz quiz)
         {

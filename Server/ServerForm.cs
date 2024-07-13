@@ -18,7 +18,10 @@ using System.Drawing.Imaging;
 using System.Drawing.Drawing2D;
 using OfficeOpenXml;
 using System.IO.Compression;
+using Newtonsoft.Json;
 using OfficeOpenXml.Style;
+
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Server
 {
@@ -52,11 +55,13 @@ namespace Server
         private List<ClassStudent> classStudents = new List<ClassStudent>();
         private List<Attendance> attendances = new List<Attendance>();
         private List<ClassStudent> students;
+        private IServiceProvider _serviceProvider;
+
         public svForm()
         {
             InitializeComponent();
         }
-        public void Initialize(int userID, string roomID, int classID, RoomBLL roomBLL, int sessionID, SessionComputerBLL sessionComputer, ClassSessionBLL classSession, ClassStudentBLL classStudentBLL, AttendanceBLL attendanceBLL,ComputerBLL computerBLL, StudentBLL studentBLL)
+        public void Initialize(int userID, string roomID, int classID, RoomBLL roomBLL, int sessionID, SessionComputerBLL sessionComputer, ClassSessionBLL classSession, ClassStudentBLL classStudentBLL, AttendanceBLL attendanceBLL,ComputerBLL computerBLL,StudentBLL studentBLL, IServiceProvider serviceProvider)
         {
             this.userID = userID;
             this.roomID = roomID;
@@ -69,6 +74,8 @@ namespace Server
             this._computerBLL = computerBLL;
             this.sessionID = sessionID;
             this._studentBLL = studentBLL;
+            _serviceProvider = serviceProvider;
+
             Ip = getIPServer();
             InitializeContextMenu();
 
@@ -122,7 +129,7 @@ namespace Server
                 if (attendances == null || !attendances.Any())
                 {
                     // Gọi API để lấy danh sách sinh viên
-
+                    students = await _classStudentBLL.GetClassStudentsByID(classID);
 
                     if (students == null || students.Count == 0)
                     {
@@ -199,7 +206,7 @@ namespace Server
             room = await _roomBLL.GetRoomsByID(roomID);
             this.Text = "Server - " + roomID + " - Số lượng máy: " + room.NumberOfComputers;
             roomID = room.RoomID.ToString();
-            var computers= await _computerBLL.GetComputersByID(room.RoomID);
+            var computers= await _computerBLL.GetComputersByID(room.RoomID.ToString());
             foreach(var computer in computers)
                 InitializeStandard(computer.ComputerName,computer.CPU,computer.RAM,computer.HDD);
             InitializeFullInfoList(room.NumberOfComputers, room.RoomName);
@@ -348,7 +355,6 @@ namespace Server
         private void HandleClient(TcpClient tcpClient)
         {
             NetworkStream clientStream = tcpClient.GetStream();
-
             byte[] messageBuffer = new byte[1024];
             int bytesRead;
             string receivedMessage = "";
@@ -360,8 +366,32 @@ namespace Server
 
             string[] tmp = receivedMessage.Split(new char[] { '-' }, 2);
 
+            if (receivedMessage.StartsWith("ms-sv"))
+            {
+                Console.WriteLine(receivedMessage);
+                string[] parts = receivedMessage.Split(new[] { "ms-sv" }, StringSplitOptions.None);
+                if (parts.Length >= 3)
+                {
+                    CheckAndCreateDirectoryAndFile("D:/" + parts[1]);//Tạo folder riêng cho sinh viên
 
-            if (tmp[0] == "InfoClient")
+                    File.WriteAllText("D:/" + parts[1] + "/" + parts[1] + "-exam.json", parts[2]);
+                }
+            }
+            else if (receivedMessage.StartsWith("dapan"))
+            {
+                Console.WriteLine(receivedMessage);
+                string[] parts = receivedMessage.Split(new[] { "dapan-" }, StringSplitOptions.None);
+                if (parts.Length >= 3)
+                {
+                    CheckAndCreateDirectoryAndFile("D:/" + parts[1]);//Tạo folder riêng cho sinh viên
+
+                    File.WriteAllText("D:/" + parts[1] + "/" + parts[1] + "-anwser.json", parts[2]);
+                }
+            }
+
+
+
+            else if (tmp[0] == "InfoClient")
             {
                 ReciveInfo(tmp[1]);
             }
@@ -1142,6 +1172,9 @@ namespace Server
             Console.WriteLine("Phần tử ở hàng {0}, cột {1} là: {2}", rowIndex, colIndex, element);
         }
         ContextMenuStrip contextMenuStrip;
+
+        public object JsonConvert { get; private set; }
+
         private void dgv_client_MouseClick(object sender, MouseEventArgs e)
         {
 
@@ -1511,12 +1544,6 @@ namespace Server
 
         }
 
-        private void tsExam_Click(object sender, EventArgs e)
-        {
-            CreateQuestion createQuestion = new CreateQuestion();
-            createQuestion.ShowDialog();
-        }
-
         private void tsCreateQuestion_Click(object sender, EventArgs e)
         {
             CreateQuestion createQuestion = new CreateQuestion();
@@ -1525,8 +1552,9 @@ namespace Server
 
         private void tsCreateExam_Click(object sender, EventArgs e)
         {
-            CreateExam createExam = new CreateExam();
-            createExam.ShowDialog();
+            var svFormFactory = _serviceProvider.GetRequiredService<CreateExamFactory>();
+            var svForms = svFormFactory.Create(userID);
+            svForms.Show();
         }
 
         private void toolStripButton5_Click(object sender, EventArgs e)
@@ -1534,12 +1562,182 @@ namespace Server
             dgv_client.Hide();
         }
 
-        private void tsLock_Click(object sender, EventArgs e)
+        private void dgv_client_CellContentClick(object sender, DataGridViewCellEventArgs e)
         {
-            foreach (DataGridViewColumn col in dgv_attendance.Columns)
+
+        }
+        private void CheckAndCreateDirectoryAndFile(string directoryPath)
+        {
+            // Kiểm tra và tạo thư mục nếu chưa tồn tại
+            if (!Directory.Exists(directoryPath))
             {
-                Console.WriteLine(col.Name);
+                try
+                {
+                    Directory.CreateDirectory(directoryPath);
+                }
+                catch (Exception ex)
+                {
+                    return;
+                }
             }
+        }
+
+        private void phatsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
+
+            List<Thread> clientThreads = new List<Thread>();
+
+            //foreach (DataGridViewRow row in dgv_client.Rows)
+            //{
+            try
+            {
+                //string clientIP = row.Cells[5].Value.ToString();
+                string clientIP = "192.168.72.228";
+
+                // Kiểm tra xem địa chỉ IP có hợp lệ không
+                if (IsValidIPAddress(clientIP))
+                {
+                    // Tạo một luồng riêng biệt cho mỗi client
+                    Thread clientThread = new Thread(() =>
+                    {
+                        TcpClient client = null;
+                        NetworkStream stream = null;
+                        try
+                        {
+                            client = new TcpClient(clientIP, 8888);
+                            stream = client.GetStream();
+
+                                    // Gửi tín hiệu thông báo
+                                    string filePath = @"D:\exam.json";
+
+                                    // Kiểm tra xem file có tồn tại hay không
+                                    if (File.Exists(filePath))
+                            {
+                                try
+                                {
+
+                                    string fileContent = File.ReadAllText(filePath);
+
+                                    fileContent = "Key-Exam-" + fileContent;
+
+                                    byte[] signalBytes = Encoding.UTF8.GetBytes(fileContent);
+                                    stream.Write(signalBytes, 0, signalBytes.Length);
+                                    stream.Flush();
+
+
+                                    Console.WriteLine("Tệp đã được gửi thành công.");
+                                }
+                                catch (Exception ex)
+                                {
+                                    Console.WriteLine("Có lỗi xảy ra khi đọc file: " + ex.Message);
+                                }
+                            }
+                            else
+                            {
+                                Console.WriteLine("File không tồn tại: " + filePath);
+
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine("Lỗi khi gửi tệp: " + ex.Message);
+                        }
+                        finally
+                        {
+                                    // Đảm bảo rằng kết nối được đóng đúng cách
+                                    if (stream != null) stream.Close();
+                            if (client != null) client.Close();
+                        }
+                    });
+
+                    // Bắt đầu luồng cho client hiện tại
+                    clientThreads.Add(clientThread);
+                    clientThread.Start();
+                }
+            }
+            catch (Exception ex)
+            {
+                //MessageBox.Show("Mất kết nối với: " + row.Cells[0].Value.ToString());
+                MessageBox.Show("Mất kết nối");
+            }
+            //}
+
+            // Chờ tất cả các luồng kết thúc trước khi tiếp tục
+            foreach (Thread t in clientThreads)
+            {
+                t.Join();
+            }
+        }
+
+        private void thuBaiToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            List<Thread> clientThreads = new List<Thread>();
+
+            //foreach (DataGridViewRow row in dgv_client.Rows)
+            //{
+            try
+            {
+                //string clientIP = row.Cells[5].Value.ToString();
+                string clientIP = "192.168.72.228";
+
+                // Kiểm tra xem địa chỉ IP có hợp lệ không
+                if (IsValidIPAddress(clientIP))
+                {
+                    // Tạo một luồng riêng biệt cho mỗi client
+                    Thread clientThread = new Thread(() =>
+                    {
+                        TcpClient client = null;
+                        NetworkStream stream = null;
+                        try
+                        {
+                            client = new TcpClient(clientIP, 8888);
+                            stream = client.GetStream();
+
+                            // Gửi tín hiệu thông báo
+
+
+                            string content = "EndTime";
+
+                            byte[] signalBytes = Encoding.UTF8.GetBytes(content);
+                            stream.Write(signalBytes, 0, signalBytes.Length);
+                            stream.Flush();
+
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine("Lỗi khi gửi tệp: " + ex.Message);
+                        }
+                        finally
+                        {
+                            // Đảm bảo rằng kết nối được đóng đúng cách
+                            if (stream != null) stream.Close();
+                            if (client != null) client.Close();
+                        }
+                    });
+
+                    // Bắt đầu luồng cho client hiện tại
+                    clientThreads.Add(clientThread);
+                    clientThread.Start();
+                }
+            }
+            catch (Exception ex)
+            {
+                //MessageBox.Show("Mất kết nối với: " + row.Cells[0].Value.ToString());
+                MessageBox.Show("Mất kết nối");
+            }
+            //}
+
+            // Chờ tất cả các luồng kết thúc trước khi tiếp tục
+            foreach (Thread t in clientThreads)
+            {
+                t.Join();
+            }
+        }
+        
+        private void tsQuickLauch_Click(object sender, EventArgs e)
+        {
+            _classStudentBLL.ProcessPoint();
         }
     }
 }

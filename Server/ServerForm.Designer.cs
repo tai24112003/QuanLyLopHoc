@@ -29,6 +29,7 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(svForm));
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
@@ -70,8 +71,9 @@
             this.tsUpdate = new System.Windows.Forms.ToolStripButton();
             this.tsExport = new System.Windows.Forms.ToolStripButton();
             this.tsExam = new System.Windows.Forms.ToolStripDropDownButton();
-            this.tsCreateQuestion = new System.Windows.Forms.ToolStripMenuItem();
             this.tsCreateExam = new System.Windows.Forms.ToolStripMenuItem();
+            this.phatsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.thuBaiToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStrip2 = new System.Windows.Forms.ToolStrip();
             this.toolStripButton17 = new System.Windows.Forms.ToolStripButton();
             this.toolStripButton16 = new System.Windows.Forms.ToolStripButton();
@@ -240,7 +242,7 @@
             // 
             this.tsManageClass.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.kếtThúcLớpHọcToolStripMenuItem});
-            this.tsManageClass.Image = global::Server.Properties.Resources._13;
+            this.tsManageClass.Image = ((System.Drawing.Image)(resources.GetObject("tsManageClass.Image")));
             this.tsManageClass.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
             this.tsManageClass.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.tsManageClass.Name = "tsManageClass";
@@ -258,7 +260,7 @@
             // 
             // tsGroup
             // 
-            this.tsGroup.Image = global::Server.Properties.Resources.multiple_users_silhouette__1_;
+            this.tsGroup.Image = ((System.Drawing.Image)(resources.GetObject("tsGroup.Image")));
             this.tsGroup.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
             this.tsGroup.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.tsGroup.Name = "tsGroup";
@@ -269,7 +271,7 @@
             // 
             // tsRandom
             // 
-            this.tsRandom.Image = global::Server.Properties.Resources.dices;
+            this.tsRandom.Image = ((System.Drawing.Image)(resources.GetObject("tsRandom.Image")));
             this.tsRandom.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
             this.tsRandom.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.tsRandom.Margin = new System.Windows.Forms.Padding(0, 1, 50, 2);
@@ -284,7 +286,7 @@
             this.tsSlideShow.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.tsDungChieu,
             this.tsStartSlideShow});
-            this.tsSlideShow.Image = global::Server.Properties.Resources.slide_show;
+            this.tsSlideShow.Image = ((System.Drawing.Image)(resources.GetObject("tsSlideShow.Image")));
             this.tsSlideShow.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
             this.tsSlideShow.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.tsSlideShow.Name = "tsSlideShow";
@@ -313,7 +315,7 @@
             this.tsSendAndCollect.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.tsCollect,
             this.tsSend});
-            this.tsSendAndCollect.Image = global::Server.Properties.Resources.briefcase__1___1_;
+            this.tsSendAndCollect.Image = ((System.Drawing.Image)(resources.GetObject("tsSendAndCollect.Image")));
             this.tsSendAndCollect.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
             this.tsSendAndCollect.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.tsSendAndCollect.Margin = new System.Windows.Forms.Padding(0, 1, 50, 2);
@@ -341,7 +343,7 @@
             // 
             // tsLock
             // 
-            this.tsLock.Image = global::Server.Properties.Resources._lock;
+            this.tsLock.Image = ((System.Drawing.Image)(resources.GetObject("tsLock.Image")));
             this.tsLock.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
             this.tsLock.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.tsLock.Name = "tsLock";
@@ -349,11 +351,10 @@
             this.tsLock.Tag = "";
             this.tsLock.Text = "Khóa";
             this.tsLock.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
-            this.tsLock.Click += new System.EventHandler(this.tsLock_Click);
             // 
             // tsUnlock
             // 
-            this.tsUnlock.Image = global::Server.Properties.Resources.unlock;
+            this.tsUnlock.Image = ((System.Drawing.Image)(resources.GetObject("tsUnlock.Image")));
             this.tsUnlock.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
             this.tsUnlock.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.tsUnlock.Margin = new System.Windows.Forms.Padding(0, 1, 50, 2);
@@ -366,7 +367,7 @@
             // 
             // tsQuickLauch
             // 
-            this.tsQuickLauch.Image = global::Server.Properties.Resources.send;
+            this.tsQuickLauch.Image = ((System.Drawing.Image)(resources.GetObject("tsQuickLauch.Image")));
             this.tsQuickLauch.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
             this.tsQuickLauch.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.tsQuickLauch.Name = "tsQuickLauch";
@@ -374,10 +375,11 @@
             this.tsQuickLauch.Tag = "";
             this.tsQuickLauch.Text = "Mở phần mềm";
             this.tsQuickLauch.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
+            this.tsQuickLauch.Click += new System.EventHandler(this.tsQuickLauch_Click);
             // 
             // tsUpdate
             // 
-            this.tsUpdate.Image = global::Server.Properties.Resources.loading_arrow;
+            this.tsUpdate.Image = ((System.Drawing.Image)(resources.GetObject("tsUpdate.Image")));
             this.tsUpdate.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
             this.tsUpdate.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.tsUpdate.Name = "tsUpdate";
@@ -389,7 +391,7 @@
             // 
             // tsExport
             // 
-            this.tsExport.Image = global::Server.Properties.Resources.export;
+            this.tsExport.Image = ((System.Drawing.Image)(resources.GetObject("tsExport.Image")));
             this.tsExport.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
             this.tsExport.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.tsExport.Name = "tsExport";
@@ -402,9 +404,10 @@
             // tsExam
             // 
             this.tsExam.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.tsCreateQuestion,
-            this.tsCreateExam});
-            this.tsExam.Image = global::Server.Properties.Resources.register;
+            this.tsCreateExam,
+            this.phatsToolStripMenuItem,
+            this.thuBaiToolStripMenuItem});
+            this.tsExam.Image = ((System.Drawing.Image)(resources.GetObject("tsExam.Image")));
             this.tsExam.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
             this.tsExam.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.tsExam.Name = "tsExam";
@@ -412,21 +415,27 @@
             this.tsExam.Tag = "";
             this.tsExam.Text = "Thi ";
             this.tsExam.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
-            this.tsExam.Click += new System.EventHandler(this.tsExam_Click);
-            // 
-            // tsCreateQuestion
-            // 
-            this.tsCreateQuestion.Name = "tsCreateQuestion";
-            this.tsCreateQuestion.Size = new System.Drawing.Size(169, 26);
-            this.tsCreateQuestion.Text = "Tạo câu hỏi";
-            this.tsCreateQuestion.Click += new System.EventHandler(this.tsCreateQuestion_Click);
             // 
             // tsCreateExam
             // 
             this.tsCreateExam.Name = "tsCreateExam";
-            this.tsCreateExam.Size = new System.Drawing.Size(169, 26);
-            this.tsCreateExam.Text = "Tạo đề thi";
+            this.tsCreateExam.Size = new System.Drawing.Size(224, 26);
+            this.tsCreateExam.Text = "Đề thi";
             this.tsCreateExam.Click += new System.EventHandler(this.tsCreateExam_Click);
+            // 
+            // phatsToolStripMenuItem
+            // 
+            this.phatsToolStripMenuItem.Name = "phatsToolStripMenuItem";
+            this.phatsToolStripMenuItem.Size = new System.Drawing.Size(224, 26);
+            this.phatsToolStripMenuItem.Text = "Phát đề";
+            this.phatsToolStripMenuItem.Click += new System.EventHandler(this.phatsToolStripMenuItem_Click);
+            // 
+            // thuBaiToolStripMenuItem
+            // 
+            this.thuBaiToolStripMenuItem.Name = "thuBaiToolStripMenuItem";
+            this.thuBaiToolStripMenuItem.Size = new System.Drawing.Size(224, 26);
+            this.thuBaiToolStripMenuItem.Text = "Thu bài";
+            this.thuBaiToolStripMenuItem.Click += new System.EventHandler(this.thuBaiToolStripMenuItem_Click);
             // 
             // toolStrip2
             // 
@@ -448,7 +457,7 @@
             // toolStripButton17
             // 
             this.toolStripButton17.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.toolStripButton17.Image = global::Server.Properties.Resources.home__1_1;
+            this.toolStripButton17.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButton17.Image")));
             this.toolStripButton17.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
             this.toolStripButton17.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolStripButton17.Name = "toolStripButton17";
@@ -458,7 +467,7 @@
             // toolStripButton16
             // 
             this.toolStripButton16.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.toolStripButton16.Image = global::Server.Properties.Resources.monitor__1_;
+            this.toolStripButton16.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButton16.Image")));
             this.toolStripButton16.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
             this.toolStripButton16.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolStripButton16.Name = "toolStripButton16";
@@ -468,7 +477,7 @@
             // toolStripButton5
             // 
             this.toolStripButton5.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.toolStripButton5.Image = global::Server.Properties.Resources.attendance__1_;
+            this.toolStripButton5.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButton5.Image")));
             this.toolStripButton5.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
             this.toolStripButton5.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolStripButton5.Name = "toolStripButton5";
@@ -479,7 +488,7 @@
             // toolStripButton15
             // 
             this.toolStripButton15.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.toolStripButton15.Image = global::Server.Properties.Resources.world_wide_web__1_;
+            this.toolStripButton15.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButton15.Image")));
             this.toolStripButton15.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
             this.toolStripButton15.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolStripButton15.Name = "toolStripButton15";
@@ -522,6 +531,7 @@
             this.dgv_client.RowHeadersWidth = 51;
             this.dgv_client.Size = new System.Drawing.Size(1217, 605);
             this.dgv_client.TabIndex = 9;
+            this.dgv_client.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgv_client_CellContentClick);
             // 
             // NameComputer
             // 
@@ -711,7 +721,6 @@
         private System.Windows.Forms.ToolStripMenuItem tsCollect;
         private System.Windows.Forms.ToolStripMenuItem kếtThúcLớpHọcToolStripMenuItem;
         private System.Windows.Forms.ToolStripDropDownButton tsExam;
-        private System.Windows.Forms.ToolStripMenuItem tsCreateQuestion;
         private System.Windows.Forms.ToolStripMenuItem tsCreateExam;
         private System.Windows.Forms.ToolStripMenuItem tsStartSlideShow;
         private System.Windows.Forms.ToolStripButton toolStripButton5;
@@ -729,6 +738,8 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn MSSV;
         private System.Windows.Forms.DataGridViewTextBoxColumn FirstName;
         private System.Windows.Forms.DataGridViewTextBoxColumn LastName;
+        private System.Windows.Forms.ToolStripMenuItem phatsToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem thuBaiToolStripMenuItem;
     }
 }
 

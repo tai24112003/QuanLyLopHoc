@@ -44,6 +44,7 @@ namespace Server
             services.AddTransient<ClassSessionBLL>();
             //services.AddTransient<ClassSubjectBLL>();
             services.AddTransient<ClassStudentBLL>();
+            services.AddTransient<ExamBLL>();
             services.AddTransient<SessionComputerBLL>();
             services.AddTransient<ComputerBLL>();
             services.AddTransient<LocalDataHandler>();
@@ -53,6 +54,8 @@ namespace Server
             services.AddTransient<svFormFactory>();
             services.AddTransient<StartClassForm>();
             services.AddTransient<svForm>();
+            services.AddTransient<CreateExam>();
+            services.AddTransient<CreateExamFactory>();
         }
     }
 }

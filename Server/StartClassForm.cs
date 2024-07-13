@@ -1,5 +1,4 @@
-﻿// /Forms/StartClassForm.cs
-using Autofac;
+﻿using Autofac;
 using Microsoft.Extensions.DependencyInjection;
 using OfficeOpenXml;
 using System;
@@ -8,7 +7,6 @@ using System.Drawing;
 using System.IO;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-
 namespace Server
 {
     public partial class StartClassForm : Form

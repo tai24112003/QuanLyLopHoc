@@ -36,7 +36,7 @@ public class ExcelController
             string formattedDateTime = currentDate.ToString("dd/MM/yyyy HH:mm:ss");
 
             // Add Class
-            var classEntity = new Class { ClassName = excelData.ClassName, UserID=user.user_id,  LastTime = formattedDateTime };
+            var classEntity = new Class { ClassName = excelData.ClassName, UserID=user.id,  LastTime = formattedDateTime };
             var addedClass = await _classBLL.InsertClass(classEntity);
 
             // Add Students

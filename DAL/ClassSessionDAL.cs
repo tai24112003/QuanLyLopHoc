@@ -18,7 +18,7 @@ public class ClassSessionDAL
         try
         {
             string classSessionJson = JsonConvert.SerializeObject(classSession);
-            string responseJson = await _dataService.PostAsync("class_session/insert", classSessionJson);
+            string responseJson = await _dataService.PostAsync("class_session/", classSessionJson);
             return responseJson;
         }
         catch (Exception ex)

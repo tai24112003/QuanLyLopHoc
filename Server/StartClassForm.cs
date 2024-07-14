@@ -66,7 +66,7 @@ namespace Server
                 cbbName.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
                 cbbName.AutoCompleteSource = AutoCompleteSource.CustomSource;
                 cbbName.DisplayMember = "name";
-                cbbName.ValueMember = "user_id";
+                cbbName.ValueMember = "id";
             }
             catch (Exception ex)
             {
@@ -144,7 +144,7 @@ namespace Server
             
             // Tạo đối tượng DateTime với ngày hiện tại và giờ phút từ chuỗi
             DateTime endTime = new DateTime(now.Year, now.Month, now.Day, hour, minute, 0);
-            var room = await _roomBLL.GetRoomsByID(roomID);
+              var room = await _roomBLL.GetRoomsByID(roomID);
             try
             {
                 ClassSession classSession = new ClassSession
@@ -180,7 +180,7 @@ namespace Server
             try
              {
                 int userID = int.Parse(cbbName.SelectedValue.ToString());
-                List<Class> classes1 = classes.FindAll(c => c.UserID == userID);
+                List<Class> classes1 = classes.FindAll(c => c.UserID== userID);
 
 
                 AutoCompleteStringCollection classCollection = new AutoCompleteStringCollection();
@@ -321,7 +321,7 @@ namespace Server
         {
             Class classSession = new Class();
             classSession.ClassName = cbbClass.Text;
-            classSession.UserID =int.Parse(cbbClass.SelectedValue.ToString());
+            classSession.UserID=int.Parse(cbbClass.SelectedValue.ToString());
            await _classBLL.InsertClass(classSession);
         }
     }

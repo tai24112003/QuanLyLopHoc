@@ -29,7 +29,7 @@ public class SubjectDAL
         try
         {
             string studentJson = JsonConvert.SerializeObject(student);
-            string responseJson = await _dataService.PostAsync("subject/insert", studentJson);
+            string responseJson = await _dataService.PostAsync("subject/", studentJson);
             return responseJson;
         }
         catch (Exception ex)

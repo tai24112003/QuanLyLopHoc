@@ -76,7 +76,7 @@ public class ClassBLL
     public async Task<List<Class>> GetClassByUserID(int userID)
     {
         var lstClass = await GetAllClass();
-        return lstClass.FindAll(c => c.UserID == userID).ToList();
+        return lstClass.FindAll(c => c.UserID== userID).ToList();
     }
 
     public async Task<string> GetClass()
@@ -137,7 +137,7 @@ public class ClassBLL
                 {
                     ClassID = int.Parse(row["ClassID"].ToString()),
                     ClassName = row["ClassName"].ToString(),
-                    UserID = int.Parse(row["UserID"].ToString())
+                    UserID= int.Parse(row["UserID"].ToString())
                 };
                 classes.Add(classSession);
             }

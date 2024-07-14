@@ -44,6 +44,7 @@ namespace Server
         private ClassStudentBLL _classStudentBLL;
         private AttendanceBLL _attendanceBLL;
         private StudentBLL _studentBLL;
+        private SubmisstionBLL _answer;
         private ComputerBLL _computerBLL;
         private string roomID;
         private int classID;
@@ -61,7 +62,7 @@ namespace Server
         {
             InitializeComponent();
         }
-        public void Initialize(int userID, string roomID, int classID, RoomBLL roomBLL, int sessionID, SessionComputerBLL sessionComputer, ClassSessionBLL classSession, ClassStudentBLL classStudentBLL, AttendanceBLL attendanceBLL,ComputerBLL computerBLL,StudentBLL studentBLL, IServiceProvider serviceProvider)
+        public void Initialize(int userID, string roomID, int classID, RoomBLL roomBLL, int sessionID, SessionComputerBLL sessionComputer, ClassSessionBLL classSession, ClassStudentBLL classStudentBLL, AttendanceBLL attendanceBLL,ComputerBLL computerBLL,StudentBLL studentBLL,SubmisstionBLL answerBLL, IServiceProvider serviceProvider)
         {
             this.userID = userID;
             this.roomID = roomID;
@@ -74,6 +75,7 @@ namespace Server
             this._computerBLL = computerBLL;
             this.sessionID = sessionID;
             this._studentBLL = studentBLL;
+            _answer=answerBLL;
             _serviceProvider = serviceProvider;
 
             Ip = getIPServer();
@@ -208,7 +210,7 @@ namespace Server
             roomID = room.RoomID.ToString();
             var computers= await _computerBLL.GetComputersByID(room.RoomID.ToString());
             foreach(var computer in computers)
-                InitializeStandard(computer.ComputerName,computer.CPU,computer.RAM,computer.HDD);
+                InitializeStandard(computer.ID,computer.ComputerName,computer.CPU,computer.RAM,computer.HDD);
             InitializeFullInfoList(room.NumberOfComputers, room.RoomName);
             LoadFullInfoListIntoDataGridView(fullInfoList);
         }
@@ -407,11 +409,11 @@ namespace Server
             // Đóng kết nối khi client đóng kết nối
             //tcpClient.Close();
         }
-        public void InitializeStandard(string name,string cpu, string ram, string hdd)
+        public void InitializeStandard(int id,string name,string cpu, string ram, string hdd)
         {
-            string keysString = "Tên máy?Ổ cứng?CPU?RAM?MSSV?IPC?Chuột?Bàn phím?Màn hình";
+            string keysString = "ID?Tên máy?Ổ cứng?CPU?RAM?MSSV?IPC?Chuột?Bàn phím?Màn hình";
             // Chuỗi chứa các value cho standardInfoList
-            string privateStandardValuesString = name+"?"+hdd+"?"+cpu+"? "+ram+"? ? ?không kết nối?không kết nối?không kết nối";
+            string privateStandardValuesString = id+"?"+name+"?"+hdd+"?"+cpu+"? "+ram+"? ? ?không kết nối?không kết nối?không kết nối";
             // Chuỗi chứa các value cho privateStandardInfoList
 
             // Tách các key và value từ chuỗi
@@ -440,12 +442,13 @@ namespace Server
                 newEntry.Add(privateInfo["Tên máy"]);
                 newEntry.Add(privateInfo["Ổ cứng"]);
                 newEntry.Add(privateInfo["CPU"]);
-                newEntry.Add(privateInfo["RAM"]);
+                newEntry.Add(privateInfo["RAM"]); 
                 newEntry.Add(privateInfo["MSSV"]);
                 newEntry.Add(privateInfo["IPC"]);
                 newEntry.Add(privateInfo["Chuột"]);
                 newEntry.Add(privateInfo["Bàn phím"]);
                 newEntry.Add(privateInfo["Màn hình"]);
+                newEntry.Add(privateInfo["ID"]);
 
 
                 fullInfoList.Add(newEntry);
@@ -556,18 +559,18 @@ namespace Server
 
             Console.WriteLine("length: " + fullInfoList.Count);
         }
-        private void UpdateAttendanceDataGridView(string studentID, int sessionID, string value)
+        private async void UpdateAttendanceDataGridView(string studentID, int sessionID, string value)
         {
             if (dgv_attendance.InvokeRequired)
             {
-                dgv_attendance.Invoke(new Action(() =>
+                dgv_attendance.Invoke(new Action(async () =>
                 {
-                    UpdateOrAddRowAttendance(studentID, sessionID, value);
+                    await UpdateOrAddRowAttendance(studentID, sessionID, value);
                 }));
             }
             else
             {
-                UpdateOrAddRowAttendance(studentID, sessionID, value);
+                await UpdateOrAddRowAttendance(studentID, sessionID, value);
             }
         }
 
@@ -1103,6 +1106,7 @@ namespace Server
                 sessionComputer.MouseConnected = row.Cells[6].Value?.ToString().ToLower() == "đã kết nối";
                 sessionComputer.KeyboardConnected = row.Cells[7].Value?.ToString().ToLower() == "đã kết nối";
                 sessionComputer.MonitorConnected = row.Cells[8].Value?.ToString().ToLower() == "đã kết nối";
+                sessionComputer.ComputerID = int.Parse(row.Cells[9].Value?.ToString());
                 sessionComputer.SessionID = sessionID;
                 sessionComputer.MismatchInfo = "";
                 sessionComputer.RepairNote = "";
@@ -1737,7 +1741,51 @@ namespace Server
         
         private void tsQuickLauch_Click(object sender, EventArgs e)
         {
-            _classStudentBLL.ProcessPoint();
+        }
+
+        private void tsUpdate_ButtonClick(object sender, EventArgs e)
+        {
+
+        }
+
+        private async void tsUpdateInfoSession_Click(object sender, EventArgs e)
+        {
+            await updateSessionComputer();
+        }
+
+        private async void tsUpdateAttendance_Click(object sender, EventArgs e)
+        {
+            await updateAttanceToDB();
+        }
+
+        private async void tsUpdateScore_Click(object sender, EventArgs e)
+        {
+            List<Submission> submissions = new List<Submission>();
+
+            foreach (DataGridViewRow row in dgv_attendance.Rows)
+            {
+                if (!row.IsNewRow)
+                {
+                    Submission submission = new Submission();
+                    string value = row.Cells[0].Value.ToString();
+                    double cr = _answer.ProcessPoint(value, submission);
+                    if (cr == -1)
+                        continue;
+                    submission.StudentID = value;
+                    submission.Score = cr;
+                    submission.SessionID = sessionID;
+                    submissions.Add(submission);
+                    UpdateAttendanceDataGridView(value, sessionID, cr.ToString());
+                }
+            }
+          await  _answer.InsertAnswer(sessionID, submissions);
+        }
+
+
+        private async void tsUpdateBoth_Click(object sender, EventArgs e)
+        {
+            await updateSessionComputer();
+            await updateAttanceToDB();
         }
     }
 }

@@ -22,7 +22,7 @@ public class SessionComputerDAL
         try
         {
             string sessionComputersJson = JsonConvert.SerializeObject(sessionComputers);
-            string responseJson = await _dataService.PostAsync("session_computer/insert", sessionComputersJson);
+            string responseJson = await _dataService.PostAsync("session_computer/", sessionComputersJson);
             return responseJson;
         }
         catch (Exception ex)

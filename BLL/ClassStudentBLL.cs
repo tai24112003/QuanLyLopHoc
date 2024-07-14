@@ -178,56 +178,5 @@ public class ClassStudentBLL
         }
     }
 
-    public int ProcessPoint()
-    {
-        string answerJson = File.ReadAllText(@"D:\0306211215\0306211215-anwser.json");
-        string examJson = File.ReadAllText(@"D:\exam.json");
-        List<Answer> answers = JsonConvert.DeserializeObject<List<Answer>>(answerJson);
-        Exam exam = JsonConvert.DeserializeObject<Exam>(examJson);
-        int correctAnswerCount = CompareAnswers(exam, answers);
-
-        Console.WriteLine($"Number of correct answers: {correctAnswerCount}");
-        return correctAnswerCount;
-    }
-    public int CompareAnswers(Exam exam, List<Answer> answers)
-    {
-        int correctAnswers = 0;
-
-        foreach (var question in exam.questions)
-        {
-            var studentAnswer = answers.FirstOrDefault(a => a.ID == question.id);
-            if (studentAnswer != null && AreAnswersCorrect(question, studentAnswer.answer))
-            {
-                correctAnswers++;
-            }
-        }
-
-        return correctAnswers;
-    }
-
-    private bool AreAnswersCorrect(Question question, List<string> studentAnswers)
-    {
-        if (studentAnswers.Count != studentAnswers.Count)
-        {
-            return false;
-        }
-        var correctAnswersMapped = question.answer.Select(a => MapOptionToLetter(question.options, a)).ToList();
-
-        
-
-        correctAnswersMapped.Sort();
-        studentAnswers.Sort();
-
-        return !correctAnswersMapped.Where((t, i) => t != studentAnswers[i]).Any();
-    }
-
-    private string MapOptionToLetter(List<string> options, string option)
-    {
-        int index = options.IndexOf(option);
-        if (index == -1)
-        {
-            throw new ArgumentException($"Option '{option}' not found in options list.");
-        }
-        return ((char)('A' + index)).ToString();
-    }
+    
 }

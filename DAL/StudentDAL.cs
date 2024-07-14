@@ -32,7 +32,7 @@ public class StudentDAL
         try
         {
             string studentJson = JsonConvert.SerializeObject(student);
-            string responseJson = await _dataService.PostAsync("student/insert", studentJson);
+            string responseJson = await _dataService.PostAsync("student/", studentJson);
             return responseJson;
         }
         catch (Exception ex)

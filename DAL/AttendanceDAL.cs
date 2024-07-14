@@ -28,7 +28,7 @@ public class AttendanceDAL
         try
         {
             string AttendancesJson = JsonConvert.SerializeObject(Attendances);
-            string responseJson = await _dataService.PostAsync("attendance/insert", AttendancesJson);
+            string responseJson = await _dataService.PostAsync("attendance/", AttendancesJson);
             return responseJson;
         }
         catch (Exception ex)

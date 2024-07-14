@@ -47,6 +47,8 @@ namespace Server
             services.AddTransient<ExamBLL>();
             services.AddTransient<SessionComputerBLL>();
             services.AddTransient<ComputerBLL>();
+            services.AddTransient<SubmisstionBLL>();
+            services.AddTransient<SubmisstionDAL>();
             services.AddTransient<LocalDataHandler>();
             services.AddTransient<ClassSessionController>();
             services.AddTransient<ExcelController>();

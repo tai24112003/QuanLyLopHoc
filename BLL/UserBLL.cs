@@ -64,7 +64,7 @@ public class UserBLL
 
             OleDbParameter[] parameters = new OleDbParameter[]
             {
-                new OleDbParameter("@userId", user.user_id),
+                new OleDbParameter("@userId", user.id),
                 new OleDbParameter("@Email", user.email),
                 new OleDbParameter("@Name", user.name),
                 new OleDbParameter("@Phone", user.phone),
@@ -94,7 +94,7 @@ public class UserBLL
             {
                 User user = new User
                 {
-                    user_id = int.Parse(row["id"].ToString()),
+                    id= int.Parse(row["id"].ToString()),
                     email = row["email"].ToString(),
                     name = row["name"].ToString(),
                     phone = row["phone"].ToString(),

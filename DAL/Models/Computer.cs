@@ -3,7 +3,7 @@
 public class Computer
 {
     public string RoomID { get; set; }
-
+    public int ID { get; set; }
     public string ComputerName { get; set; }
     public string RAM { get; set; }
     public string HDD { get; set; }

@@ -15,11 +15,8 @@ namespace testUdpTcp
 {
     public partial class Waiting : Form
     {
-<<<<<<< HEAD
         private ExamForm exFrm;
 
-=======
->>>>>>> origin/dev
         public Waiting()
         {
             InitializeComponent();
@@ -27,14 +24,11 @@ namespace testUdpTcp
             btnDoExam.Hide();
         }
 
-<<<<<<< HEAD
         public void offExamForm()
         {
             exFrm.Close();
         }
 
-=======
->>>>>>> origin/dev
         private void CenterTextBoxAndButton(TextBox textBox, Button button)
         {
             // Căn giữa TextBox theo chiều ngang
@@ -77,19 +71,11 @@ namespace testUdpTcp
 
         private void btnDoExam_Click(object sender, EventArgs e)
         {
-<<<<<<< HEAD
             string jsonText = File.ReadAllText(PathExam.Path+ "\\"+ PathExam.fileExam);
 
             Quiz quiz = JsonConvert.DeserializeObject<Quiz>(jsonText);
             quiz.Questions = convertType(quiz);
             Shuffle(quiz.Questions);
-=======
-            string jsonText = File.ReadAllText("D:\\DATAQUANLYLOPHOC\\123456.json");
-
-            Quiz quiz = JsonConvert.DeserializeObject<Quiz>(jsonText);
-            quiz.Questions = convertType(quiz);
-            //Shuffle(quiz.Questions);
->>>>>>> origin/dev
             int idx = 0;
             int idxList = 0;
             foreach (Question question in quiz.Questions)
@@ -114,13 +100,8 @@ namespace testUdpTcp
                 }
                 idxList++;
             }
-<<<<<<< HEAD
             exFrm = new ExamForm(quiz);
             exFrm.ShowDialog();
-=======
-            ExamForm examform = new ExamForm(quiz);
-            examform.ShowDialog();
->>>>>>> origin/dev
         }
         static void Shuffle<T>(List<T> list)
         {

@@ -49,6 +49,7 @@ namespace testUdpTcp
         private string hostName;
         TcpListener listener;
         private Thread listenThread;
+        string mssv;
         private bool doingExam = false;
 
         private void Form1_Load(object sender, EventArgs e)
@@ -291,7 +292,7 @@ namespace testUdpTcp
 
 
 
-                        sendData("ms-sv0306211215ms-sv" + contentExam);
+                        sendData("ms-sv"+mssv+"ms-sv" + contentExam);
 
                         if (this.InvokeRequired)
                         {
@@ -384,7 +385,7 @@ namespace testUdpTcp
 
             string content = File.ReadAllText(PathExam.Path+"\\"+PathExam.fileResult);
 
-            content = "dapan-0306211215dapan-" + content;
+            content = "dapan-"+mssv+"dapan-" + content;
 
             sendData(content);
             doingExam = true;
@@ -635,6 +636,12 @@ namespace testUdpTcp
 
         private void button1_Click_1(object sender, EventArgs e)
         {
+            if (textBox1.Text.Length != 10)
+            {
+                MessageBox.Show("Sai MSSV");
+                return;
+            }
+            mssv = textBox1.Text;
             if (IpServer == String.Empty) return;
             string[] mssvs = textBox1.Text.Split(new[] { '\r', '\n', ' ' }, StringSplitOptions.RemoveEmptyEntries);
             string tmp = string.Join(" ", mssvs);
@@ -741,13 +748,13 @@ namespace testUdpTcp
 
         private void btnDoExam_Click(object sender, EventArgs e)
         {
-            string jsonText = File.ReadAllText("D:\\demo1\\DATAQUANLYLOPHOC\\123456.json");
+            //string jsonText = File.ReadAllText("D:\\demo1\\DATAQUANLYLOPHOC\\123456.json");
 
-            Quiz quiz = JsonConvert.DeserializeObject<Quiz>(jsonText);
-            quiz.Questions = convertType(quiz);
-            ExamForm examform = new ExamForm(quiz);
+            //Quiz quiz = JsonConvert.DeserializeObject<Quiz>(jsonText);
+            //quiz.Questions = convertType(quiz);
+            //ExamForm examform = new ExamForm(quiz);
             
-            examform.ShowDialog();
+            //examform.ShowDialog();
         }
         private List<Question> convertType(Quiz quiz)
         {

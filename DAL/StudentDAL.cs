@@ -54,7 +54,6 @@ public class StudentDAL
                 new OleDbParameter("@FirstName", student.FirstName),
                 new OleDbParameter("@LastName", student.LastName),
                 new OleDbParameter("@LastTime", student.LastTime),
-                // Add other parameters as needed
             };
 
             DataProvider.RunNonQuery(query, parameters);
@@ -81,7 +80,6 @@ public class StudentDAL
                     StudentID = row["StudentID"].ToString(),
                     FirstName = row["FirstName"].ToString(),
                     LastName = row["LastName"].ToString(),
-                    // Set other properties as needed
                 };
                 students.Add(student);
             }

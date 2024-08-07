@@ -45,7 +45,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AttendanceController.cs" />
     <Compile Include="ClassSessionController.cs" />
     <Compile Include="ExcelController.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

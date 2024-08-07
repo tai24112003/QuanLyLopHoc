@@ -14,7 +14,7 @@ using System.Threading.Tasks;
             _dataService = dataService;
         }
 
-        public async Task<string> GetRoomByRoomID(string roomID)
+        public async Task<string> GetRoomByRoomName(string roomID)
         {
             try
             {

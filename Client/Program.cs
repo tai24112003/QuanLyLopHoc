@@ -17,13 +17,8 @@ namespace testUdpTcp
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             FirewallHelper.AddFirewallRule();
-<<<<<<< HEAD
             Application.Run(new ClientForm());
             //Application.Run(new Waiting());
-=======
-            //Application.Run(new ClientForm());
-            Application.Run(new Waiting());
->>>>>>> origin/dev
         }
     }
 }

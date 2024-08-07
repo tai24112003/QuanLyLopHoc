@@ -144,7 +144,7 @@ namespace Server
             
             // Tạo đối tượng DateTime với ngày hiện tại và giờ phút từ chuỗi
             DateTime endTime = new DateTime(now.Year, now.Month, now.Day, hour, minute, 0);
-              var room = await _roomBLL.GetRoomsByID(roomID);
+              var room = await _roomBLL.GetRoomsByName(roomID);
             try
             {
                 ClassSession classSession = new ClassSession

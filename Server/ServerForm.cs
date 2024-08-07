@@ -205,7 +205,7 @@ namespace Server
         }
         private async Task SetupRoom()
         {
-            room = await _roomBLL.GetRoomsByID(roomID);
+            room = await _roomBLL.GetRoomsByName(roomID);
             this.Text = "Server - " + roomID + " - Số lượng máy: " + room.NumberOfComputers;
             roomID = room.RoomID.ToString();
             var computers= await _computerBLL.GetComputersByID(room.RoomID.ToString());
@@ -319,7 +319,7 @@ namespace Server
                 //udpClient.Send(data, data.Length, remoteEndPoint);
 
                 //Console.WriteLine($"Sent message to {ipAddress}");
-                //                udpClient.Close();
+                udpClient.Close();
             }
 
         }
@@ -594,8 +594,8 @@ namespace Server
                 DataGridViewRow newRow = new DataGridViewRow();
                 newRow.CreateCells(dgv_attendance);
                 newRow.Cells[0].Value = studentID;
-                newRow.Cells[1].Value = ""; // FirstName
-                newRow.Cells[2].Value = ""; // LastName
+                newRow.Cells[1].Value = "1"; // FirstName
+                newRow.Cells[2].Value = "2"; // LastName
                 int columnIndex = dgv_attendance.Columns[sessionID.ToString()].Index;
                 newRow.Cells[columnIndex].Value = value;
                 newRow.DefaultCellStyle.BackColor = Color.Red; // Highlight new row
@@ -607,7 +607,14 @@ namespace Server
                 st.LastName = "";
                 st.LastTime = DateTime.Now.ToString("dd/MM/yyyy hh/mm/ss");
                 student1.Add(st);
+                List<ClassStudent> clstudent1 = new List<ClassStudent>();
+                var clst = new ClassStudent();
+                clst.StudentID = studentID;
+                clst.ClassID = classID;
+                clstudent1.Add(clst);
                 await _studentBLL.InsertStudent(student1);
+                await _classStudentBLL.InsertClassStudent(clstudent1);
+                
             }
             
 
@@ -1520,7 +1527,7 @@ namespace Server
 
         private void btnUnlock_Click(object sender, EventArgs e)
         {
-            string thongTinMayTinh = "InfoClient-IPC: 192.168.0.104Tenmay: F71-11Chuot: Đã kết nốiBanphim: Đã kết nốiManhinh: Đã kết nốiOcung: C:\\, 465 GBCPU: 13th Gen Intel(R) Core(TM) i5-13400FRAM: Capacity: 17179869184 bytes Speed: 3200 Manufacturer: Golden Empire  Part Number: CL16-20-20 D4-3200  |Capacity: 17179869184 bytes Speed: 3200 Manufacturer: Golden Empire  Part Number: CL16-20-20 D4-3200  |MSSV: 0468231002";
+            string thongTinMayTinh = "InfoClient-IPC: 192.168.0.104Tenmay: F71-11Chuot: Đã kết nốiBanphim: Đã kết nốiManhinh: Đã kết nốiOcung: C:\\, 465 GBCPU: 13th Gen Intel(R) Core(TM) i5-13400FRAM: Capacity: 17179869184 bytes Speed: 3200 Manufacturer: Golden Empire  Part Number: CL16-20-20 D4-3200  |Capacity: 17179869184 bytes Speed: 3200 Manufacturer: Golden Empire  Part Number: CL16-20-20 D4-3200  |MSSV: 0468231003";
             ReciveInfo(thongTinMayTinh);
         }
 
@@ -1592,12 +1599,12 @@ namespace Server
 
             List<Thread> clientThreads = new List<Thread>();
 
-            //foreach (DataGridViewRow row in dgv_client.Rows)
-            //{
-            try
+            foreach (DataGridViewRow row in dgv_client.Rows)
             {
-                //string clientIP = row.Cells[5].Value.ToString();
-                string clientIP = "192.168.72.228";
+                try
+            {
+                string clientIP = row.Cells[5].Value.ToString();
+                //string clientIP = "192.168.72.228";
 
                 // Kiểm tra xem địa chỉ IP có hợp lệ không
                 if (IsValidIPAddress(clientIP))
@@ -1665,7 +1672,7 @@ namespace Server
                 //MessageBox.Show("Mất kết nối với: " + row.Cells[0].Value.ToString());
                 MessageBox.Show("Mất kết nối");
             }
-            //}
+            }
 
             // Chờ tất cả các luồng kết thúc trước khi tiếp tục
             foreach (Thread t in clientThreads)
@@ -1678,12 +1685,12 @@ namespace Server
         {
             List<Thread> clientThreads = new List<Thread>();
 
-            //foreach (DataGridViewRow row in dgv_client.Rows)
-            //{
-            try
+            foreach (DataGridViewRow row in dgv_client.Rows)
             {
-                //string clientIP = row.Cells[5].Value.ToString();
-                string clientIP = "192.168.72.228";
+                try
+            {
+                    string clientIP = row.Cells[5].Value.ToString();
+                    //string clientIP = "192.168.72.228";
 
                 // Kiểm tra xem địa chỉ IP có hợp lệ không
                 if (IsValidIPAddress(clientIP))
@@ -1730,7 +1737,7 @@ namespace Server
                 //MessageBox.Show("Mất kết nối với: " + row.Cells[0].Value.ToString());
                 MessageBox.Show("Mất kết nối");
             }
-            //}
+            }
 
             // Chờ tất cả các luồng kết thúc trước khi tiếp tục
             foreach (Thread t in clientThreads)

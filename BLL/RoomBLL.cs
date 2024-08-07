@@ -38,14 +38,14 @@ public class RoomBLL
         }
     }
 
-    public async Task<Room> GetRoomsByID(string id)
+    public async Task<Room> GetRoomsByName(string id)
     {
         try
         {
             Console.WriteLine("load api");
 
             // Get data from the server
-            string RoomsJson = await _RoomDAL.GetRoomByRoomID(id);
+            string RoomsJson = await _RoomDAL.GetRoomByRoomName(id);
             List<Room> lstRoom = ParseRooms(RoomsJson);
 
             if (lstRoom.Count > 0)

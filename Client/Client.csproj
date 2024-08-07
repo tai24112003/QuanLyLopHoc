@@ -65,7 +65,7 @@
     <Compile Include="CommonQuestionUC.Designer.cs">
       <DependentUpon>CommonQuestionUC.cs</DependentUpon>
     </Compile>
-    <Compile Include="Constant.cs" />
+    <Compile Include="Constrant.cs" />
     <Compile Include="ExamForm.cs">
       <SubType>Form</SubType>
     </Compile>

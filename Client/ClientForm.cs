@@ -18,6 +18,7 @@ using System.Net.NetworkInformation;
 using System.Text.RegularExpressions;
 using System.IO.Compression;
 using Newtonsoft.Json;
+using System.Drawing.Imaging;
 
 namespace testUdpTcp
 {
@@ -27,13 +28,10 @@ namespace testUdpTcp
         {
             InitializeComponent();
             //myIp = getIPServer();
-            //myIp = getIPServer();
-            myIp = "192.168.72.228";
+            myIp = getIPServer();
+            //myIp = "192.168.72.228";
             inf = GetDeviceInfo();
-            foreach (var ip in inf)
-            {
-                Console.Write(ip);
-            }
+            
 
         }
         private UdpClient udpClient;
@@ -51,15 +49,19 @@ namespace testUdpTcp
         private Thread listenThread;
         string mssv;
         private bool doingExam = false;
+        private bool isRunning = true;
+        private Thread screenshotThread;
+
+        // Khai báo danh sách để lưu MSSV đã nhập
+        List<string> mssvList = new List<string>();
 
         private void Form1_Load(object sender, EventArgs e)
         {
 
             udpClient = new UdpClient(11312);
-            udpReceiverThread = new Thread(new ThreadStart(ReceiveDataOnce));
+            //udpReceiverThread = new Thread(new ThreadStart(ReceiveDataOnce));
             //udpReceiverThread.Start();
             //udpReceiverThread.Join();
-            updateBox();
 
             listenThread = new Thread(new ThreadStart(ListenForClients));
             listenThread.Start();
@@ -174,6 +176,15 @@ namespace testUdpTcp
                 }
                 tcpClient.Close();
 
+            }
+            else if (receivedMessage.StartsWith("Mouse"))
+            {
+                string[] parts = receivedMessage.Split('-');
+                string[] coords = parts[1].Split(',');
+                int mouseX = int.Parse(coords[0]);
+                int mouseY = int.Parse(coords[1]);
+                // Handle the mouse coordinates (e.g., update cursor position)
+                UpdateMousePosition(mouseX, mouseY);
             }
             else if (receivedMessage.StartsWith("CollectFile"))
             {
@@ -328,6 +339,14 @@ namespace testUdpTcp
                         // Hiển thị SlideShowForm
                         //slideShowForm.Show();
                         break;
+                    case "SlideShowToClient":
+                        sendData("ReadyToCapture");
+                        isRunning = true;
+
+                        screenshotThread = new Thread(new ThreadStart(CaptureAndSendScreenshotsContinuously));
+                        screenshotThread.Start();
+
+                        break;
                     case "Prepare": Console.WriteLine("Chuẩn bị thi");break;
                     case "DoExam": Console.WriteLine("Làm bài");break;
                     case "EndTime":
@@ -348,7 +367,188 @@ namespace testUdpTcp
             Console.WriteLine("Đóng kết nối");
            
         }
+        private void UpdateMousePosition(int x, int y)
+        {
+            // Ensure that updating the mouse position is done on the UI thread
+            if (this.InvokeRequired)
+            {
+                this.Invoke(new Action<int, int>(UpdateMousePosition), new object[] { x, y });
+                return;
+            }
+            int screenWidth = SystemInformation.VirtualScreen.Width;
+            int screenHeight = SystemInformation.VirtualScreen.Height;
+            // Get the size of the form (which is fullscreen) and the screen
 
+            // Map the received coordinates to the form's size (this assumes the coordinates are proportional)
+            // You might need to scale the coordinates if they're in a different resolution or range
+            int scaledX = (int)(x * screenWidth / 1920.0); // Assume 1920x1080 as the reference resolution
+            int scaledY = (int)(y * screenHeight / 1080.0);
+
+            // Set the cursor position to the mapped coordinates
+            Cursor.Position = new Point(scaledX, scaledY);
+        }
+
+        private IPAddress GetBroadcastAddress()
+        {
+            foreach (NetworkInterface ni in NetworkInterface.GetAllNetworkInterfaces())
+            {
+                if ((ni.NetworkInterfaceType == NetworkInterfaceType.Ethernet &&
+            ni.Name.Contains("Ethernet") &&
+                    ni.OperationalStatus == OperationalStatus.Up) || ni.NetworkInterfaceType == NetworkInterfaceType.Wireless80211)
+                {
+                    foreach (UnicastIPAddressInformation ip in ni.GetIPProperties().UnicastAddresses)
+                    {
+                        if (ip.Address.AddressFamily == AddressFamily.InterNetwork)
+                        {
+                            var subnetMask = ip.IPv4Mask;
+                            byte[] subnetMaskBytes = subnetMask.GetAddressBytes();
+                            byte[] ipAddressBytes = ip.Address.GetAddressBytes();
+
+                            if (subnetMaskBytes.Length == 4 && ipAddressBytes.Length == 4)
+                            {
+                                byte[] broadcastAddressBytes = new byte[4];
+                                for (int i = 0; i < 4; i++)
+                                {
+                                    broadcastAddressBytes[i] = (byte)(ipAddressBytes[i] | (subnetMaskBytes[i] ^ 255));
+                                }
+                                return new IPAddress(broadcastAddressBytes);
+                            }
+                        }
+                    }
+                }
+            }
+            return null;
+        }
+        private void CaptureAndSendScreenshotsContinuously()
+        {
+            UdpClient udpClient = new UdpClient(); // Tạo UDP client
+            //udpClient.Client.SendBufferSize = 70000;
+            int udpBufferSize = udpClient.Client.SendBufferSize;
+
+            // Lấy địa chỉ broadcast của mạng local
+            IPAddress broadcastAddress = GetBroadcastAddress();
+            int i = 1;
+            int fps = 120;
+            while (isRunning)
+            {
+                try
+                {
+                    // Lấy kích thước của vùng hiển thị thực sự của màn hình
+                    int screenLeft = SystemInformation.VirtualScreen.Left;
+                    int screenTop = SystemInformation.VirtualScreen.Top;
+                    int screenWidth = SystemInformation.VirtualScreen.Width;
+                    int screenHeight = SystemInformation.VirtualScreen.Height;
+
+                    using (Bitmap screenshot = new Bitmap(screenWidth, screenHeight, PixelFormat.Format32bppArgb))
+                    {
+                        using (Graphics graphics = Graphics.FromImage(screenshot))
+                        {
+                            graphics.CopyFromScreen(screenLeft, screenTop, 0, 0, screenshot.Size, CopyPixelOperation.SourceCopy);
+
+                            // Draw the cursor
+                            DrawCursorOnScreenshot(graphics);
+
+                            // Compress and send the screenshot
+                            using (MemoryStream stream = new MemoryStream())
+                            {
+                                CompressAndSendImage(i, screenshot, stream, udpBufferSize, udpClient, broadcastAddress);
+                            }
+                        }
+                    }
+                    if (i > fps - 1) i = 1;
+                    i++;
+                    // Chờ khoảng thời gian trước khi chụp và gửi tiếp
+                    Thread.Sleep(1000 / fps); // Chờ 1/60 giây (mili giây) trước khi gửi hình tiếp theo
+                }
+                catch (ThreadInterruptedException ex)
+                {
+                    // Xử lý ngoại lệ ở đây
+                    Console.WriteLine("Thread interrupted: " + ex.Message);
+                }
+            }
+        }
+
+        private void CompressAndSendImage(int i, Bitmap image, MemoryStream stream, int bufferSize, UdpClient udpClient, IPAddress broadcastAddress)
+        {
+            long quality = 100L; // Bắt đầu với chất lượng 90%
+
+            byte[] imageData;
+            do
+            {
+                stream.SetLength(0); // Đặt lại stream cho mỗi lần nén
+                SaveJpeg(stream, image, quality);
+                imageData = stream.ToArray();
+                quality -= 10; // Giảm chất lượng đi 10% cho lần tiếp theo nếu cần
+            } while (imageData.Length > bufferSize && quality > 10);
+
+            int bytesSent = 0;
+            int index = 0;
+            int cutCount = (imageData.Length / (bufferSize - 100)) + 1;
+            int cutCounter = 1;
+            while (bytesSent < imageData.Length)
+            {
+                string str = $"{i:D4}{cutCount:D4}{cutCounter:D4}+";
+                byte[] signal = Encoding.UTF8.GetBytes(str);
+                int signalLength = signal.Length;
+
+                int remainingBytes = imageData.Length - bytesSent;
+                int bytesToSend = Math.Min(bufferSize - signalLength - 100, remainingBytes); // Đảm bảo có chỗ cho tín hiệu
+
+                // Tạo một mảng byte mới để chứa tín hiệu và dữ liệu cần gửi
+                byte[] dataToSend = new byte[signalLength + bytesToSend];
+                Console.WriteLine(imageData.Length + " " + cutCount + " " + i + " " + quality);
+                // Sao chép tín hiệu và dữ liệu vào mảng mới
+                Array.Copy(signal, 0, dataToSend, 0, signalLength);
+                Array.Copy(imageData, index, dataToSend, signalLength, bytesToSend);
+
+                // Gửi dữ liệu bao gồm tín hiệu
+                udpClient.Send(dataToSend, dataToSend.Length, new IPEndPoint(broadcastAddress, 8889)); // Gửi dữ liệu qua UDP
+
+                // Cập nhật số byte đã gửi và vị trí index
+                bytesSent += bytesToSend;
+                index += bytesToSend;
+                cutCounter++;
+            }
+        }
+
+        private void SaveJpeg(Stream stream, Bitmap image, long quality)
+        {
+            var qualityParam = new EncoderParameter(System.Drawing.Imaging.Encoder.Quality, quality);
+            var jpegCodec = GetEncoder(ImageFormat.Jpeg);
+            if (jpegCodec == null)
+                return;
+
+            var encoderParams = new EncoderParameters(1);
+            encoderParams.Param[0] = qualityParam;
+            image.Save(stream, jpegCodec, encoderParams);
+        }
+
+        private ImageCodecInfo GetEncoder(ImageFormat format)
+        {
+            var codecs = ImageCodecInfo.GetImageDecoders();
+            foreach (var codec in codecs)
+            {
+                if (codec.FormatID == format.Guid)
+                {
+                    return codec;
+                }
+            }
+            return null;
+        }
+
+        private void DrawCursorOnScreenshot(Graphics graphics)
+        {
+            // Get the cursor position
+            Point cursorPosition = Cursor.Position;
+
+            // Adjust for the screen bounds
+            cursorPosition.X -= SystemInformation.VirtualScreen.Left;
+            cursorPosition.Y -= SystemInformation.VirtualScreen.Top;
+
+            // Draw the cursor on the screenshot
+            Cursor cursor = Cursors.Default;
+            cursor.Draw(graphics, new Rectangle(cursorPosition, cursor.Size));
+        }
         static void Shuffle<T>(List<T> list)
         {
             Random rng = new Random();
@@ -485,18 +685,7 @@ namespace testUdpTcp
                 Console.WriteLine($"Lỗi khi nhận dữ liệu: {ex.Message}");
             }
         }
-        private void DisplayMessage(string message)
-        {
-            // Thực hiện hiển thị thông điệp trong TextBox hoặc nơi khác trên giao diện người dùng
-            if (label1.InvokeRequired)
-            {
-                label1.Invoke(new Action(() => { label1.Text = message; }));
-            }
-            else
-            {
-                label1.Text = message;
-            }
-        }
+       
         List<string> stringList = new List<string>();
         public static bool HasUsbDevice(string deviceType)
         {
@@ -547,6 +736,7 @@ namespace testUdpTcp
             string machineName = Environment.MachineName;
             stringList.Add($"IPC: {myIp}");
             stringList.Add($"Tenmay: {machineName}");
+            lblNameComputer.Text = machineName;
 
             // Kiểm tra kết nối chuột
             if (HasUsbDevice("Mouse"))
@@ -580,17 +770,30 @@ namespace testUdpTcp
             stringList.Add($"Ocung: ");
 
             // Lấy thông tin về ổ cứng
-            DriveInfo[] drives = DriveInfo.GetDrives();
-            foreach (DriveInfo drive in drives)
+            ManagementObjectSearcher searcher = new ManagementObjectSearcher("SELECT * FROM Win32_DiskDrive");
+
+            foreach (ManagementObject wmi_HD in searcher.Get())
             {
-                if (drive.IsReady)
-                {
-                    stringList.Add($"{drive.Name}, {drive.TotalSize / (1024 * 1024 * 1024)} GB");
-                }
+                string HDInfo = "";
+                // Lấy model của ổ cứng
+                stringList.Add("Model: " + wmi_HD["Model"]);
+                HDInfo += "Model: " + wmi_HD["Model"];
+                // Lấy giao diện (interface) của ổ cứng
+                stringList.Add("Interface: " + wmi_HD["InterfaceType"]);
+                HDInfo += " - Interface: " + wmi_HD["InterfaceType"];
+
+                // Lấy kích thước của ổ cứng (size)
+                ulong size = (ulong)wmi_HD["Size"];
+                stringList.Add("Size: " + (size / (1024 * 1024 * 1024)) + " GB");
+                HDInfo += " - Size: " + (size / (1024 * 1024 * 1024)) + " GB";
+                InfoUC infoUC = new InfoUC();
+                infoUC.Image=Properties.Resources.harddisk;
+                infoUC.TextLabel = HDInfo;
+                InForGroup.Controls.Add(infoUC);
 
             }
 
-            ManagementObjectSearcher searcher = new ManagementObjectSearcher("SELECT * FROM Win32_Processor");
+            searcher = new ManagementObjectSearcher("SELECT * FROM Win32_Processor");
 
             stringList.Add($"CPU: ");
             // Thực hiện truy vấn và lấy kết quả
@@ -598,72 +801,114 @@ namespace testUdpTcp
             {
                 // In ra một số thông tin CPU
                 stringList.Add($"{obj["Name"]}");
+                InfoUC infoUC = new InfoUC();
+                infoUC.Image = Properties.Resources.cpu;
+                infoUC.TextLabel = $"{obj["Name"]}";
+                InForGroup.Controls.Add(infoUC);
             }
 
             stringList.Add($"RAM: ");
             searcher = new ManagementObjectSearcher("SELECT * FROM Win32_PhysicalMemory");
             foreach (ManagementObject obj in searcher.Get())
             {
-                stringList.Add($"Capacity: {obj["Capacity"]} bytes Speed: {obj["Speed"]} Manufacturer: {obj["Manufacturer"]}  Part Number: {obj["PartNumber"]}|");
+                ulong capacityBytes = (ulong)obj["Capacity"];
+                double capacityGB = Math.Round(capacityBytes / (1024.0 * 1024 * 1024), 2); // Chuyển sang GB và làm tròn đến 2 chữ số thập phân
+
+                // Lấy thông tin nhà sản xuất
+                string manufacturer = obj["Manufacturer"] != null ? obj["Manufacturer"].ToString() : "Unknown";
+
+                // Thêm thông tin vào danh sách
+                stringList.Add($"Capacity: {capacityGB} GB, Manufacturer: {manufacturer}|");
+                InfoUC infoUC = new InfoUC();
+                infoUC.Image = Properties.Resources.memory;
+                infoUC.TextLabel = $"Capacity: {capacityGB} GB - Manufacturer: {manufacturer}";
+                InForGroup.Controls.Add(infoUC);
             }
             stringList.Add("MSSV: ");
             return stringList;
         }
 
 
-        private void listBox1_SelectedIndexChanged(object sender, EventArgs e)
-        {
-
-        }
-
-
-
-        private void textBox1_TextChanged(object sender, EventArgs e)
-        {
-
-        }
-
-        private void updateBox()
-        {
-            listBox1.Items.Clear();
-            foreach (string infe in inf) listBox1.Items.Add(infe);
-        }
-
-        private void textBox1_MultilineChanged(object sender, EventArgs e)
-        {
-
-        }
 
         private void button1_Click_1(object sender, EventArgs e)
         {
-            if (textBox1.Text.Length != 10)
+            // Kiểm tra MSSV có phải là 10 ký tự số
+            string mssvPattern = @"^\d{10}$"; // MSSV phải có đúng 10 ký tự số
+            Regex mssvRegex = new Regex(mssvPattern);
+
+            // Kiểm tra Họ và Tên theo Regex tiếng Việt
+            string namePattern = @"^[\p{L}\s]+$"; // Chỉ cho phép chữ cái và khoảng trắng
+            Regex nameRegex = new Regex(namePattern);
+
+            // MSSV đã tồn tại trong danh sách không cho phép nhập lại
+            if (mssvList.Contains(txtMSSV.Text))
             {
-                MessageBox.Show("Sai MSSV");
+                MessageBox.Show("MSSV đã tồn tại, vui lòng nhập MSSV khác", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
-            mssv = textBox1.Text;
+
+            // Kiểm tra điều kiện nhập MSSV và họ tên
+            if (!mssvRegex.IsMatch(txtMSSV.Text) ||
+                !nameRegex.IsMatch(txtFullName.Text.Trim()))
+            {
+                MessageBox.Show("Nhập thiếu thông tin hoặc sai MSSV, họ và tên", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            // Thêm MSSV mới vào danh sách
+            mssvList.Add(txtMSSV.Text);
+
+            string mssv = txtMSSV.Text;
+            string fullName = txtFullName.Text.Trim();  // Lấy và cắt khoảng trắng thừa
+
             if (IpServer == String.Empty) return;
-            string[] mssvs = textBox1.Text.Split(new[] { '\r', '\n', ' ' }, StringSplitOptions.RemoveEmptyEntries);
-            string tmp = string.Join(" ", mssvs);
-            if (tmp != String.Empty)
+
+            // Kết hợp MSSV và Họ tên thành một chuỗi
+            string tmp = $"{fullName} - {mssv} +";
+
+            // Thêm vào danh sách nếu không rỗng
+            if (!string.IsNullOrEmpty(tmp))
             {
                 mssvLst.Add(tmp);
             }
-            if (inf[inf.Count - 1] != tmp && tmp != String.Empty)
+
+            // Kiểm tra và thêm vào danh sách 'inf'
+            if (inf[inf.Count - 1] != tmp && !string.IsNullOrEmpty(tmp))
             {
                 inf.Add($" {string.Join("-", mssvLst)}");
                 mssvLst.Clear();
             }
 
+            // Tạo mới InfoUC để hiển thị thông tin sinh viên
+            InfoUC infoUC = new InfoUC();
+            infoUC.Image = Properties.Resources.male_student;
+            infoUC.TextLabel = $"{fullName} - {mssv}";  // Hiển thị họ tên và MSSV
+            InForGroup.Controls.Add(infoUC);
+
+            // Xóa nội dung các TextBox sau khi xử lý
+            txtMSSV.Text = String.Empty;
+            txtFullName.Text = String.Empty;
+
+            // Gửi thông tin lên server
+            // sendInfToServer(); 
+
+            foreach(var i in inf)
+            {
+                Console.Write(i);
+            }
 
 
-            updateBox();
-            textBox1.Text = String.Empty;
-
-            sendInfToServer();
-            if (sended) MessageBox.Show("Gửi thành công", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            else MessageBox.Show("Gửi thất bại", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            if (sended)
+            {
+                MessageBox.Show("Gửi thành công", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            else
+            {
+                MessageBox.Show("Gửi thất bại", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
+
+
 
         private void sendInfToServer()
         {
@@ -746,16 +991,7 @@ namespace testUdpTcp
                 listener.Stop();
         }
 
-        private void btnDoExam_Click(object sender, EventArgs e)
-        {
-            //string jsonText = File.ReadAllText("D:\\demo1\\DATAQUANLYLOPHOC\\123456.json");
-
-            //Quiz quiz = JsonConvert.DeserializeObject<Quiz>(jsonText);
-            //quiz.Questions = convertType(quiz);
-            //ExamForm examform = new ExamForm(quiz);
-            
-            //examform.ShowDialog();
-        }
+       
         private List<Question> convertType(Quiz quiz)
         {
             List<Question> questions = new List<Question>();
@@ -782,5 +1018,6 @@ namespace testUdpTcp
             }
             return questions;
         }
+
     }
 }

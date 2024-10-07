@@ -13,8 +13,3 @@ public class Attendance
 }
 
 
-public class AttendanceResponse
-{
-    public List<Attendance> data { get; set; }
-}
-

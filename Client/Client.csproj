@@ -96,6 +96,12 @@
     <Compile Include="ThongBaoDiemForm.designer.cs">
       <DependentUpon>ThongBaoDiemForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="InfoUC.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="InfoUC.Designer.cs">
+      <DependentUpon>InfoUC.cs</DependentUpon>
+    </Compile>
     <Compile Include="Waiting.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -130,6 +136,9 @@
     <EmbeddedResource Include="ThongBaoDiemForm.resx">
       <DependentUpon>ThongBaoDiemForm.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="InfoUC.resx">
+      <DependentUpon>InfoUC.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Waiting.resx">
       <DependentUpon>Waiting.cs</DependentUpon>
     </EmbeddedResource>
@@ -149,6 +158,18 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\bgWaiting1.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\harddisk.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\cpu.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\memory.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\male-student.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

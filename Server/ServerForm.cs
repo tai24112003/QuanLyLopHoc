@@ -22,6 +22,7 @@ using Newtonsoft.Json;
 using OfficeOpenXml.Style;
 
 using Microsoft.Extensions.DependencyInjection;
+using System.Text.RegularExpressions;
 
 namespace Server
 {
@@ -57,6 +58,9 @@ namespace Server
         private List<Attendance> attendances = new List<Attendance>();
         private List<ClassStudent> students;
         private IServiceProvider _serviceProvider;
+        ContextMenuStrip contextMenuStrip;
+        ContextMenuStrip contextMenuStrip1;
+        SlideShowForm form1;
 
         public svForm()
         {
@@ -91,28 +95,26 @@ namespace Server
             // Tạo các mục menu
             var menuItem1 = new ToolStripMenuItem("Chế độ xem đầy đủ");
             var menuItem2 = new ToolStripMenuItem("Chế độ xem tóm tắt");
+            var menuItem3 = new ToolStripMenuItem("Trình chiếu đến các máy khác");
 
             // Thêm các mục menu vào ContextMenuStrip
             contextMenuStrip.Items.Add(menuItem1);
             contextMenuStrip.Items.Add(menuItem2);
 
+            contextMenuStrip1.Items.Add(menuItem3);
+
             menuItem1.Click += MenuItem1_Click;
-            menuItem2.Click += MenuItem2_Click;
+            menuItem2.Click += MenuItem1_Click;
+
+            menuItem3.Click += SlideShowClick;
         }
+
+        
+
 
         private void MenuItem1_Click(object sender, EventArgs e)
         {
-            isFullInfoMode = true;
-
-            List<List<string>> targetList = isFullInfoMode ? fullInfoList : summaryInfoList;
-            foreach (List<string> entry in targetList)
-            {
-                AddOrUpdateRow(entry);
-            }
-        }
-        private void MenuItem2_Click(object sender, EventArgs e)
-        {
-            isFullInfoMode = false;
+            isFullInfoMode = !isFullInfoMode;
 
             List<List<string>> targetList = isFullInfoMode ? fullInfoList : summaryInfoList;
             foreach (List<string> entry in targetList)
@@ -404,6 +406,10 @@ namespace Server
                 screenshotThread = new Thread(new ThreadStart(CaptureAndSendScreenshotsContinuously));
                 screenshotThread.Start();
             }
+            else if(tmp[0] == "ReadyToCapture")
+            {
+                OpenNewForm(tcpClient);
+            }
 
 
             // Đóng kết nối khi client đóng kết nối
@@ -577,45 +583,55 @@ namespace Server
         private async Task UpdateOrAddRowAttendance(string studentID, int sessionID, string value)
         {
             bool studentExists = false;
-
-            foreach (DataGridViewRow row in dgv_attendance.Rows)
+            var lstStudent=ExtractNamesAndIDs(studentID);
+            foreach(var student in lstStudent)
             {
-                if (row.Cells[0].Value != null && row.Cells[0].Value.ToString() == studentID)
+                foreach (DataGridViewRow row in dgv_attendance.Rows)
                 {
-                    studentExists = true;
+                    if (row.Cells[0].Value != null && row.Cells[0].Value.ToString() == student.ID)
+                    {
+                        studentExists = true;
+                        int columnIndex = dgv_attendance.Columns[sessionID.ToString()].Index;
+                        row.Cells[columnIndex].Value = value;
+                        break;
+                    }
+                }
+                string[] nameParts = student.FullName.Trim().Split(' ');
+
+                // Ghép tất cả các phần đầu tiên lại với nhau làm firstName, ngoại trừ phần cuối cùng
+                string firstName = string.Join(" ", nameParts, 0, nameParts.Length - 1);
+
+                // Phần cuối cùng sẽ là lastName
+                string lastName = nameParts[nameParts.Length - 1];
+                if (!studentExists)
+                {
+                    DataGridViewRow newRow = new DataGridViewRow();
+                    newRow.CreateCells(dgv_attendance);
+                    newRow.Cells[0].Value = student.ID;
+                    newRow.Cells[1].Value = firstName; // FirstName
+                    newRow.Cells[2].Value = lastName; // LastName
                     int columnIndex = dgv_attendance.Columns[sessionID.ToString()].Index;
-                    row.Cells[columnIndex].Value = value;
-                    break;
+                    newRow.Cells[columnIndex].Value = value;
+                    newRow.DefaultCellStyle.BackColor = Color.Red; // Highlight new row
+                    dgv_attendance.Rows.Add(newRow);
+                    List<Student> student1 = new List<Student>();
+                    var st = new Student();
+                    st.StudentID = student.ID;
+                    st.FirstName = firstName;
+                    st.LastName = lastName;
+                    st.LastTime = DateTime.Now.ToString("dd/MM/yyyy hh/mm/ss");
+                    student1.Add(st);
+                    List<ClassStudent> clstudent1 = new List<ClassStudent>();
+                    var clst = new ClassStudent();
+                    clst.StudentID = student.ID;
+                    clst.ClassID = classID;
+                    clstudent1.Add(clst);
+                    await _studentBLL.InsertStudent(student1);
+                    await _classStudentBLL.InsertClassStudent(clstudent1);
+
                 }
             }
-
-            if (!studentExists)
-            {
-                DataGridViewRow newRow = new DataGridViewRow();
-                newRow.CreateCells(dgv_attendance);
-                newRow.Cells[0].Value = studentID;
-                newRow.Cells[1].Value = "1"; // FirstName
-                newRow.Cells[2].Value = "2"; // LastName
-                int columnIndex = dgv_attendance.Columns[sessionID.ToString()].Index;
-                newRow.Cells[columnIndex].Value = value;
-                newRow.DefaultCellStyle.BackColor = Color.Red; // Highlight new row
-                dgv_attendance.Rows.Add(newRow);
-                List<Student> student1=new List<Student>();
-                var st = new Student();
-                st.StudentID = studentID;
-                st.FirstName = "";
-                st.LastName = "";
-                st.LastTime = DateTime.Now.ToString("dd/MM/yyyy hh/mm/ss");
-                student1.Add(st);
-                List<ClassStudent> clstudent1 = new List<ClassStudent>();
-                var clst = new ClassStudent();
-                clst.StudentID = studentID;
-                clst.ClassID = classID;
-                clstudent1.Add(clst);
-                await _studentBLL.InsertStudent(student1);
-                await _classStudentBLL.InsertClassStudent(clstudent1);
-                
-            }
+            
             
 
             dgv_attendance.Refresh();
@@ -737,7 +753,27 @@ namespace Server
             }
         }
 
+        public static List<(string FullName, string ID)> ExtractNamesAndIDs(string input)
+        {
+            // Danh sách để lưu kết quả
+            var result = new List<(string FullName, string ID)>();
 
+            // Mẫu Regex để tách họ tên và dãy số (MSSV)
+            string pattern = @"([a-z\s]+)-\s*(\d+)";
+
+            // Tìm các cặp phù hợp với mẫu
+            MatchCollection matches = Regex.Matches(input.ToLower(), pattern);
+
+            // Duyệt qua các kết quả và thêm vào danh sách
+            foreach (Match match in matches)
+            {
+                string fullName = match.Groups[1].Value.Trim();
+                string id = match.Groups[2].Value.Trim();
+                result.Add((fullName, id));
+            }
+
+            return result;
+        }
 
         private void AddOrUpdateRow(List<string> entry)
         {
@@ -769,6 +805,17 @@ namespace Server
                     if (i == 3) // Ở đây giả sử cột RAM là cột thứ 3 (index là 2)
                     {
                         row.Cells[i].Value = newValue.Replace("\n", Environment.NewLine);
+                    }
+                    else if (i == 4)
+                    {
+                        var nameAndIDs= ExtractNamesAndIDs(newValue);
+                        string lstID = "";
+                        foreach (var id in nameAndIDs)
+                        {
+                            lstID += id + Environment.NewLine;
+                        }
+                        row.Cells[i].Value = lstID;
+
                     }
                     else
                     {
@@ -809,6 +856,17 @@ namespace Server
                     if (i == 3) // Ở đây giả sử cột RAM là cột thứ 3 (index là 2)
                     {
                         newRow.Cells[i].Value = newValue.Replace("\n", Environment.NewLine);
+                    }
+                    else if (i == 4)
+                    {
+                        var nameAndIDs = ExtractNamesAndIDs(newValue);
+                        string lstID = "";
+                        foreach (var id in nameAndIDs)
+                        {
+                            lstID += id.ID + Environment.NewLine;
+                        }
+                        newRow.Cells[i].Value = lstID;
+
                     }
                     else
                     {
@@ -1182,7 +1240,6 @@ namespace Server
             string element = row[colIndex];
             Console.WriteLine("Phần tử ở hàng {0}, cột {1} là: {2}", rowIndex, colIndex, element);
         }
-        ContextMenuStrip contextMenuStrip;
 
         public object JsonConvert { get; private set; }
 
@@ -1206,11 +1263,65 @@ namespace Server
 
         }
 
+        //private void SlideShowClick(object sender, EventArgs e)
+        //{
+        //    string message = "SlideShow";
+        //    byte[] data = Encoding.UTF8.GetBytes(message);
+
+        //    List<Thread> clientThreads = new List<Thread>();
+
+        //    foreach (DataGridViewRow row in dgv_client.Rows)
+        //    {
+        //        try
+        //        {
+        //            if (row.Cells[5].Value != null)
+        //            {
+        //                string clientIP = row.Cells[5].Value.ToString();
+        //                Console.WriteLine(clientIP);
+
+        //                // Kiểm tra xem địa chỉ IP có hợp lệ không
+        //                if (IsValidIPAddress(clientIP))
+        //                {
+        //                    // Tạo một luồng riêng biệt cho mỗi client
+        //                    Thread clientThread = new Thread(() =>
+        //                    {
+        //                        try
+        //                        {
+        //                            TcpClient client = new TcpClient(clientIP, 8888);
+
+        //                            // Gửi yêu cầu khóa tới máy Client
+        //                            NetworkStream stream = client.GetStream();
+        //                            stream.Write(data, 0, data.Length);
+        //                            // Đóng kết nối
+        //                            client.Close();
+        //                        }
+        //                        catch (Exception ex)
+        //                        {
+        //                            MessageBox.Show("Mất kết nối với: " + row.Cells[0].Value.ToString());
+        //                        }
+        //                    });
+
+        //                    // Bắt đầu luồng cho client hiện tại
+        //                    clientThreads.Add(clientThread);
+        //                    clientThread.Start();
+        //                }
+        //            }
+        //        }
+        //        catch (Exception ex)
+        //        {
+        //            MessageBox.Show("Mất kết nối với: " + row.Cells[0].Value.ToString());
+        //        }
+        //    }
+
+        //    // Chờ tất cả các luồng kết thúc trước khi tiếp tục
+        //    foreach (Thread t in clientThreads)
+        //    {
+        //        t.Join();
+        //    }
+        //}
+
         private void SlideShowClick(object sender, EventArgs e)
         {
-            string message = "SlideShow";
-            byte[] data = Encoding.UTF8.GetBytes(message);
-
             List<Thread> clientThreads = new List<Thread>();
 
             foreach (DataGridViewRow row in dgv_client.Rows)
@@ -1225,6 +1336,10 @@ namespace Server
                         // Kiểm tra xem địa chỉ IP có hợp lệ không
                         if (IsValidIPAddress(clientIP))
                         {
+                            // Kiểm tra nếu dòng này đang được chọn
+                            string message = row.Selected ? "SlidesShowToClient" : "SlideShow";
+                            byte[] data = Encoding.UTF8.GetBytes(message);
+
                             // Tạo một luồng riêng biệt cho mỗi client
                             Thread clientThread = new Thread(() =>
                             {
@@ -1262,7 +1377,6 @@ namespace Server
                 t.Join();
             }
         }
-
 
         private void sendFileToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -1353,7 +1467,21 @@ namespace Server
                 }
             }
         }
-
+        private void OpenNewForm(TcpClient tcpclient)
+        {
+            if (this.InvokeRequired)
+            {
+                this.BeginInvoke((MethodInvoker)delegate { OpenNewForm(tcpclient); });
+            }
+            else
+            {
+                if (form1 == null)
+                {
+                    form1 = new SlideShowForm();
+                    form1.Show();
+                }
+            }
+        }
         private void reciveFileToolStripMenuItem_Click(object sender, EventArgs e)
         {
             ReciveForm sendForm = new ReciveForm();
@@ -1527,7 +1655,7 @@ namespace Server
 
         private void btnUnlock_Click(object sender, EventArgs e)
         {
-            string thongTinMayTinh = "InfoClient-IPC: 192.168.0.104Tenmay: F71-11Chuot: Đã kết nốiBanphim: Đã kết nốiManhinh: Đã kết nốiOcung: C:\\, 465 GBCPU: 13th Gen Intel(R) Core(TM) i5-13400FRAM: Capacity: 17179869184 bytes Speed: 3200 Manufacturer: Golden Empire  Part Number: CL16-20-20 D4-3200  |Capacity: 17179869184 bytes Speed: 3200 Manufacturer: Golden Empire  Part Number: CL16-20-20 D4-3200  |MSSV: 0468231003";
+            string thongTinMayTinh = "InfoClient-IPC: 192.168.0.111Tenmay: LAPTOP-7HTRCGMEChuot: Ðã k?t n?iBanphim: Ðã k?t n?iManhinh: Ðã k?t n?iOcung: Model: INTEL SSDPEKNU512GZInterface: SCSISize: 476 GBCPU: AMD Ryzen 7 4800H with Radeon Graphics         RAM: Capacity: 8 GB, Manufacturer: Micron Technology|MSSV:  nguyen tan tai - 0306211189 + truong tang chi vinh - 0306211215 +";
             ReciveInfo(thongTinMayTinh);
         }
 

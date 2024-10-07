@@ -44,6 +44,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Models\Session.cs" />
+    <Compile Include="SessionDAL.cs" />
     <Compile Include="SubmisstionDAL.cs" />
     <Compile Include="ApiService.cs" />
     <Compile Include="AttendanceDAL.cs" />

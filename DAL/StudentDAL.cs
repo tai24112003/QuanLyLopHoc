@@ -64,7 +64,52 @@ public class StudentDAL
     {
         try
         {
-            string query = "SELECT StudentID, StudentName, OtherFields... FROM students";
+            string query = "SELECT * FROM students";
+            DataTable dataTable = DataProvider.GetDataTable(query, null);
+
+            if (dataTable == null || dataTable.Rows.Count == 0)
+            {
+                return null;
+            }
+
+            List<Student> students = new List<Student>();
+            foreach (DataRow row in dataTable.Rows)
+            {
+                Student student = new Student
+                {
+                    StudentID = row["StudentID"].ToString(),
+                    FirstName = row["FirstName"].ToString(),
+                    LastName = row["LastName"].ToString(),
+                };
+                students.Add(student);
+            }
+
+            StudentResponse studentResponse = new StudentResponse { data = students };
+            return JsonConvert.SerializeObject(studentResponse);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Error loading data from Access: " + ex.Message);
+            return null;
+        }
+    }
+
+    public void UpdateLocalStudentID(int oldID, int newID)
+    {
+        string query = $"UPDATE Students SET StudentID = @newID WHERE StudentID = @oldID";
+        OleDbParameter[] parameters = new OleDbParameter[]
+    {
+        new OleDbParameter("@newID", newID),
+        new OleDbParameter("@oldID", oldID),
+    };
+
+        DataProvider.RunNonQuery(query, parameters);
+    }
+    public string GetStudentsWithNegativeID()
+    {
+        try
+        {
+            string query = "SELECT * FROM Students WHERE StudentID < 0";
             DataTable dataTable = DataProvider.GetDataTable(query, null);
 
             if (dataTable == null || dataTable.Rows.Count == 0)

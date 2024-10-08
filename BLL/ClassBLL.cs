@@ -34,13 +34,13 @@ public class ClassBLL
         catch (Exception ex)
         {
             Random random = new Random();
-            var classId=random.Next()*-1;
+            var classId = random.Next() * -1;
             classSession.ClassID = classId;
             var classList = new List<Class> { classSession };
             var classResponse = new ClassResponse { data = classList };
             string classJson = JsonConvert.SerializeObject(classResponse);
-            SaveLocalData(classJson);
-            
+            _ClassDAL.SaveLocalData(classJson);
+
             Console.WriteLine("Error inserting class session in BLL: " + ex.Message);
             return classSession;
             throw new Exception("Error inserting class session in BLL", ex);
@@ -50,7 +50,7 @@ public class ClassBLL
     private async Task<Class> GetClassByName(string className)
     {
         var lstClass = await GetAllClass();
-        return lstClass.FirstOrDefault(c => c.ClassName.ToLower()==className.ToLower());
+        return lstClass.FirstOrDefault(c => c.ClassName.ToLower() == className.ToLower());
     }
 
     public async Task<List<Class>> GetAllClass()
@@ -63,7 +63,7 @@ public class ClassBLL
         }
         catch (Exception ex)
         {
-            string ClassJson = LoadLocalData();
+            string ClassJson = _ClassDAL.LoadLocalData();
             if (!string.IsNullOrEmpty(ClassJson))
             {
                 ClassResponse ClassResponse = JsonConvert.DeserializeObject<ClassResponse>(ClassJson);
@@ -73,10 +73,31 @@ public class ClassBLL
         }
     }
 
+    public List<Class> LoadNegativeIDClasses()
+    {
+        try
+        {
+            string ClassJson = _ClassDAL.LoadNegativeIDClasses();
+            if (!string.IsNullOrEmpty(ClassJson))
+            {
+                ClassResponse ClassResponse = JsonConvert.DeserializeObject<ClassResponse>(ClassJson);
+                return ClassResponse.data;
+            }
+            return null;
+        }
+        catch (Exception ex)
+        {
+            
+            throw new Exception("Error fetching Class negative from local data", ex);
+            return null;
+        }
+    }
+   
+
     public async Task<List<Class>> GetClassByUserID(int userID)
     {
         var lstClass = await GetAllClass();
-        return lstClass.FindAll(c => c.UserID== userID).ToList();
+        return lstClass.FindAll(c => c.UserID == userID).ToList();
     }
 
     public async Task<string> GetClass()
@@ -84,12 +105,12 @@ public class ClassBLL
         try
         {
 
-                // Get Class from server
-                string ClassJson = await _ClassDAL.GetAllClass();
-                // Save Class and last update time to local database
-                SaveLocalData(ClassJson);
-                return ClassJson;
-            
+            // Get Class from server
+            string ClassJson = await _ClassDAL.GetAllClass();
+            // Save Class and last update time to local database
+            _ClassDAL.SaveLocalData(ClassJson);
+            return ClassJson;
+
         }
         catch (Exception ex)
         {
@@ -98,57 +119,5 @@ public class ClassBLL
     }
 
 
-    private void SaveLocalData(string ClassJson)
-    {
-        var classResponse = JsonConvert.DeserializeObject<ClassResponse>(ClassJson);
 
-        foreach (var classSession in classResponse.data)
-        {
-            string query = "INSERT INTO `classes` (`ClassID`, `ClassName`, `UserID`, `LastTime`) VALUES (@ClassID, @ClassName, @UserID,@LastTime)";
-
-            OleDbParameter[] parameters = new OleDbParameter[]
-            {
-                new OleDbParameter("@ClassID", classSession.ClassID),
-                new OleDbParameter("@ClassName", classSession.ClassName),
-                new OleDbParameter("@UserID", classSession.UserID),
-                new OleDbParameter("@LastTime", classSession.LastTime),
-            };
-
-            DataProvider.RunNonQuery(query, parameters);
-        }
-    }
-
-    private string LoadLocalData()
-    {
-        try
-        {
-            string query = "SELECT ClassID, ClassName, UserID FROM classes";
-            DataTable dataTable = DataProvider.GetDataTable(query, null);
-
-            if (dataTable == null || dataTable.Rows.Count == 0)
-            {
-                return null;
-            }
-
-            List<Class> classes = new List<Class>();
-            foreach (DataRow row in dataTable.Rows)
-            {
-                Class classSession = new Class
-                {
-                    ClassID = int.Parse(row["ClassID"].ToString()),
-                    ClassName = row["ClassName"].ToString(),
-                    UserID= int.Parse(row["UserID"].ToString())
-                };
-                classes.Add(classSession);
-            }
-
-            ClassResponse classResponse = new ClassResponse { data = classes };
-            return JsonConvert.SerializeObject(classResponse);
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine("Error loading data from Access: " + ex.Message);
-            return null;
-        }
-    }
 }

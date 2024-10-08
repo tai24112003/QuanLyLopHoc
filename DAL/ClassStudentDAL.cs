@@ -1,6 +1,8 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Data;
+using System.Data.OleDb;
 using System.Threading.Tasks;
 
 public class ClassStudentDAL
@@ -49,5 +51,43 @@ public class ClassStudentDAL
             throw ex;
         }
     }
+    public List<ClassStudent> GetClassStudentsByClassID(int classID)
+    {
+        // Kiểm tra nếu classID là âm thì lấy danh sách sinh viên có ID âm
+        int effectiveClassID = classID < 0 ? classID : classID * -1;
+
+        string query = "SELECT * FROM Class_Student WHERE ClassID = @ClassID";
+
+        OleDbParameter[] parameters = new OleDbParameter[]
+        {
+        new OleDbParameter("@ClassID", effectiveClassID)
+        };
+
+        // Lấy dữ liệu từ database
+        DataTable dataTable = DataProvider.GetDataTable(query, parameters);
+
+        // Kiểm tra nếu không có dữ liệu thì trả về danh sách rỗng
+        if (dataTable == null || dataTable.Rows.Count == 0)
+        {
+            return new List<ClassStudent>();
+        }
+
+        // Chuyển đổi từ DataTable sang danh sách ClassStudent
+        List<ClassStudent> classStudents = new List<ClassStudent>();
+        foreach (DataRow row in dataTable.Rows)
+        {
+            ClassStudent classStudent = new ClassStudent
+            {
+                ClassID = Convert.ToInt32(row["ClassID"]),
+                StudentID = row["StudentID"].ToString(),
+            };
+
+            classStudents.Add(classStudent);
+        }
+
+        return classStudents;
+    }
+
+
 
 }

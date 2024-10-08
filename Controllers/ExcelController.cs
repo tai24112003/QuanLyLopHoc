@@ -6,7 +6,6 @@ using Newtonsoft.Json;
 
 public class ExcelController
 {
-    private readonly LocalDataHandler _localDataHandler;
     private readonly ClassSessionBLL _classSessionBLL;
     private readonly StudentBLL _studentBLL;
     private readonly SubjectBLL _subjectBLL;
@@ -16,7 +15,6 @@ public class ExcelController
 
     public ExcelController(LocalDataHandler localDataHandler, ClassStudentBLL classStudentBLL, ClassSessionBLL classSessionBLL, StudentBLL studentBLL, SubjectBLL subjectBLL, ClassBLL classBLL, UserBLL userBLL)
     {
-        _localDataHandler = localDataHandler;
         _classSessionBLL = classSessionBLL;
         _studentBLL = studentBLL;
         _subjectBLL = subjectBLL;

@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using System;
+using System.Data.OleDb;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -38,6 +39,28 @@ public class ClassSessionDAL
         {
             throw ex;
         }
+    }
+    public void UpdateClassSessionWithNewClassID(int oldClassID, int newClassID)
+    {
+        string query = $"UPDATE Class_Session SET ClassID = @newClassID WHERE ClassID = @oldClassID";
+        OleDbParameter[] parameters = new OleDbParameter[]
+    {
+        new OleDbParameter("@newClassID", newClassID),
+        new OleDbParameter("@oldClassID", oldClassID),
+    };
+
+        DataProvider.RunNonQuery(query, parameters);
+    }
+    public void DeleteClassStudentsByClassID(int classID)
+    {
+        string query = $"DELETE FROM Class_Student WHERE ClassID = {classID}";
+
+        OleDbParameter[] parameters = new OleDbParameter[]
+        {
+        new OleDbParameter("@ClassID", classID),
+        };
+
+        DataProvider.RunNonQuery(query, parameters);
     }
 
 }

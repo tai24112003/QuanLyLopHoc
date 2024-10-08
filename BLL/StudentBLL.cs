@@ -55,6 +55,25 @@ public class StudentBLL
             throw new Exception("Error fetching Students from API and local data", ex);
         }
     }
+    public List<Student> LoadNegativeIDStudentes()
+    {
+        try
+        {
+            string StudentJson = _StudentDAL.GetStudentsWithNegativeID();
+            if (!string.IsNullOrEmpty(StudentJson))
+            {
+                StudentResponse StudentResponse = JsonConvert.DeserializeObject<StudentResponse>(StudentJson);
+                return StudentResponse.data;
+            }
+            return null;
+        }
+        catch (Exception ex)
+        {
+
+            throw new Exception("Error fetching Class negative from local data", ex);
+            return null;
+        }
+    }
 
     public async Task<string> GetStudents()
     {
@@ -71,6 +90,12 @@ public class StudentBLL
             throw new Exception("Error fetching Students from BLL", ex);
         }
     }
+    public void UpdateLocalStudentID(int oldID, int newID)
+    {
+        _StudentDAL.UpdateLocalStudentID(oldID, newID);
+    }
 
-  
+
+
+
 }

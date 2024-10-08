@@ -91,6 +91,7 @@ namespace Server
         private void InitializeContextMenu()
         {
             contextMenuStrip = new ContextMenuStrip();
+            contextMenuStrip1 = new ContextMenuStrip();
 
             // Tạo các mục menu
             var menuItem1 = new ToolStripMenuItem("Chế độ xem đầy đủ");

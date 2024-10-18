@@ -50,7 +50,6 @@ namespace Server
             services.AddTransient<SubmisstionBLL>();
             services.AddTransient<SubmisstionDAL>();
             services.AddTransient<LocalDataHandler>();
-            services.AddTransient<ClassSessionController>();
             services.AddTransient<ExcelController>();
 
             services.AddTransient<svFormFactory>();

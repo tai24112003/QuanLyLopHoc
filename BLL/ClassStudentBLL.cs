@@ -34,7 +34,7 @@ public class ClassStudentBLL
             // Save to local if insertion fails
             var classResponse = new ClassStudentResponse { data = classSession };
             string classJson = JsonConvert.SerializeObject(classResponse);
-            SaveLocalData(classJson);
+            _ClassStudentDAL.SaveLocalData(classJson);
 
             throw new Exception("Error inserting ClassStudent in BLL. Data saved locally.", ex);
         }
@@ -50,7 +50,7 @@ public class ClassStudentBLL
         }
         catch (Exception ex)
         { 
-            string ClassStudentsJson = LoadLocalData();
+            string ClassStudentsJson = _ClassStudentDAL.LoadLocalData();
             if (!string.IsNullOrEmpty(ClassStudentsJson))
             {
                 ClassStudentResponse ClassStudentResponse = JsonConvert.DeserializeObject<ClassStudentResponse>(ClassStudentsJson);
@@ -65,7 +65,7 @@ public class ClassStudentBLL
         List<ClassStudent> allClassStudents = await GetAllClassStudents();
         return allClassStudents.Where(cs => cs.ClassID == classID).ToList();
     }
-
+   
     public async Task<string> GetClassStudents()
     {
         try
@@ -73,7 +73,7 @@ public class ClassStudentBLL
             // Get ClassStudents from server
             string ClassStudentsJson = await _ClassStudentDAL.GetAllClassStudents();
             // Save ClassStudents and last update time to local database
-            SaveLocalData(ClassStudentsJson);
+            _ClassStudentDAL.SaveLocalData(ClassStudentsJson);
             return ClassStudentsJson;
         }
         catch (Exception ex)
@@ -82,64 +82,8 @@ public class ClassStudentBLL
         }
     }
 
-    public async Task<List<ClassStudent>> GetStudentsByClassID(int classID)
-    {
-        List<ClassStudent> allStudents = await GetAllClassStudents();
-        return allStudents.Where(cs => cs.ClassID == classID).ToList();
-    }
 
-    private void SaveLocalData(string ClassStudentsJson)
-    {
-        var classStudentResponse = JsonConvert.DeserializeObject<ClassStudentResponse>(ClassStudentsJson);
-
-        foreach (var classStudent in classStudentResponse.data)
-        {
-            string query = "INSERT INTO `classes_student` (`ClassID`, `StudentID`) VALUES (@ClassID, @StudentID)";
-
-            OleDbParameter[] parameters = new OleDbParameter[]
-            {
-                new OleDbParameter("@ClassID", classStudent.ClassID),
-                new OleDbParameter("@StudentID", classStudent.StudentID),
-                // Add other parameters as needed
-            };
-
-            DataProvider.RunNonQuery(query, parameters);
-        }
-    }
-
-    private string LoadLocalData()
-    {
-        try
-        {
-            string query = "SELECT ClassID, StudentID FROM classes_student";
-            DataTable dataTable = DataProvider.GetDataTable(query, null);
-
-            if (dataTable == null || dataTable.Rows.Count == 0)
-            {
-                return null;
-            }
-
-            List<ClassStudent> classStudents = new List<ClassStudent>();
-            foreach (DataRow row in dataTable.Rows)
-            {
-                ClassStudent classStudent = new ClassStudent
-                {
-                    ClassID = int.Parse(row["ClassID"].ToString()),
-                    StudentID = row["StudentID"].ToString(),
-                    // Set other properties as needed
-                };
-                classStudents.Add(classStudent);
-            }
-
-            ClassStudentResponse classStudentResponse = new ClassStudentResponse { data = classStudents };
-            return JsonConvert.SerializeObject(classStudentResponse);
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine("Error loading data from Access: " + ex.Message);
-            return null;
-        }
-    }
+    
 
     public async Task<List<ClassStudent>> GetClassStudentsByID(int id)
     {
@@ -151,7 +95,7 @@ public class ClassStudentBLL
         }
         catch (Exception ex)
         {
-            string ClassStudentsJson = LoadLocalData();
+            string ClassStudentsJson = _ClassStudentDAL.LoadLocalData();
             if (!string.IsNullOrEmpty(ClassStudentsJson))
             {
                 ClassStudentResponse ClassStudentResponse = JsonConvert.DeserializeObject<ClassStudentResponse>(ClassStudentsJson);
@@ -167,7 +111,7 @@ public class ClassStudentBLL
             // Get ClassStudents from server
             string ClassStudentsJson = await _ClassStudentDAL.GetClassStudentsByID(id);
             // Save ClassStudents and last update time to local database
-            SaveLocalData(ClassStudentsJson);
+            _ClassStudentDAL.SaveLocalData(ClassStudentsJson);
 
             
             return ClassStudentsJson;
@@ -177,6 +121,44 @@ public class ClassStudentBLL
             throw new Exception("Error fetching ClassStudents from BLL", ex);
         }
     }
+    public async Task DeleteClassStudentsByClassID(int ClassID)
+    {
+        if (string.IsNullOrEmpty(ClassID.ToString()))
+        {
+            throw new ArgumentException("StudentID cannot be null or empty.", nameof(ClassID));
+        }
 
-    
+        try
+        {
+            // Call the DeleteStudentLocal method from the DAL
+            await _ClassStudentDAL.DeleteClassStudentLocal(ClassID);
+            Console.WriteLine($"Student with ID {ClassID} has been successfully deleted.");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error deleting student in BLL: {ex.Message}");
+            throw new Exception($"Error deleting student with ID {ClassID} in BLL.", ex);
+        }
+    }
+
+    public async Task DeleteClassStudentsByStudentID(string StudentID)
+    {
+        if (string.IsNullOrEmpty(StudentID))
+        {
+            throw new ArgumentException("StudentID cannot be null or empty.", nameof(StudentID));
+        }
+
+        try
+        {
+            // Call the DeleteStudentLocal method from the DAL
+            await _ClassStudentDAL.DeleteClassStudentLocalByStudentID(StudentID);
+            Console.WriteLine($"Student with ID {StudentID} has been successfully deleted.");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error deleting student in BLL: {ex.Message}");
+            throw new Exception($"Error deleting student with ID {StudentID} in BLL.", ex);
+        }
+    }
+
 }

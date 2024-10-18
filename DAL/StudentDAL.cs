@@ -94,17 +94,7 @@ public class StudentDAL
         }
     }
 
-    public void UpdateLocalStudentID(int oldID, int newID)
-    {
-        string query = $"UPDATE Students SET StudentID = @newID WHERE StudentID = @oldID";
-        OleDbParameter[] parameters = new OleDbParameter[]
-    {
-        new OleDbParameter("@newID", newID),
-        new OleDbParameter("@oldID", oldID),
-    };
-
-        DataProvider.RunNonQuery(query, parameters);
-    }
+   
     public string GetStudentsWithNegativeID()
     {
         try
@@ -138,4 +128,37 @@ public class StudentDAL
             return null;
         }
     }
+
+    public async Task DeleteStudentLocal(string studentId)
+    {
+        if (string.IsNullOrEmpty(studentId))
+        {
+            throw new ArgumentException("StudentID cannot be null or empty.", nameof(studentId));
+        }
+
+        try
+        {
+            string query = "DELETE FROM Students WHERE StudentID = @StudentID";
+
+            OleDbParameter[] parameters = new OleDbParameter[]
+            {
+            new OleDbParameter("@StudentID", studentId)
+            };
+
+            // Using Task.Run to make RunNonQuery asynchronous
+            bool result = await Task.Run(() => DataProvider.RunNonQuery(query, parameters));
+
+            if (!result)
+            {
+                throw new Exception($"No student found with ID: {studentId}, or an error occurred during deletion.");
+            }
+        }
+        catch (Exception ex)
+        {
+            // Log the exception with the relevant student ID information
+            Console.WriteLine($"Error deleting student with ID {studentId} in DAL: {ex.Message}");
+            throw new Exception($"Error deleting student with ID {studentId} in DAL.", ex);
+        }
+    }
+
 }

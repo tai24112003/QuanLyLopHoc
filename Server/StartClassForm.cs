@@ -13,19 +13,21 @@ namespace Server
     {
         private readonly UserBLL _userBLL;
         private readonly ClassBLL _classBLL;
+        private readonly ClassSessionBLL _classSessionBLL;
         private readonly RoomBLL _roomBLL;
         private readonly SubjectBLL _subjectBLL;
-        private readonly ClassSessionController _classSessionController;
         private readonly ExcelController _excelController;
         private readonly IServiceProvider _serviceProvider;
+        private readonly LocalDataHandler _localDataHandler;
         List<Class> classes;
         public StartClassForm
             (UserBLL userBLL, 
             SubjectBLL subjectBLL, 
             ClassBLL classBLL,
+            ClassSessionBLL classSessionBLL,
             RoomBLL roomBLL,
-            ClassSessionController classSessionController, 
             ExcelController excelController,
+            LocalDataHandler localDataHandler,
             IServiceProvider serviceProvider)
         {
             InitializeComponent();
@@ -34,16 +36,18 @@ namespace Server
             this.TransparencyKey = Color.Purple;
             _userBLL = userBLL;
             _classBLL = classBLL;
+            _classSessionBLL = classSessionBLL;
             _subjectBLL = subjectBLL;
-            _classSessionController = classSessionController;
             _excelController = excelController;
             _roomBLL= roomBLL;
             _serviceProvider = serviceProvider;
+            _localDataHandler = localDataHandler;
             this.Load += new EventHandler(MainForm_Load);
         }
 
         private async void MainForm_Load(object sender, EventArgs e)
         {
+            await _localDataHandler.MigrateData();
             await SetupUserAutoComplete();
             await SetupClassAutoComplete();
         }
@@ -157,7 +161,7 @@ namespace Server
                     RoomID = room.RoomID.ToString()
                 };
 
-                int sessionID = await _classSessionController.StartNewClassSession(classSession,_excelController);
+                int sessionID = (await _classSessionBLL.InsertClassSession(classSession)).SessionID;
 
                 classSession.SessionID = sessionID;
 

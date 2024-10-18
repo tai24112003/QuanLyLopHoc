@@ -243,7 +243,7 @@ namespace Server
         }
         private void serverForm_FormClosing(object sender, FormClosingEventArgs e)
         {
-            //tcpListener.Stop();
+            tcpListener.Stop();
         }
 
 
@@ -304,8 +304,8 @@ namespace Server
             // Gửi tin nhắn UDP đến từng địa chỉ IP trong mạng
 
 
-            IPAddress broadcastAddress = GetBroadcastAddress();
-
+            IPAddress broadcastAddress = GetBroadcastAddress()??null;
+            Console.WriteLine(broadcastAddress);
 
             SendUDPMessage(broadcastAddress, 11312, Ip);
 
@@ -319,7 +319,7 @@ namespace Server
                 string messageToSend = mes;
                 byte[] data = Encoding.UTF8.GetBytes(messageToSend);
 
-                //udpClient.Send(data, data.Length, remoteEndPoint);
+                udpClient.Send(data, data.Length, remoteEndPoint);
 
                 //Console.WriteLine($"Sent message to {ipAddress}");
                 udpClient.Close();
@@ -370,7 +370,7 @@ namespace Server
             }
 
             string[] tmp = receivedMessage.Split(new char[] { '-' }, 2);
-
+            Console.WriteLine(receivedMessage);
             if (receivedMessage.StartsWith("ms-sv"))
             {
                 Console.WriteLine(receivedMessage);
@@ -1329,7 +1329,7 @@ namespace Server
             {
                 try
                 {
-                    if (row.Cells[5].Value != null)
+                    if (row.Cells[5].Value != null && row.Cells[5].Value.ToString().Trim() !="")
                     {
                         string clientIP = row.Cells[5].Value.ToString();
                         Console.WriteLine(clientIP);
@@ -1338,7 +1338,7 @@ namespace Server
                         if (IsValidIPAddress(clientIP))
                         {
                             // Kiểm tra nếu dòng này đang được chọn
-                            string message = row.Selected ? "SlidesShowToClient" : "SlideShow";
+                            string message = row.Selected ? "SlideShowToClient" : "SlideShow";
                             byte[] data = Encoding.UTF8.GetBytes(message);
 
                             // Tạo một luồng riêng biệt cho mỗi client
@@ -1598,6 +1598,7 @@ namespace Server
         private void sendWork_ButtonClick(object sender, EventArgs e)
         {
             SendForm sendForm = new SendForm();
+            sendForm.FilesSelected += SendFileForm_FilePathSelected;
             sendForm.ShowDialog();
         }
 

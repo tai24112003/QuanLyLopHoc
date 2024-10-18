@@ -1,5 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
+using System.Data;
 using System.Data.OleDb;
 using System.Net;
 using System.Net.Http;
@@ -40,28 +42,93 @@ public class ClassSessionDAL
             throw ex;
         }
     }
-    public void UpdateClassSessionWithNewClassID(int oldClassID, int newClassID)
+    public async Task UpdateClassSessionWithNewClassID(int oldClassID, int newClassID)
     {
-        string query = $"UPDATE Class_Session SET ClassID = @newClassID WHERE ClassID = @oldClassID";
-        OleDbParameter[] parameters = new OleDbParameter[]
-    {
+        try
+        {
+            string query = $"UPDATE Class_Session SET ClassID = @newClassID WHERE ClassID = @oldClassID";
+            OleDbParameter[] parameters = new OleDbParameter[]
+        {
         new OleDbParameter("@newClassID", newClassID),
         new OleDbParameter("@oldClassID", oldClassID),
-    };
-
-        DataProvider.RunNonQuery(query, parameters);
-    }
-    public void DeleteClassStudentsByClassID(int classID)
-    {
-        string query = $"DELETE FROM Class_Student WHERE ClassID = {classID}";
-
-        OleDbParameter[] parameters = new OleDbParameter[]
-        {
-        new OleDbParameter("@ClassID", classID),
         };
 
-        DataProvider.RunNonQuery(query, parameters);
+            bool result = await Task.Run(() => DataProvider.RunNonQuery(query, parameters));
+            if (!result)
+            {
+                throw new Exception($"No ClassSession found with ID: {oldClassID}, or an error occurred during update.");
+            }
+        }
+        catch(Exception ex)
+        {
+            throw ex;
+        }
     }
 
+    public void SaveLocalData(List<ClassSession> classSessions)
+    {
+        try
+        {
+            foreach (var classSession in classSessions)
+            {
+                string query = "INSERT INTO `Class_Sessions` (`SessionID`, `ClassID`, `RoomID`, `StartTime`, `EndTime`, `user_id`, `Session`) VALUES (@SessionID, @ClassID, @RoomID, @StartTime, @EndTime, @UserID,@Session)";
+
+                OleDbParameter[] parameters = new OleDbParameter[]
+                {
+                new OleDbParameter("@SessionID", classSession.SessionID),
+                new OleDbParameter("@ClassID", classSession.ClassID),
+                new OleDbParameter("@RoomID", classSession.RoomID),
+                new OleDbParameter("@StartTime", classSession.StartTime),
+                new OleDbParameter("@EndTime", classSession.EndTime),
+                new OleDbParameter("@UserID", classSession.user_id),
+                new OleDbParameter("@Session", classSession.Session),
+                };
+
+                DataProvider.RunNonQuery(query, parameters);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Error saving data locally: " + ex.Message);
+        }
+    }
+
+    public string LoadLocalData()
+    {
+        try
+        {
+            string query = "SELECT SessionID, ClassID, RoomID, StartTime, EndTime FROM Class_Sessions";
+            DataTable dataTable = DataProvider.GetDataTable(query, null);
+
+            if (dataTable == null || dataTable.Rows.Count == 0)
+            {
+                return null;
+            }
+
+            List<ClassSession> Class_Sessions = new List<ClassSession>();
+            foreach (DataRow row in dataTable.Rows)
+            {
+                ClassSession classSession = new ClassSession
+                {
+                    SessionID = int.Parse(row["SessionID"].ToString()),
+                    ClassID = int.Parse(row["ClassID"].ToString()),
+                    RoomID = row["RoomID"].ToString(),
+                    StartTime = DateTime.Parse(row["StartTime"].ToString()),
+                    EndTime = DateTime.Parse(row["EndTime"].ToString()),
+                    user_id = int.Parse(row["user_id"].ToString()),
+                    // Set other properties as needed
+                };
+                Class_Sessions.Add(classSession);
+            }
+
+            ClassSessionResponse classSessionResponse = new ClassSessionResponse { data = Class_Sessions };
+            return JsonConvert.SerializeObject(classSessionResponse);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Error loading data from Access: " + ex.Message);
+            return null;
+        }
+    }
 }
 

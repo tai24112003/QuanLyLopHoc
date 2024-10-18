@@ -21,21 +21,41 @@ public class StudentBLL
         {
             string responseJson = await _StudentDAL.InsertListStudent(classSession);
             var insertedSession = JsonConvert.DeserializeObject<StudentResponse>(responseJson);
+            InsertStudentLocal(classSession);
             return insertedSession;
         }
         catch (Exception ex)
         {
             Console.WriteLine("Error inserting Student in BLL: " + ex.Message);
-
+            foreach(var _classSession in classSession)
+            {
+                _classSession.StudentID.Insert(0,"-");  
+            }
             // Save to local if insertion fails
-            var studentResponse = new StudentResponse { data = classSession };
-            string studentJson = JsonConvert.SerializeObject(studentResponse);
-            _StudentDAL.SaveLocalData(studentJson);
+            InsertStudentLocal(classSession);
 
             throw new Exception("Error inserting Student in BLL. Data saved locally.", ex);
         }
     }
 
+    public  void InsertStudentLocal(List<Student> classSession)
+    {
+        try
+        {
+            // Save to local if insertion fails
+            var studentResponse = new StudentResponse { data = classSession };
+            string studentJson = JsonConvert.SerializeObject(studentResponse);
+            _StudentDAL.SaveLocalData(studentJson);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Error inserting Student in BLL: " + ex.Message);
+
+           
+
+            throw new Exception("Error inserting Student in BLL. Data saved locally.", ex);
+        }
+    }
     public async Task<List<Student>> GetAllStudents()
     {
         try
@@ -90,11 +110,25 @@ public class StudentBLL
             throw new Exception("Error fetching Students from BLL", ex);
         }
     }
-    public void UpdateLocalStudentID(int oldID, int newID)
+    public async Task DeleteStudent(string studentId)
     {
-        _StudentDAL.UpdateLocalStudentID(oldID, newID);
-    }
+        if (string.IsNullOrEmpty(studentId))
+        {
+            throw new ArgumentException("StudentID cannot be null or empty.", nameof(studentId));
+        }
 
+        try
+        {
+            // Call the DeleteStudentLocal method from the DAL
+            await _StudentDAL.DeleteStudentLocal(studentId);
+            Console.WriteLine($"Student with ID {studentId} has been successfully deleted.");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error deleting student in BLL: {ex.Message}");
+            throw new Exception($"Error deleting student with ID {studentId} in BLL.", ex);
+        }
+    }
 
 
 

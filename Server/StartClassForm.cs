@@ -269,6 +269,7 @@ namespace Server
                 excelData.TeacherName = worksheet.Cells["D3"].Value?.ToString();
 
                 int row = 6; 
+                string date = DateTime.Now.ToString();
                 while (worksheet.Cells[row, 2].Value != null)
                 {
                     Student student = new Student
@@ -276,6 +277,7 @@ namespace Server
                         StudentID = worksheet.Cells[row, 2].Value.ToString(),
                         LastName = worksheet.Cells[row, 3].Value.ToString(),
                         FirstName = worksheet.Cells[row, 4].Value.ToString(),
+                        LastTime = date,
                     };
                     excelData.Students.Add(student);
                     row++;

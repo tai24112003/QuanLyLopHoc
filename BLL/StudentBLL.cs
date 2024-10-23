@@ -27,9 +27,10 @@ public class StudentBLL
         catch (Exception ex)
         {
             Console.WriteLine("Error inserting Student in BLL: " + ex.Message);
-            foreach(var _classSession in classSession)
+            foreach (var _classSession in classSession)
             {
-                _classSession.StudentID.Insert(0,"-");  
+                if (!_classSession.StudentID.StartsWith("-"))
+                    _classSession.StudentID.Insert(0, "-");
             }
             // Save to local if insertion fails
             InsertStudentLocal(classSession);
@@ -38,7 +39,7 @@ public class StudentBLL
         }
     }
 
-    public  void InsertStudentLocal(List<Student> classSession)
+    public void InsertStudentLocal(List<Student> classSession)
     {
         try
         {
@@ -51,7 +52,7 @@ public class StudentBLL
         {
             Console.WriteLine("Error inserting Student in BLL: " + ex.Message);
 
-           
+
 
             throw new Exception("Error inserting Student in BLL. Data saved locally.", ex);
         }
@@ -66,7 +67,7 @@ public class StudentBLL
         }
         catch (Exception ex)
         {
-            string StudentsJson =_StudentDAL.LoadLocalData();
+            string StudentsJson = _StudentDAL.LoadLocalData();
             if (!string.IsNullOrEmpty(StudentsJson))
             {
                 StudentResponse StudentResponse = JsonConvert.DeserializeObject<StudentResponse>(StudentsJson);

@@ -23,60 +23,67 @@ public class LocalDataHandler
 
     public async Task MigrateData()
     {
-        // Bước 1: Lấy danh sách lớp có ID âm
-        var negativeClasses = _classBLL.LoadNegativeIDClasses();
-
-        foreach (var classItem in negativeClasses)
+        try
         {
-            // Bước 2: Lưu ID lớp âm vào biến 'a'
-            int classID_A = classItem.ClassID;
+            // Bước 1: Lấy danh sách lớp có ID âm
+            var negativeClasses = _classBLL.LoadNegativeIDClasses();
+            if (negativeClasses != null)
+                foreach (var classItem in negativeClasses)
+                {
+                    // Bước 2: Lưu ID lớp âm vào biến 'a'
+                    int classID_A = classItem.ClassID;
 
-            // Bước 3: Lấy danh sách class_student có ClassID là 'a'
-            var classStudents = await _classStudentBLL.GetClassStudentsByClassID(classID_A);
+                    // Bước 3: Lấy danh sách class_student có ClassID là 'a'
+                    var classStudents = await _classStudentBLL.GetClassStudentsByClassID(classID_A);
 
-            // Bước 4: Lấy danh sách sinh viên có ID âm
-            var negativeStudents = _studentBLL.LoadNegativeIDStudentes();
+                    // Bước 4: Lấy danh sách sinh viên có ID âm
+                    var negativeStudents = _studentBLL.LoadNegativeIDStudentes();
 
-            // Sau khi đã có toàn bộ thông tin cần thiết (lớp, sinh viên, class_student), ta bắt đầu xử lý xóa và thêm mới
+                    // Sau khi đã có toàn bộ thông tin cần thiết (lớp, sinh viên, class_student), ta bắt đầu xử lý xóa và thêm mới
 
-            // Bước 5: Thêm lớp vào server và lấy ID lớp mới trả về, lưu vào biến 'b'
-            int classID_B = (await _classBLL.InsertClass(classItem)).ClassID;
+                    // Bước 5: Thêm lớp vào server và lấy ID lớp mới trả về, lưu vào biến 'b'
+                    int classID_B = (await _classBLL.InsertClass(classItem)).ClassID;
 
-            // Bước 6: Xóa class_student có ID lớp là 'a' ở local
-            await _classStudentBLL.DeleteClassStudentsByClassID(classID_A);
+                    // Bước 6: Xóa class_student có ID lớp là 'a' ở local
+                    await _classStudentBLL.DeleteClassStudentsByClassID(classID_A);
 
-            // Bước 7: Xử lý sinh viên có ID âm
-            foreach (var student in negativeStudents)
-            {
-                // Xóa class_student liên quan đến sinh viên trước khi xóa sinh viên để tránh vi phạm khóa ngoại
-                await _classStudentBLL.DeleteClassStudentsByStudentID(student.StudentID);
+                    // Bước 7: Xử lý sinh viên có ID âm
+                    foreach (var student in negativeStudents)
+                    {
+                        // Xóa class_student liên quan đến sinh viên trước khi xóa sinh viên để tránh vi phạm khóa ngoại
+                        await _classStudentBLL.DeleteClassStudentsByStudentID(student.StudentID);
 
-                // Xóa sinh viên có ID âm
-                await _studentBLL.DeleteStudent(student.StudentID);
+                        // Xóa sinh viên có ID âm
+                        await _studentBLL.DeleteStudent(student.StudentID);
 
-                // Sinh ID không âm mới cho sinh viên
-                student.StudentID = GeneratePositiveID(student.StudentID);
-            }
+                        // Sinh ID không âm mới cho sinh viên
+                        student.StudentID = GeneratePositiveID(student.StudentID);
+                    }
 
-            // Bước 8: Thêm sinh viên mới vào server với ID không âm
-            await _studentBLL.InsertStudent(negativeStudents);
+                    // Bước 8: Thêm sinh viên mới vào server với ID không âm
+                    await _studentBLL.InsertStudent(negativeStudents);
 
-            // Bước 9: Thêm sinh viên mới vào local với ID không âm
-            _studentBLL.InsertStudentLocal(negativeStudents);
+                    // Bước 9: Thêm sinh viên mới vào local với ID không âm
+                    _studentBLL.InsertStudentLocal(negativeStudents);
 
-            // Bước 10: Cập nhật ID lớp trong danh sách class_student thành ID lớp mới 'b'
-            foreach (var classStudent in classStudents)
-            {
-                classStudent.ClassID = classID_B;
-                classStudent.StudentID= GeneratePositiveID(classStudent.StudentID);
-            }
+                    // Bước 10: Cập nhật ID lớp trong danh sách class_student thành ID lớp mới 'b'
+                    foreach (var classStudent in classStudents)
+                    {
+                        classStudent.ClassID = classID_B;
+                        classStudent.StudentID = GeneratePositiveID(classStudent.StudentID);
+                    }
 
-            // Bước 11: Thêm danh sách class_student với ID lớp là 'b' vào server
-            await _classStudentBLL.InsertClassStudent(classStudents);
+                    // Bước 11: Thêm danh sách class_student với ID lớp là 'b' vào server
+                    await _classStudentBLL.InsertClassStudent(classStudents);
 
-            // Bước 12: Cập nhật class_session có classID là 'a' thành classID là 'b'
-            await _classSessionBLL.UpdateClassSessionClassID(classID_A, classID_B);
+                    // Bước 12: Cập nhật class_session có classID là 'a' thành classID là 'b'
+                    await _classSessionBLL.UpdateClassSessionClassID(classID_A, classID_B);
 
+                }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.ToString());
         }
     }
 

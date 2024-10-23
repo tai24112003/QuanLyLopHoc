@@ -19,6 +19,9 @@ using System.Text.RegularExpressions;
 using System.IO.Compression;
 using Newtonsoft.Json;
 using System.Drawing.Imaging;
+using System.Runtime.InteropServices;
+using WindowsInput.Native;
+using WindowsInput;
 
 namespace testUdpTcp
 {
@@ -31,9 +34,18 @@ namespace testUdpTcp
             myIp = getIPServer();
             //myIp = "192.168.72.228";
             inf = GetDeviceInfo();
-            
+
 
         }
+        [DllImport("user32.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.StdCall)]
+        public static extern void mouse_event(uint dwFlags, uint dx, uint dy, uint dwData, int dwExtraInfo);
+
+        // Constants for mouse events
+        private const uint MOUSEEVENTF_LEFTDOWN = 0x00000002;
+        private const uint MOUSEEVENTF_LEFTUP = 0x00000004;
+        private const uint MOUSEEVENTF_RIGHTDOWN = 0x00000008;
+        private const uint MOUSEEVENTF_RIGHTUP = 0x00000010;
+        private const uint MOUSEEVENTF_WHEEL = 0x00000800;
         private UdpClient udpClient;
         private Waiting waitingFrm;
         private ExamForm examFrm;
@@ -59,9 +71,9 @@ namespace testUdpTcp
         {
 
             udpClient = new UdpClient(11312);
-            //udpReceiverThread = new Thread(new ThreadStart(ReceiveDataOnce));
-            //udpReceiverThread.Start();
-            //udpReceiverThread.Join();
+            udpReceiverThread = new Thread(new ThreadStart(ReceiveDataOnce));
+            udpReceiverThread.Start();
+            udpReceiverThread.Join();
 
             listenThread = new Thread(new ThreadStart(ListenForClients));
             listenThread.Start();
@@ -177,6 +189,20 @@ namespace testUdpTcp
                 tcpClient.Close();
 
             }
+            else if (receivedMessage.StartsWith("MouseLeft"))
+            {
+                SimulateLeftClick();
+            }
+            else if (receivedMessage.StartsWith("MouseRight"))
+            {
+                SimulateRightClick();
+            }
+            else if (receivedMessage.StartsWith("MouseWheel"))
+            {
+                string[] tmp = receivedMessage.Split('_');
+                Console.WriteLine(tmp[1]);
+                SimulateScroll(int.Parse(tmp[1]));
+            }
             else if (receivedMessage.StartsWith("Mouse"))
             {
                 string[] parts = receivedMessage.Split('-');
@@ -185,6 +211,14 @@ namespace testUdpTcp
                 int mouseY = int.Parse(coords[1]);
                 // Handle the mouse coordinates (e.g., update cursor position)
                 UpdateMousePosition(mouseX, mouseY);
+            }
+            else if (receivedMessage.StartsWith("Keyboard"))
+            {
+                Console.WriteLine(receivedMessage);
+
+                string[] parts = receivedMessage.Split(new[] { "Keyboard-" }, StringSplitOptions.None);
+                Console.WriteLine(parts[1]);
+                UpdateKeyboard(parts[1]);
             }
             else if (receivedMessage.StartsWith("CollectFile"))
             {
@@ -245,16 +279,17 @@ namespace testUdpTcp
                 }
                 tcpClient.Close();
             }
-            else if (receivedMessage.StartsWith("Key-Exam-")&&doingExam==false)
+            else if (receivedMessage.StartsWith("Key-Exam-") && doingExam == false)
             {
                 doingExam = true;
                 // Parse the signal
                 Console.WriteLine(receivedMessage);
                 string[] parts = receivedMessage.Split(new[] { "Key-Exam-" }, StringSplitOptions.None);
-                if(parts.Length >= 2){
+                if (parts.Length >= 2)
+                {
                     //Console.WriteLine(parts[1]);
                     string directoryPath = @"C:\Exam";
-                    string filePath = Path.Combine(directoryPath, "exam.json"); 
+                    string filePath = Path.Combine(directoryPath, "exam.json");
 
                     try
                     {
@@ -303,7 +338,7 @@ namespace testUdpTcp
 
 
 
-                        sendData("ms-sv"+mssv+"ms-sv" + contentExam);
+                        sendData("ms-sv" + mssv + "ms-sv" + contentExam);
 
                         if (this.InvokeRequired)
                         {
@@ -313,7 +348,7 @@ namespace testUdpTcp
                         {
                             OpenChildForm();
                         }
-                        
+
 
                     }
                     catch (Exception ex)
@@ -334,7 +369,7 @@ namespace testUdpTcp
                         // Gán địa chỉ IP của máy chủ từ ClientForm sang SlideShowForm
                         //slideShowForm.ServerIP = IpServer;
                         //slideShowForm.Listener = listener;
-                        listener.Stop();
+                        //listener.Stop();
                         OpenNewForm(tcpClient);
                         // Hiển thị SlideShowForm
                         //slideShowForm.Show();
@@ -347,8 +382,8 @@ namespace testUdpTcp
                         screenshotThread.Start();
 
                         break;
-                    case "Prepare": Console.WriteLine("Chuẩn bị thi");break;
-                    case "DoExam": Console.WriteLine("Làm bài");break;
+                    case "Prepare": Console.WriteLine("Chuẩn bị thi"); break;
+                    case "DoExam": Console.WriteLine("Làm bài"); break;
                     case "EndTime":
                         if (this.InvokeRequired)
                         {
@@ -358,15 +393,31 @@ namespace testUdpTcp
                         {
                             CloseExamForm();
                         }; break;
-                   
+
                 }
                 tcpClient.Close();
 
             }
 
-            Console.WriteLine("Đóng kết nối");
-           
+
         }
+
+        private void UpdateKeyboard(string key)
+        {
+            // Ensure that updating the mouse position is done on the UI thread
+            if (this.InvokeRequired)
+            {
+                this.Invoke(new Action<string>(UpdateKeyboard), new object[] { key });
+                return;
+            }
+            if (string.IsNullOrEmpty(key)) ;
+            VirtualKeyCode vKey = KeyCodeMapper.MapStringToVirtualKeyCode(key);
+            InputSimulator sim = new InputSimulator();
+            sim.Keyboard.KeyPress(vKey);
+        }
+
+
+
         private void UpdateMousePosition(int x, int y)
         {
             // Ensure that updating the mouse position is done on the UI thread
@@ -381,8 +432,8 @@ namespace testUdpTcp
 
             // Map the received coordinates to the form's size (this assumes the coordinates are proportional)
             // You might need to scale the coordinates if they're in a different resolution or range
-            int scaledX = (int)(x * screenWidth / 1920.0); // Assume 1920x1080 as the reference resolution
-            int scaledY = (int)(y * screenHeight / 1080.0);
+            int scaledX = (int)(x * screenWidth / 1600.0); // Assume 1920x1080 as the reference resolution
+            int scaledY = (int)(y * screenHeight / 900.0);
 
             // Set the cursor position to the mapped coordinates
             Cursor.Position = new Point(scaledX, scaledY);
@@ -479,7 +530,7 @@ namespace testUdpTcp
                 SaveJpeg(stream, image, quality);
                 imageData = stream.ToArray();
                 quality -= 10; // Giảm chất lượng đi 10% cho lần tiếp theo nếu cần
-            } while (imageData.Length > bufferSize && quality > 10);
+            } while (imageData.Length > bufferSize && quality > 100);
 
             int bytesSent = 0;
             int index = 0;
@@ -496,7 +547,7 @@ namespace testUdpTcp
 
                 // Tạo một mảng byte mới để chứa tín hiệu và dữ liệu cần gửi
                 byte[] dataToSend = new byte[signalLength + bytesToSend];
-                Console.WriteLine(imageData.Length + " " + cutCount + " " + i + " " + quality);
+                //Console.WriteLine(imageData.Length + " " + cutCount + " " + i + " " + quality);
                 // Sao chép tín hiệu và dữ liệu vào mảng mới
                 Array.Copy(signal, 0, dataToSend, 0, signalLength);
                 Array.Copy(imageData, index, dataToSend, signalLength, bytesToSend);
@@ -583,14 +634,14 @@ namespace testUdpTcp
         {
 
 
-            string content = File.ReadAllText(PathExam.Path+"\\"+PathExam.fileResult);
+            string content = File.ReadAllText(PathExam.Path + "\\" + PathExam.fileResult);
 
-            content = "dapan-"+mssv+"dapan-" + content;
+            content = "dapan-" + mssv + "dapan-" + content;
 
             sendData(content);
             doingExam = true;
-            if (waitingFrm != null) 
-            waitingFrm.Close();
+            if (waitingFrm != null)
+                waitingFrm.Close();
         }
 
         private void LockWeb()
@@ -685,7 +736,7 @@ namespace testUdpTcp
                 Console.WriteLine($"Lỗi khi nhận dữ liệu: {ex.Message}");
             }
         }
-       
+
         List<string> stringList = new List<string>();
         public static bool HasUsbDevice(string deviceType)
         {
@@ -787,7 +838,7 @@ namespace testUdpTcp
                 stringList.Add("Size: " + (size / (1024 * 1024 * 1024)) + " GB");
                 HDInfo += " - Size: " + (size / (1024 * 1024 * 1024)) + " GB";
                 InfoUC infoUC = new InfoUC();
-                infoUC.Image=Properties.Resources.harddisk;
+                infoUC.Image = Properties.Resources.harddisk;
                 infoUC.TextLabel = HDInfo;
                 InForGroup.Controls.Add(infoUC);
 
@@ -892,7 +943,7 @@ namespace testUdpTcp
             // Gửi thông tin lên server
             // sendInfToServer(); 
 
-            foreach(var i in inf)
+            foreach (var i in inf)
             {
                 Console.Write(i);
             }
@@ -937,7 +988,7 @@ namespace testUdpTcp
                 Console.WriteLine(q);
             }
         }
-        
+
         private void sendData(string data)
         {
 
@@ -991,7 +1042,7 @@ namespace testUdpTcp
                 listener.Stop();
         }
 
-       
+
         private List<Question> convertType(Quiz quiz)
         {
             List<Question> questions = new List<Question>();
@@ -1018,6 +1069,24 @@ namespace testUdpTcp
             }
             return questions;
         }
+        private void SimulateLeftClick()
+        {
+            var cursorPosition = Cursor.Position;
+            mouse_event(MOUSEEVENTF_LEFTDOWN, (uint)cursorPosition.X, (uint)cursorPosition.Y, 0, 0);
+            mouse_event(MOUSEEVENTF_LEFTUP, (uint)cursorPosition.X, (uint)cursorPosition.Y, 0, 0);
+        }
 
+        private void SimulateRightClick()
+        {
+            var cursorPosition = Cursor.Position;
+            mouse_event(MOUSEEVENTF_RIGHTDOWN, (uint)cursorPosition.X, (uint)cursorPosition.Y, 0, 0);
+            mouse_event(MOUSEEVENTF_RIGHTUP, (uint)cursorPosition.X, (uint)cursorPosition.Y, 0, 0);
+        }
+
+        private void SimulateScroll(int delta)
+        {
+            // Simulate scrolling by the specified delta amount
+            mouse_event(MOUSEEVENTF_WHEEL, 0, 0, (uint)delta, 0);
+        }
     }
 }

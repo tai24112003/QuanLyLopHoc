@@ -4,7 +4,6 @@ public class ClassStudent
 {
     public int ClassID { get; set; }
     public string StudentID { get; set; }
-
     public Student Student { get; set; }
 
 }

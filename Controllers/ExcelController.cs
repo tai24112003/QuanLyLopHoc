@@ -47,6 +47,7 @@ public class ExcelController
                 {
                     ClassID = addedClass.ClassID,
                     StudentID = student.StudentID
+                    
                 };
                 students.Add(classStudent);
             }

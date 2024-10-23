@@ -64,14 +64,13 @@ public class ClassDAL
 
         foreach (var classSession in classResponse.data)
         {
-            string query = "INSERT INTO `classes` (`ClassID`, `ClassName`, `UserID`, `LastTime`) VALUES (@ClassID, @ClassName, @UserID,@LastTime)";
+            string query = "INSERT INTO `classes` (`ClassID`, `ClassName`, `UserID`, ) VALUES (@ClassID, @ClassName, @UserID)";
 
             OleDbParameter[] parameters = new OleDbParameter[]
             {
                 new OleDbParameter("@ClassID", classSession.ClassID),
                 new OleDbParameter("@ClassName", classSession.ClassName),
                 new OleDbParameter("@UserID", classSession.UserID),
-                new OleDbParameter("@LastTime", classSession.LastTime),
             };
 
             DataProvider.RunNonQuery(query, parameters);

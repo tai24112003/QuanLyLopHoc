@@ -34,7 +34,7 @@
 //        }
 //        catch (Exception ex)
 //        {
-//            throw new Exception("Error inserting ClassSubject in DAL", ex);
+//            Console.WriteLine("Error inserting ClassSubject in DAL", ex);
 //        }
 //    }
 

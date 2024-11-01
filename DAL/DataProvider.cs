@@ -36,6 +36,7 @@ public static class DataProvider
                     {
                         cmd.Parameters.AddRange(parameters);
                     }
+                    Console.WriteLine(cmd.CommandText);
 
                     cmd.ExecuteNonQuery();
                     return true;

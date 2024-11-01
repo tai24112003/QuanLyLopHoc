@@ -10,88 +10,198 @@ public class LocalDataHandler
     private readonly SessionComputerBLL _sessionComputerBLL;
     private readonly ClassBLL _classBLL;
     private readonly StudentBLL _studentBLL;
+    private readonly ComputerBLL _computerBLL;
+    private readonly SettingBLL _settingBLL;
     private readonly ClassStudentBLL _classStudentBLL;
+    private readonly AttendanceBLL _attendanceBLL;
 
-    public LocalDataHandler(ClassSessionBLL classSessionBLL, SessionComputerBLL sessionComputerBLL, ClassBLL classBLL, StudentBLL studentBLL, ClassStudentBLL classStudentBLL)
+    public LocalDataHandler(ComputerBLL computerBLL, SettingBLL settingBLL, AttendanceBLL attendanceBLL,
+                            ClassSessionBLL classSessionBLL, SessionComputerBLL sessionComputerBLL,
+                            ClassBLL classBLL, StudentBLL studentBLL, ClassStudentBLL classStudentBLL)
     {
         _classSessionBLL = classSessionBLL ?? throw new ArgumentNullException(nameof(classSessionBLL));
         _sessionComputerBLL = sessionComputerBLL ?? throw new ArgumentNullException(nameof(sessionComputerBLL));
         _classBLL = classBLL ?? throw new ArgumentNullException(nameof(classBLL));
         _studentBLL = studentBLL ?? throw new ArgumentNullException(nameof(studentBLL));
         _classStudentBLL = classStudentBLL ?? throw new ArgumentNullException(nameof(classStudentBLL));
+        _attendanceBLL = attendanceBLL ?? throw new ArgumentNullException(nameof(attendanceBLL));
+        _settingBLL = settingBLL ?? throw new ArgumentNullException(nameof(settingBLL));
+        _computerBLL = computerBLL ?? throw new ArgumentNullException(nameof(computerBLL));
     }
 
     public async Task MigrateData()
     {
         try
         {
-            // Bước 1: Lấy danh sách lớp có ID âm
-            var negativeClasses = _classBLL.LoadNegativeIDClasses();
-            if (negativeClasses != null)
-                foreach (var classItem in negativeClasses)
-                {
-                    // Bước 2: Lưu ID lớp âm vào biến 'a'
-                    int classID_A = classItem.ClassID;
-
-                    // Bước 3: Lấy danh sách class_student có ClassID là 'a'
-                    var classStudents = await _classStudentBLL.GetClassStudentsByClassID(classID_A);
-
-                    // Bước 4: Lấy danh sách sinh viên có ID âm
-                    var negativeStudents = _studentBLL.LoadNegativeIDStudentes();
-
-                    // Sau khi đã có toàn bộ thông tin cần thiết (lớp, sinh viên, class_student), ta bắt đầu xử lý xóa và thêm mới
-
-                    // Bước 5: Thêm lớp vào server và lấy ID lớp mới trả về, lưu vào biến 'b'
-                    int classID_B = (await _classBLL.InsertClass(classItem)).ClassID;
-
-                    // Bước 6: Xóa class_student có ID lớp là 'a' ở local
-                    await _classStudentBLL.DeleteClassStudentsByClassID(classID_A);
-
-                    // Bước 7: Xử lý sinh viên có ID âm
-                    foreach (var student in negativeStudents)
-                    {
-                        // Xóa class_student liên quan đến sinh viên trước khi xóa sinh viên để tránh vi phạm khóa ngoại
-                        await _classStudentBLL.DeleteClassStudentsByStudentID(student.StudentID);
-
-                        // Xóa sinh viên có ID âm
-                        await _studentBLL.DeleteStudent(student.StudentID);
-
-                        // Sinh ID không âm mới cho sinh viên
-                        student.StudentID = GeneratePositiveID(student.StudentID);
-                    }
-
-                    // Bước 8: Thêm sinh viên mới vào server với ID không âm
-                    await _studentBLL.InsertStudent(negativeStudents);
-
-                    // Bước 9: Thêm sinh viên mới vào local với ID không âm
-                    _studentBLL.InsertStudentLocal(negativeStudents);
-
-                    // Bước 10: Cập nhật ID lớp trong danh sách class_student thành ID lớp mới 'b'
-                    foreach (var classStudent in classStudents)
-                    {
-                        classStudent.ClassID = classID_B;
-                        classStudent.StudentID = GeneratePositiveID(classStudent.StudentID);
-                    }
-
-                    // Bước 11: Thêm danh sách class_student với ID lớp là 'b' vào server
-                    await _classStudentBLL.InsertClassStudent(classStudents);
-
-                    // Bước 12: Cập nhật class_session có classID là 'a' thành classID là 'b'
-                    await _classSessionBLL.UpdateClassSessionClassID(classID_A, classID_B);
-
-                }
+            await MigrateComputerAndStudentData();
+            await MigrateClassAndStudentData();
+            await MigrateDataForClassSessions();
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex.ToString());
+            Console.WriteLine($"Error occurred during data migration: {ex}");
         }
     }
 
+    private async Task MigrateClassAndStudentData()
+    {
+        try
+        {
+            var negativeClasses = await _classBLL.LoadNegativeIDClasses();
+            if (negativeClasses == null) return;
 
+            foreach (var classItem in negativeClasses)
+            {
+                await MigrateClassData(classItem);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error migrating class and student data: {ex}");
+        }
+    }
 
-    // Hàm tạo ID không âm mới (bạn có thể thay đổi logic này theo ý muốn)
+    private async Task MigrateClassData(Class classItem)
+    {
+        int classID_A = classItem.ClassID;
+        var classStudents = await _classStudentBLL.GetClassStudentsByClassID(classID_A);
+        var negativeStudents = await _studentBLL.LoadNegativeIDStudentes();
+
+        int classID_B = (await _classBLL.InsertClass(classItem)).ClassID;
+        await _classStudentBLL.DeleteClassStudentsByClassID(classID_A);
+
+        if (negativeStudents != null)
+        {
+            foreach (var student in negativeStudents)
+            {
+                await DeleteAndMigrateStudent(student);
+            }
+        }
+
+        await _studentBLL.InsertStudent(negativeStudents);
+        await _studentBLL.InsertStudentLocal(negativeStudents);
+
+        foreach (var classStudent in classStudents)
+        {
+            classStudent.ClassID = classID_B;
+            classStudent.StudentID = GeneratePositiveID(classStudent.StudentID);
+        }
+
+        await _classStudentBLL.InsertClassStudent(classStudents);
+        await _classSessionBLL.UpdateClassSessionClassID(classID_A, classID_B);
+        await _classBLL.DeleteClasssByClassID(classID_A);
+
+    }
+
+    private async Task DeleteAndMigrateStudent(Student student)
+    {
+        await _studentBLL.DeleteStudent(student.StudentID);
+        student.StudentID = GeneratePositiveID(student.StudentID);
+    }
+
+    private async Task MigrateDataForClassSessions()
+    {
+        try
+        {
+            var negativeClassSessions = await _classSessionBLL.LoadNegativeIDClasseSessionAsync();
+            if (negativeClassSessions == null) return;
+
+            foreach (var classSession in negativeClassSessions)
+            {
+                await MigrateClassSessionData(classSession);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error migrating class sessions data: {ex}");
+        }
+    }
+
+    private async Task MigrateClassSessionData(ClassSession classSession)
+    {
+        int sessionID_A = classSession.SessionID;
+        var attendanceRecords = await _attendanceBLL.GetAttendanceBySessionID(sessionID_A);
+        var sessionComputers = await _sessionComputerBLL.GetSessionComputersBySessionID(sessionID_A);
+
+        var newClassSession = await _classSessionBLL.InsertClassSession(classSession);
+        int sessionID_B = newClassSession.SessionID;
+
+        await _attendanceBLL.DeleteAttendanceBySessionID(sessionID_A);
+        await _sessionComputerBLL.DeleteSessionComputersBySessionID(sessionID_A);
+
+        foreach (var attendance in attendanceRecords)
+        {
+            attendance.SessionID = sessionID_B;
+            attendance.StudentID = GeneratePositiveID(attendance.StudentID);
+        }
+        await _attendanceBLL.InsertAttendance(sessionID_B, attendanceRecords);
+
+        foreach (var sessionComputer in sessionComputers)
+        {
+            sessionComputer.SessionID = sessionID_B;
+        }
+        await _sessionComputerBLL.InsertSessionComputer(sessionID_B, sessionComputers);
+    }
+
+    private async Task MigrateComputerAndStudentData()
+    {
+        try
+        {
+            var settingLocal = await _settingBLL.GetSettingLocal();
+            var settingServer = await _settingBLL.GetSettingServer();
+
+            DateTime lastTimeUpdateStudentLocal = DateTime.Parse(settingLocal.lastTimeUpdateStudent);
+            DateTime lastTimeUpdateStudentServer = DateTime.Parse(settingServer.lastTimeUpdateStudent);
+
+            DateTime lastTimeUpdateComputerLocal = DateTime.Parse(settingLocal.lastTimeUpdateComputer);
+            DateTime lastTimeUpdateComputerServer = DateTime.Parse(settingServer.lastTimeUpdateComputer);
+
+            DateTime lastTimeUpdateClassLocal = DateTime.Parse(settingLocal.lastTimeUpdateComputer);
+            DateTime lastTimeUpdateClassServer = DateTime.Parse(settingServer.lastTimeUpdateComputer);
+
+            await SyncStudentData(lastTimeUpdateStudentLocal, lastTimeUpdateStudentServer, settingServer);
+            await SyncComputerData(lastTimeUpdateComputerLocal, lastTimeUpdateComputerServer, settingServer);
+            await SyncClassData(lastTimeUpdateClassLocal, lastTimeUpdateClassServer, settingServer);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error migrating computer and student data: {ex}");
+        }
+    }
+
+    private async Task SyncStudentData(DateTime lastTimeUpdateStudentLocal, DateTime lastTimeUpdateStudentServer, Setting settingServer)
+    {
+        var studentsToSync = await _studentBLL.GetStudentsByDateRange(lastTimeUpdateStudentLocal, lastTimeUpdateStudentServer);
+        if (studentsToSync.Count > 0)
+        {
+            await _studentBLL.InsertStudent(studentsToSync);
+            await _settingBLL.UpdateLastTimeUpdateStudent(settingServer.lastTimeUpdateStudent);
+        }
+    }
+
+    private async Task SyncComputerData(DateTime lastTimeUpdateComputerLocal, DateTime lastTimeUpdateComputerServer, Setting settingServer)
+    {
+        var computersToSync = await _computerBLL.GetComputerByDateRange(lastTimeUpdateComputerLocal, lastTimeUpdateComputerServer);
+        if (computersToSync.Count > 0)
+        {
+            await _computerBLL.InsertOrUpdateComputers(computersToSync);
+            await _settingBLL.UpdateLastTimeUpdateComputer(settingServer.lastTimeUpdateComputer);
+        }
+    }
+
+    private async Task SyncClassData(DateTime lastTimeUpdateClassLocal, DateTime lastTimeUpdateClassServer, Setting settingServer)
+    {
+        var ClasssToSync = await _classBLL.GetClassByDateRange(lastTimeUpdateClassLocal, lastTimeUpdateClassServer);
+        if (ClasssToSync.Count > 0)
+        {
+            foreach (var classe in ClasssToSync)
+                await _classBLL.InsertClass(classe);
+            await _settingBLL.UpdateLastTimeUpdateClass(settingServer.lastTimeUpdateClass);
+        }
+    }
+
     private string GeneratePositiveID(string negativeID)
     {
-        return negativeID.Replace("-", ""); // Ví dụ: chỉ thay thế dấu '-' bằng chuỗi rỗng
+        return negativeID.Replace("-", ""); // Adjust logic as needed
     }
 }

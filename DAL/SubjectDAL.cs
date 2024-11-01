@@ -34,7 +34,8 @@ public class SubjectDAL
         }
         catch (Exception ex)
         {
-            throw new Exception("Error inserting Subject in DAL"+ ex);
+            Console.WriteLine("Error inserting Subject in DAL"+ ex);
+            return null;
         }
     }
     public async Task<string> GetLastTimeUpdateFromDB()
@@ -47,12 +48,14 @@ public class SubjectDAL
         catch (HttpRequestException ex)
         {
             // Handle 404 error (Not Found)
-            throw new Exception("Last time update API endpoint not found.", ex);
+            Console.WriteLine("Last time update API endpoint not found.", ex);
+            return null;
         }
         catch (Exception ex)
         {
             // Handle other exceptions
-            throw new Exception("Error fetching last time update from API.", ex);
+            Console.WriteLine("Error fetching last time update from API.", ex);
+            return null;
         }
     }
 }

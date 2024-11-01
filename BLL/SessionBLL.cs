@@ -29,7 +29,7 @@
 //                SessionResponse SessionResponse = JsonConvert.DeserializeObject<SessionResponse>(SessionsJson);
 //                return SessionResponse.data;
 //            }
-//            throw new Exception("Error fetching Sessions from API and local data", ex);
+//            Console.WriteLine("Error fetching Sessions from API and local data", ex);
 //        }
 //    }
 

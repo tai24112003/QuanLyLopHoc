@@ -22,12 +22,14 @@ public class SessionDAL
         catch (HttpRequestException ex)
         {
             // Handle 404 error (Not Found)
-            throw new Exception("Get Session API endpoint not found.", ex);
+            Console.WriteLine("Get Session API endpoint not found.", ex);
+            return null;
         }
         catch (Exception ex)
         {
             // Handle other exceptions
-            throw new Exception("Error fetching session from API.", ex);
+            Console.WriteLine("Error fetching session from API.", ex);
+            return null;
         }
     }
 

@@ -25,6 +25,9 @@ public class ClassStudentBLL
         {
             string responseJson = await _ClassStudentDAL.InsertClassStudent(classSession);
             var insertedSession = JsonConvert.DeserializeObject<ClassStudent>(responseJson);
+            var classResponse = new ClassStudentResponse { data = classSession };
+            string classJson = JsonConvert.SerializeObject(classResponse);
+            _ClassStudentDAL.SaveLocalData(classJson);
             return insertedSession;
         }
         catch (Exception ex)
@@ -36,7 +39,8 @@ public class ClassStudentBLL
             string classJson = JsonConvert.SerializeObject(classResponse);
             _ClassStudentDAL.SaveLocalData(classJson);
 
-            throw new Exception("Error inserting ClassStudent in BLL. Data saved locally.", ex);
+            Console.WriteLine("Error inserting ClassStudent in BLL. Data saved locally.", ex);
+            return null;
         }
     }
 
@@ -44,19 +48,19 @@ public class ClassStudentBLL
     {
         try
         {
-            string ClassStudentsJson = await GetClassStudents();
-            ClassStudentResponse ClassStudentResponse = JsonConvert.DeserializeObject<ClassStudentResponse>(ClassStudentsJson);
-            return ClassStudentResponse.data;
-        }
-        catch (Exception ex)
-        { 
             string ClassStudentsJson = _ClassStudentDAL.LoadLocalData();
             if (!string.IsNullOrEmpty(ClassStudentsJson))
             {
                 ClassStudentResponse ClassStudentResponse = JsonConvert.DeserializeObject<ClassStudentResponse>(ClassStudentsJson);
                 return ClassStudentResponse.data;
             }
-            throw new Exception("Error fetching ClassStudents from API and local data", ex);
+            return null;
+        }
+        catch (Exception ex)
+        { 
+            
+            Console.WriteLine("Error fetching ClassStudents from API and local data", ex);
+            return null;
         }
     }
 
@@ -78,7 +82,8 @@ public class ClassStudentBLL
         }
         catch (Exception ex)
         {
-            throw new Exception("Error fetching ClassStudents from BLL", ex);
+            Console.WriteLine("Error fetching ClassStudents from BLL", ex);
+            return null;
         }
     }
 
@@ -89,38 +94,22 @@ public class ClassStudentBLL
     {
         try
         {
-            string ClassStudentsJson = await GetClassStudentsByID1(id);
-            ClassStudentResponse ClassStudentResponse = JsonConvert.DeserializeObject<ClassStudentResponse>(ClassStudentsJson);
-            return ClassStudentResponse.data;
-        }
-        catch (Exception ex)
-        {
             string ClassStudentsJson = _ClassStudentDAL.LoadLocalData();
             if (!string.IsNullOrEmpty(ClassStudentsJson))
             {
                 ClassStudentResponse ClassStudentResponse = JsonConvert.DeserializeObject<ClassStudentResponse>(ClassStudentsJson);
                 return ClassStudentResponse.data;
             }
-            throw new Exception("Error fetching ClassStudents from API and local data", ex);
-        }
-    }
-    public async Task<string> GetClassStudentsByID1(int id)
-    {
-        try
-        {
-            // Get ClassStudents from server
-            string ClassStudentsJson = await _ClassStudentDAL.GetClassStudentsByID(id);
-            // Save ClassStudents and last update time to local database
-            _ClassStudentDAL.SaveLocalData(ClassStudentsJson);
-
-            
-            return ClassStudentsJson;
+            return null;
         }
         catch (Exception ex)
         {
-            throw new Exception("Error fetching ClassStudents from BLL", ex);
+            
+            Console.WriteLine("Error fetching ClassStudents from API and local data", ex);
+            return null;
         }
     }
+    
     public async Task DeleteClassStudentsByClassID(int ClassID)
     {
         if (string.IsNullOrEmpty(ClassID.ToString()))
@@ -137,7 +126,7 @@ public class ClassStudentBLL
         catch (Exception ex)
         {
             Console.WriteLine($"Error deleting student in BLL: {ex.Message}");
-            throw new Exception($"Error deleting student with ID {ClassID} in BLL.", ex);
+            Console.WriteLine($"Error deleting student with ID {ClassID} in BLL.", ex);
         }
     }
 
@@ -157,7 +146,7 @@ public class ClassStudentBLL
         catch (Exception ex)
         {
             Console.WriteLine($"Error deleting student in BLL: {ex.Message}");
-            throw new Exception($"Error deleting student with ID {StudentID} in BLL.", ex);
+            Console.WriteLine($"Error deleting student with ID {StudentID} in BLL.", ex);
         }
     }
 

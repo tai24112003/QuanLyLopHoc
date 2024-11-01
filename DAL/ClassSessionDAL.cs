@@ -3,8 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.OleDb;
-using System.Net;
-using System.Net.Http;
 using System.Threading.Tasks;
 
 public class ClassSessionDAL
@@ -21,91 +19,133 @@ public class ClassSessionDAL
         try
         {
             string classSessionJson = JsonConvert.SerializeObject(classSession);
-            string responseJson = await _dataService.PostAsync("class_session/", classSessionJson);
-            return responseJson;
+            return await _dataService.PostAsync("class_session/", classSessionJson);
         }
         catch (Exception ex)
         {
-            throw new Exception("Error inserting class session in DAL", ex);
+            Console.WriteLine("Error inserting class session in DAL", ex);
+            return null;
         }
     }
 
-    public async Task<string> getClassSessionByClassID(int ID)
+    public async Task<string> GetClassSessionByClassID(int ID)
     {
         try
         {
-            string ClassStudentsJson = await _dataService.GetAsync("class_session/" + ID);
-            return ClassStudentsJson;
+            return await _dataService.GetAsync("class_session/" + ID);
         }
         catch (Exception ex)
         {
-            throw ex;
+            Console.WriteLine("Error fetching class session by ClassID", ex);
+            return null;
         }
     }
+
     public async Task UpdateClassSessionWithNewClassID(int oldClassID, int newClassID)
     {
         try
         {
-            string query = $"UPDATE Class_Session SET ClassID = @newClassID WHERE ClassID = @oldClassID";
-            OleDbParameter[] parameters = new OleDbParameter[]
-        {
-        new OleDbParameter("@newClassID", newClassID),
-        new OleDbParameter("@oldClassID", oldClassID),
-        };
+            string query = "UPDATE Class_Session SET ClassID = @newClassID WHERE ClassID = @oldClassID";
+            OleDbParameter[] parameters =
+            {
+                new OleDbParameter("@newClassID", newClassID),
+                new OleDbParameter("@oldClassID", oldClassID)
+            };
 
-            bool result = await Task.Run(() => DataProvider.RunNonQuery(query, parameters));
+            bool result = await Task.Run(() => DataProvider.RunNonQuery(query, parameters) );
             if (!result)
             {
-                throw new Exception($"No ClassSession found with ID: {oldClassID}, or an error occurred during update.");
+                Console.WriteLine($"No ClassSession found with ID: {oldClassID}, or an error occurred during update.");
             }
         }
-        catch(Exception ex)
+        catch (Exception ex)
         {
-            throw ex;
+            Console.WriteLine("Error updating ClassSession with new ClassID", ex);
         }
     }
 
-    public void SaveLocalData(List<ClassSession> classSessions)
+    public async Task SaveLocalDataAsync(List<ClassSession> classSessions)
     {
         try
         {
             foreach (var classSession in classSessions)
             {
-                string query = "INSERT INTO `Class_Sessions` (`SessionID`, `ClassID`, `RoomID`, `StartTime`, `EndTime`, `user_id`, `Session`) VALUES (@SessionID, @ClassID, @RoomID, @StartTime, @EndTime, @UserID,@Session)";
+                string query = "INSERT INTO `Class_Sessions` (`SessionID`, `ClassID`, `RoomID`, `StartTime`, `EndTime`, `user_id`, `Session`) VALUES (@SessionID, @ClassID, @RoomID, @StartTime, @EndTime, @UserID, @Session)";
 
-                OleDbParameter[] parameters = new OleDbParameter[]
+                OleDbParameter[] parameters =
                 {
-                new OleDbParameter("@SessionID", classSession.SessionID),
-                new OleDbParameter("@ClassID", classSession.ClassID),
-                new OleDbParameter("@RoomID", classSession.RoomID),
-                new OleDbParameter("@StartTime", classSession.StartTime),
-                new OleDbParameter("@EndTime", classSession.EndTime),
-                new OleDbParameter("@UserID", classSession.user_id),
-                new OleDbParameter("@Session", classSession.Session),
+                    new OleDbParameter("@SessionID", classSession.SessionID),
+                    new OleDbParameter("@ClassID", classSession.ClassID),
+                    new OleDbParameter("@RoomID", classSession.RoomID),
+                    new OleDbParameter("@StartTime", classSession.StartTime),
+                    new OleDbParameter("@EndTime", classSession.EndTime),
+                    new OleDbParameter("@UserID", classSession.user_id),
+                    new OleDbParameter("@Session", classSession.Session)
                 };
 
-                DataProvider.RunNonQuery(query, parameters);
+                bool success = await Task.Run(() => DataProvider.RunNonQuery(query, parameters));
+                if (!success)
+                {
+                    Console.WriteLine("Failed to save class session locally.");
+                }
             }
         }
         catch (Exception ex)
         {
-            Console.WriteLine("Error saving data locally: " + ex.Message);
+            Console.WriteLine("Error saving local class session data", ex);
         }
     }
 
-    public string LoadLocalData()
+    public async Task<string> LoadLocalDataAsync()
     {
         try
         {
-            string query = "SELECT SessionID, ClassID, RoomID, StartTime, EndTime FROM Class_Sessions";
-            DataTable dataTable = DataProvider.GetDataTable(query, null);
+            string query = "SELECT SessionID, ClassID, RoomID, StartTime, EndTime, user_id FROM Class_Sessions";
+            DataTable dataTable = await Task.Run(() => DataProvider.GetDataTable(query, null));
 
             if (dataTable == null || dataTable.Rows.Count == 0)
             {
                 return null;
             }
 
-            List<ClassSession> Class_Sessions = new List<ClassSession>();
+            List<ClassSession> classSessions = new List<ClassSession>();
+            foreach (DataRow row in dataTable.Rows)
+            {
+                ClassSession classSession = new ClassSession
+                {
+                    SessionID = int.Parse(row["SessionID"].ToString()),
+                    ClassID = int.Parse(row["ClassID"].ToString()),
+                    RoomID = row["RoomID"].ToString(),
+                    StartTime = DateTime.Parse(row["StartTime"].ToString()),
+                    EndTime = DateTime.Parse(row["EndTime"].ToString()),
+                    user_id = int.Parse(row["user_id"].ToString())
+                };
+                classSessions.Add(classSession);
+            }
+
+            ClassSessionResponse response = new ClassSessionResponse { data = classSessions };
+            return JsonConvert.SerializeObject(response);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Error loading local data", ex);
+            return null;
+        }
+    }
+
+    public async Task<List<ClassSession>> LoadNegativeIDClassSessionsAsync()
+    {
+        try
+        {
+            string query = "SELECT SessionID, ClassID, RoomID, StartTime, EndTime, user_id, Session FROM Class_Sessions WHERE ClassID < 0";
+            DataTable dataTable = await Task.Run(() => DataProvider.GetDataTable(query, null));
+
+            if (dataTable == null || dataTable.Rows.Count == 0)
+            {
+                return null;
+            }
+
+            List<ClassSession> negativeClassSessions = new List<ClassSession>();
             foreach (DataRow row in dataTable.Rows)
             {
                 ClassSession classSession = new ClassSession
@@ -116,19 +156,17 @@ public class ClassSessionDAL
                     StartTime = DateTime.Parse(row["StartTime"].ToString()),
                     EndTime = DateTime.Parse(row["EndTime"].ToString()),
                     user_id = int.Parse(row["user_id"].ToString()),
-                    // Set other properties as needed
+                    Session = int.Parse(row["Session"].ToString())
                 };
-                Class_Sessions.Add(classSession);
+                negativeClassSessions.Add(classSession);
             }
 
-            ClassSessionResponse classSessionResponse = new ClassSessionResponse { data = Class_Sessions };
-            return JsonConvert.SerializeObject(classSessionResponse);
+            return negativeClassSessions;
         }
         catch (Exception ex)
         {
-            Console.WriteLine("Error loading data from Access: " + ex.Message);
+            Console.WriteLine("Error loading class sessions with negative IDs", ex);
             return null;
         }
     }
 }
-

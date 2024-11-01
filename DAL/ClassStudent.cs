@@ -35,7 +35,7 @@ public class ClassStudentDAL
         }
         catch (Exception ex)
         {
-            throw new Exception("Error inserting ClassStudent in DAL", ex);
+            Console.WriteLine("Error inserting ClassStudent in DAL", ex);
         }
     }
 

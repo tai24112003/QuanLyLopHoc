@@ -1,9 +1,8 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Data.OleDb;
 using System.Data;
-using System.Net.Http;
+using System.Data.OleDb;
 using System.Threading.Tasks;
 
 public class ClassDAL
@@ -19,14 +18,16 @@ public class ClassDAL
     {
         try
         {
-            string ClassJson = await _dataService.GetAsync("class");
-            return ClassJson;
+            string classJson = await _dataService.GetAsync("class");
+            return classJson;
         }
         catch (Exception ex)
         {
-            throw ex;
+            Console.WriteLine("Error fetching all classes", ex);
+            return null;
         }
     }
+
     public async Task<string> InsertClass(Class classSession)
     {
         try
@@ -37,88 +38,102 @@ public class ClassDAL
         }
         catch (Exception ex)
         {
-            throw new Exception("Error inserting class in DAL", ex);
+            Console.WriteLine("Error inserting class in DAL", ex);
+            return null;
         }
     }
-    public async Task<string> GetLastTimeUpdateFromDB()
+
+    public async Task SaveLocalData(string classJson)
     {
         try
         {
-            string lastTimeUpdateJson = await _dataService.GetAsync("setting/getSetting");
-            return lastTimeUpdateJson;
-        }
-        catch (HttpRequestException ex)
-        {
-            // Handle 404 error (Not Found)
-            throw new Exception("Last time update API endpoint not found.", ex);
+            var classResponse = JsonConvert.DeserializeObject<ClassResponse>(classJson);
+
+            foreach (var classSession in classResponse.data)
+            {
+                string query = "INSERT INTO `classes` (`ClassID`, `ClassName`, `UserID`,`LastTime`) VALUES (@ClassID, @ClassName, @UserID, @LastTime)";
+
+                OleDbParameter[] parameters = new OleDbParameter[]
+                {
+                    new OleDbParameter("@ClassID", classSession.ClassID),
+                    new OleDbParameter("@ClassName", classSession.ClassName),
+                    new OleDbParameter("@UserID", classSession.UserID),
+                    new OleDbParameter("@LastTime", classSession.LastTime)
+                };
+
+                bool success = await Task.Run(() => DataProvider.RunNonQuery(query, parameters));
+                if (!success)
+                {
+                    Console.WriteLine("Failed to insert class session locally");
+                }
+            }
         }
         catch (Exception ex)
         {
-            // Handle other exceptions
-            throw new Exception("Error fetching last time update from API.", ex);
+            Console.WriteLine("Error saving local data", ex);
         }
     }
-    public void SaveLocalData(string ClassJson)
-    {
-        var classResponse = JsonConvert.DeserializeObject<ClassResponse>(ClassJson);
 
-        foreach (var classSession in classResponse.data)
-        {
-            string query = "INSERT INTO `classes` (`ClassID`, `ClassName`, `UserID`, ) VALUES (@ClassID, @ClassName, @UserID)";
-
-            OleDbParameter[] parameters = new OleDbParameter[]
-            {
-                new OleDbParameter("@ClassID", classSession.ClassID),
-                new OleDbParameter("@ClassName", classSession.ClassName),
-                new OleDbParameter("@UserID", classSession.UserID),
-            };
-
-            DataProvider.RunNonQuery(query, parameters);
-        }
-    }
-    public string LoadNegativeIDClasses()
+    public async Task<List<Class>> LoadNegativeIDClasses()
     {
         try
         {
-            // Bước 1: Lấy danh sách các lớp có ID âm từ cơ sở dữ liệu
-            string query = "SELECT ClassID, ClassName, UserID FROM Classes WHERE ClassID < 0";
-            DataTable dataTable = DataProvider.GetDataTable(query, null); // Thực thi câu lệnh SQL
+            string query = "SELECT * FROM Classes WHERE ClassID < 0";
+            DataTable dataTable = await Task.Run(() => DataProvider.GetDataTable(query, null));
 
             if (dataTable == null || dataTable.Rows.Count == 0)
             {
-                return null; // Nếu không có dữ liệu trả về null
+                return null;
             }
 
-            // Bước 2: Tạo danh sách các lớp từ dữ liệu bảng
             List<Class> negativeClasses = new List<Class>();
             foreach (DataRow row in dataTable.Rows)
             {
                 Class classSession = new Class
                 {
-                    ClassID = int.Parse(row["ClassID"].ToString()),  // Lấy ClassID
-                    ClassName = row["ClassName"].ToString(),         // Lấy tên lớp
-                    UserID = int.Parse(row["UserID"].ToString())     // Lấy UserID
+                    ClassID = int.Parse(row["ClassID"].ToString()),
+                    ClassName = row["ClassName"].ToString(),
+                    LastTime = row["LastTime"].ToString(),
+                    UserID = int.Parse(row["UserID"].ToString())
                 };
-                negativeClasses.Add(classSession); // Thêm lớp vào danh sách
+                negativeClasses.Add(classSession);
             }
 
-            // Bước 3: Đóng gói dữ liệu vào ClassResponse và chuyển đổi thành JSON
-            ClassResponse classResponse = new ClassResponse { data = negativeClasses };
-            return JsonConvert.SerializeObject(classResponse); // Chuyển dữ liệu thành JSON và trả về
+            return negativeClasses;
         }
         catch (Exception ex)
         {
-            Console.WriteLine("Error loading data from Access: " + ex.Message); // Xử lý lỗi
-            return null; // Trả về null nếu có lỗi xảy ra
+            Console.WriteLine("Error loading classes with negative IDs", ex);
+            return null;
         }
     }
+    public async Task<string> GetClasssByDateRange(DateTime startTime, DateTime endTime)
+    {
+        try
+        {
+            // Chuyển đổi ngày thành định dạng chuỗi để gửi qua query string
+            string formattedStartTime = startTime.ToString("yyyy-MM-ddTHH:mm:ss");
+            string formattedEndTime = endTime.ToString("yyyy-MM-ddTHH:mm:ss");
 
-    public string LoadLocalData()
+            // Tạo URL với query string
+            string url = $"class/getClassBetween?startDate={formattedStartTime}&endDate={formattedEndTime}";
+
+            // Gọi API và lấy dữ liệu dưới dạng JSON
+            string ClasssJson = await _dataService.GetAsync(url);
+
+            return ClasssJson;
+        }
+        catch (Exception ex)
+        {
+            throw ex;
+        }
+    }
+    public async Task<string> LoadLocalData()
     {
         try
         {
             string query = "SELECT ClassID, ClassName, UserID FROM classes";
-            DataTable dataTable = DataProvider.GetDataTable(query, null);
+            DataTable dataTable = await Task.Run(() => DataProvider.GetDataTable(query, null));
 
             if (dataTable == null || dataTable.Rows.Count == 0)
             {
@@ -142,8 +157,40 @@ public class ClassDAL
         }
         catch (Exception ex)
         {
-            Console.WriteLine("Error loading data from Access: " + ex.Message);
+            Console.WriteLine("Error loading local data", ex);
             return null;
+        }
+    }
+
+    public async Task DeleteClassLocalByClassID(int ClassID)
+    {
+        if (string.IsNullOrEmpty(ClassID.ToString()))
+        {
+            throw new ArgumentException("StudentID cannot be null or empty.", nameof(ClassID));
+        }
+
+        try
+        {
+            string query = "DELETE FROM Classes WHERE ClassID = @ClassID";
+
+            OleDbParameter[] parameters = new OleDbParameter[]
+            {
+            new OleDbParameter("@ClassID", ClassID)
+            };
+
+            // Using Task.Run to make RunNonQuery asynchronous
+            bool result = await Task.Run(() => DataProvider.RunNonQuery(query, parameters));
+
+            if (!result)
+            {
+                Console.WriteLine($"No Class found with ID: {ClassID}, or an error occurred during deletion.");
+            }
+        }
+        catch (Exception ex)
+        {
+            // Log the exception with the relevant student ID information
+            Console.WriteLine($"Error deleting Class with ID {ClassID} in DAL: {ex.Message}");
+            Console.WriteLine($"Error deleting Class with ID {ClassID} in DAL.", ex);
         }
     }
 }

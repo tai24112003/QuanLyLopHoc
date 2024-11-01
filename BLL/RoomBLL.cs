@@ -67,7 +67,8 @@ public class RoomBLL
             {
                 return lstRoom[0];
             }
-            throw new Exception("Error fetching Rooms by id from BLL and no local data available", ex);
+            Console.WriteLine("Error fetching Rooms by id from BLL and no local data available", ex);
+            return null;
         }
     }
 

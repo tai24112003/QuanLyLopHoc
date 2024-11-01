@@ -27,7 +27,8 @@ public class SubmisstionDAL
         }
         catch (Exception ex)
         {
-            throw new Exception("Error inserting submisstion in DAL", ex);
+            Console.WriteLine("Error inserting submisstion in DAL", ex);
+            return null;
         }
     }
 
@@ -40,7 +41,8 @@ public class SubmisstionDAL
         }
         catch (Exception ex)
         {
-            throw new Exception("Error deleting session computers by session ID in DAL", ex);
+            Console.WriteLine("Error deleting session computers by session ID in DAL", ex);
+            return null;
         }
     }
 
@@ -72,7 +74,7 @@ public class SubmisstionDAL
     //        bool success = DataProvider.RunNonQuery(query, parameters);
     //        if (!success)
     //        {
-    //            throw new Exception("Failed to insert session computer into database.");
+    //            Console.WriteLine("Failed to insert session computer into database.");
     //        }
     //    }
     //}

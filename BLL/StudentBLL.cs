@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
-using System.Data.OleDb;
-using System.Linq;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 
@@ -21,7 +18,7 @@ public class StudentBLL
         {
             string responseJson = await _StudentDAL.InsertListStudent(classSession);
             var insertedSession = JsonConvert.DeserializeObject<StudentResponse>(responseJson);
-            InsertStudentLocal(classSession);
+            await InsertStudentLocal(classSession);
             return insertedSession;
         }
         catch (Exception ex)
@@ -30,33 +27,31 @@ public class StudentBLL
             foreach (var _classSession in classSession)
             {
                 if (!_classSession.StudentID.StartsWith("-"))
-                    _classSession.StudentID.Insert(0, "-");
+                    _classSession.StudentID = "-" + _classSession.StudentID;
             }
             // Save to local if insertion fails
-            InsertStudentLocal(classSession);
+            await InsertStudentLocal(classSession);
 
-            throw new Exception("Error inserting Student in BLL. Data saved locally.", ex);
+            Console.WriteLine("Error inserting Student in BLL. Data saved locally.", ex);
+            return null;
         }
     }
 
-    public void InsertStudentLocal(List<Student> classSession)
+    public async Task InsertStudentLocal(List<Student> classSession)
     {
         try
         {
-            // Save to local if insertion fails
             var studentResponse = new StudentResponse { data = classSession };
             string studentJson = JsonConvert.SerializeObject(studentResponse);
-            _StudentDAL.SaveLocalData(studentJson);
+            await _StudentDAL.SaveLocalData(studentJson);
         }
         catch (Exception ex)
         {
             Console.WriteLine("Error inserting Student in BLL: " + ex.Message);
-
-
-
-            throw new Exception("Error inserting Student in BLL. Data saved locally.", ex);
+            Console.WriteLine("Error inserting Student in BLL. Data saved locally.", ex);
         }
     }
+
     public async Task<List<Student>> GetAllStudents()
     {
         try
@@ -67,20 +62,22 @@ public class StudentBLL
         }
         catch (Exception ex)
         {
-            string StudentsJson = _StudentDAL.LoadLocalData();
+            string StudentsJson = await _StudentDAL.LoadLocalData();
             if (!string.IsNullOrEmpty(StudentsJson))
             {
                 StudentResponse StudentResponse = JsonConvert.DeserializeObject<StudentResponse>(StudentsJson);
                 return StudentResponse.data;
             }
-            throw new Exception("Error fetching Students from API and local data", ex);
+            Console.WriteLine("Error fetching Students from API and local data", ex);
+            return null;
         }
     }
-    public List<Student> LoadNegativeIDStudentes()
+
+    public async Task<List<Student>> LoadNegativeIDStudentes()
     {
         try
         {
-            string StudentJson = _StudentDAL.GetStudentsWithNegativeID();
+            string StudentJson = await _StudentDAL.GetStudentsWithNegativeID();
             if (!string.IsNullOrEmpty(StudentJson))
             {
                 StudentResponse StudentResponse = JsonConvert.DeserializeObject<StudentResponse>(StudentJson);
@@ -90,8 +87,7 @@ public class StudentBLL
         }
         catch (Exception ex)
         {
-
-            throw new Exception("Error fetching Class negative from local data", ex);
+            Console.WriteLine("Error fetching Class negative from local data", ex);
             return null;
         }
     }
@@ -103,14 +99,16 @@ public class StudentBLL
             // Get Students from server
             string StudentsJson = await _StudentDAL.GetAllStudents();
             // Save Students and last update time to local database
-            _StudentDAL.SaveLocalData(StudentsJson);
+            await _StudentDAL.SaveLocalData(StudentsJson);
             return StudentsJson;
         }
         catch (Exception ex)
         {
-            throw new Exception("Error fetching Students from BLL", ex);
+            Console.WriteLine("Error fetching Students from BLL", ex);
+            return null;
         }
     }
+
     public async Task DeleteStudent(string studentId)
     {
         if (string.IsNullOrEmpty(studentId))
@@ -120,17 +118,29 @@ public class StudentBLL
 
         try
         {
-            // Call the DeleteStudentLocal method from the DAL
             await _StudentDAL.DeleteStudentLocal(studentId);
             Console.WriteLine($"Student with ID {studentId} has been successfully deleted.");
         }
         catch (Exception ex)
         {
             Console.WriteLine($"Error deleting student in BLL: {ex.Message}");
-            throw new Exception($"Error deleting student with ID {studentId} in BLL.", ex);
+            Console.WriteLine($"Error deleting student with ID {studentId} in BLL.", ex);
         }
     }
 
-
-
+    public async Task<List<Student>> GetStudentsByDateRange(DateTime startTime, DateTime endTime)
+    {
+        try
+        {
+            string studentsJson = await _StudentDAL.GetStudentsUpdatedBetween(startTime, endTime);
+            StudentResponse studentResponse = JsonConvert.DeserializeObject<StudentResponse>(studentsJson);
+            return studentResponse.data;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Error fetching students by date range in BLL: " + ex.Message);
+            Console.WriteLine("Error fetching students by date range in BLL.", ex);
+            return null;
+        }
+    }
 }

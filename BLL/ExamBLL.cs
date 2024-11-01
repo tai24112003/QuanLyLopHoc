@@ -29,7 +29,8 @@ public class ExamBLL
         }
         catch (Exception ex)
         {
-            throw new Exception("Error fetching Exam from BLL", ex);
+            Console.WriteLine("Error fetching Exam from BLL", ex);
+            return null;
         }
     }
 
@@ -45,7 +46,8 @@ public class ExamBLL
         }
         catch (Exception ex)
         {
-            throw new Exception("Error fetching Exam from BLL", ex);
+            Console.WriteLine("Error fetching Exam from BLL", ex);
+            return null;
         }
     }
 

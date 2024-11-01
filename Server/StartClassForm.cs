@@ -184,7 +184,8 @@ namespace Server
             try
              {
                 int userID = int.Parse(cbbName.SelectedValue.ToString());
-                List<Class> classes1 = classes.FindAll(c => c.UserID== userID);
+                if(classes != null) { 
+                    List<Class> classes1 = classes.FindAll(c => c.UserID == userID);
 
 
                 AutoCompleteStringCollection classCollection = new AutoCompleteStringCollection();
@@ -198,7 +199,7 @@ namespace Server
                 cbbClass.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
                 cbbClass.AutoCompleteSource = AutoCompleteSource.CustomSource;
                 cbbClass.DisplayMember = "ClassName";
-                cbbClass.ValueMember = "ClassID";
+                cbbClass.ValueMember = "ClassID";}
             }
             catch (Exception ex)
             {
@@ -216,6 +217,7 @@ namespace Server
         {
             try
             {
+                
                 await SetupUserAutoComplete();
                 await SetupClassAutoComplete();
             }
@@ -328,7 +330,11 @@ namespace Server
             Class classSession = new Class();
             classSession.ClassName = cbbClass.Text;
             classSession.UserID=int.Parse(cbbClass.SelectedValue.ToString());
-           await _classBLL.InsertClass(classSession);
+            DateTime currentDate = DateTime.Now;
+            string formattedDateTime = currentDate.ToString("dd/MM/yyyy HH:mm:ss");
+
+            classSession.LastTime = formattedDateTime;
+            await _classBLL.InsertClass(classSession);
         }
     }
 }

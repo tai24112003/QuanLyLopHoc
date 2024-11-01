@@ -45,6 +45,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="SessionBLL.cs" />
+    <Compile Include="SettingBLL.cs" />
     <Compile Include="SubmisstionBLL.cs" />
     <Compile Include="AttendanceBLL.cs" />
     <Compile Include="ClassBLL.cs" />

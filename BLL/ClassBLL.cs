@@ -19,31 +19,35 @@ public class ClassBLL
     {
         try
         {
-            var existingClass = await GetClassByName(classSession.ClassName);
-            if (existingClass != null)
-            {
-                // Class already exists, return the existing class
-                return existingClass;
-            }
+            //var existingClass = await GetClassByName(classSession.ClassName);
+            //if (existingClass != null)
+            //{
+            //    // Class already exists, return the existing class
+            //    return existingClass;
+            //}
 
             // Class does not exist, insert new class
             string responseJson = await _ClassDAL.InsertClass(classSession);
             var insertedClass = JsonConvert.DeserializeObject<Class>(responseJson);
+            var classList = new List<Class> { insertedClass };
+            var classResponse = new ClassResponse { data = classList };
+            string classJson = JsonConvert.SerializeObject(classResponse);
+            await _ClassDAL.SaveLocalData(classJson);
             return insertedClass;
         }
         catch (Exception ex)
         {
             Random random = new Random();
+            
             var classId = random.Next() * -1;
             classSession.ClassID = classId;
             var classList = new List<Class> { classSession };
             var classResponse = new ClassResponse { data = classList };
             string classJson = JsonConvert.SerializeObject(classResponse);
-            _ClassDAL.SaveLocalData(classJson);
+            await _ClassDAL.SaveLocalData(classJson);
 
             Console.WriteLine("Error inserting class session in BLL: " + ex.Message);
             return classSession;
-            throw new Exception("Error inserting class session in BLL", ex);
         }
     }
 
@@ -63,36 +67,34 @@ public class ClassBLL
         }
         catch (Exception ex)
         {
-            string ClassJson = _ClassDAL.LoadLocalData();
+            string ClassJson = await _ClassDAL.LoadLocalData();
             if (!string.IsNullOrEmpty(ClassJson))
             {
                 ClassResponse ClassResponse = JsonConvert.DeserializeObject<ClassResponse>(ClassJson);
                 return ClassResponse.data;
             }
-            throw new Exception("Error fetching Class from API and local data", ex);
+            Console.WriteLine("Error fetching Class from API and local data", ex);
+            return null;
         }
     }
 
-    public List<Class> LoadNegativeIDClasses()
+    public async Task<List<Class>> LoadNegativeIDClasses()
     {
         try
         {
-            string ClassJson = _ClassDAL.LoadNegativeIDClasses();
-            if (!string.IsNullOrEmpty(ClassJson))
-            {
-                ClassResponse ClassResponse = JsonConvert.DeserializeObject<ClassResponse>(ClassJson);
-                return ClassResponse.data;
-            }
+            List<Class> ClassJson = await _ClassDAL.LoadNegativeIDClasses();
+            if (ClassJson != null)
+                return ClassJson;
             return null;
         }
         catch (Exception ex)
         {
-            
-            throw new Exception("Error fetching Class negative from local data", ex);
+
+            Console.WriteLine("Error fetching Class negative from local data", ex);
             return null;
         }
     }
-   
+
 
     public async Task<List<Class>> GetClassByUserID(int userID)
     {
@@ -108,16 +110,49 @@ public class ClassBLL
             // Get Class from server
             string ClassJson = await _ClassDAL.GetAllClass();
             // Save Class and last update time to local database
-            _ClassDAL.SaveLocalData(ClassJson);
+            await _ClassDAL.SaveLocalData(ClassJson);
             return ClassJson;
 
         }
         catch (Exception ex)
         {
-            throw new Exception("Error fetching Class from BLL", ex);
+            Console.WriteLine("Error fetching Class from BLL", ex);
+            return null;
+        }
+    }
+    public async Task<List<Class>> GetClassByDateRange(DateTime startTime, DateTime endTime)
+    {
+        try
+        {
+            string ClasssJson = await _ClassDAL.GetClasssByDateRange(startTime, endTime);
+            ClassResponse ClassResponse = JsonConvert.DeserializeObject<ClassResponse>(ClasssJson);
+            return ClassResponse.data;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Error fetching Classs by date range in BLL: " + ex.Message);
+            Console.WriteLine("Error fetching Classs by date range in BLL.", ex);
+            return null;
         }
     }
 
+    public async Task DeleteClasssByClassID(int ClassID)
+    {
+        if (string.IsNullOrEmpty(ClassID.ToString()))
+        {
+            throw new ArgumentException("StudentID cannot be null or empty.", nameof(ClassID));
+        }
 
-
+        try
+        {
+            // Call the DeleteStudentLocal method from the DAL
+            await _ClassDAL.DeleteClassLocalByClassID(ClassID);
+            Console.WriteLine($"Student with ID {ClassID} has been successfully deleted.");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error deleting student in BLL: {ex.Message}");
+            Console.WriteLine($"Error deleting student with ID {ClassID} in BLL.", ex);
+        }
+    }
 }

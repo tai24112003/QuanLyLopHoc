@@ -5,7 +5,7 @@ public class KeyCodeMapper
 {
     public static VirtualKeyCode MapStringToVirtualKeyCode(string key)
     {
-        switch (key.ToUpper()) // Make sure the string is case-insensitive
+        switch (key.ToUpper()) 
         {
             // Alphabet keys
             case "A": return VirtualKeyCode.VK_A;

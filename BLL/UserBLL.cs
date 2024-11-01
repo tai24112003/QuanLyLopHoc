@@ -28,7 +28,7 @@ public class UserBLL
             string usersJson = LoadLocalData();
             var userResponse = JsonConvert.DeserializeObject<UserResponse>(usersJson);
             return userResponse.Data;
-            throw new Exception("Error fetching user list by role from BLL", ex);
+            Console.WriteLine("Error fetching user list by role from BLL", ex);
         }
    }
 
@@ -46,7 +46,8 @@ public class UserBLL
         }
         catch (Exception ex)
         {
-            throw new Exception("Error fetching users by role from BLL", ex);
+            Console.WriteLine("Error fetching users by role from BLL", ex);
+            return null;
         }
     }
     public async Task<User> getUserByName(string name)

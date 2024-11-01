@@ -46,8 +46,8 @@ public class ExcelController
                 var classStudent = new ClassStudent
                 {
                     ClassID = addedClass.ClassID,
-                    StudentID = student.StudentID
-                    
+                    StudentID = student.StudentID,
+                    LastTime = formattedDateTime
                 };
                 students.Add(classStudent);
             }

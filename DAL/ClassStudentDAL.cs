@@ -26,6 +26,7 @@ public class ClassStudentDAL
             throw ex;
         }
     }
+   
     public async Task<string> InsertClassStudent(List<ClassStudent> student)
     {
         try
@@ -36,7 +37,8 @@ public class ClassStudentDAL
         }
         catch (Exception ex)
         {
-            throw new Exception("Error inserting ClassStudent in DAL", ex);
+            Console.WriteLine("Error inserting ClassStudent in DAL", ex);
+            return null;
         }
     }
     public async Task<string> GetClassStudentsByID(int ID)
@@ -162,14 +164,14 @@ public class ClassStudentDAL
 
             if (!result)
             {
-                throw new Exception($"No ClassStudent found with ID: {ClassID}, or an error occurred during deletion.");
+                Console.WriteLine($"No ClassStudent found with ID: {ClassID}, or an error occurred during deletion.");
             }
         }
         catch (Exception ex)
         {
             // Log the exception with the relevant student ID information
             Console.WriteLine($"Error deleting ClassStudent with ID {ClassID} in DAL: {ex.Message}");
-            throw new Exception($"Error deleting ClassStudent with ID {ClassID} in DAL.", ex);
+            Console.WriteLine($"Error deleting ClassStudent with ID {ClassID} in DAL.", ex);
         }
     }
     public async Task DeleteClassStudentLocalByStudentID(string StudentID)
@@ -193,14 +195,14 @@ public class ClassStudentDAL
 
             if (!result)
             {
-                throw new Exception($"No ClassStudent found with ID: {StudentID}, or an error occurred during deletion.");
+                Console.WriteLine($"No ClassStudent found with ID: {StudentID}, or an error occurred during deletion.");
             }
         }
         catch (Exception ex)
         {
             // Log the exception with the relevant student ID information
             Console.WriteLine($"Error deleting ClassStudent with ID {StudentID} in DAL: {ex.Message}");
-            throw new Exception($"Error deleting ClassStudent with ID {StudentID} in DAL.", ex);
+            Console.WriteLine($"Error deleting ClassStudent with ID {StudentID} in DAL.", ex);
         }
     }
 }

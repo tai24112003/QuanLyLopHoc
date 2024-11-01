@@ -213,7 +213,7 @@ namespace Server
             roomID = room.RoomID.ToString();
             var computers= await _computerBLL.GetComputersByID(room.RoomID.ToString());
             foreach(var computer in computers)
-                InitializeStandard(computer.ID,computer.ComputerName,computer.CPU,computer.RAM,computer.HDD);
+                InitializeStandard(computer.ComputerID,computer.ComputerName,computer.CPU,computer.RAM,computer.HDD);
             InitializeFullInfoList(room.NumberOfComputers, room.RoomName);
             LoadFullInfoListIntoDataGridView(fullInfoList);
         }
@@ -1427,7 +1427,7 @@ namespace Server
                                     int ack = BitConverter.ToInt32(ackBytes, 0);
                                     if (ack != 1)
                                     {
-                                        throw new Exception("Client không xác nhận tín hiệu.");
+                                        Console.WriteLine("Client không xác nhận tín hiệu.");
                                     }
 
                                     // Gửi nội dung tệp

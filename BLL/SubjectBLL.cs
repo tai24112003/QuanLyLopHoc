@@ -30,7 +30,8 @@ public class SubjectBLL
                 SubjectResponse subjectResponse = JsonConvert.DeserializeObject<SubjectResponse>(subjectsJson);
                 return subjectResponse.data;
             }
-            throw new Exception("Error fetching subjects from API and local data", ex);
+            Console.WriteLine("Error fetching subjects from API and local data", ex);
+            return null;
         }
     }
     public async Task<Subject> InsertSubject(Subject classSession)
@@ -44,23 +45,24 @@ public class SubjectBLL
         catch (Exception ex)
         {
             Console.WriteLine("Error inserting Subject in BLL: " + ex.Message);
-            throw new Exception("Error inserting Subject in BLL", ex);  
+            Console.WriteLine("Error inserting Subject in BLL", ex);
+            return null;
         }
     }
 
     public async Task<string> GetSubjects()
     {
-       
-                Console.WriteLine("load api");
 
-                // Get subjects from server
-                string subjectsJson = await _subjectDAL.GetAllSubjects();
-                // Save subjects and last update time to local file
-                SaveLocalData(subjectsJson);
-                return subjectsJson;
-            
-        
-        
+        Console.WriteLine("load api");
+
+        // Get subjects from server
+        string subjectsJson = await _subjectDAL.GetAllSubjects();
+        // Save subjects and last update time to local file
+        SaveLocalData(subjectsJson);
+        return subjectsJson;
+
+
+
     }
 
     private DateTime? GetLocalLastTimeUpdate()

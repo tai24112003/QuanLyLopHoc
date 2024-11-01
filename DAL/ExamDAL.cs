@@ -33,7 +33,8 @@ public class ExamDAL
         }
         catch (Exception ex)
         {
-            throw new Exception("Error inserting class in DAL", ex);
+            Console.WriteLine("Error inserting class in DAL", ex);
+            return null;
         }
     }
 
@@ -46,7 +47,8 @@ public class ExamDAL
         }
         catch (Exception ex)
         {
-            throw new Exception("Error inserting class in DAL", ex);
+            Console.WriteLine("Error inserting class in DAL", ex);
+            return null;
         }
     }
 

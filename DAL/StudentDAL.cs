@@ -15,116 +15,129 @@ public class StudentDAL
     {
         _dataService = dataService;
     }
+
     public async Task<string> GetAllStudents()
     {
         try
         {
-            string ClassJson = await _dataService.GetAsync("student");
-            return ClassJson;
+            return await _dataService.GetAsync("student");
         }
         catch (Exception ex)
         {
-            throw ex;
+            Console.WriteLine("Error fetching all students in DAL.", ex);
+            return null;
         }
     }
+
     public async Task<string> InsertListStudent(List<Student> student)
     {
         try
         {
             string studentJson = JsonConvert.SerializeObject(student);
-            string responseJson = await _dataService.PostAsync("student/", studentJson);
-            return responseJson;
+            return await _dataService.PostAsync("student/", studentJson);
         }
         catch (Exception ex)
         {
-            throw new Exception("Error inserting Student in DAL", ex);
-        }
-    }
-    public void SaveLocalData(string StudentsJson)
-    {
-        var studentResponse = JsonConvert.DeserializeObject<StudentResponse>(StudentsJson);
-
-        foreach (var student in studentResponse.data)
-        {
-            string query = "INSERT INTO `students` (`StudentID`, `FirstName`, `LastName`,`LastTime`) VALUES (@StudentID, @FirstName, @LastName,@LastTime)";
-
-            OleDbParameter[] parameters = new OleDbParameter[]
-            {
-                new OleDbParameter("@StudentID", student.StudentID),
-                new OleDbParameter("@FirstName", student.FirstName),
-                new OleDbParameter("@LastName", student.LastName),
-                new OleDbParameter("@LastTime", student.LastTime),
-            };
-
-            DataProvider.RunNonQuery(query, parameters);
-        }
-    }
-
-    public string LoadLocalData()
-    {
-        try
-        {
-            string query = "SELECT * FROM students";
-            DataTable dataTable = DataProvider.GetDataTable(query, null);
-
-            if (dataTable == null || dataTable.Rows.Count == 0)
-            {
-                return null;
-            }
-
-            List<Student> students = new List<Student>();
-            foreach (DataRow row in dataTable.Rows)
-            {
-                Student student = new Student
-                {
-                    StudentID = row["StudentID"].ToString(),
-                    FirstName = row["FirstName"].ToString(),
-                    LastName = row["LastName"].ToString(),
-                };
-                students.Add(student);
-            }
-
-            StudentResponse studentResponse = new StudentResponse { data = students };
-            return JsonConvert.SerializeObject(studentResponse);
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine("Error loading data from Access: " + ex.Message);
+            Console.WriteLine("Error inserting students in DAL.", ex);
             return null;
         }
     }
 
-   
-    public string GetStudentsWithNegativeID()
+    public async Task<string> GetStudentsUpdatedBetween()
     {
         try
         {
-            string query = "SELECT * FROM Students WHERE StudentID < 0";
-            DataTable dataTable = DataProvider.GetDataTable(query, null);
+            return await _dataService.GetAsync("student/");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Error fetching updated students in DAL.", ex);
+            return null;
+        }
+    }
+
+    public async Task SaveLocalData(string studentsJson)
+    {
+        try
+        {
+            var studentResponse = JsonConvert.DeserializeObject<StudentResponse>(studentsJson);
+
+            foreach (var student in studentResponse.data)
+            {
+                string query = "INSERT INTO `students` (`StudentID`, `FirstName`, `LastName`, `LastTime`) VALUES (@StudentID, @FirstName, @LastName, @LastTime)";
+
+                OleDbParameter[] parameters = new OleDbParameter[]
+                {
+                    new OleDbParameter("@StudentID", student.StudentID),
+                    new OleDbParameter("@FirstName", student.FirstName),
+                    new OleDbParameter("@LastName", student.LastName),
+                    new OleDbParameter("@LastTime", student.LastTime),
+                };
+
+                await Task.Run(() => DataProvider.RunNonQuery(query, parameters));
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Error saving local data in DAL.", ex);
+        }
+    }
+
+    public async Task<string> LoadLocalData()
+    {
+        try
+        {
+            string query = "SELECT * FROM students";
+            DataTable dataTable = await Task.Run(() => DataProvider.GetDataTable(query, null));
 
             if (dataTable == null || dataTable.Rows.Count == 0)
             {
                 return null;
             }
 
-            List<Student> students = new List<Student>();
-            foreach (DataRow row in dataTable.Rows)
+            var students = dataTable.AsEnumerable().Select(row => new Student
             {
-                Student student = new Student
-                {
-                    StudentID = row["StudentID"].ToString(),
-                    FirstName = row["FirstName"].ToString(),
-                    LastName = row["LastName"].ToString(),
-                };
-                students.Add(student);
-            }
+                StudentID = row["StudentID"].ToString(),
+                FirstName = row["FirstName"].ToString(),
+                LastName = row["LastName"].ToString(),
+            }).ToList();
 
-            StudentResponse studentResponse = new StudentResponse { data = students };
+            var studentResponse = new StudentResponse { data = students };
             return JsonConvert.SerializeObject(studentResponse);
         }
         catch (Exception ex)
         {
-            Console.WriteLine("Error loading data from Access: " + ex.Message);
+            Console.WriteLine("Error loading data from Access in DAL.", ex);
+            return null;
+        }
+    }
+
+    public async Task<string> GetStudentsWithNegativeID()
+    {
+        try
+        {
+            string query = "SELECT * FROM Students WHERE StudentID LIKE '-%'";
+            DataTable dataTable = await Task.Run(() => DataProvider.GetDataTable(query, null));
+
+            if (dataTable == null || dataTable.Rows.Count == 0)
+            {
+                return null;
+            }
+
+            var students = dataTable.AsEnumerable().Select(row => new Student
+            {
+                StudentID = row["StudentID"].ToString(),
+                FirstName = row["FirstName"].ToString(),
+                LastName = row["LastName"].ToString(),
+                LastTime = row["LastTime"].ToString(),
+            }).ToList();
+
+            var studentResponse = new StudentResponse { data = students };
+            return JsonConvert.SerializeObject(studentResponse);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Error fetching students with negative IDs in DAL.", ex);
             return null;
         }
     }
@@ -139,26 +152,35 @@ public class StudentDAL
         try
         {
             string query = "DELETE FROM Students WHERE StudentID = @StudentID";
+            OleDbParameter[] parameters = { new OleDbParameter("@StudentID", studentId) };
 
-            OleDbParameter[] parameters = new OleDbParameter[]
-            {
-            new OleDbParameter("@StudentID", studentId)
-            };
-
-            // Using Task.Run to make RunNonQuery asynchronous
             bool result = await Task.Run(() => DataProvider.RunNonQuery(query, parameters));
 
             if (!result)
             {
-                throw new Exception($"No student found with ID: {studentId}, or an error occurred during deletion.");
+                Console.WriteLine($"No student found with ID: {studentId}, or an error occurred during deletion.");
             }
         }
         catch (Exception ex)
         {
-            // Log the exception with the relevant student ID information
-            Console.WriteLine($"Error deleting student with ID {studentId} in DAL: {ex.Message}");
-            throw new Exception($"Error deleting student with ID {studentId} in DAL.", ex);
+            Console.WriteLine($"Error deleting student with ID {studentId} in DAL.", ex);
         }
     }
 
+    public async Task<string> GetStudentsUpdatedBetween(DateTime startTime, DateTime endTime)
+    {
+        try
+        {
+            string formattedStartTime = startTime.ToString("yyyy-MM-ddTHH:mm:ss");
+            string formattedEndTime = endTime.ToString("yyyy-MM-ddTHH:mm:ss");
+            string url = $"student/getBetween?startTime={formattedStartTime}&endTime={formattedEndTime}";
+
+            return await _dataService.GetAsync(url);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Error fetching students by time range in DAL.", ex);
+            return null;
+        }
+    }
 }

@@ -95,20 +95,22 @@
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="WindowsBase" />
+    <Reference Include="WindowsInput, Version=1.0.4.0, Culture=neutral, PublicKeyToken=9b287f7dc5073cad, processorArchitecture=MSIL">
+      <HintPath>..\packages\InputSimulator.1.0.4.0\lib\net20\WindowsInput.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CreateExam.cs">
+    <Compile Include="ResultInfo.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="ResultInfo.Designer.cs">
+      <DependentUpon>ResultInfo.cs</DependentUpon>
+    </Compile>
+    <Compile Include="SvExamForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="CreateExam.Designer.cs">
-      <DependentUpon>CreateExam.cs</DependentUpon>
-    </Compile>
-    <Compile Include="CreateExamFactory.cs" />
-    <Compile Include="CreateQuestion.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="CreateQuestion.Designer.cs">
-      <DependentUpon>CreateQuestion.cs</DependentUpon>
+    <Compile Include="SvExamForm.Designer.cs">
+      <DependentUpon>SvExamForm.cs</DependentUpon>
     </Compile>
     <Compile Include="FirewallHelper.cs" />
     <Compile Include="MainForm.cs">
@@ -121,6 +123,12 @@
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="QuestionInfo.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="QuestionInfo.Designer.cs">
+      <DependentUpon>QuestionInfo.cs</DependentUpon>
     </Compile>
     <Compile Include="QuickLaunchForm.cs">
       <SubType>Form</SubType>
@@ -167,14 +175,29 @@
       <DependentUpon>StartClassForm.cs</DependentUpon>
     </Compile>
     <Compile Include="svFormFactory.cs" />
-    <EmbeddedResource Include="CreateExam.resx">
-      <DependentUpon>CreateExam.cs</DependentUpon>
+    <Compile Include="ThumbnailQuestion.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="ThumbnailQuestion.Designer.cs">
+      <DependentUpon>ThumbnailQuestion.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ThumbnailTest.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="ThumbnailTest.Designer.cs">
+      <DependentUpon>ThumbnailTest.cs</DependentUpon>
+    </Compile>
+    <EmbeddedResource Include="ResultInfo.resx">
+      <DependentUpon>ResultInfo.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="CreateQuestion.resx">
-      <DependentUpon>CreateQuestion.cs</DependentUpon>
+    <EmbeddedResource Include="SvExamForm.resx">
+      <DependentUpon>SvExamForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="QuestionInfo.resx">
+      <DependentUpon>QuestionInfo.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="QuickLaunchForm.resx">
       <DependentUpon>QuickLaunchForm.cs</DependentUpon>
@@ -201,6 +224,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="StartClassForm.resx">
       <DependentUpon>StartClassForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ThumbnailQuestion.resx">
+      <DependentUpon>ThumbnailQuestion.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ThumbnailTest.resx">
+      <DependentUpon>ThumbnailTest.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="app.config" />
     <None Include="packages.config" />
@@ -321,6 +350,22 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\add %281%29.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\duplicate-icon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\import1.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\export-gray.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\save.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include=".nuget\mouse-keyboard-hook-logo.png" />
+    <None Include="Resources\start.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

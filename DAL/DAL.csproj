@@ -44,7 +44,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Models\Quest.cs" />
+    <Compile Include="Models\QuestType.cs" />
+    <Compile Include="Models\Result .cs" />
     <Compile Include="Models\Session.cs" />
+    <Compile Include="Models\Test.cs" />
     <Compile Include="SessionDAL.cs" />
     <Compile Include="SubmisstionDAL.cs" />
     <Compile Include="ApiService.cs" />

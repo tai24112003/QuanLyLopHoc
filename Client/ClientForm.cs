@@ -22,6 +22,7 @@ using System.Drawing.Imaging;
 using System.Runtime.InteropServices;
 using WindowsInput.Native;
 using WindowsInput;
+using DAL.Models;
 
 namespace testUdpTcp
 {
@@ -47,11 +48,12 @@ namespace testUdpTcp
         private const uint MOUSEEVENTF_RIGHTUP = 0x00000010;
         private const uint MOUSEEVENTF_WHEEL = 0x00000800;
         private UdpClient udpClient;
-        private Waiting waitingFrm;
         private ExamForm examFrm;
         SlideShowForm form1;
         private Thread udpReceiverThread;
-        private string IpServer = "192.168.72.249";
+        //private string IpServer = "192.168.72.249";
+        private string IpServer = "192.168.1.3";
+
         private string myIp = "";
         private List<string> inf;
         private List<string> mssvLst = new List<string>();
@@ -60,13 +62,13 @@ namespace testUdpTcp
         TcpListener listener;
         private Thread listenThread;
         string mssv;
-        private bool doingExam = false;
         private bool isRunning = true;
         private Thread screenshotThread;
 
         // Khai báo danh sách để lưu MSSV đã nhập
         List<string> mssvList = new List<string>();
 
+        private Test Test { get; set; }
         private void Form1_Load(object sender, EventArgs e)
         {
 
@@ -79,6 +81,14 @@ namespace testUdpTcp
             listenThread.Start();
 
         }
+
+        private void GetMSSV(string mssv)
+        {
+            this.mssv = mssv;
+            this.Show();
+            sendData($"Ready-{mssv}");
+        }
+
         private void ListenForClients()
         {
 
@@ -120,8 +130,8 @@ namespace testUdpTcp
 
         public void OpenChildForm()
         {
-            waitingFrm = new Waiting();
-            waitingFrm.Show();
+            //waitingFrm = new Waiting();
+            //waitingFrm.Show();
         }
 
         private void HandleClient(TcpClient tcpClient)
@@ -279,81 +289,24 @@ namespace testUdpTcp
                 }
                 tcpClient.Close();
             }
-            else if (receivedMessage.StartsWith("Key-Exam-") && doingExam == false)
+            else if (receivedMessage.StartsWith("Key-Exam-"))
             {
-                doingExam = true;
                 // Parse the signal
                 Console.WriteLine(receivedMessage);
-                string[] parts = receivedMessage.Split(new[] { "Key-Exam-" }, StringSplitOptions.None);
+                string[] parts = receivedMessage.Split(new[] { "Key-Exam" }, StringSplitOptions.None);
                 if (parts.Length >= 2)
                 {
-                    //Console.WriteLine(parts[1]);
-                    string directoryPath = @"C:\Exam";
-                    string filePath = Path.Combine(directoryPath, "exam.json");
-
                     try
                     {
-                        // Kiểm tra nếu thư mục chưa tồn tại thì tạo mới
-                        if (!Directory.Exists(directoryPath))
-                        {
-                            Directory.CreateDirectory(directoryPath);
-                        }
-                        Quiz quiz = JsonConvert.DeserializeObject<Quiz>(parts[1]);
-                        quiz.Questions = convertType(quiz);
-                        Shuffle(quiz.Questions);
-                        int idx = 0;
-                        int idxList = 0;
-                        foreach (Question question in quiz.Questions)
-                        {
-                            question.idxList = idxList;
-                            if (question.Type == QuestionType.singleQuestion)
-                            {
-                                question.answer = new List<string>();
-                                question.idx = idx;
-                                idx++;
-                            }
-                            else
-                            {
-                                int idxInQuestions = 0;
-                                foreach (Question subquestion in question.questions)
-                                {
-                                    subquestion.answer = new List<string>();
-                                    subquestion.idx = idx;
-                                    subquestion.idxList = idxList;
-                                    subquestion.idxSub = idxInQuestions;
-                                    idx++;
-                                    idxInQuestions++;
-                                }
-                            }
-                            idxList++;
-                        }
-
-                        string contentExam = JsonConvert.SerializeObject(quiz);
-
-
-                        // Ghi nội dung vào tệp
-                        File.WriteAllText(filePath, contentExam);
-
-                        tcpClient.Close();
-
-
-
-                        sendData("ms-sv" + mssv + "ms-sv" + contentExam);
-
-                        if (this.InvokeRequired)
-                        {
-                            this.Invoke(new Action(OpenChildForm));
-                        }
-                        else
-                        {
-                            OpenChildForm();
-                        }
-
-
+                       Test=new Test(parts[1]);
+                       tcpClient.Close();
+                       MessageBox.Show("Đã nhận đề");
+                       this.Hide();
+                       (new Waiting(GetMSSV)).Show();
                     }
                     catch (Exception ex)
                     {
-                        MessageBox.Show($"An error occurred: {ex.Message}");
+                        MessageBox.Show($"Lỗi khi nhận đề: {ex.Message}");
                         tcpClient.Close();
                     }
                 }
@@ -382,8 +335,11 @@ namespace testUdpTcp
                         screenshotThread.Start();
 
                         break;
-                    case "Prepare": Console.WriteLine("Chuẩn bị thi"); break;
-                    case "DoExam": Console.WriteLine("Làm bài"); break;
+                    case "DoExam": 
+                        Console.WriteLine("Làm bài");
+                        examFrm = new ExamForm(Test, SendAnswer);
+                        examFrm.ShowDialog();
+                        break;
                     case "EndTime":
                         if (this.InvokeRequired)
                         {
@@ -600,18 +556,6 @@ namespace testUdpTcp
             Cursor cursor = Cursors.Default;
             cursor.Draw(graphics, new Rectangle(cursorPosition, cursor.Size));
         }
-        static void Shuffle<T>(List<T> list)
-        {
-            Random rng = new Random();
-            int n = list.Count;
-            while (n > 1)
-            {
-                int k = rng.Next(n--);
-                T temp = list[n];
-                list[n] = list[k];
-                list[k] = temp;
-            }
-        }
 
         private void OpenNewForm(TcpClient tcpclient)
         {
@@ -630,6 +574,13 @@ namespace testUdpTcp
             }
         }
 
+        private void SendAnswer(StudentAnswer answer, int indexQuest)
+        {
+            answer.StudentID = mssv;
+            string mess =$"answer@indexQuest:{indexQuest}{answer.GetAnswerString()}";
+            sendData(mess);
+        }
+
         private void CloseExamForm()
         {
 
@@ -639,9 +590,7 @@ namespace testUdpTcp
             content = "dapan-" + mssv + "dapan-" + content;
 
             sendData(content);
-            doingExam = true;
-            if (waitingFrm != null)
-                waitingFrm.Close();
+          
         }
 
         private void LockWeb()

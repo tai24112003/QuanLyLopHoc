@@ -1,0 +1,138 @@
+﻿using DAL.Models;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Reflection;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+
+namespace testUdpTcp
+{
+    public partial class QuestionInfoUC : UserControl
+    {
+        private Quest Quest { get; set; }
+        private Timer CountdownTimer { get; set; }
+        private int Counter { get; set; }
+        private int ReadyTimeToNextQuest { get; set; }
+        private readonly Action ShowNextQuest;
+        private readonly Action<StudentAnswer, int> SendAnswer;
+
+        private bool IsAnswered=false;
+
+
+        public QuestionInfoUC(Quest quest, Action showNextQuest, Action<StudentAnswer, int> sendAnswer)
+        {
+            InitializeComponent();
+
+            Quest = quest;
+            ShowNextQuest = showNextQuest;
+            SendAnswer = sendAnswer;
+            ReadyTimeToNextQuest = 2;
+
+            Counter = Quest.CountDownTime + ReadyTimeToNextQuest;
+            CountdownTimer = new Timer();
+            CountdownTimer.Interval = 1000;
+            CountdownTimer.Tick += CountdownTimer_Tick;
+            InitUI();
+
+        }
+
+        private void InitUI()
+        {
+            int screenW = SystemInformation.VirtualScreen.Width;
+            int screenH = SystemInformation.VirtualScreen.Height;
+
+            pnl_quest.Size = new Size((int)(screenW * 0.8), (int)(screenH * 0.23));
+            pnl_quest.Location = new Point((int)(screenW * 0.1), (int)(screenH * 0.15));
+
+            lbl_question.MaximumSize = new Size((int)(pnl_quest.Width - 5), 0);
+            lbl_question.Location = new Point(0, 0);
+            lbl_question.Text = Quest.Content;
+
+            lbl_countdown.Text = $"Thời gian: {Counter - ReadyTimeToNextQuest} s";
+            lbl_countdown.Location = new Point((int)(screenW * 0.03), (int)(screenH * 0.05));
+
+            pnl_answers.Size = new Size((int)(screenW * 0.8), (int)(screenH * 0.4));
+            pnl_answers.Location = new Point((int)(screenW * 0.1), (int)(screenH * 0.4));
+
+            Shuffle(Quest.Results);
+            foreach (var item in Quest.Results)
+            {
+                ResultOptionUC newRs = new ResultOptionUC(item, StudentSelectTheRs);
+                newRs.ChangeSize(pnl_answers.Width, pnl_answers.Height);
+                pnl_answers.Controls.Add(newRs);
+            }
+        }
+
+        private void StudentSelectTheRs(Result rs)
+        {
+            int index=Quest.Results.IndexOf(rs);
+            if (index == -1)
+            {
+                int indexRs=Quest.Results[index].Id;
+                StudentAnswer newItem = new StudentAnswer();
+
+                int timeDo = Quest.CountDownTime - Counter - ReadyTimeToNextQuest;
+                newItem.TimeDoQuest = timeDo;
+                newItem.SelectResultID = indexRs;
+
+                foreach (Control item in pnl_answers.Controls
+)
+                {
+                    item.Enabled=false;
+                }
+
+                SendAnswer?.Invoke(newItem, Quest.Index);
+            }
+        }
+        static void Shuffle<T>(List<T> list)
+        {
+            Random rng = new Random();
+            int n = list.Count;
+            while (n > 1)
+            {
+                int k = rng.Next(n--);
+                T temp = list[n];
+                list[n] = list[k];
+                list[k] = temp;
+            }
+        }
+
+        private void CountdownTimer_Tick(object sender, EventArgs e)
+        {
+            if (Counter > 0)
+            {
+                Counter--;
+                if (Counter>ReadyTimeToNextQuest)
+                {
+                    lbl_countdown.Text = $"Thời gian: {Counter - ReadyTimeToNextQuest}s";
+                }
+                else
+                {
+                    this.Controls.Clear();
+                    this.Controls.Add(lbl_countdown);
+                    lbl_countdown.Text = $"Câu hỏi tiếp theo: {Counter}s";
+                }
+            }
+            else
+            {
+                CountdownTimer.Stop();
+                lbl_countdown.Text = "Time's up!";
+                ShowNextQuest?.Invoke();
+            }
+        }
+
+        private void QuestionInfoUC_VisibleChanged(object sender, EventArgs e)
+        {
+            if (this.Visible)
+            {
+                if(Counter>0)
+                    CountdownTimer.Start();
+            }
+        }
+    }
+}

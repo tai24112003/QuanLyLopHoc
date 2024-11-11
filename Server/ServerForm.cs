@@ -20,9 +20,9 @@ using OfficeOpenXml;
 using System.IO.Compression;
 using Newtonsoft.Json;
 using OfficeOpenXml.Style;
-
 using Microsoft.Extensions.DependencyInjection;
 using System.Text.RegularExpressions;
+using DAL.Models;
 
 namespace Server
 {
@@ -30,7 +30,7 @@ namespace Server
     {
         private bool isFullInfoMode = false;
         private WinFormsTimer timer;
-        private string Ip;
+        private string Ip= "192.168.1.3";
         private TcpListener tcpListener;
         private Thread listenThread;
         private Thread screenshotThread;
@@ -62,9 +62,13 @@ namespace Server
         ContextMenuStrip contextMenuStrip1;
         SlideShowForm form1;
 
+        private List<Test> Tests;
+        private int IndexTestReady=-1;
+
         public svForm()
         {
             InitializeComponent();
+            Tests = new List<Test>();
         }
         public void Initialize(int userID, string roomID, int classID, RoomBLL roomBLL, int sessionID, SessionComputerBLL sessionComputer, ClassSessionBLL classSession, ClassStudentBLL classStudentBLL, AttendanceBLL attendanceBLL,ComputerBLL computerBLL,StudentBLL studentBLL,SubmisstionBLL answerBLL, IServiceProvider serviceProvider)
         {
@@ -82,7 +86,8 @@ namespace Server
             _answer=answerBLL;
             _serviceProvider = serviceProvider;
 
-            Ip = getIPServer();
+            //Ip = ;
+            //Ip = getIPServer();
             InitializeContextMenu();
 
             // Thực hiện các logic khởi tạo khác nếu cần thiết
@@ -219,11 +224,11 @@ namespace Server
         }
         private async void Form1_Load(object sender, EventArgs e)
         {
-            students = await _classStudentBLL.GetClassStudentsByID(classID);
-            await SetupRoom();
-            await SetupAttendance(classID);
-            await updateAttanceToDB();
-            await updateSessionComputer();
+         //   students = await _classStudentBLL.GetClassStudentsByID(classID);
+           // await SetupRoom();
+         //   await SetupAttendance(classID);
+         //   await updateAttanceToDB();
+          //  await updateSessionComputer();
             sendAllIPInLan();
             timer = new WinFormsTimer();
             timer.Interval = 5000;
@@ -304,10 +309,12 @@ namespace Server
             // Gửi tin nhắn UDP đến từng địa chỉ IP trong mạng
 
 
-            IPAddress broadcastAddress = GetBroadcastAddress()??null;
-            Console.WriteLine(broadcastAddress);
 
-            SendUDPMessage(broadcastAddress, 11312, Ip);
+            IPAddress broadcastAddress = GetBroadcastAddress()??null;
+            //Console.WriteLine(broadcastAddress);
+
+            //SendUDPMessage(broadcastAddress, 11312, Ip);
+            SendUDPMessage(IPAddress.Parse("192.168.1.2"), 11312, Ip);
 
         }
         private void SendUDPMessage(IPAddress ipAddress, int port, String mes)
@@ -381,21 +388,33 @@ namespace Server
 
                     File.WriteAllText("D:/" + parts[1] + "/" + parts[1] + "-exam.json", parts[2]);
                 }
+            }else if (tmp[0] == "Ready")
+            {
+                Tests[IndexTestReady].NumStudentsReady += 1;
             }
-            else if (receivedMessage.StartsWith("dapan"))
+
+            else if (receivedMessage.StartsWith("answer@"))
             {
                 Console.WriteLine(receivedMessage);
-                string[] parts = receivedMessage.Split(new[] { "dapan-" }, StringSplitOptions.None);
-                if (parts.Length >= 3)
+                string[] parts = receivedMessage.Split(new[] { "answer@" }, StringSplitOptions.None);
+                if (parts.Length >= 2)
                 {
-                    CheckAndCreateDirectoryAndFile("D:/" + parts[1]);//Tạo folder riêng cho sinh viên
+                    try {
+                        string[] answer = parts[1].Split('-');
+                        int indexQuest = Int32.Parse(answer[1]);
+                        StudentAnswer newAnswer = new StudentAnswer(parts[2], Int32.Parse(parts[3]), Int32.Parse(parts[4]));
 
-                    File.WriteAllText("D:/" + parts[1] + "/" + parts[1] + "-anwser.json", parts[2]);
+                        Tests[IndexTestReady].Quests[indexQuest].StudentAnswers.Add(newAnswer);
+                        
+                        MessageBox.Show($"Nhận câu trả lời thành công");
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"xử lý câu hỏi thất bại: {ex}");
+                    }
+
                 }
             }
-
-
-
             else if (tmp[0] == "InfoClient")
             {
                 ReciveInfo(tmp[1]);
@@ -947,10 +966,6 @@ namespace Server
             isRunning = false;
         }
 
-
-
-
-
         private void CaptureAndSendScreenshotsContinuously()
         {
             UdpClient udpClient = new UdpClient(); // Tạo UDP client
@@ -1115,19 +1130,17 @@ namespace Server
             return null;
         }
 
-
-
         private bool IsValidIPAddress(string ipAddress)
         {
             IPAddress tempIPAddress;
             return IPAddress.TryParse(ipAddress, out tempIPAddress);
         }
 
-
         private void Lock_Click(object sender, EventArgs e)
         {
 
         }
+
         private void SendLockRequestToClient(string ipAddress)
         {
             // Tạo kết nối TCP tới máy Client
@@ -1142,6 +1155,7 @@ namespace Server
             //stream.Close();
             client.Close();
         }
+
         private async void tsUpdate_Click(object sender, EventArgs e)
         {
             try
@@ -1156,6 +1170,7 @@ namespace Server
             }
 
         }
+
         private async Task updateSessionComputer()
         {
             sessionComputers.Clear();
@@ -1182,6 +1197,7 @@ namespace Server
 
             await _sessionComputerBLL.InsertSessionComputer(sessionID, sessionComputers);
         }
+
         private async Task updateAttanceToDB()
         {
             List<Attendance> lstAttendances = new List<Attendance>();
@@ -1213,6 +1229,7 @@ namespace Server
             // Gọi BLL để thực hiện lưu danh sách Attendance vào cơ sở dữ liệu
             await _attendanceBLL.InsertAttendance(sessionID, lstAttendances);
         }
+
         private void toolStripButton6_Click(object sender, EventArgs e)
         {
             isFullInfoMode = !isFullInfoMode;
@@ -1685,17 +1702,12 @@ namespace Server
 
         }
 
-        private void tsCreateQuestion_Click(object sender, EventArgs e)
-        {
-            CreateQuestion createQuestion = new CreateQuestion();
-            createQuestion.ShowDialog();
-        }
+      
 
         private void tsCreateExam_Click(object sender, EventArgs e)
         {
-            var svFormFactory = _serviceProvider.GetRequiredService<CreateExamFactory>();
-            var svForms = svFormFactory.Create(userID);
-            svForms.Show();
+            SvExamForm examForm = new SvExamForm(Tests, SendTest,DoTest);
+            examForm.ShowDialog();
         }
 
         private void toolStripButton5_Click(object sender, EventArgs e)
@@ -1723,18 +1735,18 @@ namespace Server
             }
         }
 
-        private void phatsToolStripMenuItem_Click(object sender, EventArgs e)
+        private void SendTest(int indexTest)
         {
-
-
+            Tests[IndexTestReady].ResetCountReady();
+            IndexTestReady = indexTest;
             List<Thread> clientThreads = new List<Thread>();
 
-            foreach (DataGridViewRow row in dgv_client.Rows)
-            {
+            //foreach (DataGridViewRow row in dgv_client.Rows)
+            //{
                 try
-            {
-                string clientIP = row.Cells[5].Value.ToString();
-                //string clientIP = "192.168.72.228";
+                {
+                //string clientIP = row.Cells[5].Value.ToString();
+                string clientIP = "192.168.1.2";
 
                 // Kiểm tra xem địa chỉ IP có hợp lệ không
                 if (IsValidIPAddress(clientIP))
@@ -1749,45 +1761,29 @@ namespace Server
                             client = new TcpClient(clientIP, 8888);
                             stream = client.GetStream();
 
-                                    // Gửi tín hiệu thông báo
-                                    string filePath = @"D:\exam.json";
+                            string content = Tests[indexTest]?.GetTestString()??"";
 
-                                    // Kiểm tra xem file có tồn tại hay không
-                                    if (File.Exists(filePath))
+                            if (content == "")
                             {
-                                try
-                                {
-
-                                    string fileContent = File.ReadAllText(filePath);
-
-                                    fileContent = "Key-Exam-" + fileContent;
-
-                                    byte[] signalBytes = Encoding.UTF8.GetBytes(fileContent);
-                                    stream.Write(signalBytes, 0, signalBytes.Length);
-                                    stream.Flush();
-
-
-                                    Console.WriteLine("Tệp đã được gửi thành công.");
-                                }
-                                catch (Exception ex)
-                                {
-                                    Console.WriteLine("Có lỗi xảy ra khi đọc file: " + ex.Message);
-                                }
+                                MessageBox.Show("Lỗi khi gửi đề");
+                                return;
                             }
-                            else
-                            {
-                                Console.WriteLine("File không tồn tại: " + filePath);
 
-                            }
+                            content = "Key-Exam-" + content;
+
+                            byte[] signalBytes = Encoding.UTF8.GetBytes(content);
+                            stream.Write(signalBytes, 0, signalBytes.Length);
+                            stream.Flush();
+                            Console.WriteLine("Thông tin đã được gửi thành công.");
                         }
                         catch (Exception ex)
                         {
-                            Console.WriteLine("Lỗi khi gửi tệp: " + ex.Message);
+                            Console.WriteLine("Lỗi khi gửi thông tin: " + ex.Message);
                         }
                         finally
                         {
                                     // Đảm bảo rằng kết nối được đóng đúng cách
-                                    if (stream != null) stream.Close();
+                            if (stream != null) stream.Close();
                             if (client != null) client.Close();
                         }
                     });
@@ -1802,7 +1798,7 @@ namespace Server
                 //MessageBox.Show("Mất kết nối với: " + row.Cells[0].Value.ToString());
                 MessageBox.Show("Mất kết nối");
             }
-            }
+            //}
 
             // Chờ tất cả các luồng kết thúc trước khi tiếp tục
             foreach (Thread t in clientThreads)
@@ -1811,16 +1807,16 @@ namespace Server
             }
         }
 
-        private void thuBaiToolStripMenuItem_Click(object sender, EventArgs e)
+        private void DoTest()
         {
             List<Thread> clientThreads = new List<Thread>();
 
-            foreach (DataGridViewRow row in dgv_client.Rows)
-            {
+            //foreach (DataGridViewRow row in dgv_client.Rows)
+           // {
                 try
             {
-                    string clientIP = row.Cells[5].Value.ToString();
-                    //string clientIP = "192.168.72.228";
+                    //string clientIP = row.Cells[5].Value.ToString();
+                    string clientIP = "192.168.1.2";
 
                 // Kiểm tra xem địa chỉ IP có hợp lệ không
                 if (IsValidIPAddress(clientIP))
@@ -1838,7 +1834,7 @@ namespace Server
                             // Gửi tín hiệu thông báo
 
 
-                            string content = "EndTime";
+                            string content = "DoExam";
 
                             byte[] signalBytes = Encoding.UTF8.GetBytes(content);
                             stream.Write(signalBytes, 0, signalBytes.Length);
@@ -1847,7 +1843,7 @@ namespace Server
                         }
                         catch (Exception ex)
                         {
-                            Console.WriteLine("Lỗi khi gửi tệp: " + ex.Message);
+                            Console.WriteLine("Lỗi khi gửi thông tin: " + ex.Message);
                         }
                         finally
                         {
@@ -1867,7 +1863,7 @@ namespace Server
                 //MessageBox.Show("Mất kết nối với: " + row.Cells[0].Value.ToString());
                 MessageBox.Show("Mất kết nối");
             }
-            }
+          //  }
 
             // Chờ tất cả các luồng kết thúc trước khi tiếp tục
             foreach (Thread t in clientThreads)

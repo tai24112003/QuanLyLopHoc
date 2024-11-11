@@ -18,7 +18,7 @@ namespace Server
 
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(serviceProvider.GetRequiredService<StartClassForm>());
+            Application.Run(serviceProvider.GetRequiredService<svForm>());
         }
 
         private static void ConfigureServices(IServiceCollection services)
@@ -57,8 +57,6 @@ namespace Server
             services.AddTransient<svFormFactory>();
             services.AddTransient<StartClassForm>();
             services.AddTransient<svForm>();
-            services.AddTransient<CreateExam>();
-            services.AddTransient<CreateExamFactory>();
         }
     }
 }

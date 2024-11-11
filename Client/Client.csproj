@@ -8,10 +8,11 @@
     <OutputType>WinExe</OutputType>
     <RootNamespace>testUdpTcp</RootNamespace>
     <AssemblyName>testUdpTcp</AssemblyName>
-    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <Deterministic>true</Deterministic>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -55,6 +56,12 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ResultOptionUC.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="ResultOptionUC.Designer.cs">
+      <DependentUpon>ResultOptionUC.cs</DependentUpon>
+    </Compile>
     <Compile Include="BinaryFile.cs" />
     <Compile Include="ClientForm.cs">
       <SubType>Form</SubType>
@@ -80,6 +87,12 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Question.cs" />
+    <Compile Include="QuestionInfoUC.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="QuestionInfoUC.Designer.cs">
+      <DependentUpon>QuestionInfoUC.cs</DependentUpon>
+    </Compile>
     <Compile Include="QuestionUC.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -111,6 +124,9 @@
     <Compile Include="Waiting.Designer.cs">
       <DependentUpon>Waiting.cs</DependentUpon>
     </Compile>
+    <EmbeddedResource Include="ResultOptionUC.resx">
+      <DependentUpon>ResultOptionUC.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="ClientForm.resx">
       <DependentUpon>ClientForm.cs</DependentUpon>
     </EmbeddedResource>
@@ -130,6 +146,9 @@
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
+    <EmbeddedResource Include="QuestionInfoUC.resx">
+      <DependentUpon>QuestionInfoUC.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="QuestionUC.resx">
       <DependentUpon>QuestionUC.cs</DependentUpon>
     </EmbeddedResource>
@@ -175,6 +194,10 @@
     <None Include="Resources\male-student.png" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\DAL\DAL.csproj">
+      <Project>{9A412145-8C54-4661-B434-518EF7ED96F7}</Project>
+      <Name>DAL</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Services\Services.csproj">
       <Project>{66cbf489-74e1-42af-9775-5ab558b3b826}</Project>
       <Name>Services</Name>

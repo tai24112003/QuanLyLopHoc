@@ -28,6 +28,7 @@ namespace Server
             services.AddTransient<ClassStudentDAL>();
             //services.AddTransient<ClassSubjectDAL>();
             services.AddTransient<UserDAL>();
+            services.AddTransient<SessionDAL>();
             services.AddTransient<RoomDAL>();
             services.AddTransient<SubjectDAL>();
             services.AddTransient<SettingDAL>();
@@ -38,6 +39,7 @@ namespace Server
             services.AddTransient<UserBLL>();
             services.AddTransient<ClassBLL>();
             services.AddTransient<RoomBLL>();
+            services.AddTransient<SessionBLL>();
             services.AddTransient<SubjectBLL>();
             services.AddTransient<SettingBLL>();
             services.AddTransient<ClassSessionDAL>();

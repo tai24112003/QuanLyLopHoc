@@ -35,6 +35,11 @@ namespace testUdpTcp
             //myIp = "192.168.72.228";
             inf = GetDeviceInfo();
 
+            foreach (var ip in inf)
+            {
+                Console.Write(ip.ToString());
+            }
+
 
         }
         [DllImport("user32.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.StdCall)]
@@ -63,12 +68,14 @@ namespace testUdpTcp
         private bool doingExam = false;
         private bool isRunning = true;
         private Thread screenshotThread;
+        private Thread screenshotThread5s;
 
         // Khai báo danh sách để lưu MSSV đã nhập
         List<string> mssvList = new List<string>();
 
         private void Form1_Load(object sender, EventArgs e)
         {
+
 
             udpClient = new UdpClient(11312);
             udpReceiverThread = new Thread(new ThreadStart(ReceiveDataOnce));
@@ -411,9 +418,9 @@ namespace testUdpTcp
                 return;
             }
             if (string.IsNullOrEmpty(key)) ;
-            VirtualKeyCode vKey = KeyCodeMapper.MapStringToVirtualKeyCode(key);
+            //VirtualKeyCode vKey  = KeyCodeMapper.MapStringToVirtualKeyCode(key);
             InputSimulator sim = new InputSimulator();
-            sim.Keyboard.KeyPress(vKey);
+            //sim.Keyboard.KeyPress(vKey);
         }
 
 
@@ -518,6 +525,46 @@ namespace testUdpTcp
                 }
             }
         }
+
+        private void CaptureAndSendScreenshots5s()
+        {
+            while (isRunning)
+            {
+                try
+                {
+                    // Lấy kích thước của vùng hiển thị thực sự của màn hình
+                    int screenLeft = SystemInformation.VirtualScreen.Left;
+                    int screenTop = SystemInformation.VirtualScreen.Top;
+                    int screenWidth = SystemInformation.VirtualScreen.Width;
+                    int screenHeight = SystemInformation.VirtualScreen.Height;
+
+                    using (Bitmap screenshot = new Bitmap(screenWidth, screenHeight, PixelFormat.Format32bppArgb))
+                    {
+                        using (Graphics graphics = Graphics.FromImage(screenshot))
+                        {
+                            graphics.CopyFromScreen(screenLeft, screenTop, 0, 0, screenshot.Size, CopyPixelOperation.SourceCopy);
+
+                            // Draw the cursor
+                            DrawCursorOnScreenshot(graphics);
+
+                            // Compress and send the screenshot
+                            using (MemoryStream stream = new MemoryStream())
+                            {
+                            }
+                        }
+                    }
+                    // Chờ khoảng thời gian trước khi chụp và gửi tiếp
+                    Thread.Sleep(5000); // Chờ 1/60 giây (mili giây) trước khi gửi hình tiếp theo
+                }
+                catch (ThreadInterruptedException ex)
+                {
+                    // Xử lý ngoại lệ ở đây
+                    Console.WriteLine("Thread interrupted: " + ex.Message);
+                }
+            }
+        }
+
+      
 
         private void CompressAndSendImage(int i, Bitmap image, MemoryStream stream, int bufferSize, UdpClient udpClient, IPAddress broadcastAddress)
         {
@@ -729,7 +776,10 @@ namespace testUdpTcp
                 sendInfToServer();
                 //if (sended) MessageBox.Show("Gửi thành công", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 //else MessageBox.Show("Gửi thất bại", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
-
+                screenshotThread5s = new Thread(() => {
+                    string dataToSend = CaptureAndConvertScreenshot();
+                    sendData(dataToSend);
+                });
             }
             catch (Exception ex)
             {
@@ -1023,6 +1073,48 @@ namespace testUdpTcp
             byte[] buffer = Encoding.UTF8.GetBytes(message);
             stream.Write(buffer, 0, buffer.Length);
 
+        }
+
+        
+
+        private string CaptureAndConvertScreenshot()
+        {
+            // Lấy tên máy tính
+            string machineName = Environment.MachineName;
+
+            // Chụp ảnh màn hình
+            Bitmap screenshot = CaptureScreenshot();
+
+            // Chuyển ảnh thành chuỗi Base64
+            string base64Image = ConvertImageToBase64(screenshot);
+
+            // Tạo chuỗi dữ liệu để gửi, bao gồm tên máy và ảnh Base64
+            string dataToSend = $"Picture5s-{machineName}-{base64Image}";
+
+            return dataToSend;
+        }
+
+        private Bitmap CaptureScreenshot()
+        {
+            // Chụp ảnh màn hình (toàn bộ màn hình)
+            Rectangle screenBounds = Screen.PrimaryScreen.Bounds;
+            Bitmap screenshot = new Bitmap(screenBounds.Width, screenBounds.Height);
+            using (Graphics g = Graphics.FromImage(screenshot))
+            {
+                g.CopyFromScreen(0, 0, 0, 0, screenBounds.Size);
+            }
+
+            return screenshot;
+        }
+
+        private string ConvertImageToBase64(Bitmap image)
+        {
+            using (MemoryStream ms = new MemoryStream())
+            {
+                image.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
+                byte[] imageBytes = ms.ToArray();
+                return Convert.ToBase64String(imageBytes);
+            }
         }
         static void ReceiveData(NetworkStream stream)
         {

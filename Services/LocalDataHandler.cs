@@ -14,8 +14,9 @@ public class LocalDataHandler
     private readonly SettingBLL _settingBLL;
     private readonly ClassStudentBLL _classStudentBLL;
     private readonly AttendanceBLL _attendanceBLL;
+    private readonly RoomBLL _roomBLL;
 
-    public LocalDataHandler(ComputerBLL computerBLL, SettingBLL settingBLL, AttendanceBLL attendanceBLL,
+    public LocalDataHandler(RoomBLL roomBLL,ComputerBLL computerBLL, SettingBLL settingBLL, AttendanceBLL attendanceBLL,
                             ClassSessionBLL classSessionBLL, SessionComputerBLL sessionComputerBLL,
                             ClassBLL classBLL, StudentBLL studentBLL, ClassStudentBLL classStudentBLL)
     {
@@ -27,6 +28,7 @@ public class LocalDataHandler
         _attendanceBLL = attendanceBLL ?? throw new ArgumentNullException(nameof(attendanceBLL));
         _settingBLL = settingBLL ?? throw new ArgumentNullException(nameof(settingBLL));
         _computerBLL = computerBLL ?? throw new ArgumentNullException(nameof(computerBLL));
+        _roomBLL = roomBLL ?? throw new ArgumentNullException(nameof(roomBLL));
     }
 
     public async Task MigrateData()
@@ -104,12 +106,32 @@ public class LocalDataHandler
         try
         {
             var negativeClassSessions = await _classSessionBLL.LoadNegativeIDClasseSessionAsync();
-            if (negativeClassSessions == null) return;
+            if (negativeClassSessions != null) 
 
             foreach (var classSession in negativeClassSessions)
             {
                 await MigrateClassSessionData(classSession);
             }
+
+            var attendanceRecords = await _attendanceBLL.GetAttendanceBySessionIDNegative();
+            var sessionComputers = await _sessionComputerBLL.GetSessionComputersBySessionIDNegative();
+
+            await _attendanceBLL.DeleteAttendanceBySessionID(attendanceRecords[0].SessionID);
+            await _sessionComputerBLL.DeleteSessionComputersBySessionID(sessionComputers[0].SessionID);
+
+            int sessionID_B = int.Parse(GeneratePositiveID(attendanceRecords[0].SessionID.ToString()));
+            foreach (var attendance in attendanceRecords)
+            {
+                attendance.SessionID = sessionID_B;
+                attendance.StudentID = GeneratePositiveID(attendance.StudentID);
+            }
+            await _attendanceBLL.InsertAttendance(sessionID_B, attendanceRecords);
+
+            foreach (var sessionComputer in sessionComputers)
+            {
+                sessionComputer.SessionID = sessionID_B;
+            }
+            await _sessionComputerBLL.InsertSessionComputer(sessionID_B, sessionComputers);
         }
         catch (Exception ex)
         {
@@ -141,6 +163,11 @@ public class LocalDataHandler
             sessionComputer.SessionID = sessionID_B;
         }
         await _sessionComputerBLL.InsertSessionComputer(sessionID_B, sessionComputers);
+
+
+
+
+
     }
 
     private async Task MigrateComputerAndStudentData()
@@ -149,19 +176,21 @@ public class LocalDataHandler
         {
             var settingLocal = await _settingBLL.GetSettingLocal();
             var settingServer = await _settingBLL.GetSettingServer();
+            if (settingServer != null && settingLocal !=null)
+            {
+                DateTime lastTimeUpdateStudentLocal = DateTime.Parse(settingLocal.lastTimeUpdateStudent);
+                DateTime lastTimeUpdateStudentServer = DateTime.Parse(settingServer.lastTimeUpdateStudent);
 
-            DateTime lastTimeUpdateStudentLocal = DateTime.Parse(settingLocal.lastTimeUpdateStudent);
-            DateTime lastTimeUpdateStudentServer = DateTime.Parse(settingServer.lastTimeUpdateStudent);
+                DateTime lastTimeUpdateComputerLocal = DateTime.Parse(settingLocal.lastTimeUpdateComputer);
+                DateTime lastTimeUpdateComputerServer = DateTime.Parse(settingServer.lastTimeUpdateComputer);
 
-            DateTime lastTimeUpdateComputerLocal = DateTime.Parse(settingLocal.lastTimeUpdateComputer);
-            DateTime lastTimeUpdateComputerServer = DateTime.Parse(settingServer.lastTimeUpdateComputer);
-
-            DateTime lastTimeUpdateClassLocal = DateTime.Parse(settingLocal.lastTimeUpdateComputer);
-            DateTime lastTimeUpdateClassServer = DateTime.Parse(settingServer.lastTimeUpdateComputer);
-
-            await SyncStudentData(lastTimeUpdateStudentLocal, lastTimeUpdateStudentServer, settingServer);
-            await SyncComputerData(lastTimeUpdateComputerLocal, lastTimeUpdateComputerServer, settingServer);
-            await SyncClassData(lastTimeUpdateClassLocal, lastTimeUpdateClassServer, settingServer);
+                DateTime lastTimeUpdateClassLocal = DateTime.Parse(settingLocal.lastTimeUpdateComputer);
+                DateTime lastTimeUpdateClassServer = DateTime.Parse(settingServer.lastTimeUpdateComputer);
+                await _roomBLL.GetRoomsByName("F71");
+                await SyncStudentData(lastTimeUpdateStudentLocal, lastTimeUpdateStudentServer, settingServer);
+                await SyncComputerData(lastTimeUpdateComputerLocal, lastTimeUpdateComputerServer, settingServer);
+                await SyncClassData(lastTimeUpdateClassLocal, lastTimeUpdateClassServer, settingServer);
+            }
         }
         catch (Exception ex)
         {

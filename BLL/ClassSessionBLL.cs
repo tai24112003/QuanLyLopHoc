@@ -34,7 +34,7 @@ public class ClassSessionBLL
             await _classSessionDAL.SaveLocalDataAsync(classSessions);
 
             Console.WriteLine("Error inserting class session in BLL. Data saved locally.", ex);
-            return null;
+            return classSession;
         }
     }
 

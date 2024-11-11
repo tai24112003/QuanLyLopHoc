@@ -90,7 +90,7 @@ public class ComputerBLL
 
         foreach (var computer in computersToSync)
         {
-            bool exists = await _ComputerDAL.CheckIfComputerExists(computer.ComputerID); // Hàm kiểm tra tồn tại
+            bool exists = await _ComputerDAL.CheckIfComputerExists(computer.ID); // Hàm kiểm tra tồn tại
 
             if (exists)
             {

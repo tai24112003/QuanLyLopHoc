@@ -10,11 +10,12 @@ using System.Windows.Forms;
 
 namespace Server
 {
-    public partial class MainForm : Form
+    public partial class FormLoading : Form
     {
-        public MainForm()
+        public FormLoading()
         {
             InitializeComponent();
         }
+        
     }
 }

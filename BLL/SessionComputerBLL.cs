@@ -33,13 +33,27 @@ public class SessionComputerBLL
     {
         // Gọi hàm DAL để lấy thông tin máy tính theo SessionID
         List<SessionComputer> computersJson = await _sessionComputerDAL.GetSessionComputersBySessionID(sessionID);
-        if (computersJson.Count==0)
+        if (computersJson == null)
         {
             return null;
         }
 
         return computersJson; // Trả về dữ liệu máy tính dưới dạng JSON
     }
+
+    public async Task<List<SessionComputer>> GetSessionComputersBySessionIDNegative()
+    {
+        // Gọi hàm DAL để lấy thông tin máy tính theo SessionID
+        List<SessionComputer> computersJson = await _sessionComputerDAL.GetSessionComputersBySessionIDNegative();
+        if (computersJson == null)
+        {
+            return null;
+        }
+
+        return computersJson; // Trả về dữ liệu máy tính dưới dạng JSON
+    }
+
+
 
     public async Task<bool> DeleteSessionComputersBySessionID(int sessionID)
     {

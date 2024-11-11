@@ -13,7 +13,15 @@ public class AttendanceBLL
 
     public async Task<List<ClassSession>> GetAttendanceByClassID(int classID)
     {
-        return await _AttendanceDAL.GetAttendanceByClassID(classID);
+        try
+        {
+            return await _AttendanceDAL.GetAttendanceByClassID(classID);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+            return null;
+        }
     }
 
     public async Task InsertAttendance(int sessionId, List<Attendance> Attendances)
@@ -71,6 +79,11 @@ public class AttendanceBLL
     public async Task<List<Attendance>> GetAttendanceBySessionID(int sessionID)
     {
         return await _AttendanceDAL.GetAttendanceBySessionID(sessionID);
+    }
+
+    public async Task<List<Attendance>> GetAttendanceBySessionIDNegative()
+    {
+        return await _AttendanceDAL.GetAttendanceBySessionIDNegative();
     }
 
 }

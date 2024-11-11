@@ -80,7 +80,7 @@ public class ComputerDAL
     {
         try
         {
-            string query = "SELECT RoomID, ComputerName, RAM, HHD, CPU FROM Computers";
+            string query = "SELECT * FROM Computers";
             DataTable dataTable = DataProvider.GetDataTable(query, null);
 
             if (dataTable == null || dataTable.Rows.Count == 0)
@@ -98,6 +98,7 @@ public class ComputerDAL
                     RAM = row["RAM"].ToString(),
                     HDD = row["HDD"].ToString(),
                     CPU = row["CPU"].ToString(),
+                    ID = int.Parse(row["ComputerID"].ToString()),
                 };
                 Computers.Add(Computer);
             }
@@ -127,7 +128,7 @@ public class ComputerDAL
         string query = "UPDATE computers SET ComputerName = @ComputerName, RAM = @RAM, HHD = @HHD, CPU = @CPU WHERE ComputerID = @Id";
         OleDbParameter[] parameters = new OleDbParameter[]
       {
-         new OleDbParameter( "@Id", computer.ComputerID ),
+         new OleDbParameter( "@Id", computer.ID ),
         new OleDbParameter ("@ComputerName", computer.ComputerName),
          new OleDbParameter("@RAM", computer.RAM),
          new OleDbParameter("@HHD", computer.HDD),

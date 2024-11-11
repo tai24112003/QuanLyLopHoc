@@ -29,11 +29,12 @@ public class ClassBLL
             // Class does not exist, insert new class
             string responseJson = await _ClassDAL.InsertClass(classSession);
             var insertedClass = JsonConvert.DeserializeObject<Class>(responseJson);
-            var classList = new List<Class> { insertedClass };
+            classSession.ClassID = insertedClass.ClassID;
+            var classList = new List<Class> { classSession };
             var classResponse = new ClassResponse { data = classList };
             string classJson = JsonConvert.SerializeObject(classResponse);
             await _ClassDAL.SaveLocalData(classJson);
-            return insertedClass;
+            return classSession;
         }
         catch (Exception ex)
         {
@@ -46,7 +47,7 @@ public class ClassBLL
             string classJson = JsonConvert.SerializeObject(classResponse);
             await _ClassDAL.SaveLocalData(classJson);
 
-            Console.WriteLine("Error inserting class session in BLL: " + ex.Message);
+            Console.WriteLine("Error inserting class session in BLL, Save local Success:  " + ex.Message);
             return classSession;
         }
     }
@@ -99,7 +100,9 @@ public class ClassBLL
     public async Task<List<Class>> GetClassByUserID(int userID)
     {
         var lstClass = await GetAllClass();
+        if(lstClass != null)
         return lstClass.FindAll(c => c.UserID == userID).ToList();
+        return null;
     }
 
     public async Task<string> GetClass()

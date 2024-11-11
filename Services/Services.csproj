@@ -79,6 +79,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ExcelController.cs" />
     <Compile Include="KeyCodeMapper.cs" />
     <Compile Include="LocalDataHandler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

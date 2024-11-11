@@ -8,16 +8,14 @@ public class ExcelController
 {
     private readonly ClassSessionBLL _classSessionBLL;
     private readonly StudentBLL _studentBLL;
-    private readonly SubjectBLL _subjectBLL;
     private readonly ClassBLL _classBLL;
     private readonly UserBLL _userBLL;
     private readonly ClassStudentBLL _classStudentBLL;
 
-    public ExcelController(LocalDataHandler localDataHandler, ClassStudentBLL classStudentBLL, ClassSessionBLL classSessionBLL, StudentBLL studentBLL, SubjectBLL subjectBLL, ClassBLL classBLL, UserBLL userBLL)
+    public ExcelController(LocalDataHandler localDataHandler, ClassStudentBLL classStudentBLL, ClassSessionBLL classSessionBLL, StudentBLL studentBLL, ClassBLL classBLL, UserBLL userBLL)
     {
         _classSessionBLL = classSessionBLL;
         _studentBLL = studentBLL;
-        _subjectBLL = subjectBLL;
         _classBLL = classBLL;
         _userBLL = userBLL;
         _classStudentBLL = classStudentBLL;

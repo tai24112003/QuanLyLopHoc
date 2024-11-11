@@ -86,7 +86,7 @@ namespace Server
             _serviceProvider = serviceProvider;
 
             //Ip = ;
-            //Ip = getIPServer();
+            Ip = getIPServer();
             InitializeContextMenu();
 
             // Thực hiện các logic khởi tạo khác nếu cần thiết
@@ -127,7 +127,7 @@ namespace Server
 
                     if (students == null || students.Count == 0)
                     {
-                        MessageBox.Show("Failed to fetch student data.");
+                        MessageBox.Show("Không có thông tin học sinh.");
                         return;
                     }
 

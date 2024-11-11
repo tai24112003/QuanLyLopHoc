@@ -100,6 +100,18 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="FormLoading.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormLoading.Designer.cs">
+      <DependentUpon>FormLoading.cs</DependentUpon>
+    </Compile>
+    <Compile Include="GroupForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="GroupForm.Designer.cs">
+      <DependentUpon>GroupForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="ResultInfo.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -113,10 +125,6 @@
       <DependentUpon>SvExamForm.cs</DependentUpon>
     </Compile>
     <Compile Include="FirewallHelper.cs" />
-    <Compile Include="MainForm.cs" />
-    <Compile Include="MainForm.Designer.cs">
-      <DependentUpon>MainForm.cs</DependentUpon>
-    </Compile>
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -185,14 +193,17 @@
     <Compile Include="ThumbnailTest.Designer.cs">
       <DependentUpon>ThumbnailTest.cs</DependentUpon>
     </Compile>
+    <EmbeddedResource Include="FormLoading.resx">
+      <DependentUpon>FormLoading.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="GroupForm.resx">
+      <DependentUpon>GroupForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="ResultInfo.resx">
       <DependentUpon>ResultInfo.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="SvExamForm.resx">
       <DependentUpon>SvExamForm.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="MainForm.resx">
-      <DependentUpon>MainForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="QuestionInfo.resx">
       <DependentUpon>QuestionInfo.cs</DependentUpon>
@@ -211,6 +222,7 @@
     </EmbeddedResource>
     <EmbeddedResource Include="ServerForm.resx">
       <DependentUpon>ServerForm.cs</DependentUpon>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
@@ -323,10 +335,6 @@
     <ProjectReference Include="..\BLL\BLL.csproj">
       <Project>{e3a032f0-2031-4c8b-a197-8dd2d422fc42}</Project>
       <Name>BLL</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Controllers\Controllers.csproj">
-      <Project>{cba5e268-6a6a-4c34-a68f-1b66d60513e9}</Project>
-      <Name>Controllers</Name>
     </ProjectReference>
     <ProjectReference Include="..\DAL\DAL.csproj">
       <Project>{9a412145-8c54-4661-b434-518ef7ed96f7}</Project>

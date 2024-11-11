@@ -18,7 +18,7 @@ namespace Server
 
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(serviceProvider.GetRequiredService<svForm>());
+            Application.Run(serviceProvider.GetRequiredService<StartClassForm>());
         }
 
         private static void ConfigureServices(IServiceCollection services)
@@ -30,7 +30,6 @@ namespace Server
             services.AddTransient<UserDAL>();
             services.AddTransient<SessionDAL>();
             services.AddTransient<RoomDAL>();
-            services.AddTransient<SubjectDAL>();
             services.AddTransient<SettingDAL>();
             services.AddTransient<StudentDAL>();
             services.AddTransient<StudentBLL>();
@@ -40,7 +39,6 @@ namespace Server
             services.AddTransient<ClassBLL>();
             services.AddTransient<RoomBLL>();
             services.AddTransient<SessionBLL>();
-            services.AddTransient<SubjectBLL>();
             services.AddTransient<SettingBLL>();
             services.AddTransient<ClassSessionDAL>();
             services.AddTransient<SessionComputerDAL>();
@@ -48,11 +46,8 @@ namespace Server
             services.AddTransient<ClassSessionBLL>();
             //services.AddTransient<ClassSubjectBLL>();
             services.AddTransient<ClassStudentBLL>();
-            services.AddTransient<ExamBLL>();
             services.AddTransient<SessionComputerBLL>();
             services.AddTransient<ComputerBLL>();
-            services.AddTransient<SubmisstionBLL>();
-            services.AddTransient<SubmisstionDAL>();
             services.AddTransient<LocalDataHandler>();
             services.AddTransient<ExcelController>();
 

@@ -49,18 +49,15 @@
   <ItemGroup>
     <Compile Include="SessionBLL.cs" />
     <Compile Include="SettingBLL.cs" />
-    <Compile Include="SubmisstionBLL.cs" />
     <Compile Include="AttendanceBLL.cs" />
     <Compile Include="ClassBLL.cs" />
     <Compile Include="ClassSessionBLL.cs" />
     <Compile Include="ClassStudentBLL.cs" />
     <Compile Include="ComputerBLL.cs" />
-    <Compile Include="ExamBLL.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RoomBLL.cs" />
     <Compile Include="SessionComputerBLL.cs" />
     <Compile Include="StudentBLL.cs" />
-    <Compile Include="SubjectBLL.cs" />
     <Compile Include="UserBLL.cs" />
   </ItemGroup>
   <ItemGroup>

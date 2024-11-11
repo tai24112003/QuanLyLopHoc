@@ -294,8 +294,8 @@
             this.Mouse,
             this.Keyboard,
             this.Monitor,
-<<<<<<< HEAD
-            this.ComputerID});
+            this.ComputerID,
+            this.MismathInfo});
             dataGridViewCellStyle6.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
             dataGridViewCellStyle6.BackColor = System.Drawing.SystemColors.Window;
             dataGridViewCellStyle6.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -304,18 +304,6 @@
             dataGridViewCellStyle6.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
             dataGridViewCellStyle6.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
             this.dgv_client.DefaultCellStyle = dataGridViewCellStyle6;
-=======
-            this.ComputerID,
-            this.MismathInfo});
-            dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle2.BackColor = System.Drawing.SystemColors.Window;
-            dataGridViewCellStyle2.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            dataGridViewCellStyle2.ForeColor = System.Drawing.SystemColors.ControlText;
-            dataGridViewCellStyle2.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-            dataGridViewCellStyle2.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            dataGridViewCellStyle2.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
-            this.dgv_client.DefaultCellStyle = dataGridViewCellStyle2;
->>>>>>> cba289c8cdcfaa2fccd5d3bf5d89fb59f3b157c9
             this.dgv_client.Dock = System.Windows.Forms.DockStyle.Left;
             this.dgv_client.GridColor = System.Drawing.Color.White;
             this.dgv_client.Location = new System.Drawing.Point(100, 129);

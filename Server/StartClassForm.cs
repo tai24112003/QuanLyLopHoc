@@ -16,14 +16,12 @@ namespace Server
         private readonly ClassSessionBLL _classSessionBLL;
         private readonly RoomBLL _roomBLL;
         private readonly SessionBLL _sessionBLL;
-        private readonly SubjectBLL _subjectBLL;
         private readonly ExcelController _excelController;
         private readonly IServiceProvider _serviceProvider;
         private readonly LocalDataHandler _localDataHandler;
         List<Class> classes;
         public StartClassForm
             (UserBLL userBLL,
-            SubjectBLL subjectBLL,
             ClassBLL classBLL,
             ClassSessionBLL classSessionBLL,
             RoomBLL roomBLL,
@@ -39,7 +37,6 @@ namespace Server
             _userBLL = userBLL;
             _classBLL = classBLL;
             _classSessionBLL = classSessionBLL;
-            _subjectBLL = subjectBLL;
             _excelController = excelController;
             _roomBLL = roomBLL;
             _serviceProvider = serviceProvider;

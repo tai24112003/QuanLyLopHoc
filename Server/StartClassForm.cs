@@ -15,19 +15,21 @@ namespace Server
         private readonly ClassBLL _classBLL;
         private readonly ClassSessionBLL _classSessionBLL;
         private readonly RoomBLL _roomBLL;
+        private readonly SessionBLL _sessionBLL;
         private readonly SubjectBLL _subjectBLL;
         private readonly ExcelController _excelController;
         private readonly IServiceProvider _serviceProvider;
         private readonly LocalDataHandler _localDataHandler;
         List<Class> classes;
         public StartClassForm
-            (UserBLL userBLL, 
-            SubjectBLL subjectBLL, 
+            (UserBLL userBLL,
+            SubjectBLL subjectBLL,
             ClassBLL classBLL,
             ClassSessionBLL classSessionBLL,
             RoomBLL roomBLL,
             ExcelController excelController,
-            LocalDataHandler localDataHandler,
+            SessionBLL sessionBLL,
+        LocalDataHandler localDataHandler,
             IServiceProvider serviceProvider)
         {
             InitializeComponent();
@@ -39,25 +41,86 @@ namespace Server
             _classSessionBLL = classSessionBLL;
             _subjectBLL = subjectBLL;
             _excelController = excelController;
-            _roomBLL= roomBLL;
+            _roomBLL = roomBLL;
             _serviceProvider = serviceProvider;
             _localDataHandler = localDataHandler;
+            _sessionBLL= sessionBLL;
             this.Load += new EventHandler(MainForm_Load);
         }
 
         private async void MainForm_Load(object sender, EventArgs e)
         {
-            await _localDataHandler.MigrateData();
-            await SetupUserAutoComplete();
-            await SetupClassAutoComplete();
+            // Khởi tạo form loading
+            FormLoading loadingForm = new FormLoading();
+
+            // Hiển thị form loading dưới dạng không modal
+            loadingForm.Show();
+
+            try
+            {
+                // Chạy các tác vụ bất đồng bộ
+                await _localDataHandler.MigrateData();
+                await SetupUserAutoComplete();
+                await SetupClassAutoComplete();
+                await SetupSesisionAutoComplete();
+            }
+            finally
+            {
+                // Đóng form loading sau khi hoàn thành các tác vụ
+                loadingForm.Close();
+            }
         }
+
+        private async Task SetupSesisionAutoComplete()
+        {
+            var sessions = await _sessionBLL.GetAllSessions();
+
+            AutoCompleteStringCollection sessionCollection = new AutoCompleteStringCollection();
+            AutoCompleteStringCollection startCollection = new AutoCompleteStringCollection();
+            AutoCompleteStringCollection endCollection = new AutoCompleteStringCollection();
+
+            if (sessions != null)
+            {
+                foreach (var session in sessions)
+                {
+                    sessionCollection.Add(session.ID);
+                    startCollection.Add(session.StartTime);
+                    endCollection.Add(session.EndTime);
+                }
+
+                // Set up cbbSession with session ID data
+                cbbSession.DataSource = sessions;
+                cbbSession.AutoCompleteCustomSource = sessionCollection;
+                cbbSession.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
+                cbbSession.AutoCompleteSource = AutoCompleteSource.CustomSource;
+                cbbSession.DisplayMember = "ID";  // Assuming "ID" is the property name
+                cbbSession.ValueMember = "ID";
+
+                // Set up cbbStart with start time data
+                cbbStart.DataSource = sessions;
+                cbbStart.AutoCompleteCustomSource = startCollection;
+                cbbStart.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
+                cbbStart.AutoCompleteSource = AutoCompleteSource.CustomSource;
+                cbbStart.DisplayMember = "StartTime"; // Assuming "StartTime" is the property name
+                cbbStart.ValueMember = "ID";
+
+                // Set up cbbEnd with end time data
+                cbbEnd.DataSource = sessions;
+                cbbEnd.AutoCompleteCustomSource = endCollection;
+                cbbEnd.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
+                cbbEnd.AutoCompleteSource = AutoCompleteSource.CustomSource;
+                cbbEnd.DisplayMember = "EndTime"; // Assuming "EndTime" is the property name
+                cbbEnd.ValueMember = "ID";
+            }
+
+        }
+
 
         private async Task SetupUserAutoComplete()
         {
             try
             {
-                string role = "GV";
-                List<User> users = await _userBLL.GetListUser(role);
+                List<User> users = await _userBLL.GetUserLocal();
                 AutoCompleteStringCollection userCollection = new AutoCompleteStringCollection();
                 foreach (var user in users)
                 {
@@ -93,32 +156,22 @@ namespace Server
         }
         private void cbbSession_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (cbbSession.SelectedIndex == 0)
+            int selectedIndex = cbbSession.SelectedIndex;
+
+            // Set cbbStart and cbbEnd to the same index as cbbSession if it's a valid index
+            if (selectedIndex >= 0 && selectedIndex < cbbStart.Items.Count && selectedIndex < cbbEnd.Items.Count)
             {
-                cbbStart.SelectedIndex = 0;
-                cbbEnd.SelectedIndex = 0;
-            }
-            else if (cbbSession.SelectedIndex == 1)
-            {
-                cbbStart.SelectedIndex = 1;
-                cbbEnd.SelectedIndex = 1;
-            }
-            else if (cbbSession.SelectedIndex == 2)
-            {
-                cbbStart.SelectedIndex = 2;
-                cbbEnd.SelectedIndex = 2;
-            }
-            else if (cbbSession.SelectedIndex == 3)
-            {
-                cbbStart.SelectedIndex = 3;
-                cbbEnd.SelectedIndex = 3;
+                cbbStart.SelectedIndex = selectedIndex;
+                cbbEnd.SelectedIndex = selectedIndex;
             }
             else
             {
-                cbbEnd.SelectedIndex = -1;
+                // Reset to no selection if index is out of bounds
                 cbbStart.SelectedIndex = -1;
+                cbbEnd.SelectedIndex = -1;
             }
         }
+
 
         private void btnExit_Click(object sender, EventArgs e)
         {
@@ -127,83 +180,150 @@ namespace Server
 
         private async void btnSubmit_Click(object sender, EventArgs e)
         {
+            // Kiểm tra xem tất cả các trường cần thiết đã được chọn chưa
+            if (cbbClass.SelectedItem == null)
+            {
+                MessageBox.Show("Vui lòng chọn lớp học.", "Lỗi xác thực", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            if (cbbName.SelectedItem == null)
+            {
+                MessageBox.Show("Vui lòng chọn người dùng.", "Lỗi xác thực", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            if (cbbSession.SelectedItem == null)
+            {
+                MessageBox.Show("Vui lòng chọn buổi học.", "Lỗi xác thực", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            if (cbbStart.SelectedItem == null)
+            {
+                MessageBox.Show("Vui lòng chọn thời gian bắt đầu.", "Lỗi xác thực", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            if (cbbEnd.SelectedItem == null)
+            {
+                MessageBox.Show("Vui lòng chọn thời gian kết thúc.", "Lỗi xác thực", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            // Lấy ngày giờ hiện tại cho thời gian bắt đầu và kết thúc
+            DateTime now = DateTime.Now;
+
+            // Lấy đối tượng session đã chọn từ ComboBox
+            var selectedSession = (Session)cbbSession.SelectedItem;
+            var selectedStart = (Session)cbbStart.SelectedItem;
+            var selectedEnd = (Session)cbbEnd.SelectedItem;
+
+            // Phân tích thời gian bắt đầu và kết thúc từ các đối tượng Session
+            string[] startParts = selectedStart.StartTime.Split(':');
+            string[] endParts = selectedEnd.EndTime.Split(':');
+
+            int startHour = int.Parse(startParts[0]);
+            int startMinute = int.Parse(startParts[1]);
+            int endHour = int.Parse(endParts[0]);
+            int endMinute = int.Parse(endParts[1]);
+
+            // Thiết lập Thời gian bắt đầu với ngày hiện tại và giờ, phút đã chọn
+            DateTime startTime = new DateTime(now.Year, now.Month, now.Day, startHour, startMinute, 0);
+
+            // Tính toán khoảng cách thời gian giữa thời gian bắt đầu và kết thúc
+            TimeSpan timeDifference = new TimeSpan(endHour - startHour, endMinute - startMinute, 0);
+
+            // Thiết lập Thời gian kết thúc bằng cách cộng khoảng cách thời gian vào thời gian bắt đầu
+            DateTime endTime = startTime.Add(timeDifference);
+
+            if (startTime >= endTime)
+            {
+                MessageBox.Show("Thời gian bắt đầu phải trước thời gian kết thúc.", "Lỗi xác thực", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            // Định dạng lại Thời gian bắt đầu và kết thúc theo định dạng: dd/MM/yyyy HH:mm:ss
+            string formattedStartTime = startTime.ToString("dd/MM/yyyy HH:mm:ss");
+            string formattedEndTime = endTime.ToString("dd/MM/yyyy HH:mm:ss");
+
+            // Ẩn form hiện tại
             this.Hide();
+
             int classID = int.Parse(cbbClass.SelectedValue.ToString());
             int userID = int.Parse(cbbName.SelectedValue.ToString());
             Console.WriteLine(userID);
             string roomID = "F71";
-            string[] start = cbbStart.SelectedItem.ToString().Split('h');
-            int hour = int.Parse(start[0]);
-            int minute = int.Parse(start[1]);
 
-            // Lấy ngày hiện tại
-            DateTime now = DateTime.Now;
+            // Lấy thông tin phòng
+            var room = await _roomBLL.GetRoomsByName(roomID);
 
-            // Tạo đối tượng DateTime với ngày hiện tại và giờ phút từ chuỗi
-            DateTime startTime = new DateTime(now.Year, now.Month, now.Day, hour, minute, 0);
-            string[] end = cbbEnd.SelectedItem.ToString().Split('h');
-            hour = int.Parse(end[0]);
-            minute = int.Parse(end[1]);
-
-            
-            // Tạo đối tượng DateTime với ngày hiện tại và giờ phút từ chuỗi
-            DateTime endTime = new DateTime(now.Year, now.Month, now.Day, hour, minute, 0);
-              var room = await _roomBLL.GetRoomsByName(roomID);
             try
             {
+                // Tạo và khởi tạo đối tượng ClassSession
                 ClassSession classSession = new ClassSession
                 {
                     ClassID = classID,
-                    Session = cbbSession.SelectedIndex + 1,
-                    StartTime = startTime,
-                    EndTime = endTime,
+                    Session = int.Parse(selectedSession.ID), // Lấy ID của session đã chọn
+                    StartTime = formattedStartTime,
+                    EndTime = formattedEndTime,
                     user_id = userID,
                     RoomID = room.RoomID.ToString()
                 };
 
+                // Chèn thông tin buổi học và lấy SessionID mới
                 int sessionID = (await _classSessionBLL.InsertClassSession(classSession)).SessionID;
-
                 classSession.SessionID = sessionID;
 
-
-                // Set các thuộc tính cần thiết của svForm
+                // Mở form buổi học
                 var svFormFactory = _serviceProvider.GetRequiredService<svFormFactory>();
-                var svForms = svFormFactory.Create(userID, roomID, sessionID,classID);
+                var svForms = svFormFactory.Create(userID, roomID, sessionID, classID);
                 svForms.Show();
-
-                Console.WriteLine("Class session started successfully!");
+                Console.WriteLine("Buổi học đã được bắt đầu thành công!");
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Failed to start class session: " + ex);
+                MessageBox.Show("Không thể bắt đầu buổi học. Vui lòng thử lại.", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                Console.WriteLine("Lỗi khi bắt đầu buổi học: " + ex);
             }
         }
 
-        private void cbbName_SelectedIndexChanged(object sender, EventArgs e)
+
+
+        private async void cbbName_SelectedIndexChangedAsync(object sender, EventArgs e)
         {
+            FormLoading loadingForm = new FormLoading();
+
+            loadingForm.Show();
             try
-             {
+            {
                 int userID = int.Parse(cbbName.SelectedValue.ToString());
-                if(classes != null) { 
-                    List<Class> classes1 = classes.FindAll(c => c.UserID == userID);
+                List<Class> classes1 = await _classBLL.GetClassByUserID(userID);
 
 
                 AutoCompleteStringCollection classCollection = new AutoCompleteStringCollection();
-                foreach (var _class in classes1)
+                if (classes1 != null)
                 {
-                    classCollection.Add(_class.ClassName);
-                }
+                    foreach (var _class in classes1)
+                    {
+                        classCollection.Add(_class.ClassName);
+                    }
 
-                cbbClass.DataSource = classes1;
-                cbbClass.AutoCompleteCustomSource = classCollection;
-                cbbClass.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
-                cbbClass.AutoCompleteSource = AutoCompleteSource.CustomSource;
-                cbbClass.DisplayMember = "ClassName";
-                cbbClass.ValueMember = "ClassID";}
+                    cbbClass.DataSource = classes1;
+                    cbbClass.AutoCompleteCustomSource = classCollection;
+                    cbbClass.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
+                    cbbClass.AutoCompleteSource = AutoCompleteSource.CustomSource;
+                    cbbClass.DisplayMember = "ClassName";
+                    cbbClass.ValueMember = "ClassID";
+                }
             }
             catch (Exception ex)
             {
                 Console.WriteLine("Error: " + ex.Message);
+            }
+            finally
+            {
+                loadingForm.Close();
             }
         }
 
@@ -215,17 +335,81 @@ namespace Server
 
         private async void pictureBox3_Click(object sender, EventArgs e)
         {
+            FormLoading loadingForm = new FormLoading();
+
+            loadingForm.Show();
             try
             {
-                
-                await SetupUserAutoComplete();
-                await SetupClassAutoComplete();
+                // Populate cbbName with user data
+                var users = await _userBLL.GetUserAPI();
+                AutoCompleteStringCollection userCollection = new AutoCompleteStringCollection();
+                if (users != null)
+                {
+                    foreach (var user in users)
+                    {
+                        userCollection.Add(user.name);
+                    }
+
+                    cbbName.DataSource = users;
+                    cbbName.AutoCompleteCustomSource = userCollection;
+                    cbbName.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
+                    cbbName.AutoCompleteSource = AutoCompleteSource.CustomSource;
+                    cbbName.DisplayMember = "name";
+                    cbbName.ValueMember = "id";
+                }
+
+                // Populate session-related combo boxes with session data
+                var sessions = await _sessionBLL.GetAllSessionsAPI();
+
+                AutoCompleteStringCollection sessionCollection = new AutoCompleteStringCollection();
+                AutoCompleteStringCollection startCollection = new AutoCompleteStringCollection();
+                AutoCompleteStringCollection endCollection = new AutoCompleteStringCollection();
+
+                if (sessions != null)
+                {
+                    foreach (var session in sessions)
+                    {
+                        sessionCollection.Add("Ca " + session.ID);
+                        startCollection.Add(session.StartTime);
+                        endCollection.Add(session.EndTime);
+                    }
+
+                    // Set up cbbSession with session ID data
+                    cbbSession.DataSource = sessions;
+                    cbbSession.AutoCompleteCustomSource = sessionCollection;
+                    cbbSession.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
+                    cbbSession.AutoCompleteSource = AutoCompleteSource.CustomSource;
+                    cbbSession.DisplayMember = "ID";  // Assuming "ID" is the property name
+                    cbbSession.ValueMember = "ID";
+
+                    // Set up cbbStart with start time data
+                    cbbStart.DataSource = sessions;
+                    cbbStart.AutoCompleteCustomSource = startCollection;
+                    cbbStart.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
+                    cbbStart.AutoCompleteSource = AutoCompleteSource.CustomSource;
+                    cbbStart.DisplayMember = "StartTime"; // Assuming "StartTime" is the property name
+                    cbbStart.ValueMember = "ID";
+
+                    // Set up cbbEnd with end time data
+                    cbbEnd.DataSource = sessions;
+                    cbbEnd.AutoCompleteCustomSource = endCollection;
+                    cbbEnd.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
+                    cbbEnd.AutoCompleteSource = AutoCompleteSource.CustomSource;
+                    cbbEnd.DisplayMember = "EndTime"; // Assuming "EndTime" is the property name
+                    cbbEnd.ValueMember = "ID";
+                }
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Không có mạng không thể lấy dữ liệu mới nhất: "+ex);
+                MessageBox.Show("Không có mạng không thể lấy dữ liệu mới nhất", "False", MessageBoxButtons.OK, MessageBoxIcon.Information, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
+                Console.WriteLine("Không có mạng không thể lấy dữ liệu mới nhất: " + ex);
+            }
+            finally
+            {
+                loadingForm.Close();
             }
         }
+
 
         private async void button1_Click(object sender, EventArgs e)
         {
@@ -237,20 +421,31 @@ namespace Server
 
             if (openFileDialog.ShowDialog() == DialogResult.OK)
             {
-                string filePath = openFileDialog.FileName;
-                var excelData = ReadExcelFile(filePath);
+                FormLoading loadingForm = new FormLoading();
 
-                
-
-                var success = await _excelController.AddDataFromExcel(excelData);
-
-                if (success!=null)
+                loadingForm.Show();
+                try
                 {
-                    MessageBox.Show("Data added successfully.");
+                    string filePath = openFileDialog.FileName;
+                    var excelData = ReadExcelFile(filePath);
+
+
+
+                    var success = await _excelController.AddDataFromExcel(excelData);
+
+                    if (success != null)
+                    {
+                        MessageBox.Show("Data added successfully.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
+                    }
+                    else
+                    {
+                        MessageBox.Show("Failed to add data. Data has been saved locally.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
+                    }
+
                 }
-                else
+                finally
                 {
-                    MessageBox.Show("Failed to add data. Data has been saved locally.");
+                    loadingForm.Close();
                 }
             }
         }
@@ -270,15 +465,15 @@ namespace Server
                 excelData.ClassName = worksheet.Cells["D2"].Value?.ToString();
                 excelData.TeacherName = worksheet.Cells["D3"].Value?.ToString();
 
-                int row = 6; 
+                int row = 6;
                 string date = DateTime.Now.ToString();
                 while (worksheet.Cells[row, 2].Value != null)
                 {
                     Student student = new Student
                     {
                         StudentID = worksheet.Cells[row, 2].Value.ToString(),
-                        LastName = worksheet.Cells[row, 3].Value.ToString(),
-                        FirstName = worksheet.Cells[row, 4].Value.ToString(),
+                        LastName = worksheet.Cells[row, 4].Value.ToString(),
+                        FirstName = worksheet.Cells[row, 3].Value.ToString(),
                         LastTime = date,
                     };
                     excelData.Students.Add(student);
@@ -289,7 +484,7 @@ namespace Server
             return excelData;
         }
 
-       
+
 
         //private async void cbbClass_SelectedIndexChanged(object sender, EventArgs e)
         //{
@@ -313,7 +508,7 @@ namespace Server
         //    }
         //}
 
-       
+
 
         private void StartClassForm_Load(object sender, EventArgs e)
         {
@@ -327,14 +522,26 @@ namespace Server
 
         private async void btnAddClass_Click(object sender, EventArgs e)
         {
-            Class classSession = new Class();
-            classSession.ClassName = cbbClass.Text;
-            classSession.UserID=int.Parse(cbbClass.SelectedValue.ToString());
-            DateTime currentDate = DateTime.Now;
-            string formattedDateTime = currentDate.ToString("dd/MM/yyyy HH:mm:ss");
+            FormLoading loadingForm = new FormLoading();
 
-            classSession.LastTime = formattedDateTime;
-            await _classBLL.InsertClass(classSession);
+            loadingForm.Show();
+            try
+            {
+                Class classSession = new Class();
+                classSession.ClassName = cbbClass.Text;
+                classSession.UserID = int.Parse(cbbClass.SelectedValue.ToString());
+                DateTime currentDate = DateTime.Now;
+                string formattedDateTime = currentDate.ToString("dd/MM/yyyy HH:mm:ss");
+
+                classSession.LastTime = formattedDateTime;
+                await _classBLL.InsertClass(classSession);
+            }
+            finally
+            {
+                loadingForm.Close();
+            }
         }
+
+        
     }
 }

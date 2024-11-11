@@ -57,9 +57,10 @@
             this.label2.BackColor = System.Drawing.Color.Transparent;
             this.label2.Font = new System.Drawing.Font("Tahoma", 10.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label2.ForeColor = System.Drawing.Color.White;
-            this.label2.Location = new System.Drawing.Point(349, 178);
+            this.label2.Location = new System.Drawing.Point(262, 145);
+            this.label2.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(63, 22);
+            this.label2.Size = new System.Drawing.Size(52, 18);
             this.label2.TabIndex = 1;
             this.label2.Text = "Họ tên";
             // 
@@ -69,9 +70,10 @@
             this.label3.BackColor = System.Drawing.Color.Transparent;
             this.label3.Font = new System.Drawing.Font("Tahoma", 10.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label3.ForeColor = System.Drawing.Color.White;
-            this.label3.Location = new System.Drawing.Point(349, 238);
+            this.label3.Location = new System.Drawing.Point(262, 193);
+            this.label3.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(39, 22);
+            this.label3.Size = new System.Drawing.Size(31, 18);
             this.label3.TabIndex = 3;
             this.label3.Text = "Lớp";
             // 
@@ -81,9 +83,10 @@
             this.label4.BackColor = System.Drawing.Color.Transparent;
             this.label4.Font = new System.Drawing.Font("Tahoma", 10.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label4.ForeColor = System.Drawing.Color.White;
-            this.label4.Location = new System.Drawing.Point(349, 358);
+            this.label4.Location = new System.Drawing.Point(262, 291);
+            this.label4.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(71, 22);
+            this.label4.Size = new System.Drawing.Size(60, 18);
             this.label4.TabIndex = 5;
             this.label4.Text = "Bắt đầu";
             // 
@@ -93,9 +96,10 @@
             this.label5.BackColor = System.Drawing.Color.Transparent;
             this.label5.Font = new System.Drawing.Font("Tahoma", 10.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label5.ForeColor = System.Drawing.Color.White;
-            this.label5.Location = new System.Drawing.Point(628, 358);
+            this.label5.Location = new System.Drawing.Point(471, 291);
+            this.label5.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(76, 22);
+            this.label5.Size = new System.Drawing.Size(63, 18);
             this.label5.TabIndex = 7;
             this.label5.Text = "Kết thúc";
             // 
@@ -105,9 +109,10 @@
             this.label1.BackColor = System.Drawing.Color.Transparent;
             this.label1.Font = new System.Drawing.Font("Tahoma", 10.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label1.ForeColor = System.Drawing.Color.White;
-            this.label1.Location = new System.Drawing.Point(349, 298);
+            this.label1.Location = new System.Drawing.Point(262, 242);
+            this.label1.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(30, 22);
+            this.label1.Size = new System.Drawing.Size(25, 18);
             this.label1.TabIndex = 12;
             this.label1.Text = "Ca";
             // 
@@ -119,10 +124,10 @@
             this.btnExit.BackColor = System.Drawing.Color.Transparent;
             this.btnExit.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("btnExit.BackgroundImage")));
             this.btnExit.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
-            this.btnExit.Location = new System.Drawing.Point(353, 421);
-            this.btnExit.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.btnExit.Location = new System.Drawing.Point(265, 342);
+            this.btnExit.Margin = new System.Windows.Forms.Padding(2);
             this.btnExit.Name = "btnExit";
-            this.btnExit.Size = new System.Drawing.Size(64, 64);
+            this.btnExit.Size = new System.Drawing.Size(48, 52);
             this.btnExit.TabIndex = 21;
             this.btnExit.TabStop = false;
             this.btnExit.Click += new System.EventHandler(this.btnExit_Click);
@@ -135,10 +140,10 @@
             this.btnSubmit.BackColor = System.Drawing.Color.Transparent;
             this.btnSubmit.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("btnSubmit.BackgroundImage")));
             this.btnSubmit.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
-            this.btnSubmit.Location = new System.Drawing.Point(827, 421);
-            this.btnSubmit.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.btnSubmit.Location = new System.Drawing.Point(620, 342);
+            this.btnSubmit.Margin = new System.Windows.Forms.Padding(2);
             this.btnSubmit.Name = "btnSubmit";
-            this.btnSubmit.Size = new System.Drawing.Size(64, 64);
+            this.btnSubmit.Size = new System.Drawing.Size(48, 52);
             this.btnSubmit.TabIndex = 22;
             this.btnSubmit.TabStop = false;
             this.btnSubmit.Click += new System.EventHandler(this.btnSubmit_Click);
@@ -149,15 +154,10 @@
             this.cbbStart.Font = new System.Drawing.Font("Tahoma", 10.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.cbbStart.ForeColor = System.Drawing.Color.Silver;
             this.cbbStart.FormattingEnabled = true;
-            this.cbbStart.Items.AddRange(new object[] {
-            "6h30",
-            "7h20",
-            "8h10",
-            "9h10 "});
-            this.cbbStart.Location = new System.Drawing.Point(457, 355);
-            this.cbbStart.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.cbbStart.Location = new System.Drawing.Point(343, 288);
+            this.cbbStart.Margin = new System.Windows.Forms.Padding(2);
             this.cbbStart.Name = "cbbStart";
-            this.cbbStart.Size = new System.Drawing.Size(143, 30);
+            this.cbbStart.Size = new System.Drawing.Size(108, 25);
             this.cbbStart.TabIndex = 6;
             // 
             // cbbEnd
@@ -166,15 +166,10 @@
             this.cbbEnd.Font = new System.Drawing.Font("Tahoma", 10.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.cbbEnd.ForeColor = System.Drawing.Color.Silver;
             this.cbbEnd.FormattingEnabled = true;
-            this.cbbEnd.Items.AddRange(new object[] {
-            "7h15",
-            "8h05",
-            "8h55",
-            "9h55"});
-            this.cbbEnd.Location = new System.Drawing.Point(747, 355);
-            this.cbbEnd.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.cbbEnd.Location = new System.Drawing.Point(560, 288);
+            this.cbbEnd.Margin = new System.Windows.Forms.Padding(2);
             this.cbbEnd.Name = "cbbEnd";
-            this.cbbEnd.Size = new System.Drawing.Size(143, 30);
+            this.cbbEnd.Size = new System.Drawing.Size(108, 25);
             this.cbbEnd.TabIndex = 8;
             // 
             // cbbSession
@@ -182,16 +177,10 @@
             this.cbbSession.Font = new System.Drawing.Font("Tahoma", 10.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.cbbSession.ForeColor = System.Drawing.Color.Gray;
             this.cbbSession.FormattingEnabled = true;
-            this.cbbSession.Items.AddRange(new object[] {
-            "Ca 1",
-            "Ca 2",
-            "Ca 3",
-            "Ca 4",
-            "Khác"});
-            this.cbbSession.Location = new System.Drawing.Point(457, 295);
-            this.cbbSession.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.cbbSession.Location = new System.Drawing.Point(343, 240);
+            this.cbbSession.Margin = new System.Windows.Forms.Padding(2);
             this.cbbSession.Name = "cbbSession";
-            this.cbbSession.Size = new System.Drawing.Size(432, 30);
+            this.cbbSession.Size = new System.Drawing.Size(325, 25);
             this.cbbSession.TabIndex = 26;
             this.cbbSession.SelectedIndexChanged += new System.EventHandler(this.cbbSession_SelectedIndexChanged);
             // 
@@ -201,10 +190,9 @@
             this.label6.BackColor = System.Drawing.Color.Transparent;
             this.label6.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label6.ForeColor = System.Drawing.Color.White;
-            this.label6.Location = new System.Drawing.Point(455, 421);
-            this.label6.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.label6.Location = new System.Drawing.Point(341, 342);
             this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(365, 80);
+            this.label6.Size = new System.Drawing.Size(274, 65);
             this.label6.TabIndex = 30;
             this.label6.Text = "*Lưu ý: nếu họ tên không có hãy nhấn reload. Nếu lớp không có hãy nhấn chọn và im" +
     "port file excel theo dạng chuẩn vào";
@@ -217,10 +205,10 @@
             this.pictureBox3.BackColor = System.Drawing.Color.Transparent;
             this.pictureBox3.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("pictureBox3.BackgroundImage")));
             this.pictureBox3.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
-            this.pictureBox3.Location = new System.Drawing.Point(912, 167);
-            this.pictureBox3.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.pictureBox3.Location = new System.Drawing.Point(684, 136);
+            this.pictureBox3.Margin = new System.Windows.Forms.Padding(2);
             this.pictureBox3.Name = "pictureBox3";
-            this.pictureBox3.Size = new System.Drawing.Size(61, 48);
+            this.pictureBox3.Size = new System.Drawing.Size(46, 39);
             this.pictureBox3.TabIndex = 31;
             this.pictureBox3.TabStop = false;
             this.pictureBox3.Click += new System.EventHandler(this.pictureBox3_Click);
@@ -229,21 +217,21 @@
             // 
             this.cbbName.Font = new System.Drawing.Font("Tahoma", 10.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.cbbName.FormattingEnabled = true;
-            this.cbbName.Location = new System.Drawing.Point(457, 175);
-            this.cbbName.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.cbbName.Location = new System.Drawing.Point(343, 142);
+            this.cbbName.Margin = new System.Windows.Forms.Padding(2);
             this.cbbName.Name = "cbbName";
-            this.cbbName.Size = new System.Drawing.Size(433, 30);
+            this.cbbName.Size = new System.Drawing.Size(326, 25);
             this.cbbName.TabIndex = 32;
-            this.cbbName.SelectedIndexChanged += new System.EventHandler(this.cbbName_SelectedIndexChanged);
+            this.cbbName.SelectedIndexChanged += new System.EventHandler(this.cbbName_SelectedIndexChangedAsync);
             // 
             // btnBrowse
             // 
             this.btnBrowse.AutoSize = true;
             this.btnBrowse.Font = new System.Drawing.Font("Tahoma", 10.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnBrowse.Location = new System.Drawing.Point(457, 389);
-            this.btnBrowse.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.btnBrowse.Location = new System.Drawing.Point(343, 316);
+            this.btnBrowse.Margin = new System.Windows.Forms.Padding(2);
             this.btnBrowse.Name = "btnBrowse";
-            this.btnBrowse.Size = new System.Drawing.Size(68, 34);
+            this.btnBrowse.Size = new System.Drawing.Size(51, 28);
             this.btnBrowse.TabIndex = 33;
             this.btnBrowse.Text = "Chọn";
             this.btnBrowse.UseVisualStyleBackColor = true;
@@ -254,10 +242,10 @@
             this.cbbClass.Font = new System.Drawing.Font("Tahoma", 10.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.cbbClass.ForeColor = System.Drawing.Color.Gray;
             this.cbbClass.FormattingEnabled = true;
-            this.cbbClass.Location = new System.Drawing.Point(457, 235);
-            this.cbbClass.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.cbbClass.Location = new System.Drawing.Point(343, 191);
+            this.cbbClass.Margin = new System.Windows.Forms.Padding(2);
             this.cbbClass.Name = "cbbClass";
-            this.cbbClass.Size = new System.Drawing.Size(432, 30);
+            this.cbbClass.Size = new System.Drawing.Size(325, 25);
             this.cbbClass.TabIndex = 36;
             this.cbbClass.SelectedIndexChanged += new System.EventHandler(this.cbbClass_SelectedIndexChanged);
             // 
@@ -269,21 +257,21 @@
             this.btnAddClass.BackColor = System.Drawing.Color.Transparent;
             this.btnAddClass.BackgroundImage = global::Server.Properties.Resources.add__1_;
             this.btnAddClass.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
-            this.btnAddClass.Location = new System.Drawing.Point(912, 227);
-            this.btnAddClass.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.btnAddClass.Location = new System.Drawing.Point(684, 184);
+            this.btnAddClass.Margin = new System.Windows.Forms.Padding(2);
             this.btnAddClass.Name = "btnAddClass";
-            this.btnAddClass.Size = new System.Drawing.Size(61, 48);
+            this.btnAddClass.Size = new System.Drawing.Size(46, 39);
             this.btnAddClass.TabIndex = 37;
             this.btnAddClass.TabStop = false;
             this.btnAddClass.Click += new System.EventHandler(this.btnAddClass_Click);
             // 
             // StartClassForm
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("$this.BackgroundImage")));
             this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
-            this.ClientSize = new System.Drawing.Size(1280, 720);
+            this.ClientSize = new System.Drawing.Size(960, 585);
             this.Controls.Add(this.btnAddClass);
             this.Controls.Add(this.cbbClass);
             this.Controls.Add(this.btnBrowse);
@@ -302,7 +290,7 @@
             this.Controls.Add(this.label2);
             this.DoubleBuffered = true;
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
-            this.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.Margin = new System.Windows.Forms.Padding(2);
             this.Name = "StartClassForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = " ";

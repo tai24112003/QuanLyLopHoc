@@ -23,17 +23,11 @@ public class AttendanceDAL
 
     public async Task<string> InsertAttendance(List<Attendance> Attendances)
     {
-        try
-        {
+        
             string AttendancesJson = JsonConvert.SerializeObject(Attendances);
             string responseJson = await _dataService.PostAsync("attendance/", AttendancesJson);
             return responseJson;
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine("Error inserting attendance in DAL", ex);
-            return null;
-        }
+        
     }
 
     public async Task<string> DeleteAttendanceBySessionID(int sessionID)
@@ -52,27 +46,44 @@ public class AttendanceDAL
 
     public async Task InsertAttendanceLocal(int sessionId, List<Attendance> Attendances)
     {
+        // Đảm bảo sessionID là số âm (nếu cần)
         int sessionID = sessionId < 0 ? sessionId : sessionId * -1;
-        foreach (Attendance Attendance in Attendances)
+
+        // Xóa các bản ghi có SessionID trùng với sessionID
+        string deleteQuery = "DELETE FROM Attendance WHERE SessionID = @SessionID";
+        OleDbParameter[] deleteParameters = new OleDbParameter[]
+        {
+        new OleDbParameter("@SessionID", sessionID)
+        };
+
+        bool deleteSuccess = await Task.Run(() => DataProvider.RunNonQuery(deleteQuery, deleteParameters));
+        if (!deleteSuccess)
+        {
+            Console.WriteLine("Failed to delete previous attendance records.");
+            return; // Dừng nếu không xóa được các bản ghi cũ
+        }
+
+        // Chèn các bản ghi mới
+        foreach (Attendance attendance in Attendances)
         {
             OleDbParameter[] parameters = new OleDbParameter[]
             {
-                new OleDbParameter("@SessionID", sessionID),
-                new OleDbParameter("@AttendanceID", Attendance.AttendanceID),
-                new OleDbParameter("@Present", Attendance.Present),
-                new OleDbParameter("@StudentID", Attendance.StudentID),
+            new OleDbParameter("@StudentID", attendance.StudentID), // Tham số StudentID phải đặt đầu tiên
+            new OleDbParameter("@SessionID", sessionID),
+            new OleDbParameter("@Present", attendance.Present),
             };
 
-            string query = "INSERT INTO Attendance (AttendanceID, StudentID, SessionID, Present) " +
-                           "VALUES (@AttendanceID, @StudentID, @SessionID, @Present)";
+            string insertQuery = "INSERT INTO Attendance (StudentID, SessionID, Present) " +
+                                 "VALUES (@StudentID, @SessionID, @Present)";
 
-            bool success = await Task.Run(() => DataProvider.RunNonQuery(query, parameters));
-            if (!success)
+            bool insertSuccess = await Task.Run(() => DataProvider.RunNonQuery(insertQuery, parameters));
+            if (!insertSuccess)
             {
                 Console.WriteLine("Failed to insert attendance into database.");
             }
         }
     }
+
 
     public async Task<List<Attendance>> LoadAttendancesLocal(int classID)
     {
@@ -145,6 +156,31 @@ public class AttendanceDAL
         OleDbParameter parameter = new OleDbParameter("@SessionID", sessionID);
 
         DataTable dataTable = await Task.Run(() => DataProvider.GetDataTable(query, new OleDbParameter[] { parameter }));
+
+        if (dataTable != null)
+        {
+            foreach (DataRow row in dataTable.Rows)
+            {
+                Attendance attendance = new Attendance
+                {
+                    AttendanceID = int.Parse(row["AttendanceID"].ToString()),
+                    StudentID = row["StudentID"].ToString(),
+                    SessionID = int.Parse(row["SessionID"].ToString()),
+                    Present = row["Present"].ToString()
+                };
+                attendances.Add(attendance);
+            }
+        }
+
+        return attendances;
+    }
+
+    public async Task<List<Attendance>> GetAttendanceBySessionIDNegative()
+    {
+        List<Attendance> attendances = new List<Attendance>();
+        string query = "SELECT AttendanceID, StudentID, SessionID, Present FROM Attendance WHERE SessionID  < 0;";
+
+        DataTable dataTable = await Task.Run(() => DataProvider.GetDataTable(query, null));
 
         if (dataTable != null)
         {

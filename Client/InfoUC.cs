@@ -29,6 +29,10 @@ namespace testUdpTcp
             get { return lblContent.Text; }
             set { lblContent.Text = value; }
         }
+
+        private void InfoUC_Load(object sender, EventArgs e)
+        {
+        }
     }
     
 }

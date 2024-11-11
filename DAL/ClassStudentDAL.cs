@@ -53,42 +53,58 @@ public class ClassStudentDAL
             throw ex;
         }
     }
-    public List<ClassStudent> GetClassStudentsByClassID(int classID)
+    public ClassStudentResponse GetClassStudentsByClassID(int classID)
     {
         // Kiểm tra nếu classID là âm thì lấy danh sách sinh viên có ID âm
-        int effectiveClassID = classID < 0 ? classID : classID * -1;
 
-        string query = "SELECT * FROM Class_Student WHERE ClassID = @ClassID";
+        string query = "SELECT cs.ClassID, cs.StudentID, s.FirstName, s.LastName, s.LastTime " +
+                       "FROM Classes_Student AS cs " +
+                       "INNER JOIN Students AS s ON cs.StudentID = s.StudentID " +
+                       "WHERE cs.ClassID = @ClassID";
 
         OleDbParameter[] parameters = new OleDbParameter[]
         {
-        new OleDbParameter("@ClassID", effectiveClassID)
+        new OleDbParameter("@ClassID", classID)
         };
 
         // Lấy dữ liệu từ database
         DataTable dataTable = DataProvider.GetDataTable(query, parameters);
 
+        // Khởi tạo ClassStudentResponse
+        ClassStudentResponse response = new ClassStudentResponse
+        {
+            data = new List<ClassStudent>()
+        };
+
         // Kiểm tra nếu không có dữ liệu thì trả về danh sách rỗng
         if (dataTable == null || dataTable.Rows.Count == 0)
         {
-            return new List<ClassStudent>();
+            return response; // Danh sách rỗng
         }
 
         // Chuyển đổi từ DataTable sang danh sách ClassStudent
-        List<ClassStudent> classStudents = new List<ClassStudent>();
         foreach (DataRow row in dataTable.Rows)
         {
             ClassStudent classStudent = new ClassStudent
             {
                 ClassID = Convert.ToInt32(row["ClassID"]),
                 StudentID = row["StudentID"].ToString(),
+                LastTime = row["LastTime"].ToString(), // Cập nhật LastTime từ bảng Class_Student
+                Student = new Student
+                {
+                    StudentID = row["StudentID"].ToString(),
+                    FirstName = row["FirstName"].ToString(),
+                    LastName = row["LastName"].ToString(),
+                    LastTime = row["LastTime"].ToString() // Thông tin LastTime từ bảng Students
+                }
             };
 
-            classStudents.Add(classStudent);
+            response.data.Add(classStudent);
         }
 
-        return classStudents;
+        return response;
     }
+
 
     public void SaveLocalData(string ClassStudentsJson)
     {

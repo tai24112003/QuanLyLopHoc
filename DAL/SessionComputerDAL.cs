@@ -19,17 +19,9 @@ public class SessionComputerDAL
 
     public async Task<string> InsertSessionComputer(List<SessionComputer> sessionComputers)
     {
-        try
-        {
             string sessionComputersJson = JsonConvert.SerializeObject(sessionComputers);
             string responseJson = await _dataService.PostAsync("session_computer/", sessionComputersJson);
             return responseJson;
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine("Error inserting session computers in DAL", ex);
-            return null;
-        }
     }
 
     public async Task<string> DeleteSessionComputerBySessionID(int sessionID)
@@ -48,36 +40,53 @@ public class SessionComputerDAL
 
     public async Task InsertSessionComputerLocal(int sessionId, List<SessionComputer> sessionComputers)
     {
-        int sessionID = sessionId < 0 ? sessionId : sessionId * -1;  
+        // Đảm bảo sessionID là số âm (nếu cần)
+        int sessionID = sessionId < 0 ? sessionId : sessionId * -1;
+
+        // Xóa các bản ghi có SessionID trùng với sessionID
+        string deleteQuery = "DELETE FROM Session_Computer WHERE SessionID = @SessionID";
+        OleDbParameter[] deleteParameters = new OleDbParameter[]
+        {
+        new OleDbParameter("@SessionID", sessionID)
+        };
+
+        bool deleteSuccess = await Task.Run(() => DataProvider.RunNonQuery(deleteQuery, deleteParameters));
+        if (!deleteSuccess)
+        {
+            Console.WriteLine("Failed to delete previous session computer records.");
+            return; // Dừng nếu không xóa được các bản ghi cũ
+        }
+
+        // Chèn các bản ghi mới
         foreach (SessionComputer sessionComputer in sessionComputers)
         {
             OleDbParameter[] parameters = new OleDbParameter[]
             {
             new OleDbParameter("@SessionID", sessionID),
-            new OleDbParameter("@ComputerName", sessionComputer.ComputerName),
+            new OleDbParameter("@ComputerID", sessionComputer.ComputerID),
             new OleDbParameter("@RAM", sessionComputer.RAM),
-            new OleDbParameter("@HHD", sessionComputer.HDD),
+            new OleDbParameter("@HDD", sessionComputer.HDD),
             new OleDbParameter("@CPU", sessionComputer.CPU),
             new OleDbParameter("@MouseConnected", sessionComputer.MouseConnected),
             new OleDbParameter("@KeyboardConnected", sessionComputer.KeyboardConnected),
             new OleDbParameter("@MonitorConnected", sessionComputer.MonitorConnected),
             new OleDbParameter("@MismatchInfo", sessionComputer.MismatchInfo),
-            new OleDbParameter("@RepairNote", sessionComputer.RepairNote),
             new OleDbParameter("@StudentID", sessionComputer.StudentID),
             };
 
-            string query = "INSERT INTO `Session_Computer` (`SessionID`, `ComputerID`, `RAM`, `HDD`, `CPU`, " +
-                           "`MouseConnected`, `KeyboardConnected`, `MonitorConnected`, `MismatchInfo`, `RepairNote`, `StudentID`) " +
-                           "VALUES (@SessionID, @ComputerID, @RAM, @HHD, @CPU, " +
-                           "@MouseConnected, @KeyboardConnected, @MonitorConnected, @MismatchInfo, @RepairNote, @StudentID)";
+            string insertQuery = "INSERT INTO `Session_Computer` (`SessionID`, `ComputerID`, `RAM`, `HDD`, `CPU`, " +
+                                 "`MouseConnected`, `KeyboardConnected`, `MonitorConnected`, `MismatchInfo`, `StudentID`) " +
+                                 "VALUES (@SessionID, @ComputerID, @RAM, @HDD, @CPU, " +
+                                 "@MouseConnected, @KeyboardConnected, @MonitorConnected, @MismatchInfo, @StudentID)";
 
-            bool success = DataProvider.RunNonQuery(query, parameters);
-            if (!success)
+            bool insertSuccess = await Task.Run(() => DataProvider.RunNonQuery(insertQuery, parameters));
+            if (!insertSuccess)
             {
                 Console.WriteLine("Failed to insert session computer into database.");
             }
         }
     }
+
 
     public List<SessionComputer> LoadSessionComputersLocal(int sessionId)
     {
@@ -102,7 +111,6 @@ public class SessionComputerDAL
                     KeyboardConnected = Convert.ToBoolean(row["KeyboardConnected"]),
                     MonitorConnected = Convert.ToBoolean(row["MonitorConnected"]),
                     MismatchInfo = row["MismatchInfo"].ToString(),
-                    RepairNote = row["RepairNote"].ToString(),
                     StudentID = row["StudentID"].ToString()
                 };
                 sessionComputers.Add(sessionComputer);
@@ -138,15 +146,14 @@ public class SessionComputerDAL
                 SessionComputer sessionComputer = new SessionComputer
                 {
                     SessionID = (int)row["SessionID"],
-                    ComputerName = row["ComputerName"].ToString(),
+                    ComputerID = int.Parse(row["ComputerID"].ToString()),
                     RAM = row["RAM"].ToString(),
-                    HDD = row["HHD"].ToString(),
+                    HDD = row["HDD"].ToString(),
                     CPU = row["CPU"].ToString(),
                     MouseConnected = Convert.ToBoolean(row["MouseConnected"]),
                     KeyboardConnected = Convert.ToBoolean(row["KeyboardConnected"]),
                     MonitorConnected = Convert.ToBoolean(row["MonitorConnected"]),
                     MismatchInfo = row["MismatchInfo"].ToString(),
-                    RepairNote = row["RepairNote"].ToString(),
                     StudentID = row["StudentID"].ToString()
                 };
                 computers.Add(sessionComputer);
@@ -181,6 +188,52 @@ public class SessionComputerDAL
         {
             Console.WriteLine("Error deleting session computers: " + ex.Message);
             return false;
+        }
+    }
+
+    public async Task<List<SessionComputer>> GetSessionComputersBySessionIDNegative()
+    {
+        try
+        {
+            // Tạo câu truy vấn để lấy thông tin máy tính theo SessionID
+            string query = "SELECT * FROM Session_Computer WHERE SessionID <0";
+           
+
+            // Thực thi câu truy vấn và lấy dữ liệu
+            DataTable dataTable = await Task.Run(() => DataProvider.GetDataTable(query, null));
+
+            if (dataTable == null || dataTable.Rows.Count == 0)
+            {
+                return null; // Không có dữ liệu
+            }
+
+            // Chuyển đổi DataTable thành danh sách thông tin máy tính
+            List<SessionComputer> computers = new List<SessionComputer>();
+            foreach (DataRow row in dataTable.Rows)
+            {
+                SessionComputer sessionComputer = new SessionComputer
+                {
+                    SessionID = (int)row["SessionID"],
+                    ComputerID = int.Parse(row["ComputerID"].ToString()),
+                    RAM = row["RAM"].ToString(),
+                    HDD = row["HDD"].ToString(),
+                    CPU = row["CPU"].ToString(),
+                    MouseConnected = Convert.ToBoolean(row["MouseConnected"]),
+                    KeyboardConnected = Convert.ToBoolean(row["KeyboardConnected"]),
+                    MonitorConnected = Convert.ToBoolean(row["MonitorConnected"]),
+                    MismatchInfo = row["MismatchInfo"].ToString(),
+                    StudentID = row["StudentID"].ToString()
+                };
+                computers.Add(sessionComputer);
+            }
+
+            // Chuyển đổi danh sách máy tính thành JSON
+            return computers;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Error fetching session computers: " + ex.Message);
+            return null;
         }
     }
 }

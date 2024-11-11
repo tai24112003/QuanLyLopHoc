@@ -45,7 +45,7 @@ public class ClassSessionDAL
     {
         try
         {
-            string query = "UPDATE Class_Session SET ClassID = @newClassID WHERE ClassID = @oldClassID";
+            string query = "UPDATE Class_Sessions SET ClassID = @newClassID WHERE ClassID = @oldClassID";
             OleDbParameter[] parameters =
             {
                 new OleDbParameter("@newClassID", newClassID),
@@ -70,7 +70,7 @@ public class ClassSessionDAL
         {
             foreach (var classSession in classSessions)
             {
-                string query = "INSERT INTO `Class_Sessions` (`SessionID`, `ClassID`, `RoomID`, `StartTime`, `EndTime`, `user_id`, `Session`) VALUES (@SessionID, @ClassID, @RoomID, @StartTime, @EndTime, @UserID, @Session)";
+                string query = "INSERT INTO `Class_Sessions` (`SessionID`, `ClassID`, `RoomID`, `StartTime`, `EndTime`, `UserID`, `Session`) VALUES (@SessionID, @ClassID, @RoomID, @StartTime, @EndTime, @UserID, @Session)";
 
                 OleDbParameter[] parameters =
                 {
@@ -116,8 +116,8 @@ public class ClassSessionDAL
                     SessionID = int.Parse(row["SessionID"].ToString()),
                     ClassID = int.Parse(row["ClassID"].ToString()),
                     RoomID = row["RoomID"].ToString(),
-                    StartTime = DateTime.Parse(row["StartTime"].ToString()),
-                    EndTime = DateTime.Parse(row["EndTime"].ToString()),
+                    StartTime = (row["StartTime"].ToString()),
+                    EndTime = (row["EndTime"].ToString()),
                     user_id = int.Parse(row["user_id"].ToString())
                 };
                 classSessions.Add(classSession);
@@ -137,7 +137,7 @@ public class ClassSessionDAL
     {
         try
         {
-            string query = "SELECT SessionID, ClassID, RoomID, StartTime, EndTime, user_id, Session FROM Class_Sessions WHERE ClassID < 0";
+            string query = "SELECT *  FROM Class_Sessions WHERE SessionID < 0";
             DataTable dataTable = await Task.Run(() => DataProvider.GetDataTable(query, null));
 
             if (dataTable == null || dataTable.Rows.Count == 0)
@@ -153,9 +153,9 @@ public class ClassSessionDAL
                     SessionID = int.Parse(row["SessionID"].ToString()),
                     ClassID = int.Parse(row["ClassID"].ToString()),
                     RoomID = row["RoomID"].ToString(),
-                    StartTime = DateTime.Parse(row["StartTime"].ToString()),
-                    EndTime = DateTime.Parse(row["EndTime"].ToString()),
-                    user_id = int.Parse(row["user_id"].ToString()),
+                    StartTime = (row["StartTime"].ToString()),
+                    EndTime = (row["EndTime"].ToString()),
+                    user_id = int.Parse(row["UserID"].ToString()),
                     Session = int.Parse(row["Session"].ToString())
                 };
                 negativeClassSessions.Add(classSession);

@@ -50,7 +50,7 @@ public class RoomBLL
 
             if (lstRoom.Count > 0)
             {
-                SaveLocalData(RoomsJson); // Save data to local database if API call is successful
+                _RoomDAL.SaveLocalData(RoomsJson); // Save data to local database if API call is successful
                 return lstRoom[0];
             }
             return null;
@@ -60,7 +60,7 @@ public class RoomBLL
             Console.WriteLine("Error fetching Rooms by id from BLL, loading local data: " + ex.Message);
 
             // Load data from local database when there's an error
-            string RoomsJson = LoadLocalData();
+            string RoomsJson = _RoomDAL.LoadLocalData();
             List<Room> lstRoom = ParseRooms(RoomsJson);
 
             if (lstRoom.Count > 0)
@@ -72,63 +72,5 @@ public class RoomBLL
         }
     }
 
-    private void SaveLocalData(string RoomsJson)
-    {
-        var roomResponse = JsonConvert.DeserializeObject<RoomResponse>(RoomsJson);
-
-        foreach (var room in roomResponse.data)
-        {
-            string query = "INSERT INTO `Rooms` (`RoomID`, `NumberOfComputers`, `StandardRAM`, `StandardHDD`, `StandardCPU`, `Status`) VALUES (@RoomID, @NumberOfComputers, @StandardRAM, @StandardHDD, @StandardCPU, @Status)";
-
-            OleDbParameter[] parameters = new OleDbParameter[]
-            {
-                new OleDbParameter("@RoomID", room.RoomID),
-                new OleDbParameter("@NumberOfComputers", room.NumberOfComputers),
-                new OleDbParameter("@StandardRAM", room.StandardRAM),
-                new OleDbParameter("@StandardHDD", room.StandardHDD),
-                new OleDbParameter("@StandardCPU", room.StandardCPU),
-                new OleDbParameter("@Status", room.Status),
-            };
-
-            DataProvider.RunNonQuery(query, parameters);
-        }
-    }
-
-    private string LoadLocalData()
-    {
-        try
-        {
-            string query = "SELECT * FROM Rooms";
-            DataTable dataTable = DataProvider.GetDataTable(query, null);
-
-            if (dataTable == null || dataTable.Rows.Count == 0)
-            {
-                return null;
-            }
-
-            List<Room> rooms = new List<Room>();
-            foreach (DataRow row in dataTable.Rows)
-            {
-                Room room = new Room
-                {
-                    RoomID = int.Parse(row["RoomID"].ToString()),
-                    RoomName = row["RoomName"].ToString(),
-                    NumberOfComputers = int.Parse(row["NumberOfComputers"].ToString()),
-                    StandardRAM = row["StandardRAM"].ToString(),
-                    StandardHDD = row["StandardHDD"].ToString(),
-                    StandardCPU = row["StandardCPU"].ToString(),
-                    Status = row["Status"].ToString(),
-                };
-                rooms.Add(room);
-            }
-
-            RoomResponse roomResponse = new RoomResponse { Status = "success", data = rooms };
-            return JsonConvert.SerializeObject(roomResponse);
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine("Error loading data from Access: " + ex.Message);
-            return null;
-        }
-    }
+    
 }

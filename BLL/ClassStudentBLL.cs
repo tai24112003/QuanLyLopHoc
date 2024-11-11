@@ -33,7 +33,11 @@ public class ClassStudentBLL
         catch (Exception ex)
         {
             Console.WriteLine("Error inserting ClassStudent in BLL: " + ex.Message);
-
+            foreach (var _classSession in classSession)
+            {
+                if (!_classSession.StudentID.StartsWith("-"))
+                    _classSession.StudentID = "-" + _classSession.StudentID;
+            }
             // Save to local if insertion fails
             var classResponse = new ClassStudentResponse { data = classSession };
             string classJson = JsonConvert.SerializeObject(classResponse);
@@ -44,7 +48,7 @@ public class ClassStudentBLL
         }
     }
 
-    public async Task<List<ClassStudent>> GetAllClassStudents()
+    public async Task<List<ClassStudent>>  GetAllClassStudents()
     {
         try
         {
@@ -94,19 +98,19 @@ public class ClassStudentBLL
     {
         try
         {
-            string ClassStudentsJson = _ClassStudentDAL.LoadLocalData();
-            if (!string.IsNullOrEmpty(ClassStudentsJson))
+            ClassStudentResponse ClassStudentResponse =   _ClassStudentDAL.GetClassStudentsByClassID(id);
+            if (ClassStudentResponse!=null)
             {
-                ClassStudentResponse ClassStudentResponse = JsonConvert.DeserializeObject<ClassStudentResponse>(ClassStudentsJson);
                 return ClassStudentResponse.data;
             }
             return null;
         }
         catch (Exception ex)
         {
-            
-            Console.WriteLine("Error fetching ClassStudents from API and local data", ex);
-            return null;
+            string ClassStudentsJson =  _ClassStudentDAL.LoadLocalData();
+            var ClassStudentResponse = JsonConvert.DeserializeObject<ClassStudentResponse>(ClassStudentsJson);
+            Console.WriteLine("Error fetching ClassStudent list by role from BLL");
+            return ClassStudentResponse.data;
         }
     }
     

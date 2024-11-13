@@ -892,18 +892,20 @@ namespace Server
 
             //// Hiển thị dữ liệu trên DataGridView và so sánh
             //AddOrUpdateRowToDataGridView(newEntry);
-
-            if (this.InvokeRequired)
+            if (dgv_client.InvokeRequired)
             {
-                this.Invoke(new Action(() =>
+                dgv_client.Invoke(new Action(() =>
                 {
                     LoadFullInfoListIntoDataGridView(fullInfoList);
+
                 }));
             }
             else
             {
                 LoadFullInfoListIntoDataGridView(fullInfoList);
+
             }
+
 
             // Cập nhật thông tin MSSV vào dgv_attendance nếu tồn tại
             if (studentIDs.Count!=0)

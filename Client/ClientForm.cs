@@ -627,7 +627,41 @@ namespace testUdpTcp
             }
         }
 
-      
+
+        private void CompressAndSendImageTcp(int i, Bitmap image, string computerName, TcpClient tcpClient)
+        {
+            long quality = 100L; // Start with 100% quality
+
+            // Compress image until it is below the maximum size you consider acceptable, e.g., 1MB
+            using (var stream = new MemoryStream())
+            {
+                byte[] imageData;
+                do
+                {
+                    stream.SetLength(0); // Reset stream for each compression attempt
+                    SaveJpeg(stream, image, quality);
+                    imageData = stream.ToArray();
+                    quality -= 10; // Reduce quality by 10% for the next attempt if necessary
+                } while (imageData.Length > 1024 * 1024 * 10 && quality > 10); // e.g., max size of 1MB
+
+                // Create the key with computer name and specific label
+                string key = $"{computerName}-Picture5s-{i:D4}";
+
+                using (NetworkStream networkStream = tcpClient.GetStream())
+                {
+                    // Send the key
+                    byte[] keyBytes = Encoding.UTF8.GetBytes(key);
+                    byte[] keyLength = BitConverter.GetBytes(keyBytes.Length);
+                    networkStream.Write(keyLength, 0, keyLength.Length);  // Send length of the key
+                    networkStream.Write(keyBytes, 0, keyBytes.Length);    // Send key data
+
+                    // Send the image data
+                    byte[] imageDataLength = BitConverter.GetBytes(imageData.Length);
+                    networkStream.Write(imageDataLength, 0, imageDataLength.Length); // Send length of image data
+                    networkStream.Write(imageData, 0, imageData.Length);             // Send image data
+                }
+            }
+        }
 
         private void CompressAndSendImage(int i, Bitmap image, MemoryStream stream, int bufferSize, UdpClient udpClient, IPAddress broadcastAddress)
         {
@@ -671,6 +705,9 @@ namespace testUdpTcp
                 cutCounter++;
             }
         }
+
+
+
 
         private void SaveJpeg(Stream stream, Bitmap image, long quality)
         {

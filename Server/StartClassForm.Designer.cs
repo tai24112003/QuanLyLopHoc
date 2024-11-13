@@ -293,7 +293,7 @@
             this.Margin = new System.Windows.Forms.Padding(2);
             this.Name = "StartClassForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = " ";
+            this.Text = "F71";
             this.Load += new System.EventHandler(this.StartClassForm_Load);
             ((System.ComponentModel.ISupportInitialize)(this.btnExit)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.btnSubmit)).EndInit();

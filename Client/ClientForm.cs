@@ -79,12 +79,12 @@ namespace testUdpTcp
         Form WaitingFrom;
         private void Form1_Load(object sender, EventArgs e)
         {
+            CaptureAndSendScreenshots5s();
 
-
-            udpClient = new UdpClient(11312);
-            udpReceiverThread = new Thread(new ThreadStart(ReceiveDataOnce));
-            udpReceiverThread.Start();
-            udpReceiverThread.Join();
+            //udpClient = new UdpClient(11312);
+            //udpReceiverThread = new Thread(new ThreadStart(ReceiveDataOnce));
+            //udpReceiverThread.Start();
+            //udpReceiverThread.Join();
 
             listenThread = new Thread(new ThreadStart(ListenForClients));
             listenThread.Start();
@@ -640,7 +640,7 @@ namespace testUdpTcp
                     byte[] imageBytes = ms.ToArray();
 
                     // Tạo key với format Picture5s-Tên máy
-                    string key = $"Picture5s-{machineName}-";
+                    string key = $"Picture5s-{machineName}Anh-";
                     byte[] keyBytes = Encoding.UTF8.GetBytes(key);
 
                     // Gửi key trước

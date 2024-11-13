@@ -542,21 +542,33 @@ namespace Server
                     MessageBox.Show($"xử lý câu trả lời thất bại: {ex}");
                 }
             }
-            else if (receivedMessage.StartsWith("Picture5s-"))
+            else if (tmp[0]=="Picture5s")
             {
-                // Tách lấy tên máy
-                string[] parts = receivedMessage.Split('-');
-                string machineName = parts[1];
-
-                // Đọc phần dữ liệu ảnh còn lại
-                using (MemoryStream ms = new MemoryStream())
+                string[] parts = receivedMessage.Split(new string[] { "Anh-" }, StringSplitOptions.None);
+                if (parts.Length > 1)
                 {
-                    clientStream.CopyTo(ms);
-                    byte[] imageBytes = ms.ToArray();
-                    Image image = Image.FromStream(new MemoryStream(imageBytes));
+                    string machineName = parts[0].Replace("Picture5s-", ""); // Loại bỏ "Picture5s-" để chỉ còn tên máy
 
-                    // Cập nhật ảnh vào ListView với tên máy
-                    UpdateListView(machineName, image);
+                    // Đọc phần dữ liệu ảnh còn lại
+                    using (MemoryStream ms = new MemoryStream())
+                    {
+                        // Copy dữ liệu ảnh từ clientStream vào MemoryStream
+                        clientStream.CopyTo(ms);
+                        byte[] imageBytes = ms.ToArray();
+
+                        // Chuyển đổi byte[] thành Image
+                        using (MemoryStream imageStream = new MemoryStream(imageBytes))
+                        {
+                            Image image = Image.FromStream(imageStream);
+
+                            // Cập nhật ảnh vào ListView với tên máy
+                            UpdateListView(machineName, image);
+                        }
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("Nhận dữ liệu ảnh không hợp lệ");
                 }
             }
             else if (tmp[0] == "InfoClient")

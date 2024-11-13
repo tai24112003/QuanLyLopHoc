@@ -17,15 +17,3 @@ public class UserResponse
     public List<User> Data { get; set; }
 }
 
-public class LocalDataResponse
-{
-    public string UsersJson { get; set; }
-    public string SubjectsJson { get; set; }
-    public string ClassJson { get; set; }
-    public string ClassSubjectsJson { get; set; }
-    public string ClassStudentsJson { get; set; }
-    public string StudentsJson { get; set; }
-    public DateTime LastTimeUpdateUser { get; set; }
-    public DateTime LastTimeUpdateSubject { get; set; }
-    public DateTime LastTimeUpdateClass { get; set; }
-}

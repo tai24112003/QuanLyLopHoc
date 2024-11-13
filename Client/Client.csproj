@@ -69,12 +69,6 @@
     <Compile Include="ClientForm.Designer.cs">
       <DependentUpon>ClientForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="CommonQuestionUC.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="CommonQuestionUC.Designer.cs">
-      <DependentUpon>CommonQuestionUC.cs</DependentUpon>
-    </Compile>
     <Compile Include="Constrant.cs" />
     <Compile Include="ExamForm.cs">
       <SubType>Form</SubType>
@@ -92,12 +86,6 @@
     </Compile>
     <Compile Include="QuestionInfoUC.Designer.cs">
       <DependentUpon>QuestionInfoUC.cs</DependentUpon>
-    </Compile>
-    <Compile Include="QuestionUC.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="QuestionUC.designer.cs">
-      <DependentUpon>QuestionUC.cs</DependentUpon>
     </Compile>
     <Compile Include="Quiz.cs" />
     <Compile Include="SlideShowForm.cs">
@@ -130,9 +118,6 @@
     <EmbeddedResource Include="ClientForm.resx">
       <DependentUpon>ClientForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="CommonQuestionUC.resx">
-      <DependentUpon>CommonQuestionUC.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="ExamForm.resx">
       <DependentUpon>ExamForm.cs</DependentUpon>
     </EmbeddedResource>
@@ -148,9 +133,6 @@
     </Compile>
     <EmbeddedResource Include="QuestionInfoUC.resx">
       <DependentUpon>QuestionInfoUC.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="QuestionUC.resx">
-      <DependentUpon>QuestionUC.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="SlideShowForm.resx">
       <DependentUpon>SlideShowForm.cs</DependentUpon>

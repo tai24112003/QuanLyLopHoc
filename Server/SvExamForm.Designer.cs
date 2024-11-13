@@ -112,7 +112,7 @@
             this.btn_doExam.Size = new System.Drawing.Size(70, 79);
             this.btn_doExam.TabIndex = 8;
             this.btn_doExam.TextAlign = System.Drawing.ContentAlignment.BottomCenter;
-            this.toolTip1.SetToolTip(this.btn_doExam, "Phát đề");
+            this.toolTip1.SetToolTip(this.btn_doExam, "Bắt đầu thi");
             this.btn_doExam.UseVisualStyleBackColor = true;
             this.btn_doExam.Click += new System.EventHandler(this.btn_doExam_Click);
             // 
@@ -183,6 +183,7 @@
             this.btn_export.TextAlign = System.Drawing.ContentAlignment.BottomCenter;
             this.toolTip1.SetToolTip(this.btn_export, "Lưu/Xuất file excel");
             this.btn_export.UseVisualStyleBackColor = true;
+            this.btn_export.Click += new System.EventHandler(this.btn_export_Click);
             // 
             // lbl_num_of_quest
             // 
@@ -314,6 +315,7 @@
             this.cbb_quest_type.Name = "cbb_quest_type";
             this.cbb_quest_type.Size = new System.Drawing.Size(207, 24);
             this.cbb_quest_type.TabIndex = 0;
+            this.cbb_quest_type.SelectedIndexChanged += new System.EventHandler(this.cbb_quest_type_SelectedIndexChanged);
             // 
             // panel2
             // 

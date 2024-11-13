@@ -28,13 +28,14 @@ namespace testUdpTcp
         private Timer CountdownTimer { get; set; }
         private int Counter { get; set; }
         private readonly Action<StudentAnswer, int> SendAnswer;
-
-        public ExamForm(Test test, Action<StudentAnswer, int> sendAnswer)
+        private string Mssv;
+        public ExamForm(string mssv,Test test, Action<StudentAnswer, int> sendAnswer)
         {
             InitializeComponent();
 
             Test = test;
             SendAnswer = sendAnswer;
+            Mssv = mssv;
 
             InitForm();
             InitalStateUI();
@@ -58,9 +59,9 @@ namespace testUdpTcp
 
         private void InitalStateUI()
         {
-            //label8.Text = this.quiz.duration;
-            //label4.Text = this.quiz.name;
-            //label5.Text = this.quiz.subject.name;
+            label4.Text = this.Test.Title;
+            label4.Text = this.Mssv;
+            label8.Text = $"{this.Test.GetTimeOfTest()/60} phút"; 
             this.FormBorderStyle = FormBorderStyle.None;
             this.WindowState = FormWindowState.Maximized;
             pnExam.Location = new Point(0, headerPanel.Height);
@@ -98,10 +99,11 @@ namespace testUdpTcp
             {
                 pnExam.Controls[0].Visible = true;
                 return;
-            }    
-            
-            // xử lý khi hết câu hỏi0
+            }
 
+            MessageBox.Show("Bạn đã thi xong","Thông tin");
+            canClosing = true;
+            this.Close();
         }
         private void ExamForm_FormClosing(object sender, FormClosingEventArgs e)
         {

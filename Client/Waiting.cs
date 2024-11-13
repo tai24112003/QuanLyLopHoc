@@ -21,7 +21,7 @@ namespace testUdpTcp
         {
             InitializeComponent();
             CenterTextBoxAndButton(txtMSSV, btnLogin);
-          //  GetMSSV = getMSSV;
+            GetMSSV = getMSSV;
         }
 
         private void CenterTextBoxAndButton(TextBox textBox, Button button)

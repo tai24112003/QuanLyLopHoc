@@ -19,7 +19,9 @@ namespace testUdpTcp
             Application.SetCompatibleTextRenderingDefault(false);
             FirewallHelper.AddFirewallRule();
             Application.Run(new ClientForm());
-            //Application.Run(new Waiting());
+          //  Application.Run(new ExamForm(new Test(), aa));
         }
+
+      //  static void aa(StudentAnswer studentAnswer, int a) { }
     }
 }

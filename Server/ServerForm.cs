@@ -30,7 +30,7 @@ namespace Server
     {
         private bool isFullInfoMode = false;
         private WinFormsTimer timer;
-        private string Ip= "192.168.1.3";
+        private string Ip= "192.168.129.175";
         private TcpListener tcpListener;
         private Thread listenThread;
         private Thread screenshotThread;
@@ -86,7 +86,7 @@ namespace Server
             _serviceProvider = serviceProvider;
 
             //Ip = ;
-            Ip = getIPServer();
+           // Ip = getIPServer();
             InitializeContextMenu();
 
             // Thực hiện các logic khởi tạo khác nếu cần thiết
@@ -287,9 +287,9 @@ namespace Server
             try
             {
                 this.Hide();
-                students = await _classStudentBLL.GetClassStudentsByID(classID);
-                await SetupRoom();
-                await SetupAttendance(classID);
+                //students = await _classStudentBLL.GetClassStudentsByID(classID);
+                //await SetupRoom();
+                //await SetupAttendance(classID);
                 //await updateAttanceToDB();
                 //await updateSessionComputer();
                 sendAllIPInLan();
@@ -390,7 +390,8 @@ namespace Server
             IPAddress broadcastAddress = GetBroadcastAddress() ?? null;
             Console.WriteLine(broadcastAddress);
 
-            SendUDPMessage(broadcastAddress, 11312, Ip);
+           // SendUDPMessage(broadcastAddress, 11312, Ip);
+            SendUDPMessage(IPAddress.Parse("192.168.129.65"), 11312, Ip);
 
         }
         private void SendUDPMessage(IPAddress ipAddress, int port, String mes)
@@ -419,7 +420,7 @@ namespace Server
         }
         private void ListenForClients()
         {
-            tcpListener.Start();
+           // tcpListener.Start();
 
             Console.WriteLine("Server is listening for clients...");
 
@@ -472,24 +473,48 @@ namespace Server
             else if (receivedMessage.StartsWith("answer@"))
             {
                 Console.WriteLine(receivedMessage);
-                string[] parts = receivedMessage.Split(new[] { "answer@" }, StringSplitOptions.None);
-                if (parts.Length >= 2)
-                {
+                string[] parts = receivedMessage.Split(new[] { "answer@" }, StringSplitOptions.RemoveEmptyEntries);
                     try {
-                        string[] answer = parts[1].Split('-');
-                        int indexQuest = Int32.Parse(answer[1]);
-                        StudentAnswer newAnswer = new StudentAnswer(parts[2], Int32.Parse(parts[3]), Int32.Parse(parts[4]));
+                    StudentAnswer newAnswer = new StudentAnswer();
+                    int indexQuest=-1;
 
-                        Tests[IndexTestReady].Quests[indexQuest].StudentAnswers.Add(newAnswer);
-                        
-                        MessageBox.Show($"Nhận câu trả lời thành công");
+                    string[] answer = parts[0].Split('-');
+                    foreach (string item in answer)
+                    {
+                        string[] keyValue = item.Split(':');
+                        string key= keyValue[0];
+                        string value = keyValue[1];
+
+                        switch (key)
+                        {
+                            case "indexQuest":
+                                indexQuest = int.TryParse(value, out int typeInt)?typeInt:0;
+                                break;
+
+                            case "studentId":
+                                newAnswer.StudentID = value;
+                                break;
+
+                            case "timeDoQuest":
+                                newAnswer.TimeDoQuest= int.TryParse(value, out int typeInt1) ? typeInt1 : 0;
+                                break;
+
+                            case "selectResultsId":
+                                newAnswer.SelectResultsId=value.Split(',').Select(x=> int.TryParse(x, out int typeInt2) ? typeInt2 : 0).ToList();
+                                break;
+                        }                    }
+                    if (indexQuest == -1)
+                    {
+                        MessageBox.Show("Định dạng thiếu vị trí câu hỏi");
+                        return;
+                    }
+                    Tests[IndexTestReady].Quests[indexQuest].StudentAnswers.Add(newAnswer);
+                    MessageBox.Show($"Nhận câu trả lời thành công");
                     }
                     catch (Exception ex)
                     {
-                        MessageBox.Show($"xử lý câu hỏi thất bại: {ex}");
+                        MessageBox.Show($"xử lý câu trả lời thất bại: {ex}");
                     }
-
-                }
             }
             else if (tmp[0] == "InfoClient")
             {
@@ -869,10 +894,11 @@ namespace Server
     };
 
             // So sánh và cập nhật thông tin từ newInfoDict
-            var comparedInfo = CompareInfo(newInfoDict);
+            //var comparedInfo = CompareInfo(newInfoDict);
 
             // Cập nhật fullInfoList và danh sách tóm tắt
-            UpdateInfoList(newEntry, comparedInfo);
+            //UpdateInfoList(newEntry, comparedInfo);
+            UpdateInfoList(newEntry, new Dictionary<string, string>());
 
             //// Tạo bản sao của newEntry để rút gọn thông tin
             //List<string> newEntryCopy = new List<string>(newEntry);
@@ -994,10 +1020,10 @@ namespace Server
         }
         private void UpdateInfoList(List<string> newEntry, Dictionary<string, string> comparedInfo)
         {
-            foreach (var key in comparedInfo.Keys)
-            {
-                newEntry[GetIndexForKey(key)] = comparedInfo[key];
-            }
+            //foreach (var key in comparedInfo.Keys)
+            //{
+            //    newEntry[GetIndexForKey(key)] = comparedInfo[key];
+            //}
             // Kiểm tra xem tên máy đã tồn tại trong danh sách hay chưa
             bool entryExists = false;
             for (int i = 0; i < fullInfoList.Count; i++)
@@ -2020,16 +2046,19 @@ namespace Server
 
         private void SendTest(int indexTest)
         {
-            Tests[IndexTestReady].ResetCountReady();
+            // Đặt lại trạng thái bài thi đã sẵn sàng
+            if (IndexTestReady != -1)
+                Tests[IndexTestReady].ResetCountReady();
+
             IndexTestReady = indexTest;
             List<Thread> clientThreads = new List<Thread>();
 
+            // Tạo luồng để gửi dữ liệu đến từng client
             foreach (DataGridViewRow row in dgv_client.Rows)
             {
                 try
                 {
                     string clientIP = row.Cells[5].Value.ToString();
-                    //string clientIP = "192.168.72.228";
 
                     // Kiểm tra xem địa chỉ IP có hợp lệ không
                     if (IsValidIPAddress(clientIP))
@@ -2041,35 +2070,46 @@ namespace Server
                             NetworkStream stream = null;
                             try
                             {
+                                // Tạo kết nối đến client
                                 client = new TcpClient(clientIP, 8888);
+                                client.SendBufferSize = 1024 * 1024; // Thiết lập kích thước buffer lớn (1 MB)
                                 stream = client.GetStream();
 
-                            string content = Tests[indexTest]?.GetTestString()??"";
+                                // Chuẩn bị dữ liệu để gửi
+                                string content = Tests[indexTest]?.GetTestString() ?? "";
 
-                            if (content == "")
-                            {
-                                MessageBox.Show("Lỗi khi gửi đề");
-                                return;
+                                if (string.IsNullOrEmpty(content))
+                                {
+                                    MessageBox.Show("Lỗi khi gửi đề");
+                                    return;
+                                }
+
+                                content = "Key-Exam" + content;
+                                byte[] signalBytes = Encoding.UTF8.GetBytes(content);
+                                int bufferSize = client.SendBufferSize;
+                                int bytesSent = 0;
+
+                                // Gửi dữ liệu theo từng phần nếu quá lớn
+                                while (bytesSent < signalBytes.Length)
+                                {
+                                    int bytesToSend = Math.Min(bufferSize, signalBytes.Length - bytesSent);
+                                    stream.Write(signalBytes, bytesSent, bytesToSend);
+                                    bytesSent += bytesToSend;
+                                }
+
+                                stream.Flush();
                             }
-
-                            content = "Key-Exam-" + content;
-
-                            byte[] signalBytes = Encoding.UTF8.GetBytes(content);
-                            stream.Write(signalBytes, 0, signalBytes.Length);
-                            stream.Flush();
-                            Console.WriteLine("Thông tin đã được gửi thành công.");
-                        }
-                        catch (Exception ex)
-                        {
-                            Console.WriteLine("Lỗi khi gửi thông tin: " + ex.Message);
-                        }
-                        finally
-                        {
-                                    // Đảm bảo rằng kết nối được đóng đúng cách
-                            if (stream != null) stream.Close();
-                            if (client != null) client.Close();
-                        }
-                    });
+                            catch (Exception ex)
+                            {
+                                Console.WriteLine("Lỗi khi gửi thông tin đến {0}: {1}", clientIP, ex.Message);
+                            }
+                            finally
+                            {
+                                // Đảm bảo đóng kết nối sau khi gửi xong
+                                stream?.Close();
+                                client?.Close();
+                            }
+                        });
 
                         // Bắt đầu luồng cho client hiện tại
                         clientThreads.Add(clientThread);
@@ -2078,8 +2118,8 @@ namespace Server
                 }
                 catch (Exception ex)
                 {
-                    //MessageBox.Show("Mất kết nối với: " + row.Cells[0].Value.ToString());
-                    MessageBox.Show("Mất kết nối");
+                    MessageBox.Show("Mất kết nối với: " + row.Cells[0].Value.ToString());
+                    Console.WriteLine("Mất kết nối: " + ex.Message);
                 }
             }
 
@@ -2088,6 +2128,7 @@ namespace Server
             {
                 t.Join();
             }
+            MessageBox.Show($"Đề {Tests[indexTest]?.Title} được phát thành công đến tất cả client.");
         }
 
         private void DoTest()

@@ -32,6 +32,8 @@
             this.pnl_answers = new System.Windows.Forms.FlowLayoutPanel();
             this.pnl_quest = new System.Windows.Forms.Panel();
             this.lbl_countdown = new System.Windows.Forms.Label();
+            this.btn_confirm = new System.Windows.Forms.Button();
+            this.lbl_questtype_info = new System.Windows.Forms.Label();
             this.pnl_quest.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -60,7 +62,7 @@
             // pnl_quest
             // 
             this.pnl_quest.Controls.Add(this.lbl_question);
-            this.pnl_quest.Location = new System.Drawing.Point(83, 38);
+            this.pnl_quest.Location = new System.Drawing.Point(83, 53);
             this.pnl_quest.Name = "pnl_quest";
             this.pnl_quest.Size = new System.Drawing.Size(720, 168);
             this.pnl_quest.TabIndex = 2;
@@ -75,11 +77,34 @@
             this.lbl_countdown.TabIndex = 3;
             this.lbl_countdown.Text = "label1";
             // 
+            // btn_confirm
+            // 
+            this.btn_confirm.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btn_confirm.Location = new System.Drawing.Point(764, 553);
+            this.btn_confirm.Name = "btn_confirm";
+            this.btn_confirm.Size = new System.Drawing.Size(105, 34);
+            this.btn_confirm.TabIndex = 4;
+            this.btn_confirm.Text = "Xác nhận";
+            this.btn_confirm.UseVisualStyleBackColor = true;
+            this.btn_confirm.Click += new System.EventHandler(this.btn_confirm_Click);
+            // 
+            // lbl_questtype_info
+            // 
+            this.lbl_questtype_info.AutoSize = true;
+            this.lbl_questtype_info.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lbl_questtype_info.Location = new System.Drawing.Point(202, 17);
+            this.lbl_questtype_info.Name = "lbl_questtype_info";
+            this.lbl_questtype_info.Size = new System.Drawing.Size(66, 24);
+            this.lbl_questtype_info.TabIndex = 5;
+            this.lbl_questtype_info.Text = "label1";
+            // 
             // QuestionInfoUC
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+            this.Controls.Add(this.lbl_questtype_info);
+            this.Controls.Add(this.btn_confirm);
             this.Controls.Add(this.lbl_countdown);
             this.Controls.Add(this.pnl_quest);
             this.Controls.Add(this.pnl_answers);
@@ -99,5 +124,7 @@
         private System.Windows.Forms.FlowLayoutPanel pnl_answers;
         private System.Windows.Forms.Panel pnl_quest;
         private System.Windows.Forms.Label lbl_countdown;
+        private System.Windows.Forms.Button btn_confirm;
+        private System.Windows.Forms.Label lbl_questtype_info;
     }
 }

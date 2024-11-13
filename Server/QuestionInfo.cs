@@ -34,11 +34,11 @@ namespace Server
 
         public void GetNewQuestContent()
         {
-            Quest.Content = txt_ques_typing.Text;
+            Quest.Content = txt_ques_typing.Text.Trim();
             GetNewResultContent();
         }
 
-        public void GetNewResultContent()
+        private void GetNewResultContent()
         {
           //  Quest.NumOfResults = pnl_answers.Controls.Count;
             Quest.Results.Clear();
@@ -52,7 +52,17 @@ namespace Server
 
         private bool CheckQuestType()
         {
-            return Quest.CheckSingleType();
+            if (Quest.Type == QuestType.SingleSeclect)
+            {
+                foreach (ResultInfo item in pnl_answers.Controls)
+                {
+                    if (item.GetState())
+                    {
+                        return false;
+                    }
+                }
+            }
+            return true;
         }
 
         private void btn_add_result_Click(object sender, EventArgs e)

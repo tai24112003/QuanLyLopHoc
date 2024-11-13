@@ -1,5 +1,6 @@
 ﻿using DAL.Models;
 using OfficeOpenXml;
+using OfficeOpenXml.Style;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -18,6 +19,8 @@ namespace Server
         private Action<int> SendTest;
         private Action DoTest;
 
+        private bool IsOpen = true;
+        private bool IsEdit = false;
 
         public SvExamForm(List<Test> tests, Action<int> sendTest, Action doTest)
         {
@@ -45,6 +48,7 @@ namespace Server
             else ChangeTest();
 
             Init();
+            IsOpen = false;
         }
         private void Init()
         {
@@ -142,6 +146,87 @@ namespace Server
                 MessageBox.Show($"Lỗi khi import: {ex.Message}");
             }
         }
+        private void ExportExcel(string filePath)
+        {
+            try {
+                OfficeOpenXml.ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
+
+                FileInfo newFile = new FileInfo(filePath);
+                if (newFile.Exists)
+                {
+                    newFile.Delete();  // Xóa tệp đã tồn tại    
+                    newFile = new FileInfo(filePath);
+                }
+
+                using (ExcelPackage package = new ExcelPackage(newFile))
+                {
+                    ExcelWorksheet worksheet = package.Workbook.Worksheets.Add("sheet1");
+
+                    Test test = Tests[IndexTestSelected];
+                    // Đặt tiêu đề cho các cột
+                    worksheet.Cells[1,1].Value = test.Title;
+                    worksheet.Cells[2, 1].Value = "Thống kê";
+                    //số sinh viên làm bài KT
+                    //3.1 Sinh viên làm kiểm tra 3.2 num
+                    worksheet.Cells[3, 1].Value = "Số sinh viên thực hiện";
+                    worksheet.Cells[3, 2].Value = $"{test.GetNumStudentDo()}";
+
+                    //tổng quan các câu hỏi: tổng sv làm câu hỏi, sl đúng/sai, sv nhanh nhất
+                    worksheet.Cells[4, 1].Value = "Chi tiết từng câu hỏi";
+
+                    int countIndex = 1;
+                    int row = 5;
+
+                    worksheet.Cells[row, 1].Value = "STT";
+                    worksheet.Cells[row, 2].Value = "Nội dung câu hỏi";
+                    worksheet.Cells[row, 3].Value = "Loại câu hỏi";
+                    worksheet.Cells[row, 4].Value = "Đáp án đúng";
+                    worksheet.Cells[row, 5].Value = "Số sinh viên trả lời";
+                    worksheet.Cells[row, 6].Value = "Trả lời đúng";
+                    worksheet.Cells[row, 7].Value = "Trả lời sai";
+                    worksheet.Cells[row, 8].Value = "MSSV nhanh nhất";
+                    worksheet.Cells[row, 9].Value = "Thời gian làm";
+
+                    foreach (Quest quest in test.Quests)
+                    {
+                        row++;
+
+                        worksheet.Cells[row, 1].Value = $"Câu {countIndex}";
+                        worksheet.Cells[row, 2].Value = $"{quest.Content}";
+                        worksheet.Cells[row, 3].Value = $"{quest.Type.Name}";
+
+                        string v = string.Join(", ", quest.GetResultsCorrect()
+                                                    .Select(item => item.Content).ToList());
+                        worksheet.Cells[row, 4].Value = $"{v}";
+
+                        int sum = quest.StudentAnswers.Count;
+                        worksheet.Cells[row, 5].Value = $"{sum}";
+
+                        int correctly = quest.GetStudentsAnsweredCorrectly().Count;
+                        worksheet.Cells[row, 6].Value = $"{correctly}";
+
+                        worksheet.Cells[row, 7].Value = $"{sum-correctly}";
+
+                        StudentAnswer fastestStudent = quest.GetFastestStudent();
+                        if (fastestStudent != null)
+                        {
+                            worksheet.Cells[row, 8].Value = $"{fastestStudent.StudentID}";
+                            worksheet.Cells[row, 9].Value = $"{fastestStudent.TimeDoQuest}";
+                        }
+
+                        countIndex++;
+                    }
+
+                    package.Save();
+                }
+                MessageBox.Show($"Xuất file excel thành công");
+
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Lỗi xuất file excel: {ex}");
+            }
+        }
         private void AddTemplateNewQuestion()
         {
             Tests.Add(new Test());
@@ -173,6 +258,7 @@ namespace Server
 
         private void ChangeTest()
         {
+            
             if (pnl_test_list.Controls.Count < 1)
             {
                 for (int i = 0; i < Tests.Count; i++)
@@ -184,6 +270,9 @@ namespace Server
             pnl_slide_question.Controls.Clear();
 
             Test temp=Tests[IndexTestSelected];
+            txt_test_title.Text = temp.Title;
+            txt_max_point.Text = temp.MaxPoint.ToString();
+
             IndexQuestionSelected = 0;
             for (int i = 0; i < temp.Quests.Count; i++)
             {
@@ -407,13 +496,27 @@ namespace Server
 
         private void btn_save_Click(object sender, EventArgs e)
         {
+            Test tempTest = Tests[IndexTestSelected];
+            tempTest.Title=txt_test_title.Text.Trim();
+            tempTest.MaxPoint =int.TryParse(txt_max_point.Text.Trim(), out int value)?value:0;
+
+            txt_max_point.Text = tempTest.MaxPoint.ToString();
+
+
             Quest temp = Tests[IndexTestSelected].Quests[IndexQuestionSelected];
             temp.CountDownTime = Convert.ToInt32(cbb_quest_time.SelectedValue);
             temp.Type=cbb_quest_type.SelectedValue as QuestType;
-
             (pnl_body.Controls[0] as QuestionInfo).GetNewQuestContent();
-
             (this.pnl_slide_question.Controls[IndexQuestionSelected] as ThumbnailQuestion).UpdateUI();
+            (this.pnl_test_list.Controls[IndexTestSelected] as ThumbnailTest).UpdateUI();
+
+
+            MessageBox.Show("Lưu thành công", "Thông báo");
+
+            if (temp.GetResultsCorrect().Count < 1)
+            {
+                MessageBox.Show("Câu hỏi chưa xác định đáp án đúng!", "Thông báo");
+            }
         }
 
         private void btn_import_Click(object sender, EventArgs e)
@@ -430,16 +533,28 @@ namespace Server
                 ImportExcel(filePath);
             }
         }
+        private void btn_export_Click(object sender, EventArgs e)
+        {
+            using (FolderBrowserDialog folderBrowserDialog = new FolderBrowserDialog())
+            {
+                folderBrowserDialog.Description = "Chọn thư mục lưu trữ";
+                folderBrowserDialog.RootFolder = Environment.SpecialFolder.MyComputer;
+                folderBrowserDialog.ShowNewFolderButton = true;
 
+                if (folderBrowserDialog.ShowDialog() == DialogResult.OK)
+                {
+                    string folderPath = folderBrowserDialog.SelectedPath;
+                    Console.WriteLine($"{folderPath}");
+                    // Hiển thị đường dẫn thư mục đã chọn, ví dụ trên một label
+                    ExportExcel(folderPath + @"\F711-Info.xlsx");
+                }
+            }
+        }
         private void btn_start_test_Click(object sender, EventArgs e)
         {
-            Console.WriteLine("TestString");
-            Console.WriteLine(Tests[IndexTestSelected].GetTestString());
             SendTest?.Invoke(IndexTestSelected);
             IndexTestSended = IndexTestSelected;
-            Test testReady = Tests[IndexTestSended];
 
-            MessageBox.Show($"Đề {testReady.Title} được phát");
         }
 
         private void btn_doExam_Click(object sender, EventArgs e)
@@ -450,10 +565,22 @@ namespace Server
                 return;
             }
             Test testReady = Tests[IndexTestSended];
-            DialogResult result=MessageBox.Show($"{testReady.NumStudentsReady} sinh viên đã sẵn sàng. Bắt đầu thi?","Thông tin",MessageBoxButtons.OKCancel);
+            if (testReady.NumStudentsReady == 0)
+            {
+                MessageBox.Show("Chưa có sinh viên nào sẵn sàng");
+                return;
+            }
+            DialogResult result=MessageBox.Show($"Bắt đầu thi?","Thông tin",MessageBoxButtons.OKCancel);
             if (result == DialogResult.Cancel) return;
 
             this.DoTest?.Invoke();
+        }
+
+        private void cbb_quest_type_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (IsOpen&&!IsEdit)
+                return;
+            MessageBox.Show("Change type");
         }
     }
 }

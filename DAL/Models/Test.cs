@@ -36,22 +36,37 @@ namespace DAL.Models
 
         public Test(string testString)
         {
-            string[] parts = testString.Split('-').Skip(1).ToArray();
+            string[] parts = testString.Split(new string[] { "t-" }, StringSplitOptions.RemoveEmptyEntries);
+            foreach (var item in parts)
+            {
+                string[] keyValue = item.Split(new string[] {"t:"},StringSplitOptions.RemoveEmptyEntries);
+                string key = keyValue[0];
+                string value = keyValue[1];
 
-            Title = parts[0]; // Lấy tiêu đề bài kiểm tra
-            MaxPoint = int.Parse(parts[1]); // Lấy điểm tối đa
-            // Tạo danh sách các câu hỏi (Quests) từ chuỗi
-            Quests = parts[2].Split(new string[] { "quest@" }, StringSplitOptions.RemoveEmptyEntries)
-                .Select((questString,index) =>new Quest(questString, index)).ToList();
+                switch (key)
+                {
+                    case "titleExam":
+                        Title = value;
+                        break;
+                    case "point":
+                        MaxPoint = int.TryParse(value, out int typeId) ? typeId : 0;
+                        break;
+                    case "quests":
+                        Quests=value.Split(new string[] { "quest@" }, StringSplitOptions.RemoveEmptyEntries)
+                            .Select((questString, index) => new Quest(questString, index)).ToList();
+                        break;
+                }
+            }
         }
         public int GetTimeOfTest()
         {
-            return Quests.Sum(quest => quest.CountDownTime);
+            int restTime = (Quests.Count - 1) * 2;
+            return Quests.Sum(quest => quest.CountDownTime)+restTime;
         }
         public string GetTestString()
         {
             string rs = "";
-            rs += $"-titleExam:{Title}-point:{MaxPoint}-quests:";
+            rs += $"t-titleExamt:{Title}t-pointt:{MaxPoint}t-questst:";
             foreach (Quest quest in Quests) {
                 rs += quest.GetQuestString();
             }
@@ -60,5 +75,21 @@ namespace DAL.Models
 
         public void ResetCountReady() => NumStudentsReady = 0;
        
+        public int GetNumStudentDo()
+        {
+            return Quests.OrderByDescending(item =>item.GetNumStudentDo()).FirstOrDefault()?.GetNumStudentDo()??0;
+        }
+
+        public int ScoringForStudent(string studentId)
+        {
+            int rs = 0;
+            foreach (Quest item in Quests)
+            {
+                if(item.CheckCorrectAnswer(studentId))
+                    rs++;
+            }
+
+            return rs;
+        }
     }
 }

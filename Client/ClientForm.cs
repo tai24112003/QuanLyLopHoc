@@ -57,7 +57,7 @@ namespace testUdpTcp
         SlideShowForm form1;
         private Thread udpReceiverThread;
         //private string IpServer = "192.168.72.249";
-        private string IpServer = "192.168.1.3";
+        private string IpServer = "172.20.10.2";
 
         private string myIp = "";
         private List<string> inf;
@@ -75,6 +75,7 @@ namespace testUdpTcp
         List<string> mssvList = new List<string>();
 
         private Test Test { get; set; }
+        Form WaitingFrom;
         private void Form1_Load(object sender, EventArgs e)
         {
 
@@ -153,9 +154,10 @@ namespace testUdpTcp
             while ((bytesRead = clientStream.Read(messageBuffer, 0, messageBuffer.Length)) > 0)
             {
                 receivedMessage += Encoding.UTF8.GetString(messageBuffer, 0, bytesRead);
+                Console.WriteLine(receivedMessage);
 
                 // Nếu nhận đủ thông điệp
-                if (receivedMessage.Contains("-") && !receivedMessage.StartsWith("Key-Exam-"))
+                if (receivedMessage.Contains("-") && !receivedMessage.StartsWith("Key-Examt-"))
                 {
                     break;
                 }
@@ -296,27 +298,39 @@ namespace testUdpTcp
                 }
                 tcpClient.Close();
             }
-            else if (receivedMessage.StartsWith("Key-Exam-"))
+            else if (receivedMessage.StartsWith("Key-Exam"))
             {
                 // Parse the signal
                 Console.WriteLine(receivedMessage);
-                string[] parts = receivedMessage.Split(new[] { "Key-Exam" }, StringSplitOptions.None);
-                if (parts.Length >= 2)
-                {
+                string[] parts = receivedMessage.Split(new[] { "Key-Exam" }, StringSplitOptions.RemoveEmptyEntries);
                     try
                     {
-                       Test=new Test(parts[1]);
+                       Test=new Test(parts[0]);
                        tcpClient.Close();
-                       MessageBox.Show("Đã nhận đề");
-                       this.Hide();
-                       (new Waiting(GetMSSV)).Show();
+                    // MessageBox.Show("Đã nhận đề");
+                    if (!string.IsNullOrEmpty(mssv)||WaitingFrom!=null)
+                        return;
+                    if (this.InvokeRequired)
+                        {
+                            this.Invoke(new Action(()=> {
+                                this.Hide();
+                                WaitingFrom=new Waiting(GetMSSV); 
+                                WaitingFrom.Show();
+                            }));
+                        }
+                        else
+                        {
+                          this.Hide();
+                                WaitingFrom=new Waiting(GetMSSV); 
+                                WaitingFrom.Show();
+                        }
+                       
                     }
                     catch (Exception ex)
                     {
                         MessageBox.Show($"Lỗi khi nhận đề: {ex.Message}");
                         tcpClient.Close();
                     }
-                }
             }
             else
             {
@@ -344,18 +358,18 @@ namespace testUdpTcp
                         break;
                     case "DoExam": 
                         Console.WriteLine("Làm bài");
-                        examFrm = new ExamForm(Test, SendAnswer);
+                        examFrm = new ExamForm(mssv,Test, SendAnswer);
                         examFrm.ShowDialog();
                         break;
-                    case "EndTime":
-                        if (this.InvokeRequired)
-                        {
-                            this.Invoke(new Action(CloseExamForm));
-                        }
-                        else
-                        {
-                            CloseExamForm();
-                        }; break;
+                    //case "EndTime":
+                    //    if (this.InvokeRequired)
+                    //    {
+                    //        this.Invoke(new Action(CloseExamForm));
+                    //    }
+                    //    else
+                    //    {
+                    //        CloseExamForm();
+                    //    }; break;
 
                 }
                 tcpClient.Close();
@@ -625,6 +639,7 @@ namespace testUdpTcp
         {
             answer.StudentID = mssv;
             string mess =$"answer@indexQuest:{indexQuest}{answer.GetAnswerString()}";
+            Console.WriteLine(mess);
             sendData(mess);
         }
 

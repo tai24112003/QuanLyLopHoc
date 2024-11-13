@@ -18,11 +18,10 @@ namespace testUdpTcp
         private Timer CountdownTimer { get; set; }
         private int Counter { get; set; }
         private int ReadyTimeToNextQuest { get; set; }
+        private StudentAnswer StudentAnswer { get; set; }
         private readonly Action ShowNextQuest;
         private readonly Action<StudentAnswer, int> SendAnswer;
-
-        private bool IsAnswered=false;
-
+        private bool IsAnswer {  get; set; }
 
         public QuestionInfoUC(Quest quest, Action showNextQuest, Action<StudentAnswer, int> sendAnswer)
         {
@@ -32,10 +31,14 @@ namespace testUdpTcp
             ShowNextQuest = showNextQuest;
             SendAnswer = sendAnswer;
             ReadyTimeToNextQuest = 2;
+            StudentAnswer=new StudentAnswer();
+            IsAnswer = false;
 
             Counter = Quest.CountDownTime + ReadyTimeToNextQuest;
-            CountdownTimer = new Timer();
-            CountdownTimer.Interval = 1000;
+            CountdownTimer = new Timer
+            {
+                Interval = 1000
+            };
             CountdownTimer.Tick += CountdownTimer_Tick;
             InitUI();
 
@@ -43,6 +46,8 @@ namespace testUdpTcp
 
         private void InitUI()
         {
+            ToolTip toolTip = new ToolTip();
+
             int screenW = SystemInformation.VirtualScreen.Width;
             int screenH = SystemInformation.VirtualScreen.Height;
 
@@ -56,8 +61,14 @@ namespace testUdpTcp
             lbl_countdown.Text = $"Thời gian: {Counter - ReadyTimeToNextQuest} s";
             lbl_countdown.Location = new Point((int)(screenW * 0.03), (int)(screenH * 0.05));
 
+            lbl_questtype_info.Text =Quest.Type.Name;
+            lbl_questtype_info.Location = new Point((int)(screenW * 0.8), (int)(screenH * 0.05));
+            toolTip.SetToolTip(lbl_questtype_info, Quest.Type.Description);
+
             pnl_answers.Size = new Size((int)(screenW * 0.8), (int)(screenH * 0.4));
             pnl_answers.Location = new Point((int)(screenW * 0.1), (int)(screenH * 0.4));
+
+            btn_confirm.Location = new Point((int)(screenW*0.92), (int)(screenH*0.7));
 
             Shuffle(Quest.Results);
             foreach (var item in Quest.Results)
@@ -68,26 +79,28 @@ namespace testUdpTcp
             }
         }
 
-        private void StudentSelectTheRs(Result rs)
+        private bool StudentSelectTheRs(Result rs)
         {
             int index=Quest.Results.IndexOf(rs);
-            if (index == -1)
+            if (index != -1)
             {
-                int indexRs=Quest.Results[index].Id;
-                StudentAnswer newItem = new StudentAnswer();
-
-                int timeDo = Quest.CountDownTime - Counter - ReadyTimeToNextQuest;
-                newItem.TimeDoQuest = timeDo;
-                newItem.SelectResultID = indexRs;
-
-                foreach (Control item in pnl_answers.Controls
-)
+                if (StudentAnswer.SelectResultsId.Contains(rs.Id))
                 {
-                    item.Enabled=false;
+                    StudentAnswer.SelectResultsId.Remove(rs.Id);
+                    return true;
                 }
 
-                SendAnswer?.Invoke(newItem, Quest.Index);
+                if (Quest.Type == QuestType.SingleSeclect && StudentAnswer.SelectResultsId.Any())
+                {
+                    MessageBox.Show("Đây là câu hỏi 1 đáp án");
+                    return false;
+                }
+                int indexRs = Quest.Results[index].Id;
+                StudentAnswer.SelectResultsId.Add(indexRs);
+                return true;
             }
+
+            return false;
         }
         static void Shuffle<T>(List<T> list)
         {
@@ -133,6 +146,28 @@ namespace testUdpTcp
                 if(Counter>0)
                     CountdownTimer.Start();
             }
+        }
+
+        private void btn_confirm_Click(object sender, EventArgs e)
+        {
+            if (!StudentAnswer.SelectResultsId.Any())
+            {
+                MessageBox.Show("Bạn chưa chọn đáp án nào");
+                return;
+            }
+            if (IsAnswer)
+            {
+                return;
+            }
+            int timeDo = Quest.CountDownTime - Counter - ReadyTimeToNextQuest;
+            StudentAnswer.TimeDoQuest = timeDo;
+
+            foreach (Control item in pnl_answers.Controls)
+            {
+                item.Enabled = false;
+            }
+            SendAnswer?.Invoke(StudentAnswer, Quest.Index);
+            IsAnswer = true;
         }
     }
 }

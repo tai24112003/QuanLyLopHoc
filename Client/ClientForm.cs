@@ -588,9 +588,82 @@ namespace testUdpTcp
                 }
             }
         }
+        public void SendImage(string ipAddress, int port, string machineName, Image image)
+        {
+            try
+            {
+                // Tạo kết nối tới server
+                TcpClient client = new TcpClient(ipAddress, port);
+                NetworkStream stream = client.GetStream();
+
+                // Chuyển ảnh thành mảng byte
+                using (MemoryStream ms = new MemoryStream())
+                {
+                    image.Save(ms, System.Drawing.Imaging.ImageFormat.Jpeg);
+                    byte[] imageBytes = ms.ToArray();
+
+                    // Tạo key với format Picture5s-Tên máy
+                    string key = $"Picture5s-{machineName}-";
+                    byte[] keyBytes = Encoding.UTF8.GetBytes(key);
+
+                    // Gửi key trước
+                    stream.Write(keyBytes, 0, keyBytes.Length);
+
+                    // Sau đó gửi ảnh
+                    stream.Write(imageBytes, 0, imageBytes.Length);
+                }
+
+                // Đóng kết nối
+                stream.Close();
+                client.Close();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Lỗi khi gửi ảnh: " + ex.Message);
+            }
+        }
+        public void SendImage(string ipAddress, int port, string machineName, Bitmap image)
+        {
+            try
+            {
+                // Tạo kết nối tới server
+                TcpClient client = new TcpClient(ipAddress, port);
+                NetworkStream stream = client.GetStream();
+
+                // Chuyển ảnh thành mảng byte
+                using (MemoryStream ms = new MemoryStream())
+                {
+                    // Giảm chất lượng JPEG để nén ảnh
+                    var jpegEncoder = ImageCodecInfo.GetImageDecoders().First(codec => codec.FormatID == ImageFormat.Jpeg.Guid);
+                    var encoderParams = new EncoderParameters(1) { Param = { [0] = new EncoderParameter(System.Drawing.Imaging.Encoder.Quality, 50L) } };
+                    image.Save(ms, jpegEncoder, encoderParams);
+                    byte[] imageBytes = ms.ToArray();
+
+                    // Tạo key với format Picture5s-Tên máy
+                    string key = $"Picture5s-{machineName}-";
+                    byte[] keyBytes = Encoding.UTF8.GetBytes(key);
+
+                    // Gửi key trước
+                    stream.Write(keyBytes, 0, keyBytes.Length);
+
+                    // Sau đó gửi ảnh
+                    stream.Write(imageBytes, 0, imageBytes.Length);
+                }
+
+                // Đóng kết nối
+                stream.Close();
+                client.Close();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Lỗi khi gửi ảnh: " + ex.Message);
+            }
+        }
 
         private void CaptureAndSendScreenshots5s()
         {
+            bool isRunning = true; // Cờ điều khiển vòng lặp, có thể được cập nhật từ bên ngoài
+
             while (isRunning)
             {
                 try
@@ -607,61 +680,30 @@ namespace testUdpTcp
                         {
                             graphics.CopyFromScreen(screenLeft, screenTop, 0, 0, screenshot.Size, CopyPixelOperation.SourceCopy);
 
-                            // Draw the cursor
+                            // Vẽ con trỏ chuột trên ảnh chụp màn hình
                             DrawCursorOnScreenshot(graphics);
 
-                            // Compress and send the screenshot
-                            using (MemoryStream stream = new MemoryStream())
-                            {
-                            }
+                            // Gửi ảnh chụp màn hình
+                            SendImage(IpServer, 8765, Environment.MachineName, screenshot);
                         }
                     }
-                    // Chờ khoảng thời gian trước khi chụp và gửi tiếp
-                    Thread.Sleep(5000); // Chờ 1/60 giây (mili giây) trước khi gửi hình tiếp theo
+
+                    // Chờ 5 giây trước khi chụp và gửi ảnh tiếp theo
+                    Thread.Sleep(5000);
                 }
                 catch (ThreadInterruptedException ex)
                 {
-                    // Xử lý ngoại lệ ở đây
                     Console.WriteLine("Thread interrupted: " + ex.Message);
+                    isRunning = false; // Thoát vòng lặp nếu bị ngắt
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Lỗi khi chụp hoặc gửi ảnh: " + ex.Message);
                 }
             }
         }
 
 
-        private void CompressAndSendImageTcp(int i, Bitmap image, string computerName, TcpClient tcpClient)
-        {
-            long quality = 100L; // Start with 100% quality
-
-            // Compress image until it is below the maximum size you consider acceptable, e.g., 1MB
-            using (var stream = new MemoryStream())
-            {
-                byte[] imageData;
-                do
-                {
-                    stream.SetLength(0); // Reset stream for each compression attempt
-                    SaveJpeg(stream, image, quality);
-                    imageData = stream.ToArray();
-                    quality -= 10; // Reduce quality by 10% for the next attempt if necessary
-                } while (imageData.Length > 1024 * 1024 * 10 && quality > 10); // e.g., max size of 1MB
-
-                // Create the key with computer name and specific label
-                string key = $"{computerName}-Picture5s-{i:D4}";
-
-                using (NetworkStream networkStream = tcpClient.GetStream())
-                {
-                    // Send the key
-                    byte[] keyBytes = Encoding.UTF8.GetBytes(key);
-                    byte[] keyLength = BitConverter.GetBytes(keyBytes.Length);
-                    networkStream.Write(keyLength, 0, keyLength.Length);  // Send length of the key
-                    networkStream.Write(keyBytes, 0, keyBytes.Length);    // Send key data
-
-                    // Send the image data
-                    byte[] imageDataLength = BitConverter.GetBytes(imageData.Length);
-                    networkStream.Write(imageDataLength, 0, imageDataLength.Length); // Send length of image data
-                    networkStream.Write(imageData, 0, imageData.Length);             // Send image data
-                }
-            }
-        }
 
         private void CompressAndSendImage(int i, Bitmap image, MemoryStream stream, int bufferSize, UdpClient udpClient, IPAddress broadcastAddress)
         {
@@ -853,8 +895,8 @@ namespace testUdpTcp
                 //if (sended) MessageBox.Show("Gửi thành công", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 //else MessageBox.Show("Gửi thất bại", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 screenshotThread5s = new Thread(() => {
-                    string dataToSend = CaptureAndConvertScreenshot();
-                    sendData(dataToSend);
+                    CaptureAndSendScreenshots5s();
+                    
                 });
                 screenshotThread5s.Start(); ;
             }
@@ -1151,55 +1193,12 @@ namespace testUdpTcp
             stream.Write(buffer, 0, buffer.Length);
 
         }
-
-        private string CaptureAndConvertScreenshot()
-        {
-            // Lấy tên máy tính
-            string machineName = Environment.MachineName;
-
-            // Chụp ảnh màn hình
-            Bitmap screenshot = CaptureScreenshot();
-
-            // Chuyển ảnh thành chuỗi Base64
-            string base64Image = ConvertImageToBase64(screenshot);
-
-            // Tạo chuỗi dữ liệu để gửi, bao gồm tên máy và ảnh Base64
-            string dataToSend = $"Picture5s-{machineName}-{base64Image}";
-
-            return dataToSend;
-        }
-
-        private Bitmap CaptureScreenshot()
-        {
-            // Chụp ảnh màn hình (toàn bộ màn hình)
-            Rectangle screenBounds = Screen.PrimaryScreen.Bounds;
-            Bitmap screenshot = new Bitmap(screenBounds.Width, screenBounds.Height);
-            using (Graphics g = Graphics.FromImage(screenshot))
-            {
                 g.CopyFromScreen(0, 0, 0, 0, screenBounds.Size);
             }
 
-            return screenshot;
-        }
+        
 
-        private string ConvertImageToBase64(Bitmap image)
-        {
-            using (MemoryStream ms = new MemoryStream())
-            {
-                image.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
-                byte[] imageBytes = ms.ToArray();
-                return Convert.ToBase64String(imageBytes);
-            }
-        }
-        static void ReceiveData(NetworkStream stream)
-        {
-
-
-            //// Chuyển dữ liệu nhận được sang dạng chuỗi
-            //string response = Encoding.UTF8.GetString(buffer, 0, bytesRead);
-            Console.WriteLine("Loi");
-        }
-
+        
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         { 
             udpClient.Close();

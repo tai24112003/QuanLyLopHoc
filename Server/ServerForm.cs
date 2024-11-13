@@ -23,6 +23,7 @@ using OfficeOpenXml.Style;
 using Microsoft.Extensions.DependencyInjection;
 using System.Text.RegularExpressions;
 using DAL.Models;
+using System.Runtime.InteropServices.ComTypes;
 
 namespace Server
 {
@@ -60,6 +61,7 @@ namespace Server
         ContextMenuStrip contextMenuStrip;
         ContextMenuStrip contextMenuStrip1;
         SlideShowForm form1;
+        ImageList imageList1 = new ImageList();
 
         SvExamForm ExamForm {  get; set; }
         private List<Test> Tests {get; set; }
@@ -254,6 +256,9 @@ namespace Server
             try
             {
                 this.Hide();
+                imageList1.ImageSize = new Size(64, 64);
+
+                lst_client.LargeImageList = imageList1;
                 //students = await _classStudentBLL.GetClassStudentsByID(classID);
                 await SetupRoom();
                 await SetupAttendance(classID);
@@ -537,6 +542,23 @@ namespace Server
                     MessageBox.Show($"xử lý câu trả lời thất bại: {ex}");
                 }
             }
+            else if (receivedMessage.StartsWith("Picture5s-"))
+            {
+                // Tách lấy tên máy
+                string[] parts = receivedMessage.Split('-');
+                string machineName = parts[1];
+
+                // Đọc phần dữ liệu ảnh còn lại
+                using (MemoryStream ms = new MemoryStream())
+                {
+                    clientStream.CopyTo(ms);
+                    byte[] imageBytes = ms.ToArray();
+                    Image image = Image.FromStream(new MemoryStream(imageBytes));
+
+                    // Cập nhật ảnh vào ListView với tên máy
+                    UpdateListView(machineName, image);
+                }
+            }
             else if (tmp[0] == "InfoClient")
             {
                 ReciveInfo(tmp[1]);
@@ -552,10 +574,7 @@ namespace Server
             {
                 OpenNewForm(tcpClient);
             }
-            else if (tmp[0] == "Picture5s")
-            {
-                ProcessReceivedData(tmp[1]);
-            }
+           
 
 
 
@@ -563,46 +582,23 @@ namespace Server
             //tcpClient.Close();
         }
 
-        private void ProcessReceivedData(string data)
+       
+        private void UpdateListView(string machineName, Image image)
         {
-            // Tách tên máy và Base64 của ảnh
-            string[] parts = data.Split('-');
-            if (parts.Length < 2)
+            // Tìm hoặc tạo mới một ListViewItem với tên máy
+            var listViewItem = lst_client.Items.Cast<ListViewItem>()
+                .FirstOrDefault(item => item.Text == machineName) ?? lst_client.Items.Add(machineName);
+
+            // Cập nhật ảnh cho ListViewItem
+            if (listViewItem.ImageIndex == -1)
             {
-                Console.WriteLine("Invalid data received.");
-                return;
+                imageList1.Images.Add(machineName, image);
+                listViewItem.ImageIndex = imageList1.Images.IndexOfKey(machineName);
             }
-
-            string machineName = parts[0];
-            string base64Image = parts[1];
-
-            // Giải mã chuỗi Base64 thành ảnh
-            Bitmap image = ConvertBase64ToImage(base64Image);
-
-            // Cập nhật ảnh và tên máy vào ListView
-            UpdateListView(machineName, image);
-        }
-
-        private Bitmap ConvertBase64ToImage(string base64String)
-        {
-            byte[] imageBytes = Convert.FromBase64String(base64String);
-            using (MemoryStream ms = new MemoryStream(imageBytes))
+            else
             {
-                return new Bitmap(ms);
+                imageList1.Images[listViewItem.ImageIndex] = image;
             }
-        }
-
-        private void UpdateListView(string machineName, Bitmap image)
-        {
-            // Tạo một mục ListView mới và thêm ảnh cùng tên máy tính vào
-            ListViewItem item = new ListViewItem(machineName);
-            item.ImageIndex = lst_client.Items.Count;
-
-            // Thêm item vào ListView
-            lst_client.Items.Add(item);
-
-            // Cập nhật ảnh vào ListView (bạn có thể thay đổi cách hiển thị ảnh tùy ý)
-            lst_client.LargeImageList.Images.Add(image);
         }
         public void InitializeStandard(int id, string name, string cpu, string ram, string hdd)
         {
@@ -1027,10 +1023,10 @@ namespace Server
        
         private void UpdateInfoList(List<string> newEntry, Dictionary<string, string> comparedInfo)
         {
-            //foreach (var key in comparedInfo.Keys)
-            //{
-            //    newEntry[GetIndexForKey(key)] = comparedInfo[key];
-            //}
+            foreach (var key in comparedInfo.Keys)
+            {
+                newEntry[GetIndexForKey(key)] = comparedInfo[key];
+            }
             // Kiểm tra xem tên máy đã tồn tại trong danh sách hay chưa
             bool entryExists = false;
             for (int i = 0; i < fullInfoList.Count; i++)

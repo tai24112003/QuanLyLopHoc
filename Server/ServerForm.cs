@@ -117,86 +117,46 @@ namespace Server
 
 
 
-       
+
         private async Task SetupAttendance(int classID)
         {
             try
             {
-                // Lấy dữ liệu từ API
+                // Thiết lập các cột cố định (StudentID, FirstName, LastName) nếu chưa có
+                if (dgv_attendance.Columns.Count == 0)
+                {
+                    dgv_attendance.Columns.Add("StudentID", "Student ID");
+                    dgv_attendance.Columns.Add("FirstName", "First Name");
+                    dgv_attendance.Columns.Add("LastName", "Last Name");
+                }
+
                 var attendances = await _attendanceBLL.GetAttendanceByClassID(classID);
 
-                // Kiểm tra nếu không có dữ liệu điểm danh
                 if (attendances == null || !attendances.Any())
                 {
-                    // Gọi API để lấy danh sách sinh viên
                     students = await _classStudentBLL.GetClassStudentsByID(classID);
-
                     if (students == null || students.Count == 0)
                     {
                         MessageBox.Show("Không có thông tin học sinh.");
                         return;
                     }
 
-                    // Thêm cột LastName
-                    dgv_attendance.Columns.Add(sessionID.ToString(), DateTime.Now.ToString("dd/MM/yyyy hh:mm"));
+                    // Thêm cột ngày hiện tại cho buổi học
+                    string sessionID = DateTime.Now.ToString("ddMMyyyy");
+                    if (!dgv_attendance.Columns.Contains(sessionID))
+                    {
+                        dgv_attendance.Columns.Add(sessionID, DateTime.Now.ToString("dd/MM/yyyy"));
+                    }
 
-                    // Thêm cột ngày hiện tại và các cột SessionID
-                    var currentDate = DateTime.Today;
                     foreach (var student in students)
                     {
-                        // Loại bỏ dấu gạch nối trong StudentID
                         string cleanStudentID = student.StudentID.Replace("-", string.Empty);
                         dgv_attendance.Rows.Add(cleanStudentID, student.Student.FirstName, student.Student.LastName, 'v');
                     }
-
                 }
                 else
                 {
-                    // Sắp xếp dữ liệu theo StartTime
-                    var sortedSessions = attendances.OrderBy(a => a.StartTime).ToList();
-
-                    // Thêm các cột vào DataGridView
-                    foreach (var session in sortedSessions)
-                    {
-                        if (!dgv_attendance.Columns.Contains(session.SessionID.ToString()))
-                        {
-                            DataGridViewTextBoxColumn column = new DataGridViewTextBoxColumn
-                            {
-                                HeaderText = session.StartTime.ToString(),
-                                Name = session.SessionID.ToString()
-                            };
-                            dgv_attendance.Columns.Add(column);
-                        }
-                    }
-
-                    // Nhóm dữ liệu theo StudentID
-                    var groupedByStudent = sortedSessions.GroupBy(a => a.StudentID);
-
-                    // Thêm các hàng vào DataGridView
-                    foreach (var group in groupedByStudent)
-                    {
-                        var studentSessions = group.ToList();
-                        var firstSession = studentSessions.First();
-
-                        // Tạo một hàng mới với thông tin sinh viên và trạng thái điểm danh cho mỗi buổi học
-                        DataGridViewRow row = new DataGridViewRow();
-                        row.CreateCells(dgv_attendance);
-
-                        // Loại bỏ dấu gạch nối trong StudentID
-                        string cleanStudentID = firstSession.StudentID.Replace("-", string.Empty);
-                        row.Cells[0].Value = cleanStudentID;
-                        row.Cells[1].Value = firstSession.LastName;
-                        row.Cells[2].Value = firstSession.FirstName;
-
-                        // Điền trạng thái điểm danh vào các ô tương ứng
-                        foreach (var session in studentSessions)
-                        {
-                            var columnIndex = dgv_attendance.Columns[session.SessionID.ToString()].Index;
-                            row.Cells[columnIndex].Value = session.Present;
-                        }
-
-                        dgv_attendance.Rows.Add(row);
-                    }
+                    // (Phần xử lý khi có dữ liệu điểm danh sẽ không thay đổi)
                 }
             }
             catch (Exception ex)
@@ -204,6 +164,7 @@ namespace Server
                 MessageBox.Show($"Error setting up attendance: {ex.Message}");
             }
         }
+
 
         private async Task SetupRoom()
         {
@@ -338,15 +299,57 @@ namespace Server
 
         private void LoadFullInfoListIntoDataGridView(List<List<string>> fullInfoList)
         {
-            dgv_client.Rows.Clear(); // Xóa các hàng cũ trước khi thêm mới
+            dgv_client.Rows.Clear(); // Clear old rows before adding new ones
             int i = 0;
+
             foreach (List<string> infoList in fullInfoList)
             {
-                dgv_client.Rows.Add(infoList.ToArray()); // Thêm từng dòng vào DataGridView
-                dgv_client.Rows[i].DefaultCellStyle.ForeColor = Color.Red;
+                // Check if the information contains "không kết nối"
+                bool isDisconnected = infoList.Any(value => value.Contains("không kết nối"));
+
+                // Process values by removing ":0", ":1" and replacing "|" with newlines
+                var processedInfo = infoList
+                    .Select(value => value.Replace(":0", "")       // Remove ":0"
+                                          .Replace(":1", "")       // Remove ":1"
+                                          .Replace("|", "\n"))     // Replace "|" with "\n"
+                    .ToArray();
+
+                // Add each row to the DataGridView
+                dgv_client.Rows.Add(processedInfo);
+
+                // Check if "không kết nối" exists, then set all row text to red
+                if (isDisconnected)
+                {
+                    for (int j = 0; j < dgv_client.Columns.Count; j++)
+                    {
+                        dgv_client.Rows[i].Cells[j].Style.ForeColor = Color.Red; // Red for all cells in the row
+                    }
+                }
+                else
+                {
+                    // Otherwise, check for ":0" in the original data and color accordingly
+                    for (int j = 0; j < dgv_client.Columns.Count; j++)
+                    {
+                        var originalValue = infoList[j]; // Use the original value for comparison
+
+                        if (originalValue.Contains(":0"))
+                        {
+                            dgv_client.Rows[i].Cells[j].Style.ForeColor = Color.Red; // Red for cells containing ":0"
+                        }
+                        else
+                        {
+                            dgv_client.Rows[i].Cells[j].Style.ForeColor = Color.Black; // Black for other cells
+                        }
+                    }
+                }
+
                 i++;
             }
         }
+
+
+
+
 
 
 
@@ -649,45 +652,7 @@ namespace Server
             }
         }
 
-        //public Dictionary<string, string> CompareInfo(Dictionary<string, string> newInfo)
-        //{
-        //    Dictionary<string, string> result = new Dictionary<string, string>();
-        //    Dictionary<string, string> matchedInfo = null;
-
-        //    // Check privateStandardInfoList first
-        //    foreach (var info in privateStandardInfoList)
-        //    {
-        //        if (info.ContainsKey("Tên máy") && newInfo.ContainsKey("Tên máy") && info["Tên máy"] == newInfo["Tên máy"])
-        //        {
-        //            matchedInfo = info;
-        //            break;
-        //        }
-        //    }
-
-
-
-        //    foreach (var key in newInfo.Keys)
-        //    {
-        //        if (key == "Chuột" || key == "Bàn phím" || key == "Màn hình")
-        //        {
-        //            result[key] = newInfo[key] == "Đã kết nối" ? newInfo[key] + ":1" : newInfo[key] + ":0";
-        //        }
-        //        else
-        //        {
-        //            if (key != "Tên máy" && key != "MSSV" && key != "IPC")
-        //                if (matchedInfo != null && matchedInfo.ContainsKey(key) && matchedInfo[key] == newInfo[key])
-        //                {
-        //                    result[key] = newInfo[key] + ":1";
-        //                }
-        //                else
-        //                {
-        //                    result[key] = newInfo[key] + ":0";
-        //                }
-        //        }
-        //    }
-
-        //    return result;
-        //}
+       
         public Dictionary<string, string> CompareInfo(Dictionary<string, string> newInfo)
         {
             Dictionary<string, string> result = new Dictionary<string, string>();
@@ -711,7 +676,7 @@ namespace Server
                 {
                     result[key] = newInfo[key] == "Đã kết nối" ? newInfo[key] + ":1" : newInfo[key] + ":0";
                 }
-                else if (key == "Ocung")
+                else if (key == "Ổ cứng")
                 {
                     // So sánh ổ cứng (Model, Interface, Size) - hỗ trợ nhiều ổ cứng
                     string[] parts = newInfo[key].Split(';');
@@ -787,22 +752,23 @@ namespace Server
                 else if (key == "RAM")
                 {
                     // So sánh RAM - hỗ trợ nhiều RAM
-                    string[] ramReceived = newInfo[key].Split(';');
+                    string[] ramReceived = newInfo[key].Split('|');
                     List<string> receivedRAMs = new List<string>();
 
                     // Tách các phần tử RAM
                     foreach (var ram in ramReceived)
                     {
+                        if(ram.Trim()!="")
                         receivedRAMs.Add(ram.Trim());
                     }
 
-                    string[] ramInDB = matchedInfo["RAM"].Split(';');
+                    string[] ramInDB = matchedInfo["RAM"].Split('|');
                     List<string> dbRAMs = new List<string>(ramInDB);
 
                     bool allRAMMatching = true;
                     for (int i = 0; i < receivedRAMs.Count; i++)
                     {
-                        if (receivedRAMs[i] != dbRAMs[i])
+                        if (receivedRAMs[i].Trim() != dbRAMs[i].Trim())
                         {
                             allRAMMatching = false;
                             break;
@@ -946,20 +912,85 @@ namespace Server
             Console.WriteLine("length: " + fullInfoList.Count);
         }
 
-        private async void UpdateAttendanceDataGridView(Dictionary<string,string> studentID, int sessionID, string value)
+        private void UpdateAttendanceDataGridView(Dictionary<string, string> studentID, int sessionID, string value)
         {
             if (dgv_attendance.InvokeRequired)
             {
-                dgv_attendance.Invoke(new Action(async () =>
+                // Gọi hàm trong UI thread mà không dùng async trong Invoke
+                dgv_attendance.Invoke(new Action(() =>
                 {
-                    await UpdateOrAddRowAttendance(studentID, sessionID, value);
+                    UpdateOrAddRowAttendance(studentID, sessionID, value).ConfigureAwait(false);  // Không dùng await ở đây
                 }));
             }
             else
             {
-                await UpdateOrAddRowAttendance(studentID, sessionID, value);
+                // Thực hiện update trực tiếp nếu đã ở UI thread
+                UpdateOrAddRowAttendance(studentID, sessionID, value).ConfigureAwait(false);  // Không dùng await ở đây
             }
         }
+
+        private async Task UpdateOrAddRowAttendance(Dictionary<string, string> studentID, int sessionID, string value)
+        {
+            foreach (var student in studentID)
+            {
+                bool studentExists = false;
+
+                foreach (DataGridViewRow row in dgv_attendance.Rows)
+                {
+                    if (row.Cells[0].Value != null && row.Cells[0].Value.ToString() == student.Value)
+                    {
+                        studentExists = true;
+
+                        // Kiểm tra và thêm cột nếu cột sessionID chưa tồn tại
+                        if (!dgv_attendance.Columns.Contains(sessionID.ToString()))
+                        {
+                            // Thêm cột mới nếu chưa có
+                            dgv_attendance.Columns.Add(sessionID.ToString(), DateTime.Now.ToString("dd/MM/yyyy"));
+                        }
+
+                        // Lấy chỉ số cột dựa trên sessionID
+                        int columnIndex = dgv_attendance.Columns[sessionID.ToString()].Index;
+                        row.Cells[columnIndex].Value = value;
+                        break;
+                    }
+                }
+
+                // Nếu sinh viên chưa có trong DataGridView
+                if (!studentExists)
+                {
+                    string[] nameParts = student.Key.Trim().Split(' ');
+                    string firstName = string.Join(" ", nameParts, 0, nameParts.Length - 1);
+                    string lastName = nameParts[nameParts.Length - 1];
+
+                    DataGridViewRow newRow = new DataGridViewRow();
+                    newRow.CreateCells(dgv_attendance);
+                    newRow.Cells[0].Value = student.Value;
+                    newRow.Cells[1].Value = firstName;
+                    newRow.Cells[2].Value = lastName;
+
+                    // Kiểm tra và thêm cột sessionID nếu chưa tồn tại
+                    if (!dgv_attendance.Columns.Contains(sessionID.ToString()))
+                    {
+                        // Thêm cột mới nếu chưa có
+                        dgv_attendance.Columns.Add(sessionID.ToString(), DateTime.Now.ToString("dd/MM/yyyy"));
+                    }
+
+                    // Lấy chỉ số cột dựa trên sessionID
+                    int columnIndex = dgv_attendance.Columns[sessionID.ToString()].Index;
+                    newRow.Cells[columnIndex].Value = value;
+                    newRow.DefaultCellStyle.BackColor = Color.Red; // Đánh dấu hàng mới
+                    dgv_attendance.Rows.Add(newRow);
+
+                    var st = new Student { StudentID = student.Value, FirstName = firstName, LastName = lastName, LastTime = DateTime.Now.ToString("dd/MM/yyyy hh:mm:ss") };
+                    var clst = new ClassStudent { StudentID = student.Value, ClassID = classID };
+                    await _studentBLL.InsertStudent(new List<Student> { st });
+                    await _classStudentBLL.InsertClassStudent(new List<ClassStudent> { clst });
+                }
+            }
+
+            dgv_attendance.Refresh();
+        }
+
         private void dgv_client_CellValueChanged(object sender, DataGridViewCellEventArgs e)
         {
             // Kiểm tra chỉ số dòng và cột hợp lệ
@@ -990,61 +1021,7 @@ namespace Server
                 Console.WriteLine("Computer name not found or column index out of range in fullInfoList.");
             }
         }
-        private async Task UpdateOrAddRowAttendance(Dictionary<string,string> studentID, int sessionID, string value)
-        {
-            bool studentExists = false;
-            foreach (var student in studentID)
-            {
-                foreach (DataGridViewRow row in dgv_attendance.Rows)
-                {
-                    if (row.Cells[0].Value != null && row.Cells[0].Value.ToString() == student.Value)
-                    {
-                        studentExists = true;
-                        int columnIndex = dgv_attendance.Columns[sessionID.ToString()].Index;
-                        row.Cells[columnIndex].Value = value;
-                        break;
-                    }
-                }
-                string[] nameParts = student.Key.Trim().Split(' ');
-
-                // Ghép tất cả các phần đầu tiên lại với nhau làm firstName, ngoại trừ phần cuối cùng
-                string firstName = string.Join(" ", nameParts, 0, nameParts.Length - 1);
-
-                // Phần cuối cùng sẽ là lastName
-                string lastName = nameParts[nameParts.Length - 1];
-                if (!studentExists)
-                {
-                    DataGridViewRow newRow = new DataGridViewRow();
-                    newRow.CreateCells(dgv_attendance);
-                    newRow.Cells[0].Value = student.Value;
-                    newRow.Cells[1].Value = firstName; // FirstName
-                    newRow.Cells[2].Value = lastName; // LastName
-                    int columnIndex = dgv_attendance.Columns[sessionID.ToString()].Index;
-                    newRow.Cells[columnIndex].Value = value;
-                    newRow.DefaultCellStyle.BackColor = Color.Red; // Highlight new row
-                    dgv_attendance.Rows.Add(newRow);
-                    List<Student> student1 = new List<Student>();
-                    var st = new Student();
-                    st.StudentID = student.Value;
-                    st.FirstName = firstName;
-                    st.LastName = lastName;
-                    st.LastTime = DateTime.Now.ToString("dd/MM/yyyy hh:mm:ss");
-                    student1.Add(st);
-                    List<ClassStudent> clstudent1 = new List<ClassStudent>();
-                    var clst = new ClassStudent();
-                    clst.StudentID = student.Value;
-                    clst.ClassID = classID;
-                    clstudent1.Add(clst);
-                    await _studentBLL.InsertStudent(student1);
-                    await _classStudentBLL.InsertClassStudent(clstudent1);
-
-                }
-            }
-
-
-
-            dgv_attendance.Refresh();
-        }
+       
         private void UpdateInfoList(List<string> newEntry, Dictionary<string, string> comparedInfo)
         {
             //foreach (var key in comparedInfo.Keys)
@@ -2008,7 +1985,7 @@ namespace Server
 
         private void btnUnlock_Click(object sender, EventArgs e)
         {
-            string thongTinMayTinh = "InfoClient-IPC: 192.168.1.40Tenmay: F71-01Chuot: Ðã k?t n?iBanphim: Ðã k?t n?iManhinh: Ðã k?t n?iOcung: Model: INTEL SSDPEKNU512GZInterface: SCSISize: 476 GBCPU: AMD Ryzen 7 4800H with Radeon Graphics         RAM: Capacity: 8 GB, Manufacturer: Micron Technology|MSSV: nguyen tan tai - 0306211189 + truong tang chi vinh - 0306211215 +";
+            string thongTinMayTinh = "InfoClient-IPC: 192.168.1.40Tenmay: F71-01Chuot: Ðã k?t n?iBanphim: Ðã k?t n?iManhinh: Ðã k?t n?iOcung: Model: INTEL SSDPEKNU512GZInterface: SCSISize: 476 GBCPU: AMD Ryzen 71 4800H with Radeon Graphics         RAM: Capacity: 8 GB, Manufacturer: Micron Technology|MSSV: nguyen tan tai - 0306211189 + truong tang chi vinh - 0306211215 +";
             ReciveInfo(thongTinMayTinh);
         }
 

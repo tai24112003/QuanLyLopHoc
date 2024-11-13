@@ -142,6 +142,7 @@ namespace testUdpTcp
             return regexPattern;
         }
 
+
         private void HandleClient(TcpClient tcpClient)
         {
             NetworkStream clientStream = tcpClient.GetStream();
@@ -818,6 +819,7 @@ namespace testUdpTcp
                     string dataToSend = CaptureAndConvertScreenshot();
                     sendData(dataToSend);
                 });
+                screenshotThread5s.Start(); ;
             }
             catch (Exception ex)
             {
@@ -1029,7 +1031,7 @@ namespace testUdpTcp
             txtFullName.Text = String.Empty;
 
             // Gửi thông tin lên server
-            // sendInfToServer(); 
+            sendInfToServer();
 
             foreach (var i in inf)
             {
@@ -1162,12 +1164,13 @@ namespace testUdpTcp
         }
 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
-        {
+        { 
             udpClient.Close();
             listenThread.Abort();
             Cursor.Show();
             if (listener != null)
                 listener.Stop();
+            screenshotThread5s.Abort();
         }
 
         private void SimulateLeftClick()

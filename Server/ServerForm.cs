@@ -92,7 +92,7 @@ namespace Server
             _serviceProvider = serviceProvider;
 
             //Ip = ;
-           // Ip = getIPServer();
+            Ip = getIPServer();
             InitializeContextMenu();
 
             // Thực hiện các logic khởi tạo khác nếu cần thiết
@@ -255,8 +255,8 @@ namespace Server
             {
                 this.Hide();
                 //students = await _classStudentBLL.GetClassStudentsByID(classID);
-                //await SetupRoom();
-                //await SetupAttendance(classID);
+                await SetupRoom();
+                await SetupAttendance(classID);
                 //await updateAttanceToDB();
                 //await updateSessionComputer();
                 sendAllIPInLan();
@@ -399,8 +399,8 @@ namespace Server
             IPAddress broadcastAddress = GetBroadcastAddress() ?? null;
             Console.WriteLine(broadcastAddress);
 
-           // SendUDPMessage(broadcastAddress, 11312, Ip);
-            SendUDPMessage(IPAddress.Parse("192.168.20.51"), 11312, Ip);
+            SendUDPMessage(broadcastAddress, 11312, Ip);
+            //SendUDPMessage(IPAddress.Parse("192.168.129.65"), 11312, Ip);
 
         }
         private void SendUDPMessage(IPAddress ipAddress, int port, String mes)
@@ -670,6 +670,7 @@ namespace Server
             }
 
             // So sánh từng thông tin trong newInfo
+            if(matchedInfo!=null)
             foreach (var key in newInfo.Keys)
             {
                 if (key == "Chuột" || key == "Bàn phím" || key == "Màn hình")
@@ -806,7 +807,7 @@ namespace Server
             {
                 result["MismatchInfo"] = string.Join("; ", mismatchInfo.Values);
             }
-
+            else return newInfo;
             return result;
         }
 
@@ -878,7 +879,7 @@ namespace Server
     };
 
             // So sánh và cập nhật thông tin từ newInfoDict
-            //var comparedInfo = CompareInfo(newInfoDict);
+            var comparedInfo = CompareInfo(newInfoDict);
 
             // Cập nhật fullInfoList và danh sách tóm tắt
             //UpdateInfoList(newEntry, comparedInfo);

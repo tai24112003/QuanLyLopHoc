@@ -485,6 +485,48 @@ namespace testUdpTcp
                             };
                         }
                         break;
+                    case "CloseSlideShow":
+
+                        if (this.InvokeRequired)
+                        {
+                            this.BeginInvoke((MethodInvoker)delegate
+                            {
+                                if (form1 != null)
+                                {
+                                    form1.StopSlideshow();
+                                };
+                            });
+                        }
+                        else
+                        {
+
+                            if (form1 != null)
+                            {
+                                form1.StopSlideshow();
+                            }
+                        }
+                        break;
+                    case "CloseLockScreen":
+
+                        if (this.InvokeRequired)
+                        {
+                            this.BeginInvoke((MethodInvoker)delegate
+                            {
+                                if (LockScreen != null)
+                                {
+                                    LockScreen.UnLockScreen();
+                                };
+                            });
+                        }
+                        else
+                        {
+
+                            if (LockScreen != null)
+                            {
+                                LockScreen.UnLockScreen();
+                            };
+                        }
+                        break;
                     case "DoExam":
                         Console.WriteLine("Làm bài");
                         if (examFrm == null)
@@ -818,6 +860,22 @@ namespace testUdpTcp
             // Draw the cursor on the screenshot
             Cursor cursor = Cursors.Default;
             cursor.Draw(graphics, new Rectangle(cursorPosition, cursor.Size));
+        }
+
+        private void OpenNewFormLockScreen()
+        {
+            if (this.InvokeRequired)
+            {
+                this.BeginInvoke((MethodInvoker)delegate { OpenNewFormLockScreen(); });
+            }
+            else
+            {
+                if (LockScreen == null)
+                {
+                    LockScreen = new LockScreenForm();
+                    LockScreen.Show();
+                }
+            }
         }
 
         private void OpenNewFormLockScreen()

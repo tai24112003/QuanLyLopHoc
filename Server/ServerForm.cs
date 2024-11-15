@@ -778,6 +778,7 @@ namespace Server
             {
                 imageList1.Images[listViewItem.ImageIndex] = resizedImage;
             }
+            return b;
         }
 
         // Hàm ResizeImage để thay đổi kích thước ảnh

@@ -35,9 +35,11 @@ public class LocalDataHandler
     {
         try
         {
-            await MigrateComputerAndStudentData();
-            await MigrateClassAndStudentData();
-            await MigrateDataForClassSessions();
+            if (await MigrateComputerAndStudentData())
+            {
+                await MigrateClassAndStudentData();
+                await MigrateDataForClassSessions();
+            }
         }
         catch (Exception ex)
         {
@@ -157,12 +159,14 @@ public class LocalDataHandler
             attendance.StudentID = GeneratePositiveID(attendance.StudentID);
         }
         await _attendanceBLL.InsertAttendance(sessionID_B, attendanceRecords);
-
-        foreach (var sessionComputer in sessionComputers)
+        if (sessionComputers != null)
         {
-            sessionComputer.SessionID = sessionID_B;
+            foreach (var sessionComputer in sessionComputers)
+            {
+                sessionComputer.SessionID = sessionID_B;
+            }
+            await _sessionComputerBLL.InsertSessionComputer(sessionID_B, sessionComputers);
         }
-        await _sessionComputerBLL.InsertSessionComputer(sessionID_B, sessionComputers);
 
 
 
@@ -170,40 +174,45 @@ public class LocalDataHandler
 
     }
 
-    private async Task MigrateComputerAndStudentData()
+    private async Task<bool> MigrateComputerAndStudentData()
     {
         try
         {
             var settingLocal = await _settingBLL.GetSettingLocal();
             var settingServer = await _settingBLL.GetSettingServer();
-            if (settingServer != null && settingLocal !=null)
+            if (settingServer != null && settingLocal != null)
             {
                 DateTime lastTimeUpdateStudentLocal = DateTime.Parse(settingLocal.lastTimeUpdateStudent);
-                DateTime lastTimeUpdateStudentServer = DateTime.Parse(settingServer.lastTimeUpdateStudent);
+                DateTime lastTimeUpdateStudentServer = DateTime.Parse(settingServer.lastTimeUpdateStudent).AddYears(1);
 
                 DateTime lastTimeUpdateComputerLocal = DateTime.Parse(settingLocal.lastTimeUpdateComputer);
-                DateTime lastTimeUpdateComputerServer = DateTime.Parse(settingServer.lastTimeUpdateComputer);
+                DateTime lastTimeUpdateComputerServer = DateTime.Parse(settingServer.lastTimeUpdateComputer).AddYears(1);
 
                 DateTime lastTimeUpdateClassLocal = DateTime.Parse(settingLocal.lastTimeUpdateComputer);
-                DateTime lastTimeUpdateClassServer = DateTime.Parse(settingServer.lastTimeUpdateComputer);
-                await _roomBLL.GetRoomsByName("F71");
+                DateTime lastTimeUpdateClassServer = DateTime.Parse(settingServer.lastTimeUpdateComputer).AddYears(1);
+
+                await _roomBLL.GetRoomsByName("F72");
                 await SyncStudentData(lastTimeUpdateStudentLocal, lastTimeUpdateStudentServer, settingServer);
                 await SyncComputerData(lastTimeUpdateComputerLocal, lastTimeUpdateComputerServer, settingServer);
                 await SyncClassData(lastTimeUpdateClassLocal, lastTimeUpdateClassServer, settingServer);
+                return true;
             }
+            return false;
         }
         catch (Exception ex)
         {
             Console.WriteLine($"Error migrating computer and student data: {ex}");
+            return false;
         }
     }
+
 
     private async Task SyncStudentData(DateTime lastTimeUpdateStudentLocal, DateTime lastTimeUpdateStudentServer, Setting settingServer)
     {
         var studentsToSync = await _studentBLL.GetStudentsByDateRange(lastTimeUpdateStudentLocal, lastTimeUpdateStudentServer);
         if (studentsToSync.Count > 0)
         {
-            await _studentBLL.InsertStudent(studentsToSync);
+            await _studentBLL.InsertStudentLocal(studentsToSync);
             await _settingBLL.UpdateLastTimeUpdateStudent(settingServer.lastTimeUpdateStudent);
         }
     }

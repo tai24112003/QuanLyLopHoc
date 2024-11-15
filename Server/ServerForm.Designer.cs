@@ -29,10 +29,10 @@
         private void InitializeComponent()
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(svForm));
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle5 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle6 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle7 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle8 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle4 = new System.Windows.Forms.DataGridViewCellStyle();
             this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
             this.btnAll = new System.Windows.Forms.Button();
             this.sendFileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -73,6 +73,7 @@
             this.MSSV = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.FirstName = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.LastName = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.lst_client = new System.Windows.Forms.ListView();
             this.tsManageClass = new System.Windows.Forms.ToolStripSplitButton();
             this.EndClassTS = new System.Windows.Forms.ToolStripMenuItem();
             this.tsGroup = new System.Windows.Forms.ToolStripButton();
@@ -94,7 +95,6 @@
             this.tsExport = new System.Windows.Forms.ToolStripButton();
             this.tsExam = new System.Windows.Forms.ToolStripDropDownButton();
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
-            this.lst_client = new System.Windows.Forms.ListView();
             this.flowLayoutPanel1.SuspendLayout();
             this.toolStrip2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgv_client)).BeginInit();
@@ -239,7 +239,7 @@
             this.toolStripButton17.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolStripButton17.Name = "toolStripButton17";
             this.toolStripButton17.Size = new System.Drawing.Size(98, 74);
-            this.toolStripButton17.Text = "toolStripButton15";
+            this.toolStripButton17.Text = "Trang Chủ";
             this.toolStripButton17.Click += new System.EventHandler(this.toolStripButton17_Click);
             // 
             // toolStripButton16
@@ -250,7 +250,7 @@
             this.toolStripButton16.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolStripButton16.Name = "toolStripButton16";
             this.toolStripButton16.Size = new System.Drawing.Size(98, 74);
-            this.toolStripButton16.Text = "toolStripButton15";
+            this.toolStripButton16.Text = "Xem Danh Sách Màn Hình";
             this.toolStripButton16.Click += new System.EventHandler(this.toolStripButton16_Click);
             // 
             // toolStripButton5
@@ -261,7 +261,7 @@
             this.toolStripButton5.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolStripButton5.Name = "toolStripButton5";
             this.toolStripButton5.Size = new System.Drawing.Size(98, 74);
-            this.toolStripButton5.Text = "toolStripButton15";
+            this.toolStripButton5.Text = "Điểm Danh";
             this.toolStripButton5.Click += new System.EventHandler(this.toolStripButton5_Click);
             // 
             // toolStripButton15
@@ -278,9 +278,9 @@
             // 
             this.dgv_client.AllowUserToAddRows = false;
             this.dgv_client.AllowUserToDeleteRows = false;
-            dataGridViewCellStyle5.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
-            dataGridViewCellStyle5.SelectionBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(149)))), ((int)(((byte)(179)))), ((int)(((byte)(255)))));
-            this.dgv_client.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle5;
+            dataGridViewCellStyle1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
+            dataGridViewCellStyle1.SelectionBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(149)))), ((int)(((byte)(179)))), ((int)(((byte)(255)))));
+            this.dgv_client.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle1;
             this.dgv_client.AutoSizeRowsMode = System.Windows.Forms.DataGridViewAutoSizeRowsMode.AllCells;
             this.dgv_client.BackgroundColor = System.Drawing.Color.White;
             this.dgv_client.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
@@ -296,14 +296,14 @@
             this.Monitor,
             this.ComputerID,
             this.MismathInfo});
-            dataGridViewCellStyle6.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle6.BackColor = System.Drawing.SystemColors.Window;
-            dataGridViewCellStyle6.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            dataGridViewCellStyle6.ForeColor = System.Drawing.SystemColors.ControlText;
-            dataGridViewCellStyle6.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-            dataGridViewCellStyle6.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            dataGridViewCellStyle6.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
-            this.dgv_client.DefaultCellStyle = dataGridViewCellStyle6;
+            dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle2.BackColor = System.Drawing.SystemColors.Window;
+            dataGridViewCellStyle2.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            dataGridViewCellStyle2.ForeColor = System.Drawing.SystemColors.ControlText;
+            dataGridViewCellStyle2.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle2.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle2.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.dgv_client.DefaultCellStyle = dataGridViewCellStyle2;
             this.dgv_client.Dock = System.Windows.Forms.DockStyle.Left;
             this.dgv_client.GridColor = System.Drawing.Color.White;
             this.dgv_client.Location = new System.Drawing.Point(100, 129);
@@ -312,6 +312,7 @@
             this.dgv_client.Size = new System.Drawing.Size(935, 480);
             this.dgv_client.TabIndex = 9;
             this.dgv_client.CellValueChanged += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgv_client_CellValueChanged);
+            this.dgv_client.MouseClick += new System.Windows.Forms.MouseEventHandler(this.dgv_client_MouseClick);
             // 
             // NameComputer
             // 
@@ -403,9 +404,9 @@
             // 
             this.dgv_attendance.AllowUserToAddRows = false;
             this.dgv_attendance.AllowUserToDeleteRows = false;
-            dataGridViewCellStyle7.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
-            dataGridViewCellStyle7.SelectionBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(149)))), ((int)(((byte)(179)))), ((int)(((byte)(255)))));
-            this.dgv_attendance.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle7;
+            dataGridViewCellStyle3.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
+            dataGridViewCellStyle3.SelectionBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(149)))), ((int)(((byte)(179)))), ((int)(((byte)(255)))));
+            this.dgv_attendance.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle3;
             this.dgv_attendance.AutoSizeRowsMode = System.Windows.Forms.DataGridViewAutoSizeRowsMode.AllCells;
             this.dgv_attendance.BackgroundColor = System.Drawing.Color.White;
             this.dgv_attendance.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
@@ -413,14 +414,14 @@
             this.MSSV,
             this.FirstName,
             this.LastName});
-            dataGridViewCellStyle8.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle8.BackColor = System.Drawing.SystemColors.Window;
-            dataGridViewCellStyle8.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            dataGridViewCellStyle8.ForeColor = System.Drawing.SystemColors.ControlText;
-            dataGridViewCellStyle8.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-            dataGridViewCellStyle8.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            dataGridViewCellStyle8.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
-            this.dgv_attendance.DefaultCellStyle = dataGridViewCellStyle8;
+            dataGridViewCellStyle4.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle4.BackColor = System.Drawing.SystemColors.Window;
+            dataGridViewCellStyle4.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            dataGridViewCellStyle4.ForeColor = System.Drawing.SystemColors.ControlText;
+            dataGridViewCellStyle4.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle4.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle4.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.dgv_attendance.DefaultCellStyle = dataGridViewCellStyle4;
             this.dgv_attendance.Dock = System.Windows.Forms.DockStyle.Left;
             this.dgv_attendance.GridColor = System.Drawing.Color.White;
             this.dgv_attendance.Location = new System.Drawing.Point(1035, 129);
@@ -449,6 +450,16 @@
             this.LastName.MinimumWidth = 6;
             this.LastName.Name = "LastName";
             this.LastName.Width = 125;
+            // 
+            // lst_client
+            // 
+            this.lst_client.Dock = System.Windows.Forms.DockStyle.Left;
+            this.lst_client.HideSelection = false;
+            this.lst_client.Location = new System.Drawing.Point(1218, 129);
+            this.lst_client.Name = "lst_client";
+            this.lst_client.Size = new System.Drawing.Size(688, 480);
+            this.lst_client.TabIndex = 11;
+            this.lst_client.UseCompatibleStateImageBehavior = false;
             // 
             // tsManageClass
             // 
@@ -497,6 +508,7 @@
             this.tsRandom.Tag = "";
             this.tsRandom.Text = "Chọn Ngẫu Nhiên";
             this.tsRandom.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
+            this.tsRandom.Click += new System.EventHandler(this.tsRandom_Click);
             // 
             // tsSlideShow
             // 
@@ -548,7 +560,7 @@
             // 
             this.tsCollect.Font = new System.Drawing.Font("Arial Narrow", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.tsCollect.Name = "tsCollect";
-            this.tsCollect.Size = new System.Drawing.Size(180, 22);
+            this.tsCollect.Size = new System.Drawing.Size(108, 22);
             this.tsCollect.Text = "Thu tệp";
             this.tsCollect.Click += new System.EventHandler(this.reciveFileToolStripMenuItem_Click);
             // 
@@ -556,7 +568,7 @@
             // 
             this.tsSend.Font = new System.Drawing.Font("Arial Narrow", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.tsSend.Name = "tsSend";
-            this.tsSend.Size = new System.Drawing.Size(180, 22);
+            this.tsSend.Size = new System.Drawing.Size(108, 22);
             this.tsSend.Text = "Gửi tệp";
             this.tsSend.Click += new System.EventHandler(this.sendWork_ButtonClick);
             // 
@@ -571,6 +583,7 @@
             this.tsLock.Tag = "";
             this.tsLock.Text = "Khóa";
             this.tsLock.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
+            this.tsLock.Click += new System.EventHandler(this.tsLock_Click);
             // 
             // tsUnlock
             // 
@@ -691,16 +704,6 @@
             this.toolStrip1.TabIndex = 4;
             this.toolStrip1.Text = "toolStrip1";
             // 
-            // lst_client
-            // 
-            this.lst_client.Dock = System.Windows.Forms.DockStyle.Left;
-            this.lst_client.HideSelection = false;
-            this.lst_client.Location = new System.Drawing.Point(1218, 129);
-            this.lst_client.Name = "lst_client";
-            this.lst_client.Size = new System.Drawing.Size(688, 480);
-            this.lst_client.TabIndex = 11;
-            this.lst_client.UseCompatibleStateImageBehavior = false;
-            // 
             // svForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -764,6 +767,18 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn MSSV;
         private System.Windows.Forms.DataGridViewTextBoxColumn FirstName;
         private System.Windows.Forms.DataGridViewTextBoxColumn LastName;
+        private System.Windows.Forms.ListView lst_client;
+        private System.Windows.Forms.DataGridViewTextBoxColumn NameComputer;
+        private System.Windows.Forms.DataGridViewTextBoxColumn Disk;
+        private System.Windows.Forms.DataGridViewTextBoxColumn CPU;
+        private System.Windows.Forms.DataGridViewTextBoxColumn Ram;
+        private System.Windows.Forms.DataGridViewTextBoxColumn StudentID;
+        private System.Windows.Forms.DataGridViewTextBoxColumn IPC;
+        private System.Windows.Forms.DataGridViewTextBoxColumn Mouse;
+        private System.Windows.Forms.DataGridViewTextBoxColumn Keyboard;
+        private System.Windows.Forms.DataGridViewTextBoxColumn Monitor;
+        private System.Windows.Forms.DataGridViewTextBoxColumn ComputerID;
+        private System.Windows.Forms.DataGridViewTextBoxColumn MismathInfo;
         private System.Windows.Forms.ToolStripSplitButton tsManageClass;
         private System.Windows.Forms.ToolStripMenuItem EndClassTS;
         private System.Windows.Forms.ToolStripButton tsGroup;
@@ -785,18 +800,6 @@
         private System.Windows.Forms.ToolStripButton tsExport;
         private System.Windows.Forms.ToolStripDropDownButton tsExam;
         private System.Windows.Forms.ToolStrip toolStrip1;
-        private System.Windows.Forms.ListView lst_client;
-        private System.Windows.Forms.DataGridViewTextBoxColumn NameComputer;
-        private System.Windows.Forms.DataGridViewTextBoxColumn Disk;
-        private System.Windows.Forms.DataGridViewTextBoxColumn CPU;
-        private System.Windows.Forms.DataGridViewTextBoxColumn Ram;
-        private System.Windows.Forms.DataGridViewTextBoxColumn StudentID;
-        private System.Windows.Forms.DataGridViewTextBoxColumn IPC;
-        private System.Windows.Forms.DataGridViewTextBoxColumn Mouse;
-        private System.Windows.Forms.DataGridViewTextBoxColumn Keyboard;
-        private System.Windows.Forms.DataGridViewTextBoxColumn Monitor;
-        private System.Windows.Forms.DataGridViewTextBoxColumn ComputerID;
-        private System.Windows.Forms.DataGridViewTextBoxColumn MismathInfo;
     }
 }
 

@@ -56,6 +56,12 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="LockScreenForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="LockScreenForm.Designer.cs">
+      <DependentUpon>LockScreenForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="ResultOptionUC.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -111,6 +117,9 @@
     <Compile Include="Waiting.Designer.cs">
       <DependentUpon>Waiting.cs</DependentUpon>
     </Compile>
+    <EmbeddedResource Include="LockScreenForm.resx">
+      <DependentUpon>LockScreenForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="ResultOptionUC.resx">
       <DependentUpon>ResultOptionUC.cs</DependentUpon>
     </EmbeddedResource>

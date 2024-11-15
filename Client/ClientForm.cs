@@ -23,6 +23,7 @@ using System.Runtime.InteropServices;
 using WindowsInput.Native;
 using WindowsInput;
 using DAL.Models;
+using System.Diagnostics;
 using System.Collections;
 
 namespace testUdpTcp
@@ -56,11 +57,12 @@ namespace testUdpTcp
         private UdpClient udpClient;
         private ExamForm examFrm;
         SlideShowForm form1;
+        LockScreenForm LockScreen;
         private Thread udpReceiverThread;
         //private string IpServer = "192.168.72.249";
-        private string IpServer = "172.20.10.2";
+        private string IpServer = "127.0.0.1";
 
-        private string myIp = "";
+        private string myIp = "127.0.0.1";
         private List<string> inf;
         private List<string> mssvLst = new List<string>();
         private bool sended = false;
@@ -81,10 +83,17 @@ namespace testUdpTcp
         {
             CaptureAndSendScreenshots5s();
 
-            //udpClient = new UdpClient(11312);
-            //udpReceiverThread = new Thread(new ThreadStart(ReceiveDataOnce));
-            //udpReceiverThread.Start();
-            //udpReceiverThread.Join();
+            udpClient = new UdpClient(11312);
+            udpReceiverThread = new Thread(new ThreadStart(ReceiveDataOnce));
+            udpReceiverThread.Start();
+            udpReceiverThread.Join();
+            sendInfToServer();
+            screenshotThread5s = new Thread(() =>
+            {
+                CaptureAndSendScreenshots5s();
+
+            });
+            screenshotThread5s.Start(); ;
 
             listenThread = new Thread(new ThreadStart(ListenForClients));
             listenThread.Start();
@@ -207,6 +216,18 @@ namespace testUdpTcp
                     File.WriteAllBytes(fullFilePath, fileBytes);
 
                     Console.WriteLine("Tệp đã được nhận và lưu thành công: " + fullFilePath);
+                }
+                tcpClient.Close();
+
+            }
+            else if (receivedMessage.StartsWith("QuickLaunch"))
+            {
+                // Parse the signal
+                string[] parts = receivedMessage.Split(new char[] { '-' }, 2);
+                if (parts.Length >= 3)
+                {
+                    string fileName = parts[1];
+                    Process.Start(fileName);
                 }
                 tcpClient.Close();
 
@@ -393,6 +414,7 @@ namespace testUdpTcp
                 switch (receivedMessage)
                 {
                     case "LOCK_ACCESS": LockWeb(); Console.WriteLine("nhan dc tin hieu"); tcpClient.Close(); break;
+                    case "LockScreen": OpenNewFormLockScreen(); break;
                     case "SlideShow":
                         //SlideShowForm slideShowForm = new SlideShowForm();
 
@@ -412,7 +434,49 @@ namespace testUdpTcp
                         screenshotThread.Start();
 
                         break;
-                    case "DoExam": 
+                    case "CloseSlideShow":
+
+                        if (this.InvokeRequired)
+                        {
+                            this.BeginInvoke((MethodInvoker)delegate
+                            {
+                                if (form1 != null)
+                                {
+                                    form1.StopSlideshow();
+                                };
+                            });
+                        }
+                        else
+                        {
+
+                            if (form1 != null)
+                            {
+                                form1.StopSlideshow();
+                            }
+                        }
+                        break;
+                    case "CloseLockScreen":
+
+                        if (this.InvokeRequired)
+                        {
+                            this.BeginInvoke((MethodInvoker)delegate
+                            {
+                                if (LockScreen != null)
+                                {
+                                    LockScreen.UnLockScreen();
+                                };
+                            });
+                        }
+                        else
+                        {
+
+                            if (LockScreen != null)
+                            {
+                                LockScreen.UnLockScreen();
+                            };
+                        }
+                        break;
+                    case "DoExam":
                         Console.WriteLine("Làm bài");
                         if (examFrm==null) {
                             examFrm = new ExamForm(mssvDoTest,Test, sendData,ChangeMSSV);
@@ -588,40 +652,7 @@ namespace testUdpTcp
                 }
             }
         }
-        public void SendImage(string ipAddress, int port, string machineName, Image image)
-        {
-            try
-            {
-                // Tạo kết nối tới server
-                TcpClient client = new TcpClient(ipAddress, port);
-                NetworkStream stream = client.GetStream();
 
-                // Chuyển ảnh thành mảng byte
-                using (MemoryStream ms = new MemoryStream())
-                {
-                    image.Save(ms, System.Drawing.Imaging.ImageFormat.Jpeg);
-                    byte[] imageBytes = ms.ToArray();
-
-                    // Tạo key với format Picture5s-Tên máy
-                    string key = $"Picture5s-{machineName}-";
-                    byte[] keyBytes = Encoding.UTF8.GetBytes(key);
-
-                    // Gửi key trước
-                    stream.Write(keyBytes, 0, keyBytes.Length);
-
-                    // Sau đó gửi ảnh
-                    stream.Write(imageBytes, 0, imageBytes.Length);
-                }
-
-                // Đóng kết nối
-                stream.Close();
-                client.Close();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("Lỗi khi gửi ảnh: " + ex.Message);
-            }
-        }
         public void SendImage(string ipAddress, int port, string machineName, Bitmap image)
         {
             try
@@ -790,6 +821,22 @@ namespace testUdpTcp
             cursor.Draw(graphics, new Rectangle(cursorPosition, cursor.Size));
         }
 
+        private void OpenNewFormLockScreen()
+        {
+            if (this.InvokeRequired)
+            {
+                this.BeginInvoke((MethodInvoker)delegate { OpenNewFormLockScreen(); });
+            }
+            else
+            {
+                if (LockScreen == null)
+                {
+                    LockScreen = new LockScreenForm();
+                    LockScreen.Show();
+                }
+            }
+        }
+
         private void OpenNewForm(TcpClient tcpclient)
         {
             if (this.InvokeRequired)
@@ -826,23 +873,36 @@ namespace testUdpTcp
                 // Địa chỉ IP loopback
                 string loopbackIP = "127.0.0.1";
 
-                // Mở tập tin hosts để ghi đè
-                using (StreamWriter writer = new StreamWriter(hostsFilePath, false))
-                {
-                    // Ghi đè nội dung tập tin hosts với mỗi yêu cầu trang web được điều hướng đến địa chỉ loopback
-                    writer.WriteLine($"{loopbackIP} localhost");
-                    writer.WriteLine($"{loopbackIP} localhost.localdomain");
-                    writer.WriteLine($"{loopbackIP} 0.0.0.0");
-                    writer.WriteLine($"{loopbackIP} 255.255.255.255");
-                }
+                // Đọc nội dung tập tin hosts hiện tại
+                string[] hostsContent = File.ReadAllLines(hostsFilePath);
 
-                Console.WriteLine("Tập tin hosts đã được cập nhật thành công!");
+                // Kiểm tra xem các dòng cần thiết đã có chưa, tránh ghi đè
+                bool isLineExist = hostsContent.Any(line => line.Contains(loopbackIP));
+
+                if (!isLineExist)
+                {
+                    // Thêm các dòng vào cuối tập tin hosts
+                    using (StreamWriter writer = new StreamWriter(hostsFilePath, true))
+                    {
+                        writer.WriteLine($"{loopbackIP} localhost");
+                        writer.WriteLine($"{loopbackIP} localhost.localdomain");
+                        writer.WriteLine($"{loopbackIP} 0.0.0.0");
+                        writer.WriteLine($"{loopbackIP} 255.255.255.255");
+                    }
+
+                    Console.WriteLine("Tập tin hosts đã được cập nhật thành công!");
+                }
+                else
+                {
+                    Console.WriteLine("Các dòng đã tồn tại trong tập tin hosts.");
+                }
             }
             catch (Exception ex)
             {
                 Console.WriteLine("Đã xảy ra lỗi khi cập nhật tập tin hosts: " + ex.Message);
             }
         }
+
         private string getIPServer()
         {
             string ip = string.Empty;
@@ -894,11 +954,7 @@ namespace testUdpTcp
                 sendInfToServer();
                 //if (sended) MessageBox.Show("Gửi thành công", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 //else MessageBox.Show("Gửi thất bại", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                screenshotThread5s = new Thread(() => {
-                    CaptureAndSendScreenshots5s();
-                    
-                });
-                screenshotThread5s.Start(); ;
+
             }
             catch (Exception ex)
             {
@@ -1196,11 +1252,11 @@ namespace testUdpTcp
                 g.CopyFromScreen(0, 0, 0, 0, screenBounds.Size);
             }
 
-        
 
-        
+
+
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
-        { 
+        {
             udpClient.Close();
             listenThread.Abort();
             Cursor.Show();

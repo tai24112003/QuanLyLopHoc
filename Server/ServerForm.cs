@@ -24,6 +24,8 @@ using Microsoft.Extensions.DependencyInjection;
 using System.Text.RegularExpressions;
 using DAL.Models;
 using System.Runtime.InteropServices.ComTypes;
+using System.Windows.Shapes;
+using System.Security.Cryptography.X509Certificates;
 
 namespace Server
 {
@@ -50,6 +52,8 @@ namespace Server
         private string roomID;
         private int classID;
         private int userID;
+        private string selectedStudent = "";
+        private int numbercomputer;
         private Room room = new Room();
         private int sessionID;
         private List<SessionComputer> sessionComputers = new List<SessionComputer>();
@@ -107,16 +111,96 @@ namespace Server
 
             // Tạo các mục menu
             var menuItem3 = new ToolStripMenuItem("Trình chiếu đến máy chủ");
+            var menuItem4 = new ToolStripMenuItem("Thêm sinh viên");
+            var menuItem5 = new ToolStripMenuItem("Chọn sinh viên kiểm tra máy");
 
             // Thêm các mục menu vào ContextMenuStrip
+            contextMenuStrip.Items.Add(menuItem3);
+            contextMenuStrip1.Items.Add(menuItem4);
+            contextMenuStrip1.Items.Add(menuItem5);
 
-            contextMenuStrip1.Items.Add(menuItem3);
-
-
+            // Gắn sự kiện click cho các mục menu
             menuItem3.Click += contextMenu_SlideShowToClient_Click;
+            menuItem4.Click += async (sender, e) => await AddSelectedStudentsAsync();
+            menuItem5.Click += contextMenu_SelectStudentCheckMachine_Click; 
         }
 
+        private async Task AddSelectedStudentsAsync()
+        {
+            try
+            {
+                // Kiểm tra nếu không có dòng nào được chọn
+                if (dgv_attendance.SelectedRows.Count == 0)
+                {
+                    MessageBox.Show("Vui lòng chọn ít nhất một sinh viên để thêm.");
+                    return;
+                }
 
+                List<Student> students = new List<Student>();
+                List<ClassStudent> class_students = new List<ClassStudent>();
+
+                // Duyệt qua các dòng được chọn
+                foreach (DataGridViewRow selectedRow in dgv_attendance.SelectedRows)
+                {
+                    // Lấy thông tin từ dòng
+                    string studentID = selectedRow.Cells["StudentID"]?.Value?.ToString();
+                    string firstName = selectedRow.Cells["FirstName"]?.Value?.ToString();
+                    string lastName = selectedRow.Cells["LastName"]?.Value?.ToString();
+
+                    // Kiểm tra dữ liệu hợp lệ
+                    if (string.IsNullOrWhiteSpace(studentID) || string.IsNullOrWhiteSpace(firstName) || string.IsNullOrWhiteSpace(lastName))
+                    {
+                        MessageBox.Show("Thông tin sinh viên không hợp lệ, vui lòng kiểm tra lại.");
+                        continue;
+                    }
+
+                    // Xử lý thêm sinh viên (ví dụ thêm vào danh sách, lưu vào cơ sở dữ liệu, v.v.)
+                    var newStudent = new Student
+                    {
+                        StudentID = studentID,
+                        FirstName = firstName,
+                        LastName = lastName,
+                        LastTime = DateTime.Now.ToString("dd/MM/yyyy hh:mm:ss")
+                    };
+                    students.Add(newStudent);
+
+                    var clst = new ClassStudent { StudentID = studentID, ClassID = classID };
+                    class_students.Add(clst);
+                }
+
+                await _studentBLL.InsertStudent(students);
+                await _classStudentBLL.InsertClassStudent(class_students);
+
+                // Thông báo sau khi thêm xong
+                MessageBox.Show($"Đã thêm {dgv_attendance.SelectedRows.Count} sinh viên vào danh sách.");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Lỗi khi thêm sinh viên: {ex.Message}");
+            }
+        }
+
+        // Event handler for "Chọn sinh viên kiểm tra máy"
+        private void contextMenu_SelectStudentCheckMachine_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                // Kiểm tra nếu không có dòng nào được chọn
+                if (dgv_attendance.SelectedRows.Count == 0)
+                {
+                    MessageBox.Show("Vui lòng chọn ít nhất một sinh viên.");
+                    return;
+                }
+
+                selectedStudent = dgv_attendance.SelectedRows[0].Cells["StudentID"]?.Value?.ToString();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Lỗi khi chọn sinh viên kiểm tra máy: {ex.Message}");
+            }
+        }
+
+        // Dummy method to simulate machine check for selected students
 
 
 
@@ -137,11 +221,7 @@ namespace Server
                 if (attendances == null || !attendances.Any())
                 {
                     students = await _classStudentBLL.GetClassStudentsByID(classID);
-                    if (students == null || students.Count == 0)
-                    {
-                        MessageBox.Show("Không có thông tin học sinh.");
-                        return;
-                    }
+
 
                     // Thêm cột ngày hiện tại cho buổi học
                     string sessionID = DateTime.Now.ToString("ddMMyyyy");
@@ -149,16 +229,64 @@ namespace Server
                     {
                         dgv_attendance.Columns.Add(sessionID, DateTime.Now.ToString("dd/MM/yyyy"));
                     }
-
-                    foreach (var student in students)
+                    if (students == null || students.Count == 0)
                     {
-                        string cleanStudentID = student.StudentID.Replace("-", string.Empty);
-                        dgv_attendance.Rows.Add(cleanStudentID, student.Student.FirstName, student.Student.LastName, 'v');
+                        MessageBox.Show("Không có thông tin học sinh.");
                     }
+                    else
+                        foreach (var student in students)
+                        {
+                            string cleanStudentID = student.StudentID.Replace("-", string.Empty);
+                            dgv_attendance.Rows.Add(cleanStudentID, student.Student.FirstName, student.Student.LastName, 'v');
+                        }
                 }
                 else
                 {
-                    // (Phần xử lý khi có dữ liệu điểm danh sẽ không thay đổi)
+                    // Sắp xếp dữ liệu theo StartTime
+                    var sortedSessions = attendances.OrderBy(a => a.StartTime).ToList();
+
+                    // Thêm các cột vào DataGridView
+                    foreach (var session in sortedSessions)
+                    {
+                        if (!dgv_attendance.Columns.Contains(session.SessionID.ToString()))
+                        {
+                            DataGridViewTextBoxColumn column = new DataGridViewTextBoxColumn
+                            {
+                                HeaderText = session.StartTime.ToString(),
+                                Name = session.SessionID.ToString()
+                            };
+                            dgv_attendance.Columns.Add(column);
+                        }
+                    }
+
+                    // Nhóm dữ liệu theo StudentID
+                    var groupedByStudent = sortedSessions.GroupBy(a => a.StudentID);
+
+                    // Thêm các hàng vào DataGridView
+                    foreach (var group in groupedByStudent)
+                    {
+                        var studentSessions = group.ToList();
+                        var firstSession = studentSessions.First();
+
+                        // Tạo một hàng mới với thông tin sinh viên và trạng thái điểm danh cho mỗi buổi học
+                        DataGridViewRow row = new DataGridViewRow();
+                        row.CreateCells(dgv_attendance);
+
+                        // Loại bỏ dấu gạch nối trong StudentID
+                        string cleanStudentID = firstSession.StudentID.Replace("-", string.Empty);
+                        row.Cells[0].Value = cleanStudentID;
+                        row.Cells[1].Value = firstSession.LastName;
+                        row.Cells[2].Value = firstSession.FirstName;
+
+                        // Điền trạng thái điểm danh vào các ô tương ứng
+                        foreach (var session in studentSessions)
+                        {
+                            var columnIndex = dgv_attendance.Columns[session.SessionID.ToString()].Index;
+                            row.Cells[columnIndex].Value = session.Present;
+                        }
+
+                        dgv_attendance.Rows.Add(row);
+                    }
                 }
             }
             catch (Exception ex)
@@ -257,7 +385,8 @@ namespace Server
             {
                 this.Hide();
                 imageList1.ImageSize = new Size(64, 64);
-
+                dgv_attendance.Hide();
+                lst_client.Hide();
                 lst_client.LargeImageList = imageList1;
                 //students = await _classStudentBLL.GetClassStudentsByID(classID);
                 await SetupRoom();
@@ -272,8 +401,8 @@ namespace Server
                 this.ContextMenuStrip = contextMenuStrip;
                 // Bắt đầu Timer
                 timer.Start();
-                //dgv_client.MouseClick += dgv_client_MouseClick;
-                IPAddress ip = IPAddress.Parse(Ip);
+                IPAddress ip = IPAddress.Parse("127.0.0.1");
+                //IPAddress ip = IPAddress.Parse(Ip);
                 int tcpPort = 8765;
 
                 // Tạo đối tượng TcpListener để lắng nghe kết nối từ client
@@ -309,6 +438,10 @@ namespace Server
 
             foreach (List<string> infoList in fullInfoList)
             {
+                if (infoList.Count == 10)
+                {
+                    infoList.Insert(10, "");
+                }
                 // Check if the information contains "không kết nối"
                 bool isDisconnected = infoList.Any(value => value.Contains("không kết nối"));
 
@@ -465,6 +598,8 @@ namespace Server
             {
                 // Xử lý dữ liệu nhận được từ client
                 receivedMessage += Encoding.UTF8.GetString(messageBuffer, 0, bytesRead);
+                if (receivedMessage.Contains("Picture5s"))
+                    break;
             }
 
             string[] tmp = receivedMessage.Split(new char[] { '-' }, 2);
@@ -495,7 +630,7 @@ namespace Server
                     foreach (string item in answer)
                     {
                         string[] keyValue = item.Split(':');
-                        string key= keyValue[0];
+                        string key = keyValue[0];
                         string value = keyValue[1];
 
                         switch (key)
@@ -515,7 +650,8 @@ namespace Server
                             case "selectResultsId":
                                 newAnswer.SelectResultsId=value.Split(',').Select(x=> int.TryParse(x, out int rsIdO) ? rsIdO : 0).ToList();
                                 break;
-                        }                    }
+                        }
+                    }
                     if (indexQuest == -1)
                     {
                         MessageBox.Show("Định dạng thiếu vị trí câu hỏi");
@@ -542,18 +678,17 @@ namespace Server
                     MessageBox.Show($"xử lý câu trả lời thất bại: {ex}");
                 }
             }
-            else if (tmp[0]=="Picture5s")
+            else if (receivedMessage.StartsWith("Picture5s"))
             {
                 string[] parts = receivedMessage.Split(new string[] { "Anh-" }, StringSplitOptions.None);
                 if (parts.Length > 1)
                 {
-                    string machineName = parts[0].Replace("Picture5s-", ""); // Loại bỏ "Picture5s-" để chỉ còn tên máy
+                    string machineName = parts[0].Replace("Picture5s-", "");
 
-                    // Đọc phần dữ liệu ảnh còn lại
+                    // Tiếp tục đọc dữ liệu ảnh từ clientStream
                     using (MemoryStream ms = new MemoryStream())
                     {
-                        // Copy dữ liệu ảnh từ clientStream vào MemoryStream
-                        clientStream.CopyTo(ms);
+                        clientStream.CopyTo(ms); // Đọc toàn bộ dữ liệu còn lại vào MemoryStream
                         byte[] imageBytes = ms.ToArray();
 
                         // Chuyển đổi byte[] thành Image
@@ -562,7 +697,21 @@ namespace Server
                             Image image = Image.FromStream(imageStream);
 
                             // Cập nhật ảnh vào ListView với tên máy
-                            UpdateListView(machineName, image);
+                            if (lst_client.InvokeRequired)
+                            {
+                                lst_client.Invoke(new Action(() =>
+                                {
+                                    UpdateListView(machineName, image);
+
+
+                                }));
+                            }
+                            else
+                            {
+                                UpdateListView(machineName, image);
+
+
+                            }
                         }
                     }
                 }
@@ -586,7 +735,7 @@ namespace Server
             {
                 OpenNewForm(tcpClient);
             }
-           
+
 
 
 
@@ -594,9 +743,18 @@ namespace Server
             //tcpClient.Close();
         }
 
-       
+
         private void UpdateListView(string machineName, Image image)
         {
+            // Đặt kích thước cố định cho ảnh (ví dụ: 100x100 pixel)
+            int targetWidth = 256;
+            int targetHeight = 125;
+            Image resizedImage = ResizeImage(image, targetWidth, targetHeight);
+
+            if (imageList1.ImageSize.Width != targetWidth || imageList1.ImageSize.Height != targetHeight)
+            {
+                imageList1.ImageSize = new Size(targetWidth, targetHeight);
+            }
             // Tìm hoặc tạo mới một ListViewItem với tên máy
             var listViewItem = lst_client.Items.Cast<ListViewItem>()
                 .FirstOrDefault(item => item.Text == machineName) ?? lst_client.Items.Add(machineName);
@@ -604,14 +762,27 @@ namespace Server
             // Cập nhật ảnh cho ListViewItem
             if (listViewItem.ImageIndex == -1)
             {
-                imageList1.Images.Add(machineName, image);
+                imageList1.Images.Add(machineName, resizedImage);
                 listViewItem.ImageIndex = imageList1.Images.IndexOfKey(machineName);
             }
             else
             {
-                imageList1.Images[listViewItem.ImageIndex] = image;
+                imageList1.Images[listViewItem.ImageIndex] = resizedImage;
             }
         }
+
+        // Hàm ResizeImage để thay đổi kích thước ảnh
+        private Image ResizeImage(Image imgToResize, int width, int height)
+        {
+            Bitmap b = new Bitmap(width, height);
+            using (Graphics g = Graphics.FromImage(b))
+            {
+                g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
+                g.DrawImage(imgToResize, 0, 0, width, height);
+            }
+            return b;
+        }
+
         public void InitializeStandard(int id, string name, string cpu, string ram, string hdd)
         {
             string keysString = "ID?Tên máy?Ổ cứng?CPU?RAM?MSSV?IPC?Chuột?Bàn phím?Màn hình";
@@ -660,7 +831,7 @@ namespace Server
             }
         }
 
-       
+
         public Dictionary<string, string> CompareInfo(Dictionary<string, string> newInfo)
         {
             Dictionary<string, string> result = new Dictionary<string, string>();
@@ -678,142 +849,153 @@ namespace Server
             }
 
             // So sánh từng thông tin trong newInfo
-            if(matchedInfo!=null)
-            foreach (var key in newInfo.Keys)
-            {
-                if (key == "Chuột" || key == "Bàn phím" || key == "Màn hình")
+            if (matchedInfo != null)
+                foreach (var key in newInfo.Keys)
                 {
-                    result[key] = newInfo[key] == "Đã kết nối" ? newInfo[key] + ":1" : newInfo[key] + ":0";
-                }
-                else if (key == "Ổ cứng")
-                {
-                    // So sánh ổ cứng (Model, Interface, Size) - hỗ trợ nhiều ổ cứng
-                    string[] parts = newInfo[key].Split(';');
-                    List<string> newOcungModels = new List<string>();
-                    List<string> newOcungInterfaces = new List<string>();
-                    List<string> newOcungSizes = new List<string>();
-
-                    // Tách thông tin ổ cứng
-                    foreach (var part in parts)
+                    if (key == "Chuột" || key == "Bàn phím" || key == "Màn hình")
                     {
-                        var split = part.Split(':');
-                        if (split.Length == 2)
+                        if (newInfo[key] == "Đã kết nối")
                         {
-                            if (split[0].Trim().ToLower() == "model")
-                                newOcungModels.Add(split[1].Trim());
-                            else if (split[0].Trim().ToLower() == "interface")
-                                newOcungInterfaces.Add(split[1].Trim());
-                            else if (split[0].Trim().ToLower() == "size")
-                                newOcungSizes.Add(split[1].Trim());
+                            result[key] = newInfo[key] + ":1";
+
+                        }
+                        else
+                        {
+                            result[key] = newInfo[key] + ":0";
+                            mismatchInfo[key] = key + ": Mất kết nối";
+
+
                         }
                     }
-
-                    // So sánh từng ổ cứng
-                    bool allMatching = true;
-                    for (int i = 0; i < newOcungModels.Count; i++)
+                    else if (key == "Ổ cứng")
                     {
-                        string model = newOcungModels[i];
-                        string interfaceType = newOcungInterfaces[i];
-                        string sizeStr = newOcungSizes[i];
-                        string modelInDB = matchedInfo["OcungModel"].Trim();
-                        string interfaceInDB = matchedInfo["OcungInterface"].Trim();
-                        string sizeInDB = matchedInfo["OcungSize"].Trim();
+                        // So sánh ổ cứng (Model, Interface, Size) - hỗ trợ nhiều ổ cứng
+                        string[] parts = newInfo[key].Split(';');
+                        List<string> newOcungModels = new List<string>();
+                        List<string> newOcungInterfaces = new List<string>();
+                        List<string> newOcungSizes = new List<string>();
 
-                        double sizeInDBValue = Convert.ToDouble(sizeInDB.Replace(" GB", "").Trim());
-                        double sizeReceivedValue = Convert.ToDouble(sizeStr.Replace(" GB", "").Trim());
-
-                        double tolerance = 0.1 * sizeInDBValue; // Sai số cho phép là 10%
-                        bool sizeMatches = Math.Abs(sizeInDBValue - sizeReceivedValue) <= tolerance;
-
-                        if (!(model == modelInDB && interfaceType == interfaceInDB && sizeMatches))
+                        // Tách thông tin ổ cứng
+                        foreach (var part in parts)
                         {
-                            allMatching = false;
-                            break;
+                            var split = part.Split(':');
+                            if (split.Length == 2)
+                            {
+                                if (split[0].Trim().ToLower() == "model")
+                                    newOcungModels.Add(split[1].Trim());
+                                else if (split[0].Trim().ToLower() == "interface")
+                                    newOcungInterfaces.Add(split[1].Trim());
+                                else if (split[0].Trim().ToLower() == "size")
+                                    newOcungSizes.Add(split[1].Trim());
+                            }
                         }
-                    }
 
-                    if (allMatching)
-                    {
-                        result[key] = newInfo[key] + ":1";
-                    }
-                    else
-                    {
-                        result[key] = newInfo[key] + ":0";
-                        mismatchInfo["Ocung"] = "Sai lệch ổ cứng: Kích thước hoặc Model ổ cứng không khớp.";
-                    }
-                }
-                else if (key == "CPU")
-                {
-                    // So sánh CPU
-                    string cpuReceived = newInfo[key].Trim();
-                    string cpuInDB = matchedInfo["CPU"].Trim();
-
-                    if (cpuReceived == cpuInDB)
-                    {
-                        result[key] = newInfo[key] + ":1";
-                    }
-                    else
-                    {
-                        result[key] = newInfo[key] + ":0";
-                        mismatchInfo["CPU"] = $"Sai lệch CPU: {cpuReceived} (Expected: {cpuInDB})";
-                    }
-                }
-                else if (key == "RAM")
-                {
-                    // So sánh RAM - hỗ trợ nhiều RAM
-                    string[] ramReceived = newInfo[key].Split('|');
-                    List<string> receivedRAMs = new List<string>();
-
-                    // Tách các phần tử RAM
-                    foreach (var ram in ramReceived)
-                    {
-                        if(ram.Trim()!="")
-                        receivedRAMs.Add(ram.Trim());
-                    }
-
-                    string[] ramInDB = matchedInfo["RAM"].Split('|');
-                    List<string> dbRAMs = new List<string>(ramInDB);
-
-                    bool allRAMMatching = true;
-                    for (int i = 0; i < receivedRAMs.Count; i++)
-                    {
-                        if (receivedRAMs[i].Trim() != dbRAMs[i].Trim())
+                        // So sánh từng ổ cứng
+                        bool allMatching = true;
+                        for (int i = 0; i < newOcungModels.Count; i++)
                         {
-                            allRAMMatching = false;
-                            break;
-                        }
-                    }
+                            string model = newOcungModels[i];
+                            string interfaceType = newOcungInterfaces[i];
+                            string sizeStr = newOcungSizes[i];
+                            string modelInDB = matchedInfo["OcungModel"].Trim();
+                            string interfaceInDB = matchedInfo["OcungInterface"].Trim();
+                            string sizeInDB = matchedInfo["OcungSize"].Trim();
 
-                    if (allRAMMatching)
-                    {
-                        result[key] = newInfo[key] + ":1";
-                    }
-                    else
-                    {
-                        result[key] = newInfo[key] + ":0";
-                        mismatchInfo["RAM"] = "Sai lệch RAM: Dung lượng hoặc nhà sản xuất RAM không khớp.";
-                    }
-                }
-                else
-                {
-                    if (key != "Tên máy" && key != "MSSV" && key != "IPC")
-                    {
-                        if (matchedInfo != null && matchedInfo.ContainsKey(key) && matchedInfo[key] == newInfo[key])
+                            double sizeInDBValue = Convert.ToDouble(sizeInDB.Replace(" GB", "").Trim());
+                            double sizeReceivedValue = Convert.ToDouble(sizeStr.Replace(" GB", "").Trim());
+
+                            double tolerance = 0.1 * sizeInDBValue; // Sai số cho phép là 10%
+                            bool sizeMatches = Math.Abs(sizeInDBValue - sizeReceivedValue) <= tolerance;
+
+                            if (!(model == modelInDB && interfaceType == interfaceInDB && sizeMatches))
+                            {
+                                allMatching = false;
+                                break;
+                            }
+                        }
+
+                        if (allMatching)
                         {
                             result[key] = newInfo[key] + ":1";
                         }
                         else
                         {
                             result[key] = newInfo[key] + ":0";
+                            mismatchInfo["Ocung"] = "Sai lệch ổ cứng: Kích thước hoặc Model ổ cứng không khớp.";
+                        }
+                    }
+                    else if (key == "CPU")
+                    {
+                        // So sánh CPU
+                        string cpuReceived = newInfo[key].Trim();
+                        string cpuInDB = matchedInfo["CPU"].Trim();
+
+                        if (cpuReceived == cpuInDB)
+                        {
+                            result[key] = newInfo[key] + ":1";
+                        }
+                        else
+                        {
+                            result[key] = newInfo[key] + ":0";
+                            mismatchInfo["CPU"] = $"Sai lệch CPU: {cpuReceived} (Expected: {cpuInDB})";
+                        }
+                    }
+                    else if (key == "RAM")
+                    {
+                        // So sánh RAM - hỗ trợ nhiều RAM
+                        string[] ramReceived = newInfo[key].Split('|');
+                        List<string> receivedRAMs = new List<string>();
+
+                        // Tách các phần tử RAM
+                        foreach (var ram in ramReceived)
+                        {
+                            if (ram.Trim() != "")
+                                receivedRAMs.Add(ram.Trim());
+                        }
+
+                        string[] ramInDB = matchedInfo["RAM"].Split('|');
+                        List<string> dbRAMs = new List<string>(ramInDB);
+
+                        bool allRAMMatching = true;
+                        for (int i = 0; i < receivedRAMs.Count; i++)
+                        {
+                            if (receivedRAMs[i].Trim() != dbRAMs[i].Trim())
+                            {
+                                allRAMMatching = false;
+                                break;
+                            }
+                        }
+
+                        if (allRAMMatching)
+                        {
+                            result[key] = newInfo[key] + ":1";
+                        }
+                        else
+                        {
+                            result[key] = newInfo[key] + ":0";
+                            mismatchInfo["RAM"] = "Sai lệch RAM: Dung lượng hoặc nhà sản xuất RAM không khớp.";
+                        }
+                    }
+                    else
+                    {
+                        if (key != "Tên máy" && key != "MSSV" && key != "IPC")
+                        {
+                            if (matchedInfo != null && matchedInfo.ContainsKey(key) && matchedInfo[key] == newInfo[key])
+                            {
+                                result[key] = newInfo[key] + ":1";
+                            }
+                            else
+                            {
+                                result[key] = newInfo[key] + ":0";
+                            }
                         }
                     }
                 }
-            }
 
             // Nếu có sai lệch thì thêm vào MismatchInfo
             if (mismatchInfo.Count > 0)
             {
-                result["MismatchInfo"] = string.Join("; ", mismatchInfo.Values);
+                result["MismatchInfo"] = string.Join("\n ", mismatchInfo.Values);
             }
             else return newInfo;
             return result;
@@ -890,8 +1072,8 @@ namespace Server
             var comparedInfo = CompareInfo(newInfoDict);
 
             // Cập nhật fullInfoList và danh sách tóm tắt
-            //UpdateInfoList(newEntry, comparedInfo);
-            UpdateInfoList(newEntry, new Dictionary<string, string>());
+            UpdateInfoList(newEntry, comparedInfo);
+            //UpdateInfoList(newEntry, new Dictionary<string, string>());
 
             //// Tạo bản sao của newEntry để rút gọn thông tin
             //List<string> newEntryCopy = new List<string>(newEntry);
@@ -917,7 +1099,7 @@ namespace Server
 
 
             // Cập nhật thông tin MSSV vào dgv_attendance nếu tồn tại
-            if (studentIDs.Count!=0)
+            if (studentIDs.Count != 0)
                 UpdateAttendanceDataGridView(studentIDs, sessionID, "cm");
 
             Console.WriteLine("length: " + fullInfoList.Count);
@@ -992,10 +1174,7 @@ namespace Server
                     newRow.DefaultCellStyle.BackColor = Color.Red; // Đánh dấu hàng mới
                     dgv_attendance.Rows.Add(newRow);
 
-                    var st = new Student { StudentID = student.Value, FirstName = firstName, LastName = lastName, LastTime = DateTime.Now.ToString("dd/MM/yyyy hh:mm:ss") };
-                    var clst = new ClassStudent { StudentID = student.Value, ClassID = classID };
-                    await _studentBLL.InsertStudent(new List<Student> { st });
-                    await _classStudentBLL.InsertClassStudent(new List<ClassStudent> { clst });
+                 
                 }
             }
 
@@ -1032,7 +1211,7 @@ namespace Server
                 Console.WriteLine("Computer name not found or column index out of range in fullInfoList.");
             }
         }
-       
+
         private void UpdateInfoList(List<string> newEntry, Dictionary<string, string> comparedInfo)
         {
             foreach (var key in comparedInfo.Keys)
@@ -1051,7 +1230,7 @@ namespace Server
                     {
                         if (j == 9) // Bỏ qua phần tử ở chỉ mục 9
                         {
-                            fullInfoList[i][j+1] = newEntry[j];
+                            fullInfoList[i][j + 1] = newEntry[j];
                             break;
                         }
                         else
@@ -1457,7 +1636,7 @@ namespace Server
 
             // Draw the cursor on the screenshot
             Cursor cursor = Cursors.Default;
-            cursor.Draw(graphics, new Rectangle(cursorPosition, cursor.Size));
+            cursor.Draw(graphics, new System.Drawing.Rectangle(cursorPosition, cursor.Size));
         }
 
         // Hàm để lấy địa chỉ broadcast của mạng local
@@ -1513,7 +1692,6 @@ namespace Server
             NetworkStream stream = client.GetStream();
             byte[] data = Encoding.UTF8.GetBytes("LOCK_ACCESS");
             stream.Write(data, 0, data.Length);
-            MessageBox.Show("Sendlockweb ne");
             // Đóng kết nối
             //stream.Close();
             client.Close();
@@ -1566,14 +1744,22 @@ namespace Server
 
                     if (sessionComputer.StudentID != "")
                     {
-                        sessionComputers.Add(sessionComputer);
+                        if (selectedStudent != "")
+                        {
+                            sessionComputer.StudentID = selectedStudent;
+                            sessionComputers.Add(sessionComputer);
+                        }
                     }
                 }
             }
 
-            if (sessionComputers.Count > 0)
+            if (sessionComputers.Count != numbercomputer)
             {
                 await _sessionComputerBLL.InsertSessionComputer(sessionID, sessionComputers);
+            }
+            else
+            {
+                MessageBox.Show("Chọn một sinh viên từ bảng điểm danh để kiểm tra máy!!");
             }
         }
 
@@ -1643,7 +1829,6 @@ namespace Server
         private void dgv_client_MouseClick(object sender, MouseEventArgs e)
         {
 
-            Console.WriteLine("Nhan chuot");
             if (e.Button == MouseButtons.Right)
             {
                 Console.WriteLine("Chuot phai ne");
@@ -1652,6 +1837,20 @@ namespace Server
 
                 // Hiển thị ContextMenuStrip tại vị trí của chuột
                 contextMenuStrip.Show(dgv_client, e.Location);
+            }
+        }
+
+        private void dgv_attendance_MouseClick(object sender, MouseEventArgs e)
+        {
+
+            if (e.Button == MouseButtons.Right)
+            {
+                Console.WriteLine("Chuot phai ne");
+                // Xác định vị trí của chuột trên ListView
+                Point clickPoint = dgv_attendance.PointToClient(new Point(e.X, e.Y));
+
+                // Hiển thị ContextMenuStrip tại vị trí của chuột
+                contextMenuStrip1.Show(dgv_client, e.Location);
             }
         }
 
@@ -1724,7 +1923,69 @@ namespace Server
             sendForm.FilesSelected += SendFileForm_FilePathSelected;
             sendForm.Show();
         }
+        private void SendQuickLauch(string PathQC)
+        {
+            // Xử lý từng đường dẫn tệp trong danh sách
 
+            List<Thread> clientThreads = new List<Thread>();
+
+            foreach (DataGridViewRow row in dgv_client.Rows)
+            {
+                try
+                {
+                    string clientIP = row.Cells[5].Value.ToString();
+
+                    // Kiểm tra xem địa chỉ IP có hợp lệ không
+                    if (IsValidIPAddress(clientIP))
+                    {
+                        // Tạo một luồng riêng biệt cho mỗi client
+                        Thread clientThread = new Thread(() =>
+                        {
+                            TcpClient client = null;
+                            NetworkStream stream = null;
+                            try
+                            {
+                                client = new TcpClient(clientIP, 8888);
+                                stream = client.GetStream();
+
+                                // Gửi tín hiệu thông báo
+                                string fileName = System.IO.Path.GetFileName(PathQC);
+                                string signal = $"QuickLaunch-{PathQC}";
+                                byte[] signalBytes = Encoding.UTF8.GetBytes(signal);
+                                stream.Write(signalBytes, 0, signalBytes.Length); // Gửi tín hiệu
+                                stream.Flush(); // Đảm bảo dữ liệu được gửi đi ngay lập tức
+                                Console.WriteLine("Đã gửi tín hiệu send");
+
+                            }
+                            catch (Exception ex)
+                            {
+                                Console.WriteLine("Lỗi khi gửi tệp: " + ex.Message);
+                            }
+                            finally
+                            {
+                                // Đảm bảo rằng kết nối được đóng đúng cách
+                                if (stream != null) stream.Close();
+                                if (client != null) client.Close();
+                            }
+                        });
+
+                        // Bắt đầu luồng cho client hiện tại
+                        clientThreads.Add(clientThread);
+                        clientThread.Start();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Mất kết nối với: " + row.Cells[0].Value.ToString());
+                }
+            }
+
+            // Chờ tất cả các luồng kết thúc trước khi tiếp tục
+            foreach (Thread t in clientThreads)
+            {
+                t.Join();
+            }
+        }
         private void SendFileForm_FilePathSelected(List<string> filePaths, string toPath)
         {
             foreach (string filePath in filePaths)
@@ -1753,7 +2014,8 @@ namespace Server
                                     stream = client.GetStream();
 
                                     // Gửi tín hiệu thông báo
-                                    string fileName = Path.GetFileName(filePath);
+                                    string fileName = System.IO.Path.GetFileName(filePath);
+
                                     string signal = $"SendFile-{fileName}-{toPath}";
                                     byte[] signalBytes = Encoding.UTF8.GetBytes(signal);
                                     stream.Write(signalBytes, 0, signalBytes.Length); // Gửi tín hiệu
@@ -1860,7 +2122,7 @@ namespace Server
                                     stream = client.GetStream();
 
                                     // Gửi tín hiệu thông báo
-                                    string fileName = Path.GetFileName(filePath);
+                                    string fileName = System.IO.Path.GetFileName(filePath);
                                     string signal = $"CollectFile-{fileName}-{folderPath}-{check}";
                                     byte[] signalBytes = Encoding.UTF8.GetBytes(signal);
                                     stream.Write(signalBytes, 0, signalBytes.Length); // Gửi tín hiệu
@@ -1882,7 +2144,7 @@ namespace Server
                                             byte[] fileBytes = reader.ReadBytes(fileLength);
 
                                             // Lưu file zip vào đường dẫn tạm thời
-                                            string tempZipPath = Path.Combine(Path.GetTempPath(), receivedFileName);
+                                            string tempZipPath = System.IO.Path.Combine(System.IO.Path.GetTempPath(), receivedFileName);
                                             File.WriteAllBytes(tempZipPath, fileBytes);
 
                                             // Giải nén file zip
@@ -2024,7 +2286,7 @@ namespace Server
 
         }
 
-      
+
 
         private void tsCreateExam_Click(object sender, EventArgs e)
         {
@@ -2151,6 +2413,9 @@ namespace Server
 
         private void tsQuickLauch_Click(object sender, EventArgs e)
         {
+            QuickLaunchForm sendForm = new QuickLaunchForm();
+            sendForm.FilesSelected += SendQuickLauch;
+            sendForm.Show();
         }
 
         private void tsUpdate_ButtonClick(object sender, EventArgs e)
@@ -2297,5 +2562,92 @@ namespace Server
         {
 
         }
+
+        private void tsRandom_Click(object sender, EventArgs e)
+        {
+            // Kiểm tra xem dgv_client có dòng nào hay không
+            if (dgv_client.Rows.Count > 0)
+            {
+                // Khởi tạo đối tượng Random để tạo số ngẫu nhiên
+                Random rand = new Random();
+
+                // Lấy số dòng ngẫu nhiên từ 0 đến số dòng hiện tại (trừ 1)
+                int randomIndex = rand.Next(0, dgv_client.Rows.Count);
+
+                // Chọn dòng ngẫu nhiên
+                dgv_client.ClearSelection(); // Hủy bỏ việc chọn các dòng trước đó
+                dgv_client.Rows[randomIndex].Selected = true;
+
+                // (Tuỳ chọn) Di chuyển đến dòng được chọn trong DataGridView
+                dgv_client.FirstDisplayedScrollingRowIndex = randomIndex;
+            }
+            else
+            {
+                MessageBox.Show("Không có dữ liệu!");
+            }
+        }
+
+        private void tsLock_Click(object sender, EventArgs e)
+        {
+            List<Thread> clientThreads = new List<Thread>();
+
+            foreach (DataGridViewRow row in dgv_client.Rows)
+            {
+                try
+                {
+                    string clientIP = row.Cells[5].Value.ToString();
+
+                    // Kiểm tra xem địa chỉ IP có hợp lệ không
+                    if (IsValidIPAddress(clientIP))
+                    {
+                        // Tạo một luồng riêng biệt cho mỗi client
+                        Thread clientThread = new Thread(() =>
+                        {
+                            TcpClient client = null;
+                            NetworkStream stream = null;
+                            try
+                            {
+                                client = new TcpClient(clientIP, 8888);
+                                stream = client.GetStream();
+
+                                // Gửi tín hiệu thông báo
+                                string signal = $"LockScreen";
+                                byte[] signalBytes = Encoding.UTF8.GetBytes(signal);
+                                stream.Write(signalBytes, 0, signalBytes.Length); // Gửi tín hiệu
+                                stream.Flush(); // Đảm bảo dữ liệu được gửi đi ngay lập tức
+                                Console.WriteLine("Đã gửi tín hiệu send");
+
+                            }
+                            catch (Exception ex)
+                            {
+                                Console.WriteLine("Lỗi khi gửi tệp: " + ex.Message);
+                            }
+                            finally
+                            {
+                                // Đảm bảo rằng kết nối được đóng đúng cách
+                                if (stream != null) stream.Close();
+                                if (client != null) client.Close();
+                            }
+                        });
+
+                        // Bắt đầu luồng cho client hiện tại
+                        clientThreads.Add(clientThread);
+                        clientThread.Start();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Mất kết nối với: " + row.Cells[0].Value.ToString());
+                }
+            }
+
+            // Chờ tất cả các luồng kết thúc trước khi tiếp tục
+            foreach (Thread t in clientThreads)
+            {
+                t.Join();
+            }
+        }
+
+     
     }
 }

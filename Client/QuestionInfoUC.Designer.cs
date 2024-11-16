@@ -54,6 +54,7 @@
             // 
             // pnl_answers
             // 
+            this.pnl_answers.BackColor = System.Drawing.Color.Transparent;
             this.pnl_answers.Location = new System.Drawing.Point(83, 251);
             this.pnl_answers.Name = "pnl_answers";
             this.pnl_answers.Size = new System.Drawing.Size(720, 283);
@@ -61,6 +62,7 @@
             // 
             // pnl_quest
             // 
+            this.pnl_quest.BackColor = System.Drawing.Color.Transparent;
             this.pnl_quest.Controls.Add(this.lbl_question);
             this.pnl_quest.Location = new System.Drawing.Point(83, 53);
             this.pnl_quest.Name = "pnl_quest";
@@ -79,13 +81,15 @@
             // 
             // btn_confirm
             // 
+            this.btn_confirm.BackColor = System.Drawing.SystemColors.Highlight;
             this.btn_confirm.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btn_confirm.ForeColor = System.Drawing.SystemColors.ButtonHighlight;
             this.btn_confirm.Location = new System.Drawing.Point(764, 553);
             this.btn_confirm.Name = "btn_confirm";
             this.btn_confirm.Size = new System.Drawing.Size(105, 34);
             this.btn_confirm.TabIndex = 4;
             this.btn_confirm.Text = "Xác nhận";
-            this.btn_confirm.UseVisualStyleBackColor = true;
+            this.btn_confirm.UseVisualStyleBackColor = false;
             this.btn_confirm.Click += new System.EventHandler(this.btn_confirm_Click);
             // 
             // lbl_questtype_info
@@ -102,6 +106,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.BackgroundImage = global::testUdpTcp.Properties.Resources.Set_of_various_books__stack_of_books_vector_illustration_stickers_cartoon_retro_style__Read_more;
             this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
             this.Controls.Add(this.lbl_questtype_info);
             this.Controls.Add(this.btn_confirm);

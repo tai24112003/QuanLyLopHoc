@@ -480,6 +480,9 @@ namespace Server
             }
             SendTest("", "TestDone", -1);
             doingTest.IsExamining = false;
+            doingTest.ResetProgress();
+            DidExams.Add(doingTest.Index);
+            ChangeTest();
         }
 
         //update ui
@@ -555,7 +558,7 @@ namespace Server
             }
             else
             {
-                Quest newQ = new Quest(numBefore)
+                Quest newQ = new Quest(newId)
                 {
                     Type = (cbb_questTypeFilter.SelectedItem as QuestType)
                 };
@@ -667,9 +670,9 @@ namespace Server
             DialogResult result=MessageBox.Show($"Bắt đầu thi đề: {testReady.Title}?","Xác nhận",MessageBoxButtons.OKCancel);
             if (result == DialogResult.Cancel) return;
             
+            SendTest("","DoExam",-1);
             testReady.IsExamining = true;
             ChangeStateExam();
-            SendTest("","DoExam",-1);
 
             SendQuest();
         }

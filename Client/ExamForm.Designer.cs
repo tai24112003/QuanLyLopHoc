@@ -35,17 +35,15 @@
             this.label1 = new System.Windows.Forms.Label();
             this.label17 = new System.Windows.Forms.Label();
             this.panel4 = new System.Windows.Forms.Panel();
-            this.btn_changeMssv = new System.Windows.Forms.Button();
             this.lbl_mssv = new System.Windows.Forms.Label();
             this.label9 = new System.Windows.Forms.Label();
-            this.label8 = new System.Windows.Forms.Label();
-            this.label7 = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
             this.pnExam = new System.Windows.Forms.Panel();
             this.lbl_top3 = new System.Windows.Forms.Label();
             this.lbl_top2 = new System.Windows.Forms.Label();
             this.lbl_top1 = new System.Windows.Forms.Label();
             this.lbl_time_to_start = new System.Windows.Forms.Label();
+            this.btn_changeMssv = new System.Windows.Forms.Button();
             this.headerPanel.SuspendLayout();
             this.pnInfo.SuspendLayout();
             this.panel4.SuspendLayout();
@@ -54,6 +52,7 @@
             // 
             // headerPanel
             // 
+            this.headerPanel.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(224)))), ((int)(((byte)(192)))));
             this.headerPanel.Controls.Add(this.pnInfo);
             this.headerPanel.Controls.Add(this.panel4);
             this.headerPanel.Dock = System.Windows.Forms.DockStyle.Top;
@@ -130,8 +129,6 @@
             this.panel4.Controls.Add(this.btn_changeMssv);
             this.panel4.Controls.Add(this.lbl_mssv);
             this.panel4.Controls.Add(this.label9);
-            this.panel4.Controls.Add(this.label8);
-            this.panel4.Controls.Add(this.label7);
             this.panel4.Controls.Add(this.label4);
             this.panel4.Dock = System.Windows.Forms.DockStyle.Right;
             this.panel4.Location = new System.Drawing.Point(692, 0);
@@ -139,16 +136,6 @@
             this.panel4.Name = "panel4";
             this.panel4.Size = new System.Drawing.Size(511, 129);
             this.panel4.TabIndex = 10;
-            // 
-            // btn_changeMssv
-            // 
-            this.btn_changeMssv.Location = new System.Drawing.Point(371, 86);
-            this.btn_changeMssv.Name = "btn_changeMssv";
-            this.btn_changeMssv.Size = new System.Drawing.Size(75, 23);
-            this.btn_changeMssv.TabIndex = 26;
-            this.btn_changeMssv.Text = "Nhập lại";
-            this.btn_changeMssv.UseVisualStyleBackColor = true;
-            this.btn_changeMssv.Click += new System.EventHandler(this.btn_changeMssv_Click);
             // 
             // lbl_mssv
             // 
@@ -172,28 +159,6 @@
             this.label9.TabIndex = 23;
             this.label9.Text = "MSSV:";
             // 
-            // label8
-            // 
-            this.label8.AutoSize = true;
-            this.label8.Font = new System.Drawing.Font("Microsoft Sans Serif", 13.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label8.Location = new System.Drawing.Point(245, 46);
-            this.label8.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.label8.Name = "label8";
-            this.label8.Size = new System.Drawing.Size(79, 24);
-            this.label8.TabIndex = 22;
-            this.label8.Text = "50 phút";
-            // 
-            // label7
-            // 
-            this.label7.AutoSize = true;
-            this.label7.Font = new System.Drawing.Font("Microsoft Sans Serif", 13.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label7.Location = new System.Drawing.Point(150, 46);
-            this.label7.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(94, 24);
-            this.label7.TabIndex = 21;
-            this.label7.Text = "Thời gian:";
-            // 
             // label4
             // 
             this.label4.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
@@ -210,6 +175,8 @@
             // 
             // pnExam
             // 
+            this.pnExam.BackgroundImage = global::testUdpTcp.Properties.Resources.Set_of_various_books__stack_of_books_vector_illustration_stickers_cartoon_retro_style__Read_more;
+            this.pnExam.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
             this.pnExam.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.pnExam.Controls.Add(this.lbl_top3);
             this.pnExam.Controls.Add(this.lbl_top2);
@@ -261,6 +228,16 @@
             this.lbl_time_to_start.TabIndex = 0;
             this.lbl_time_to_start.Text = "label11";
             // 
+            // btn_changeMssv
+            // 
+            this.btn_changeMssv.Location = new System.Drawing.Point(371, 86);
+            this.btn_changeMssv.Name = "btn_changeMssv";
+            this.btn_changeMssv.Size = new System.Drawing.Size(75, 23);
+            this.btn_changeMssv.TabIndex = 26;
+            this.btn_changeMssv.Text = "Nhập lại";
+            this.btn_changeMssv.UseVisualStyleBackColor = true;
+            this.btn_changeMssv.Click += new System.EventHandler(this.btn_changeMssv_Click);
+            // 
             // ExamForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -294,8 +271,6 @@
         private System.Windows.Forms.Label label17;
         private System.Windows.Forms.Panel panel4;
         private System.Windows.Forms.Label label9;
-        private System.Windows.Forms.Label label8;
-        private System.Windows.Forms.Label label7;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.Label label12;
         public System.Windows.Forms.Label label1;
@@ -303,9 +278,9 @@
         private System.Windows.Forms.Panel pnExam;
         private System.Windows.Forms.Label lblIndex;
         private System.Windows.Forms.Label lbl_time_to_start;
-        private System.Windows.Forms.Button btn_changeMssv;
         private System.Windows.Forms.Label lbl_top3;
         private System.Windows.Forms.Label lbl_top2;
         private System.Windows.Forms.Label lbl_top1;
+        private System.Windows.Forms.Button btn_changeMssv;
     }
 }

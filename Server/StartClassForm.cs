@@ -61,6 +61,11 @@ namespace Server
                 await SetupClassAutoComplete();
                 await SetupSesisionAutoComplete();
             }
+            catch (Exception ex)
+            {
+                loadingForm.Close();
+
+            }
             finally
             {
                 // Đóng form loading sau khi hoàn thành các tác vụ
@@ -250,8 +255,8 @@ namespace Server
             int classID = int.Parse(cbbClass.SelectedValue.ToString());
             int userID = int.Parse(cbbName.SelectedValue.ToString());
             Console.WriteLine(userID);
-            //string roomID = (Environment.MachineName.Split('-'))[0];
-            string roomID="F71";
+            string roomID = (Environment.MachineName.Split('-'))[0];
+            //string roomID="F71";
 
             // Lấy thông tin phòng
             var room = await _roomBLL.GetRoomsByName(roomID);
@@ -441,6 +446,18 @@ namespace Server
                     }
 
                 }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error migrating computer and student data: {ex.Message}");
+                    Console.WriteLine($"Stack Trace: {ex.StackTrace}");
+
+                    if (ex.InnerException != null)
+                    {
+                        Console.WriteLine($"Inner Exception: {ex.InnerException.Message}");
+                        Console.WriteLine($"Inner Stack Trace: {ex.InnerException.StackTrace}");
+                    }
+
+                }
                 finally
                 {
                     loadingForm.Close();
@@ -527,7 +544,7 @@ namespace Server
             {
                 Class classSession = new Class();
                 classSession.ClassName = cbbClass.Text;
-                classSession.UserID = int.Parse(cbbClass.SelectedValue.ToString());
+                classSession.UserID = int.Parse(cbbName.SelectedValue.ToString());
                 DateTime currentDate = DateTime.Now;
                 string formattedDateTime = currentDate.ToString("dd/MM/yyyy HH:mm:ss");
 

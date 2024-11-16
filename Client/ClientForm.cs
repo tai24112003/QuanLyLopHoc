@@ -81,19 +81,17 @@ namespace testUdpTcp
         Form WaitingFrom;
         private void Form1_Load(object sender, EventArgs e)
         {
-            CaptureAndSendScreenshots5s();
 
             udpClient = new UdpClient(11312);
             udpReceiverThread = new Thread(new ThreadStart(ReceiveDataOnce));
             udpReceiverThread.Start();
             udpReceiverThread.Join();
-            sendInfToServer();
             screenshotThread5s = new Thread(() =>
             {
                 CaptureAndSendScreenshots5s();
 
             });
-            screenshotThread5s.Start(); ;
+            screenshotThread5s.Start();
 
             listenThread = new Thread(new ThreadStart(ListenForClients));
             listenThread.Start();

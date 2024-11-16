@@ -43,7 +43,7 @@ namespace Server
             this.FormBorderStyle = FormBorderStyle.None; // Loại bỏ viền của form
             this.WindowState = FormWindowState.Maximized; // Phóng to form ra toàn màn hình
             //this.TopMost = true; // Đặt form ở trên cùng của tất cả các cửa sổ khác
-
+            pictureBox1.MouseMove += SlideShowForm_MouseMove;
             // Ẩn con trỏ chuột
             //Cursor.Hide();
             udpClient = new UdpClient(8889); // Khởi tạo UDP client và lắng nghe trên cổng 8889

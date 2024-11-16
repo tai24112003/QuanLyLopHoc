@@ -51,6 +51,7 @@ namespace Server
         private ComputerBLL _computerBLL;
         private string roomID;
         private int classID;
+        private string IPSlideToSV;
         private int userID;
         private string selectedStudent = "";
         private int numbercomputer;
@@ -401,8 +402,8 @@ namespace Server
                 this.ContextMenuStrip = contextMenuStrip;
                 // Bắt đầu Timer
                 timer.Start();
-                IPAddress ip = IPAddress.Parse("127.0.0.1");
-                //IPAddress ip = IPAddress.Parse(Ip);
+                //IPAddress ip = IPAddress.Parse("127.0.0.1");
+                IPAddress ip = IPAddress.Parse(Ip);
                 int tcpPort = 8765;
 
                 // Tạo đối tượng TcpListener để lắng nghe kết nối từ client
@@ -694,24 +695,32 @@ namespace Server
                         // Chuyển đổi byte[] thành Image
                         using (MemoryStream imageStream = new MemoryStream(imageBytes))
                         {
-                            Image image = Image.FromStream(imageStream);
-
-                            // Cập nhật ảnh vào ListView với tên máy
-                            if (lst_client.InvokeRequired)
+                            try
                             {
-                                lst_client.Invoke(new Action(() =>
+
+                                Image image = Image.FromStream(imageStream);
+
+                                // Cập nhật ảnh vào ListView với tên máy
+                                if (lst_client.InvokeRequired)
+                                {
+                                    lst_client.Invoke(new Action(() =>
+                                    {
+                                        UpdateListView(machineName, image);
+
+
+                                    }));
+                                }
+                                else
                                 {
                                     UpdateListView(machineName, image);
 
 
-                                }));
+                                }
                             }
-                            else
-                            {
-                                UpdateListView(machineName, image);
-
-
+                            catch (Exception ex) { 
+                                Console.WriteLine("Nhan anh loi"+ex.ToString());
                             }
+
                         }
                     }
                 }
@@ -733,7 +742,7 @@ namespace Server
             }
             else if (tmp[0] == "ReadyToCapture")
             {
-                OpenNewForm(tcpClient);
+                OpenNewForm(IPSlideToSV);
             }
 
 
@@ -870,7 +879,7 @@ namespace Server
                     else if (key == "Ổ cứng")
                     {
                         // So sánh ổ cứng (Model, Interface, Size) - hỗ trợ nhiều ổ cứng
-                        string[] parts = newInfo[key].Split(';');
+                        string[] parts = newInfo[key].Split('|');
                         List<string> newOcungModels = new List<string>();
                         List<string> newOcungInterfaces = new List<string>();
                         List<string> newOcungSizes = new List<string>();
@@ -878,18 +887,28 @@ namespace Server
                         // Tách thông tin ổ cứng
                         foreach (var part in parts)
                         {
-                            var split = part.Split(':');
-                            if (split.Length == 2)
+                            if (part != "")
                             {
-                                if (split[0].Trim().ToLower() == "model")
-                                    newOcungModels.Add(split[1].Trim());
-                                else if (split[0].Trim().ToLower() == "interface")
-                                    newOcungInterfaces.Add(split[1].Trim());
-                                else if (split[0].Trim().ToLower() == "size")
-                                    newOcungSizes.Add(split[1].Trim());
+                                var split = part.Split(new string[] { "Model:", "Interface:", "Size:" }, StringSplitOptions.None);
+                                newOcungModels.Add(split[1].Trim());
+                                newOcungInterfaces.Add(split[2].Trim());
+                                newOcungSizes.Add(split[3].Trim());
                             }
                         }
-
+                        string[] parts1 = matchedInfo[key].Split('|');
+                        List<string> newOcungModelsDB = new List<string>();
+                        List<string> newOcungInterfacesDB = new List<string>();
+                        List<string> newOcungSizesDB = new List<string>();
+                        foreach (var part in parts1)
+                        {
+                            if (part != "")
+                            {
+                                var split = part.Split(new string[] { "Model:", "Interface:", "Size:" }, StringSplitOptions.None);
+                                newOcungModelsDB.Add(split[1].Trim());
+                                newOcungInterfacesDB.Add(split[2].Trim());
+                                newOcungSizesDB.Add(split[3].Trim());
+                            }
+                        }
                         // So sánh từng ổ cứng
                         bool allMatching = true;
                         for (int i = 0; i < newOcungModels.Count; i++)
@@ -897,9 +916,9 @@ namespace Server
                             string model = newOcungModels[i];
                             string interfaceType = newOcungInterfaces[i];
                             string sizeStr = newOcungSizes[i];
-                            string modelInDB = matchedInfo["OcungModel"].Trim();
-                            string interfaceInDB = matchedInfo["OcungInterface"].Trim();
-                            string sizeInDB = matchedInfo["OcungSize"].Trim();
+                            string modelInDB = newOcungModelsDB[i].Trim();
+                            string interfaceInDB = newOcungInterfacesDB[i].Trim();
+                            string sizeInDB = newOcungSizesDB[i].Trim();
 
                             double sizeInDBValue = Convert.ToDouble(sizeInDB.Replace(" GB", "").Trim());
                             double sizeReceivedValue = Convert.ToDouble(sizeStr.Replace(" GB", "").Trim());
@@ -2069,17 +2088,18 @@ namespace Server
                 }
             }
         }
-        private void OpenNewForm(TcpClient tcpclient)
+        private void OpenNewForm(string ip)
         {
             if (this.InvokeRequired)
             {
-                this.BeginInvoke((MethodInvoker)delegate { OpenNewForm(tcpclient); });
+                this.BeginInvoke((MethodInvoker)delegate { OpenNewForm(ip); });
             }
             else
             {
                 if (form1 == null)
                 {
                     form1 = new SlideShowForm();
+                    form1.clientIP = ip;
                     form1.Show();
                 }
             }
@@ -2258,8 +2278,65 @@ namespace Server
 
         private void btnUnlock_Click(object sender, EventArgs e)
         {
-            string thongTinMayTinh = "InfoClient-IPC: 192.168.1.40Tenmay: F71-01Chuot: Ðã k?t n?iBanphim: Ðã k?t n?iManhinh: Ðã k?t n?iOcung: Model: INTEL SSDPEKNU512GZInterface: SCSISize: 476 GBCPU: AMD Ryzen 71 4800H with Radeon Graphics         RAM: Capacity: 8 GB, Manufacturer: Micron Technology|MSSV: nguyen tan tai - 0306211189 + truong tang chi vinh - 0306211215 +";
-            ReciveInfo(thongTinMayTinh);
+            //string thongTinMayTinh = "InfoClient-IPC: 192.168.1.40Tenmay: F71-01Chuot: Ðã k?t n?iBanphim: Ðã k?t n?iManhinh: Ðã k?t n?iOcung: Model: INTEL SSDPEKNU512GZInterface: SCSISize: 476 GBCPU: AMD Ryzen 71 4800H with Radeon Graphics         RAM: Capacity: 8 GB, Manufacturer: Micron Technology|MSSV: nguyen tan tai - 0306211189 + truong tang chi vinh - 0306211215 +";
+            //ReciveInfo(thongTinMayTinh);
+            List<Thread> clientThreads = new List<Thread>();
+
+            foreach (DataGridViewRow row in dgv_client.Rows)
+            {
+                try
+                {
+                    string clientIP = row.Cells[5].Value.ToString();
+
+                    // Kiểm tra xem địa chỉ IP có hợp lệ không
+                    if (IsValidIPAddress(clientIP))
+                    {
+                        // Tạo một luồng riêng biệt cho mỗi client
+                        Thread clientThread = new Thread(() =>
+                        {
+                            TcpClient client = null;
+                            NetworkStream stream = null;
+                            try
+                            {
+                                client = new TcpClient(clientIP, 8888);
+                                stream = client.GetStream();
+
+                                // Gửi tín hiệu thông báo
+                                string signal = $"CloseLockScreen";
+                                byte[] signalBytes = Encoding.UTF8.GetBytes(signal);
+                                stream.Write(signalBytes, 0, signalBytes.Length); // Gửi tín hiệu
+                                stream.Flush(); // Đảm bảo dữ liệu được gửi đi ngay lập tức
+                                Console.WriteLine("Đã gửi tín hiệu send");
+
+                            }
+                            catch (Exception ex)
+                            {
+                                Console.WriteLine("Lỗi khi gửi tệp: " + ex.Message);
+                            }
+                            finally
+                            {
+                                // Đảm bảo rằng kết nối được đóng đúng cách
+                                if (stream != null) stream.Close();
+                                if (client != null) client.Close();
+                            }
+                        });
+
+                        // Bắt đầu luồng cho client hiện tại
+                        clientThreads.Add(clientThread);
+                        clientThread.Start();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Mất kết nối với: " + row.Cells[0].Value.ToString());
+                }
+            }
+
+            // Chờ tất cả các luồng kết thúc trước khi tiếp tục
+            foreach (Thread t in clientThreads)
+            {
+                t.Join();
+            }
         }
 
         private void Export_Click(object sender, EventArgs e)
@@ -2481,7 +2558,7 @@ namespace Server
             {
                 // Lấy địa chỉ IP từ cột thứ 5 (Cells[5]) trong dòng được chọn
                 string clientIP = row.Cells[5].Value?.ToString();
-
+                IPSlideToSV = clientIP;
                 // Kiểm tra tính hợp lệ của địa chỉ IP
                 if (!string.IsNullOrEmpty(clientIP) && IsValidIPAddress(clientIP))
                 {

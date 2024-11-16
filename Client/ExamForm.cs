@@ -26,7 +26,7 @@ namespace testUdpTcp
         private Test Test { get; set; }
 
         private Timer CountdownTimer { get; set; }
-        private int Counter { get; set; }
+        private int CounterA { get; set; }
         private  Action<string> SendData { get; set; }
         private readonly Action<string> ChangeMssvInClientForm;
 
@@ -57,7 +57,7 @@ namespace testUdpTcp
             };
             CountdownTimer.Tick += CountdownTimer_Tick;
 
-            Counter = 5;
+            CounterA = 5;
 
         }
 
@@ -101,6 +101,8 @@ namespace testUdpTcp
                 };
                 pnExam.Controls.Add(newQ);
                 newQ.Visible = true;
+                newQ.StartDo();
+                break;
             }
         }
         private void SendAnswer(StudentAnswer answer, int indexQuest)
@@ -146,15 +148,16 @@ namespace testUdpTcp
         }
         private void CountdownTimer_Tick(object sender, EventArgs e)
         {
-            if (Counter > 0)
+            if (CounterA > 0)
             {
-                Counter--;
-                lbl_time_to_start.Text = $"Bắt đầu làm bài sau {Counter}s";
+                CounterA--;
+                lbl_time_to_start.Text = $"Bắt đầu làm bài sau {CounterA}s";
             }
             else
             {
                 CountdownTimer.Stop();
-                pnExam.Controls.Clear();
+                //pnExam.Controls.Clear();
+                this.lbl_time_to_start.Visible = false;
             }
         }
         private void CenterLabelInPanel(Label lbl, int top)

@@ -110,7 +110,6 @@
             this.Controls.Add(this.pnl_answers);
             this.Name = "QuestionInfoUC";
             this.Size = new System.Drawing.Size(909, 612);
-            this.VisibleChanged += new System.EventHandler(this.QuestionInfoUC_VisibleChanged);
             this.pnl_quest.ResumeLayout(false);
             this.pnl_quest.PerformLayout();
             this.ResumeLayout(false);

@@ -456,12 +456,24 @@ namespace Server
 
                 List<StudentScore> top3 = doingTest.ScoringForClass(Students,3);
                 string mess = "";
-                int index = 1;
-                foreach (StudentScore top in top3)
+                int cout=top3.Count;
+                switch (cout)
                 {
-                    mess += $"sts@{top.GetTopString(index)}";
-                    index++;
+                    case 0:
+                        top3 = new List<StudentScore> {new StudentScore(), new StudentScore(), new StudentScore() };
+                        break;
+                    case 1:
+                        top3 = new List<StudentScore>() { top3[0], new StudentScore(),  new StudentScore() };
+                        break;
+                    case 2:
+                        top3 = new List<StudentScore>() { top3[0], top3[1], new StudentScore() };
+                        break;
                 }
+                for (int i = 0; i < 3; i++)
+                {
+                    mess +=$"sts@{top3[i].GetTopString(i+1)}";
+                }
+
                 SendTest(mess, "TopStudent", -1);
                 await Task.Delay(doingTest.RestTimeBetweenQuests * 1000+200); //thêm 0.5s
             }

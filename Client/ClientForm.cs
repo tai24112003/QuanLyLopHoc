@@ -339,13 +339,6 @@ namespace testUdpTcp
                 {
                     List<string> topString = parts[0].Split(new[] { "sts@" }, StringSplitOptions.RemoveEmptyEntries).ToList();
 
-                    if (topString.Count < 1)
-                    {
-                        topString.Add(null);
-                        topString.Add(null);
-                        topString.Add(null);
-                    }
-
                     if (this.InvokeRequired)
                     {
                         this.Invoke(new Action(() => {

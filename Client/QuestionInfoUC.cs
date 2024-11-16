@@ -127,16 +127,11 @@ namespace testUdpTcp
                 this.Dispose();
             }
         }
-
-        private void QuestionInfoUC_VisibleChanged(object sender, EventArgs e)
+        public void StartDo()
         {
-            if (this.Visible)
-            {
-                if(Counter>0)
-                    CountdownTimer.Start();
-            }
-        }
+            CountdownTimer.Start();
 
+        }
         private void btn_confirm_Click(object sender, EventArgs e)
         {
             if (!StudentAnswer.SelectResultsId.Any())

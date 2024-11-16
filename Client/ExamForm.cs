@@ -11,6 +11,7 @@ using System.Xml;
 using DAL.Models;
 using static System.Net.Mime.MediaTypeNames;
 using System.Reflection;
+using System.Threading.Tasks;
 
 namespace testUdpTcp
 {
@@ -97,10 +98,10 @@ namespace testUdpTcp
                 QuestionInfoUC newQ = new QuestionInfoUC(item, SendAnswer)
                 {
                     Dock = DockStyle.Fill,
-                    Visible = false
                 };
                 pnExam.Controls.Add(newQ);
-                newQ.Visible = true;
+                newQ.StartDo();
+                break;
             }
         }
         private void SendAnswer(StudentAnswer answer, int indexQuest)
@@ -129,8 +130,12 @@ namespace testUdpTcp
             btn_changeMssv.Visible = false;
             CountdownTimer.Start();
         }
-        public void NotiQuestCome(int indexQ)
+        public async void NotiQuestCome(int indexQ)
         {
+            while (Counter > 0)
+            {
+                await Task.Delay(500);
+            }
             CreateQuestUI(indexQ);
         }
         public void QuestDone()
@@ -154,7 +159,7 @@ namespace testUdpTcp
             else
             {
                 CountdownTimer.Stop();
-                pnExam.Controls.Clear();
+                lbl_time_to_start.Visible = false;
             }
         }
         private void CenterLabelInPanel(Label lbl, int top)

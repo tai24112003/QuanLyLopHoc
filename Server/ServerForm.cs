@@ -30,7 +30,7 @@ namespace Server
     {
         private bool isFullInfoMode = false;
         private WinFormsTimer timer;
-        private string Ip= "172.20.10.4";
+        private string Ip= "192.168.20.52";
         private TcpListener tcpListener;
         private Thread listenThread;
         private Thread screenshotThread;
@@ -397,7 +397,7 @@ namespace Server
             Console.WriteLine(broadcastAddress);
 
            // SendUDPMessage(broadcastAddress, 11312, Ip);
-            SendUDPMessage(IPAddress.Parse("172.20.10.2"), 11312, Ip);
+            SendUDPMessage(IPAddress.Parse("192.168.20.51"), 11312, Ip);
 
         }
         private void SendUDPMessage(IPAddress ipAddress, int port, String mes)
@@ -515,7 +515,19 @@ namespace Server
                     }
                     Tests[IndexTestReady].Quests[indexQuest].StudentAnswers.Add(newAnswer);
                     //MessageBox.Show($"Nhận câu trả lời thành công");
+                    if (this.InvokeRequired)
+                    {
+                        this.Invoke(new Action(() =>
+                        {
+                            ExamForm?.NotiHaveNewAnswer(indexQuest);
+
+                        }));
+                    }
+                    else
+                    {
                     ExamForm?.NotiHaveNewAnswer(indexQuest);
+
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -915,8 +927,17 @@ namespace Server
             //// Hiển thị dữ liệu trên DataGridView và so sánh
             //AddOrUpdateRowToDataGridView(newEntry);
 
-
-            LoadFullInfoListIntoDataGridView(fullInfoList);
+            if (this.InvokeRequired)
+            {
+                this.Invoke(new Action(() =>
+                {
+                    LoadFullInfoListIntoDataGridView(fullInfoList);
+                }));
+            }
+            else
+            {
+                LoadFullInfoListIntoDataGridView(fullInfoList);
+            }
 
             // Cập nhật thông tin MSSV vào dgv_attendance nếu tồn tại
             if (studentIDs.Count!=0)

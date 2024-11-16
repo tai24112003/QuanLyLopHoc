@@ -339,13 +339,6 @@ namespace testUdpTcp
                 {
                     List<string> topString = parts[0].Split(new[] { "sts@" }, StringSplitOptions.RemoveEmptyEntries).ToList();
 
-                    if (topString.Count < 1)
-                    {
-                        topString.Add(null);
-                        topString.Add(null);
-                        topString.Add(null);
-                    }
-
                     if (this.InvokeRequired)
                     {
                         this.Invoke(new Action(() => {
@@ -370,10 +363,7 @@ namespace testUdpTcp
                 {
                     Quest quest = new Quest(parts[0]);
                     Test.Quests.Add(quest);
-                    if (string.IsNullOrEmpty(mssvDoTest))
-                    {
-
-                    }
+                    
                     if (examFrm == null)
                     {
                         examFrm = new ExamForm(mssvDoTest, Test, sendData, ChangeMSSV);
@@ -424,6 +414,9 @@ namespace testUdpTcp
                         Console.WriteLine("Làm bài");
                         if (examFrm==null) {
                             examFrm = new ExamForm(mssvDoTest,Test, sendData,ChangeMSSV);
+                        }else if (!examFrm.Visible)
+                        {
+                            examFrm = new ExamForm(mssvDoTest, Test, sendData, ChangeMSSV);
                         }
                         if (this.InvokeRequired)
                         {

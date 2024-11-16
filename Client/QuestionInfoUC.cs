@@ -16,7 +16,7 @@ namespace testUdpTcp
     {
         private Quest Quest { get; set; }
         private Timer CountdownTimer { get; set; }
-        private int Counter { get; set; }
+        private int CounterA { get; set; }
         private StudentAnswer StudentAnswer { get; set; }
         private Action<StudentAnswer, int> SendAnswer { get; set; }
         private bool IsAnswer {  get; set; }
@@ -29,12 +29,12 @@ namespace testUdpTcp
             StudentAnswer=new StudentAnswer();
             IsAnswer = false;
 
-            Counter = Quest.CountDownTime;
+            CounterA = Quest.CountDownTime;
             CountdownTimer = new Timer
             {
                 Interval = 1000
             };
-            CountdownTimer.Tick += CountdownTimer_Tick;
+            CountdownTimer.Tick += CountdownTimerQuest_Tick;
             InitUI();
 
         }
@@ -53,7 +53,7 @@ namespace testUdpTcp
             lbl_question.Location = new Point(0, 0);
             lbl_question.Text = Quest.Content;
 
-            lbl_countdown.Text = $"Thời gian: {Counter} s";
+            lbl_countdown.Text = $"Thời gian: {CounterA} s";
             lbl_countdown.Location = new Point((int)(screenW * 0.03), (int)(screenH * 0.05));
 
             lbl_questtype_info.Text =Quest.Type.Name;
@@ -113,12 +113,12 @@ namespace testUdpTcp
             }
         }
 
-        private void CountdownTimer_Tick(object sender, EventArgs e)
+        private void CountdownTimerQuest_Tick(object sender, EventArgs e)
         {
-            if (Counter > 0)
+            if (CounterA > 0)
             {
-                Counter--;
-                lbl_countdown.Text = $"Thời gian: {Counter}s";
+                CounterA--;
+                lbl_countdown.Text = $"Thời gian: {CounterA}s";
             }
             else
             {
@@ -127,16 +127,10 @@ namespace testUdpTcp
                 this.Dispose();
             }
         }
-
-        private void QuestionInfoUC_VisibleChanged(object sender, EventArgs e)
+        public void StartDo()
         {
-            if (this.Visible)
-            {
-                if(Counter>0)
-                    CountdownTimer.Start();
-            }
+            CountdownTimer.Start();
         }
-
         private void btn_confirm_Click(object sender, EventArgs e)
         {
             if (!StudentAnswer.SelectResultsId.Any())
@@ -148,7 +142,7 @@ namespace testUdpTcp
             {
                 return;
             }
-            int timeDo = Quest.CountDownTime - Counter;
+            int timeDo = Quest.CountDownTime - CounterA;
             StudentAnswer.TimeDoQuest = timeDo;
 
             foreach (Control item in pnl_answers.Controls)

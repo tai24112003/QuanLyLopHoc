@@ -275,7 +275,6 @@
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "ExamForm";
             this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
-            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.ExamForm_FormClosing);
             this.headerPanel.ResumeLayout(false);
             this.pnInfo.ResumeLayout(false);
             this.pnInfo.PerformLayout();

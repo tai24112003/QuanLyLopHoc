@@ -33,7 +33,7 @@ namespace Server
     {
         private bool isFullInfoMode = false;
         private WinFormsTimer timer;
-        private string Ip= "192.168.20.52";
+        private string Ip= "192.168.1.6";
         private TcpListener tcpListener;
         private Thread listenThread;
         private Thread screenshotThread;
@@ -531,15 +531,11 @@ namespace Server
         private void sendAllIPInLan()
         {
 
-
-            // Gửi tin nhắn UDP đến từng địa chỉ IP trong mạng
-
-
             IPAddress broadcastAddress = GetBroadcastAddress() ?? null;
             Console.WriteLine(broadcastAddress);
 
-            SendUDPMessage(broadcastAddress, 11312, Ip);
-            //SendUDPMessage(IPAddress.Parse("192.168.129.65"), 11312, Ip);
+            //SendUDPMessage(broadcastAddress, 11312, Ip);
+            SendUDPMessage(IPAddress.Parse("192.168.1.2"), 11312, Ip);
 
         }
         private void SendUDPMessage(IPAddress ipAddress, int port, String mes)

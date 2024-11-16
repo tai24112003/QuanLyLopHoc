@@ -17,7 +17,6 @@ namespace testUdpTcp
 {
     public partial class ExamForm : Form
     {
-        private bool canClosing = false;
         private bool flag = false;
         private int screenWidth = Screen.PrimaryScreen.Bounds.Width;
         private int screenHeight = Screen.PrimaryScreen.Bounds.Height;
@@ -30,9 +29,9 @@ namespace testUdpTcp
         private int CounterA { get; set; }
         private  Action<string> SendData { get; set; }
         private readonly Action<string> ChangeMssvInClientForm;
-
-        private string Mssv;
-        public ExamForm(string mssv,Test test, Action<string> sendAnswer,Action<string> changeMssv )
+        private string Mssv { get; set; }
+        private bool IsLate {  get; set; }
+        public ExamForm(string mssv,Test test, Action<string> sendAnswer,Action<string> changeMssv, bool state=false )
         {
             InitializeComponent();
 
@@ -40,6 +39,7 @@ namespace testUdpTcp
             SendData = sendAnswer;
             ChangeMssvInClientForm = changeMssv;
             Mssv = mssv;
+            IsLate = state;
 
             InitForm();
             InitalStateUI();
@@ -58,7 +58,7 @@ namespace testUdpTcp
             };
             CountdownTimer.Tick += CountdownTimer_Tick;
 
-            CounterA = 5;
+            CounterA = IsLate?0:5;
 
         }
 
@@ -80,11 +80,11 @@ namespace testUdpTcp
 
             lbl_time_to_start.Text = $"Chờ tín hiệu làm bài";
             CenterLabelInPanel(lbl_time_to_start, 2);
-           // pnExam.Controls.Add(new QuestionInfoUC(new Quest()) { Dock=DockStyle.Fill });
         }
 
         private void CreateQuestUI(int indexQ)
         {
+            pnExam.Controls.Clear();
             lbl_top1.Visible=false;
             lbl_top2.Visible = false;
             lbl_top3.Visible = false;
@@ -113,14 +113,19 @@ namespace testUdpTcp
         }
         public void ShowTop(List<string> top)
         {
-            lbl_top1.Text = top[0]??"top1";
+            lbl_top1.Text = top[0];
             CenterLabelInPanel(lbl_top1, 1);
 
-            lbl_top2.Text = top[1]??"top2";
+            lbl_top2.Text = top[1];
             CenterLabelInPanel(lbl_top2, 2);
 
-            lbl_top3.Text = top[2] ?? "top3";
+            lbl_top3.Text = top[2];
             CenterLabelInPanel(lbl_top3, 3);
+
+            pnExam.Controls.Clear();
+            pnExam.Controls.Add(lbl_top1);
+            pnExam.Controls.Add(lbl_top2);
+            pnExam.Controls.Add(lbl_top3);
 
             lbl_top1.Visible = true;
             lbl_top2.Visible = true;
@@ -130,20 +135,19 @@ namespace testUdpTcp
             btn_changeMssv.Visible = false;
             CountdownTimer.Start();
         }
-        public async void NotiQuestCome(int indexQ)
+        public void NotiQuestCome(int indexQ)
         {
+            while (CounterA > 0)
+            {
+
+            }
             CreateQuestUI(indexQ);
         }
         public void QuestDone()
         {
             pnExam.Controls.Clear();
             MessageBox.Show("Bạn đã thi xong", "Thông tin");
-            canClosing = true;
-            this.Close();
-        }
-        private void ExamForm_FormClosing(object sender, FormClosingEventArgs e)
-        {
-            e.Cancel = !canClosing;
+            this.Dispose();
         }
         private void CountdownTimer_Tick(object sender, EventArgs e)
         {

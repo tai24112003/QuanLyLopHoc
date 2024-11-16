@@ -387,7 +387,7 @@ namespace testUdpTcp
                     Console.WriteLine("Run");
                     if (examFrm == null)
                     {
-                        examFrm = new ExamForm(mssvDoTest, Test, sendData, ChangeMSSV);
+                        examFrm = new ExamForm(mssvDoTest, Test, sendData, ChangeMSSV, true);
                     }
 
                     if (this.InvokeRequired)
@@ -485,14 +485,14 @@ namespace testUdpTcp
                             if (this.InvokeRequired)
                             {
                                 this.Invoke(new Action(() => {
-                                    examFrm.StartDoExam();
                                     examFrm.ShowDialog();
+                                    examFrm.StartDoExam();
                                 }));
                             }
                             else
                             {
-                                examFrm.StartDoExam();
                                 examFrm.ShowDialog();
+                                examFrm.StartDoExam();
 
                             }
                         }
@@ -512,12 +512,12 @@ namespace testUdpTcp
                         if (this.InvokeRequired)
                         {
                             this.Invoke(new Action(() => {
-                                examFrm?.QuestDone();
+                                examFrm.QuestDone();
                             }));
                         }
                         else
                         {
-                            examFrm?.QuestDone();
+                            examFrm.QuestDone();
                         }
                         if (this.InvokeRequired)
                         {
@@ -1247,8 +1247,6 @@ namespace testUdpTcp
             stream.Write(buffer, 0, buffer.Length);
 
         }
-                g.CopyFromScreen(0, 0, 0, 0, screenBounds.Size);
-            }
 
 
 

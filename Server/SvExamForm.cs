@@ -86,7 +86,7 @@ namespace Server
             cbb_restEachTime_exam.SelectedIndex = -1;
         }
         public void NotiHaveNewAnswer(int index){
-                this.TrackExamForm?.RenderAnswer(index);
+                this.TrackExamForm?.UpdateUI(index);
         }
         private void ChangeStateExam()
         {

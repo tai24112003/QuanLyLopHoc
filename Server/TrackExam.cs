@@ -29,7 +29,7 @@ namespace Server
             this.lbl_currentQuest.Visible = false;
             IndexSelectQuest = 0;
             RenderSlideQuests();
-            UpdateUI();
+            UpdateUI(IndexSelectQuest);
         }
         private void RenderSlideQuests()
         {
@@ -38,8 +38,30 @@ namespace Server
                 pnl_slideQuests.Controls.Add(new ThumbnailQuestion(null,null, SelectQuest, quest,quest.Index==IndexSelectQuest, quest.Index,true ));
             }
         }
-        private void UpdateUI()
+        public void UpdateUI(int index)
         {
+            if (index != IndexSelectQuest)
+            {
+                foreach (ThumbnailQuestion item in pnl_slideQuests.Controls)
+                {
+                    if (item.Quest.Index != IndexSelectQuest)
+                    {
+                        continue;
+                    }
+                    item.ChangeSelectState();
+                    break;
+                }
+                IndexSelectQuest=index;
+                foreach (ThumbnailQuestion item in pnl_slideQuests.Controls)
+                {
+                    if (item.Quest.Index != IndexSelectQuest)
+                    {
+                        continue;
+                    }
+                    item.ChangeSelectState();
+                    break;
+                }
+            }
             int numQ = Test.Quests.Count;
             this.lbl_testTitle.Text = Test.Title;
             this.btn_switchView.Text = IsPresent ? "Phần trăm" : "Số lượng";
@@ -52,7 +74,7 @@ namespace Server
                 this.lbl_currentQuest.Visible = true;
                 this.lbl_currentQuest.Text = $"Tiến trình: {Test.Progress}/{numQ}";
             }
-            RenderAnswer(IndexSelectQuest);
+            RenderAnswer();
         }
 
         private void SelectQuest(ThumbnailQuestion item)
@@ -63,13 +85,11 @@ namespace Server
                 if (index == IndexSelectQuest) return;
                 (pnl_slideQuests.Controls[IndexSelectQuest] as ThumbnailQuestion).ChangeSelectState();
                 IndexSelectQuest = index;
-                RenderAnswer(index);
+                RenderAnswer();
             }
         }
-        public void RenderAnswer(int index)
+        private void RenderAnswer()
         {
-            if (index != IndexSelectQuest) return;
-
             pnl_chart.Controls.Clear();
             pnl_chart.Controls.Add(this.btn_switchView);
             int mH = (int)(this.pnl_chart.ClientSize.Height * 0.6);
@@ -150,7 +170,12 @@ namespace Server
         private void btn_switchView_Click(object sender, EventArgs e)
         {
            IsPresent=!IsPresent;
-           UpdateUI();
+           UpdateUI(IndexSelectQuest);
+        }
+
+        private void TrackExam_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            this.Dispose();
         }
     }
 }

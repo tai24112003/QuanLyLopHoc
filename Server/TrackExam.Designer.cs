@@ -35,8 +35,8 @@
             this.lbl_currentQuest = new System.Windows.Forms.Label();
             this.panel1 = new System.Windows.Forms.Panel();
             this.pnl_chart = new System.Windows.Forms.Panel();
-            this.pnl_slideQuests = new System.Windows.Forms.FlowLayoutPanel();
             this.btn_switchView = new System.Windows.Forms.Button();
+            this.pnl_slideQuests = new System.Windows.Forms.FlowLayoutPanel();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.lbl_titleChart = new System.Windows.Forms.Label();
             this.pnl_chart.SuspendLayout();
@@ -99,14 +99,6 @@
             this.pnl_chart.Size = new System.Drawing.Size(1038, 656);
             this.pnl_chart.TabIndex = 5;
             // 
-            // pnl_slideQuests
-            // 
-            this.pnl_slideQuests.AutoScroll = true;
-            this.pnl_slideQuests.Location = new System.Drawing.Point(16, 90);
-            this.pnl_slideQuests.Name = "pnl_slideQuests";
-            this.pnl_slideQuests.Size = new System.Drawing.Size(200, 656);
-            this.pnl_slideQuests.TabIndex = 6;
-            // 
             // btn_switchView
             // 
             this.btn_switchView.Location = new System.Drawing.Point(3, 3);
@@ -117,6 +109,14 @@
             this.toolTip1.SetToolTip(this.btn_switchView, "Chuyển đổi đơn vị hiển thị");
             this.btn_switchView.UseVisualStyleBackColor = true;
             this.btn_switchView.Click += new System.EventHandler(this.btn_switchView_Click);
+            // 
+            // pnl_slideQuests
+            // 
+            this.pnl_slideQuests.AutoScroll = true;
+            this.pnl_slideQuests.Location = new System.Drawing.Point(16, 90);
+            this.pnl_slideQuests.Name = "pnl_slideQuests";
+            this.pnl_slideQuests.Size = new System.Drawing.Size(200, 656);
+            this.pnl_slideQuests.TabIndex = 6;
             // 
             // lbl_titleChart
             // 
@@ -147,6 +147,7 @@
             this.Name = "TrackExam";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "ExamProgress";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.TrackExam_FormClosing);
             this.pnl_chart.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();

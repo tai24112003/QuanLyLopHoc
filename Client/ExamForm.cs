@@ -27,14 +27,17 @@ namespace testUdpTcp
 
         private Timer CountdownTimer { get; set; }
         private int Counter { get; set; }
-        private readonly Action<StudentAnswer, int> SendAnswer;
+        private  Action<string> SendData { get; set; }
+        private readonly Action<string> ChangeMssvInClientForm;
+
         private string Mssv;
-        public ExamForm(string mssv,Test test, Action<StudentAnswer, int> sendAnswer)
+        public ExamForm(string mssv,Test test, Action<string> sendAnswer,Action<string> changeMssv )
         {
             InitializeComponent();
 
             Test = test;
-            SendAnswer = sendAnswer;
+            SendData = sendAnswer;
+            ChangeMssvInClientForm = changeMssv;
             Mssv = mssv;
 
             InitForm();
@@ -48,19 +51,20 @@ namespace testUdpTcp
             int screenWidth = SystemInformation.VirtualScreen.Width;
             pnExam.Width = screenWidth;
 
-            CountdownTimer = new Timer();
-            CountdownTimer.Interval = 1000;
+            CountdownTimer = new Timer
+            {
+                Interval = 1000
+            };
             CountdownTimer.Tick += CountdownTimer_Tick;
 
             Counter = 5;
 
-            CountdownTimer.Start();
         }
 
         private void InitalStateUI()
         {
             label4.Text = this.Test.Title;
-            label4.Text = this.Mssv;
+            lbl_mssv.Text = this.Mssv;
             label8.Text = $"{this.Test.GetTimeOfTest()/60} phút"; 
             this.FormBorderStyle = FormBorderStyle.None;
             this.WindowState = FormWindowState.Maximized;
@@ -69,39 +73,70 @@ namespace testUdpTcp
             pnExam.Height = (int)(screenHeight - headerPanel.Height);
             pnExam.AutoScroll = true;
 
-            CenterLabelInPanel();
+            lbl_top1.Visible = false;
+            lbl_top2.Visible = false;
+            lbl_top3.Visible = false;
+
+            lbl_time_to_start.Text = $"Chờ tín hiệu làm bài";
+            CenterLabelInPanel(lbl_time_to_start, 2);
            // pnExam.Controls.Add(new QuestionInfoUC(new Quest()) { Dock=DockStyle.Fill });
         }
 
-        private void CreateQuestUI()
+        private void CreateQuestUI(int indexQ)
         {
+            lbl_top1.Visible=false;
+            lbl_top2.Visible = false;
+            lbl_top3.Visible = false;
+
             foreach (Quest item in Test.Quests)
             {
-                QuestionInfoUC newQ = new QuestionInfoUC(item, ShowNextQuest, SendAnswer)
+                if (item.Index != indexQ)
+                {
+                    continue;
+                }
+                QuestionInfoUC newQ = new QuestionInfoUC(item, SendAnswer)
                 {
                     Dock = DockStyle.Fill,
                     Visible = false
                 };
                 pnExam.Controls.Add(newQ);
+                newQ.Visible = true;
             }
-
-            pnExam.Controls[0].Visible = true;
         }
-
-        private void ShowNextQuest()
+        private void SendAnswer(StudentAnswer answer, int indexQuest)
         {
+            answer.StudentID = Mssv;
+            string mess = $"answer@indexQuest:{indexQuest}{answer.GetAnswerString()}";
+            Console.WriteLine(mess);
+            SendData(mess);
+        }
+        public void ShowTop(List<string> top)
+        {
+            lbl_top1.Text = top[0]??"top1";
+            CenterLabelInPanel(lbl_top1, 1);
 
-            Control controlToRemove = pnExam.Controls[0];
-            pnExam.Controls.RemoveAt(0);
-            controlToRemove.Dispose();
+            lbl_top2.Text = top[1]??"top2";
+            CenterLabelInPanel(lbl_top2, 2);
 
-            if (pnExam.Controls.Count > 1)
-            {
-                pnExam.Controls[0].Visible = true;
-                return;
-            }
+            lbl_top3.Text = top[2] ?? "top3";
+            CenterLabelInPanel(lbl_top3, 3);
 
-            MessageBox.Show("Bạn đã thi xong","Thông tin");
+            lbl_top1.Visible = true;
+            lbl_top2.Visible = true;
+            lbl_top3.Visible = true;
+        }
+        public void StartDoExam() {
+            btn_changeMssv.Visible = false;
+            CountdownTimer.Start();
+        }
+        public void NotiQuestCome(int indexQ)
+        {
+            CreateQuestUI(indexQ);
+        }
+        public void QuestDone()
+        {
+            pnExam.Controls.Clear();
+            MessageBox.Show("Bạn đã thi xong", "Thông tin");
             canClosing = true;
             this.Close();
         }
@@ -109,14 +144,6 @@ namespace testUdpTcp
         {
             e.Cancel = !canClosing;
         }
-
-        private void ExamForm_Load(object sender, EventArgs e)
-        {
-
-        }
-
-       
-
         private void CountdownTimer_Tick(object sender, EventArgs e)
         {
             if (Counter > 0)
@@ -128,17 +155,31 @@ namespace testUdpTcp
             {
                 CountdownTimer.Stop();
                 pnExam.Controls.Clear();
-                CreateQuestUI();
             }
         }
-        private void CenterLabelInPanel()
+        private void CenterLabelInPanel(Label lbl, int top)
         {
-            lbl_time_to_start.Text = $"Bắt đầu làm bài sau {Counter}s";
-            lbl_time_to_start.Location = new Point(
-                (pnExam.ClientSize.Width - lbl_time_to_start.Width) / 2,
-                (pnExam.ClientSize.Height - lbl_time_to_start.Height) / 2
+            lbl.Location = new Point(
+                (pnExam.ClientSize.Width - lbl.Width) / 2,
+                (pnExam.ClientSize.Height - lbl.Height) *top/ 4
             );
-            lbl_time_to_start.Anchor = AnchorStyles.None;
+            lbl.Anchor = AnchorStyles.None;
+        }
+        private void ChangeMssvInForm(string newMSSV)
+        {
+            string mess = $"ReadyAgain-{Mssv}-{newMSSV}";
+            this.Mssv = newMSSV;
+            lbl_mssv.Text = Mssv;
+            ChangeMssvInClientForm(newMSSV);
+            SendData(mess);
+        }
+        private void btn_changeMssv_Click(object sender, EventArgs e)
+        {
+            DialogResult rs = MessageBox.Show("Bạn muốn nhập lại MSSV?", "Thông tin", MessageBoxButtons.OKCancel);
+            if (rs == DialogResult.Cancel) {
+                return;            
+            }
+            (new Waiting(ChangeMssvInForm)).ShowDialog();
         }
     }
 }

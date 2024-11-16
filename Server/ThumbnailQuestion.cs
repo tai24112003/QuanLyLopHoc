@@ -19,25 +19,28 @@ namespace Server
         private readonly Action<ThumbnailQuestion> SelectEventNoti;
 
         public Quest Quest { get; set; }
-
+        private int Index { get; set; }
         private bool IsSelect=false;
-        public ThumbnailQuestion(Action<ThumbnailQuestion> deleteQuestion, Action<ThumbnailQuestion> doulicateQuestion, Action<ThumbnailQuestion> selectEventNoti, Quest quest, bool state)
+        private bool IsView { get; set; }
+        public ThumbnailQuestion(Action<ThumbnailQuestion> deleteQuestion, Action<ThumbnailQuestion> doulicateQuestion, Action<ThumbnailQuestion> selectEventNoti, Quest quest, bool state, int index=-1, bool isview=false)
         {
             InitializeComponent();
             DeleteQuestion=deleteQuestion;
             DoulicateQuestion=doulicateQuestion;
             SelectEventNoti=selectEventNoti;
             Quest=quest;
+            Index=index==-1?quest.Index:(index);
             IsSelect=state;
+            IsView=isview;
 
             UpdateUI();
             UpdateState();
 
             ToolTip toolTip=new ToolTip();
-            toolTip.SetToolTip(btn_des_ques, "Xóa câu hỏi");
+            toolTip.SetToolTip(btn_del_ques, "Xóa câu hỏi");
             toolTip.SetToolTip(btn_dou_ques, "Nhân đôi câu hỏi");
 
-            btn_des_ques.Click += (sender, e) => DeleteQuestion?.Invoke(this);
+            btn_del_ques.Click += (sender, e) => DeleteQuestion?.Invoke(this);
             btn_dou_ques.Click += (sender, e) => DoulicateQuestion?.Invoke(this);
         }
 
@@ -51,8 +54,8 @@ namespace Server
 
         public void SetNumOfTitle(int index)
         {
-            Quest.Index = index;
-            lbl_question.Text = $"{Quest.Index+1}. {Quest.Content}";
+            Index = index;
+            lbl_question.Text = $"{Index+1}. {Quest.Type.Name}";
         }
 
         public void ChangeSelectState() {
@@ -68,7 +71,12 @@ namespace Server
 
         public void UpdateUI()
         {
-            lbl_question.Text = $"{Quest.Index + 1}. {Quest.Type.Name}";
+           if (IsView){
+                btn_del_ques.Visible = false;
+                btn_dou_ques.Visible = false;
+            }
+            lbl_question.Text = $"{Index + 1}. {Quest.Type.Name}";
+
             lbl_num_answers.Text = $"Đáp án: {Quest.Results.Count.ToString()}";
             lbl_ques_time.Text = $"{Quest.CountDownTime.ToString()} s";
             txt_title_question.Text = Quest.Content;

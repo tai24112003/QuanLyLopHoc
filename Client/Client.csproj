@@ -87,7 +87,6 @@
     <Compile Include="QuestionInfoUC.Designer.cs">
       <DependentUpon>QuestionInfoUC.cs</DependentUpon>
     </Compile>
-    <Compile Include="Quiz.cs" />
     <Compile Include="SlideShowForm.cs">
       <SubType>Form</SubType>
     </Compile>

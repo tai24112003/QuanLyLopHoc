@@ -15,11 +15,12 @@ namespace DAL.Models
         public int CountDownTime { get; set; }
         public List<Result> Results { get; set; }
         public List<StudentAnswer> StudentAnswers { get; set; }
-        private void Initialize(int index, string contentSuffix = "")
+        private void Initialize(int index, int type=0, string contentSuffix = "")
         {
             Index = index;
-            Content = $"Câu hỏi {Index + 1}{contentSuffix}";
-            Type = QuestType.SingleSeclect;
+            int indexT = contentSuffix != "" ? 0 : 1;
+            Content = $"Câu hỏi {Index + indexT}{contentSuffix}";
+            Type = QuestType.GetQuestType(type);
             CountDownTime = 20;
 
 
@@ -39,23 +40,22 @@ namespace DAL.Models
         }
 
         // Hàm khởi tạo với tham số index
-        public Quest(int index)
+        public Quest(int index, int type=0)
         {
-            Initialize(index);
+            Initialize(index, type);
         }
 
         // Hàm khởi tạo sao chép với đối tượng khác
-        public Quest(Quest another)
+        public Quest(Quest another, int index)
         {
-            Initialize(another.Index + 1, " new duplicate");
+            Initialize(index, 0," new duplicate");
             Type = another.Type;
             CountDownTime = another.CountDownTime;
             Results = new List<Result>(another.Results);
         }
 
-        public Quest(string questString, int index)
+        public Quest(string questString)
         {
-            Index=index;
             string[] parts = questString.Split(new string[] {"q-" },StringSplitOptions.RemoveEmptyEntries);
             foreach (var part in parts)
             {
@@ -65,6 +65,9 @@ namespace DAL.Models
 
                 switch (key)
                 {
+                    case "index":
+                        Index=int.Parse(value);
+                        break;
                     case "questContent":
                         Content = value;
                         break;
@@ -82,35 +85,30 @@ namespace DAL.Models
                 }
             }
         }
-
         public List<Result> GetResultsCorrect() =>  Results.Where(result=>result.IsCorrect).ToList();
-        public bool CheckNumResults() => Results.Count==4||Results.Count==6;
-       
-        public bool CheckCreateSingleType()
+        public void DropCorrectResult()
         {
-            if (!GetResultsCorrect().Any()|| Type != QuestType.SingleSeclect)
-                return false;
-            return Type==QuestType.SingleSeclect&& GetResultsCorrect().Count==1;
+            foreach (Result item in Results)
+            {
+                item.IsCorrect = false;
+            }
         }
-
         public string GetQuestString()
         {
             string rs = "";
-            rs += $"quest@q-questContentq:{Content}q-typeq:{Type.Id}q-timeq:{CountDownTime}q-resultsq:";
+            rs += $"q-indexq:{Index}q-questContentq:{Content}q-typeq:{Type.Id}q-timeq:{CountDownTime}q-resultsq:";
             foreach (var item in Results) {
+                rs += "result@";
                 rs += item.GetResultString();
             }
             return rs;
         }
-
         public int GetNumStudentDo() =>  StudentAnswers.Count;
-
         public List<StudentAnswer> GetStudentsAnsweredCorrectly() {
             List<Result> correctAnswer = this.GetResultsCorrect();
 
             return StudentAnswers.Where(item=> CheckCorrectAnswer(item, correctAnswer)).ToList();
         }
-
         private bool CheckCorrectAnswer(StudentAnswer answer, List<Result> correctAnswer)
         {
             if (answer.SelectResultsId.Count != correctAnswer.Count)
@@ -123,7 +121,6 @@ namespace DAL.Models
 
             return answer.SelectResultsId.SequenceEqual(correctAnswersId);
         }
-
         public bool CheckCorrectAnswer(string studentId)
         {
             StudentAnswer student= StudentAnswers.Where(item => item.StudentID == studentId).FirstOrDefault();
@@ -137,10 +134,18 @@ namespace DAL.Models
 
             return student.SelectResultsId.SequenceEqual(correctAnswersId);
         }
-
         public StudentAnswer GetFastestStudent()
         {
             return GetStudentsAnsweredCorrectly().OrderBy(student => student.TimeDoQuest).FirstOrDefault();
+        }
+        public int GetNumStudentSelectByResult(Result result)
+        {
+            int rs = 0;
+            foreach (StudentAnswer item in StudentAnswers)
+            {
+                rs+=item.SelectResultsId.Contains(result.Id) ? 1 :0;
+            }
+            return rs;
         }
     }
 
@@ -170,6 +175,34 @@ namespace DAL.Models
             string rs = "";
             rs += $"-studentId:{StudentID}-timeDoQuest:{TimeDoQuest}-selectResultsId:{string.Join(",",SelectResultsId)}";
             return rs;
+        }
+    }
+
+    public class StudentScore
+    {
+        public string StudentId { get; set; }
+        public int Score { get; set; }
+        public StudentScore()
+        {
+            StudentId = "";
+            Score = 0;
+        }
+
+        public StudentScore(string studentCoreString)
+        {
+            string[] parts = studentCoreString.Split(new string[] { "sts-" }, StringSplitOptions.RemoveEmptyEntries);
+            StudentId = parts[0].Split(new string[] { "sts:" },StringSplitOptions.RemoveEmptyEntries)[1];
+            Score = int.Parse(parts[1].Split(new string[] { "sts:" }, StringSplitOptions.RemoveEmptyEntries)[1]);
+        }
+
+        public string GetString()
+        {
+            return $"sts-studentIdsts:{StudentId}sts-scorests:{Score}";
+        }
+
+        public string GetTopString(int top)
+        {
+            return $"top {top}: {StudentId} điểm: {Score}";
         }
     }
 }

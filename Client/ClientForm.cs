@@ -23,6 +23,7 @@ using System.Runtime.InteropServices;
 using WindowsInput.Native;
 using WindowsInput;
 using DAL.Models;
+using System.Collections;
 
 namespace testUdpTcp
 {
@@ -66,7 +67,7 @@ namespace testUdpTcp
         private string hostName;
         TcpListener listener;
         private Thread listenThread;
-        string mssv;
+        string mssvDoTest { get; set; }
         private bool isRunning = true;
         private Thread screenshotThread;
         private Thread screenshotThread5s;
@@ -92,9 +93,14 @@ namespace testUdpTcp
 
         private void GetMSSV(string mssv)
         {
-            this.mssv = mssv;
-            this.Show();
-            sendData($"Ready-{mssv}");
+            this.mssvDoTest = mssv;
+            examFrm = new ExamForm(mssvDoTest, Test, sendData, ChangeMSSV);
+            examFrm.ShowDialog();
+           // this.Show();
+        }
+        private void ChangeMSSV(string newMSSV)
+        {
+            this.mssvDoTest= newMSSV;
         }
 
         private void ListenForClients()
@@ -136,12 +142,6 @@ namespace testUdpTcp
             return regexPattern;
         }
 
-        public void OpenChildForm()
-        {
-            //waitingFrm = new Waiting();
-            //waitingFrm.Show();
-        }
-
         private void HandleClient(TcpClient tcpClient)
         {
             NetworkStream clientStream = tcpClient.GetStream();
@@ -162,7 +162,9 @@ namespace testUdpTcp
                     break;
                 }
             }
-
+            // Parse the signal
+            Console.WriteLine("Full message");
+            Console.WriteLine(receivedMessage);
             if (receivedMessage.StartsWith("SendFile"))
             {
                 // Parse the signal
@@ -233,8 +235,6 @@ namespace testUdpTcp
             }
             else if (receivedMessage.StartsWith("Keyboard"))
             {
-                Console.WriteLine(receivedMessage);
-
                 string[] parts = receivedMessage.Split(new[] { "Keyboard-" }, StringSplitOptions.None);
                 Console.WriteLine(parts[1]);
                 UpdateKeyboard(parts[1]);
@@ -300,37 +300,101 @@ namespace testUdpTcp
             }
             else if (receivedMessage.StartsWith("Key-Exam"))
             {
-                // Parse the signal
-                Console.WriteLine(receivedMessage);
+             
                 string[] parts = receivedMessage.Split(new[] { "Key-Exam" }, StringSplitOptions.RemoveEmptyEntries);
-                    try
+                try
+                {
+                    Test = new Test(parts[0]);
+                    if (!string.IsNullOrEmpty(mssvDoTest) || WaitingFrom != null)
                     {
-                       Test=new Test(parts[0]);
-                       tcpClient.Close();
-                    // MessageBox.Show("Đã nhận đề");
-                    if (!string.IsNullOrEmpty(mssv)||WaitingFrom!=null)
+                        sendData($"Ready-{mssvDoTest}");
                         return;
+                    }
                     if (this.InvokeRequired)
-                        {
-                            this.Invoke(new Action(()=> {
-                                this.Hide();
-                                WaitingFrom=new Waiting(GetMSSV); 
-                                WaitingFrom.Show();
-                            }));
-                        }
-                        else
-                        {
-                          this.Hide();
-                                WaitingFrom=new Waiting(GetMSSV); 
-                                WaitingFrom.Show();
-                        }
-                       
-                    }
-                    catch (Exception ex)
                     {
-                        MessageBox.Show($"Lỗi khi nhận đề: {ex.Message}");
-                        tcpClient.Close();
+                        this.Invoke(new Action(() => {
+                            this.Hide();
+                            WaitingFrom = new Waiting(GetMSSV);
+                            WaitingFrom.Show();
+                        }));
                     }
+                    else
+                    {
+                        this.Hide();
+                        WaitingFrom = new Waiting(GetMSSV);
+                        WaitingFrom.Show();
+                    }
+                    sendData($"Ready-{mssvDoTest}");
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Lỗi khi nhận đề: {ex.Message}");
+                }finally { tcpClient.Close(); }
+
+            } 
+            else if (receivedMessage.StartsWith("TopStudent"))
+            {
+                string[] parts = receivedMessage.Split(new[] { "TopStudent" }, StringSplitOptions.RemoveEmptyEntries);
+                try
+                {
+                    List<string> topString = parts[0].Split(new[] { "sts@" }, StringSplitOptions.RemoveEmptyEntries).ToList();
+
+                    if (topString.Count < 1)
+                    {
+                        topString.Add(null);
+                        topString.Add(null);
+                        topString.Add(null);
+                    }
+
+                    if (this.InvokeRequired)
+                    {
+                        this.Invoke(new Action(() => {
+                          
+                            examFrm?.ShowTop(topString);
+                        }));
+                    }
+                    else
+                    {
+                        examFrm?.ShowTop(topString);
+                    }
+                }
+                catch (Exception ex) { 
+                    Console.WriteLine("Lỗi khi nhận score top: "+ex.Message);
+                }
+                finally { tcpClient.Close(); }
+
+            }
+            else if (receivedMessage.StartsWith("QuestCome")) {
+                string[] parts = receivedMessage.Split(new[] { "QuestCome" }, StringSplitOptions.RemoveEmptyEntries);
+                try
+                {
+                    Quest quest = new Quest(parts[0]);
+                    Test.Quests.Add(quest);
+                    if (string.IsNullOrEmpty(mssvDoTest))
+                    {
+
+                    }
+                    if (examFrm == null)
+                    {
+                        examFrm = new ExamForm(mssvDoTest, Test, sendData, ChangeMSSV);
+                    }
+
+                    if (this.InvokeRequired)
+                    {
+                        this.Invoke(new Action(() => { 
+                            examFrm.NotiQuestCome(quest.Index);
+                        }));
+                    }
+                    else
+                    {
+                        examFrm.NotiQuestCome(quest.Index);
+                    }
+
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Lỗi khi nhận câu hỏi: "+ex.Message);
+                }finally { tcpClient.Close(); }
             }
             else
             {
@@ -358,19 +422,34 @@ namespace testUdpTcp
                         break;
                     case "DoExam": 
                         Console.WriteLine("Làm bài");
-                        examFrm = new ExamForm(mssv,Test, SendAnswer);
-                        examFrm.ShowDialog();
-                        break;
-                    //case "EndTime":
-                    //    if (this.InvokeRequired)
-                    //    {
-                    //        this.Invoke(new Action(CloseExamForm));
-                    //    }
-                    //    else
-                    //    {
-                    //        CloseExamForm();
-                    //    }; break;
+                        if (examFrm==null) {
+                            examFrm = new ExamForm(mssvDoTest,Test, sendData,ChangeMSSV);
+                        }
+                        if (this.InvokeRequired)
+                        {
+                            this.Invoke(new Action(()=>{
+                                examFrm.StartDoExam();
+                            }));
+                        }
+                        else
+                        {
+                            examFrm.StartDoExam();
+                        }
 
+                        break;
+                    case "TestDone":
+                        if (this.InvokeRequired)
+                        {
+                            this.Invoke(new Action(() => {
+                                examFrm?.QuestDone();
+                            }));
+                        }
+                        else
+                        {
+                            examFrm?.QuestDone();
+                        }
+
+                        break;
                 }
                 tcpClient.Close();
 
@@ -635,25 +714,7 @@ namespace testUdpTcp
             }
         }
 
-        private void SendAnswer(StudentAnswer answer, int indexQuest)
-        {
-            answer.StudentID = mssv;
-            string mess =$"answer@indexQuest:{indexQuest}{answer.GetAnswerString()}";
-            Console.WriteLine(mess);
-            sendData(mess);
-        }
-
-        private void CloseExamForm()
-        {
-
-
-            string content = File.ReadAllText(PathExam.Path + "\\" + PathExam.fileResult);
-
-            content = "dapan-" + mssv + "dapan-" + content;
-
-            sendData(content);
-          
-        }
+        
 
         private void LockWeb()
         {
@@ -1039,8 +1100,6 @@ namespace testUdpTcp
 
         }
 
-        
-
         private string CaptureAndConvertScreenshot()
         {
             // Lấy tên máy tính
@@ -1098,33 +1157,6 @@ namespace testUdpTcp
                 listener.Stop();
         }
 
-
-        private List<Question> convertType(Quiz quiz)
-        {
-            List<Question> questions = new List<Question>();
-            foreach (var question in quiz.Questions)
-            {
-                if (question.Type == QuestionType.singleQuestion)
-                {
-                    singleQuestion multiQuestion = new singleQuestion();
-                    multiQuestion.id = question.id;
-                    multiQuestion.Type = question.Type;
-                    multiQuestion.QuestionText = question.QuestionText;
-                    multiQuestion.answer = question.answer;
-                    multiQuestion.options = question.options;
-                    questions.Add(multiQuestion);
-                }
-                else if (question.Type == QuestionType.commonQuestion)
-                {
-                    CommonQuestion multiQuestion = new CommonQuestion();
-                    multiQuestion.Type = question.Type;
-                    multiQuestion.QuestionText = question.QuestionText;
-                    multiQuestion.questions = question.questions;
-                    questions.Add(multiQuestion);
-                }
-            }
-            return questions;
-        }
         private void SimulateLeftClick()
         {
             var cursorPosition = Cursor.Position;

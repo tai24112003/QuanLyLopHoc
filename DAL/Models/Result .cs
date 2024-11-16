@@ -49,7 +49,7 @@ namespace DAL.Models
         }
         public string GetResultString() {
             string rs = "";
-            rs += $"result@rs-resultIdrs:{Id}rs-contentrs:{Content}rs-isrs:{IsCorrect}";
+            rs += $"rs-resultIdrs:{Id}rs-contentrs:{Content}rs-isrs:{IsCorrect}";
 
             return rs;
         }

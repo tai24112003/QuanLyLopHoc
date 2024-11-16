@@ -6,28 +6,34 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace Server
 {
     public partial class SvExamForm : Form
     {
-        private int IndexQuestionSelected = 0;
-        private int IndexTestSelected = 0;
-        private int IndexTestSended = -1;
-        private List<Test> Tests;
-        private Action<int> SendTest;
-        private Action DoTest;
-
+        private int IndexQuestionSelected { get; set; }
+        private int IndexTestSelected { get; set; }
+        private int IndexTestSended { get; set; }
+        private List<Test> Tests { get; set; }
+        private Action<string, string, int> SendTest { get; set; }
+        private List<int> DidExams { get; set; }
+        private List<string> Students { get; set; }
+        private TrackExam TrackExamForm {  get; set; }
         private bool IsOpen = true;
         private bool IsEdit = false;
 
-        public SvExamForm(List<Test> tests, Action<int> sendTest, Action doTest)
+        public SvExamForm(List<Test> tests, Action<string, string, int> sendTest, List<string> students, List<int> didExam)
         {
             InitializeComponent();
             Tests = tests;
             SendTest = sendTest;
-            DoTest = doTest;
+            IndexQuestionSelected = 0;
+            IndexTestSelected = 0;
+            IndexTestSended = -1;
+            DidExams = didExam;
+            Students = students;
 
             this.FormBorderStyle = FormBorderStyle.FixedSingle;
             this.MaximizeBox = false;
@@ -43,27 +49,67 @@ namespace Server
 
             if (Tests.Count < 1)
             {
-                AddTemplateNewQuestion();
+                Tests.Add(new Test());
             }
-            else ChangeTest();
 
             Init();
+            ChangeTest();
+
             IsOpen = false;
         }
         private void Init()
         {
-            txt_test_title.Text = Tests.First().Title;
-            txt_max_point.Text = Tests.First().MaxPoint.ToString();
+            txt_testTitle.Text = Tests.First().Title;
+            txt_maxPoint.Text = Tests.First().MaxPoint.ToString();
 
-            cbb_quest_type.DataSource = new List<QuestType> {QuestType.SingleSeclect, QuestType.MultipleSelect, QuestType.TrueFalse };
-            cbb_quest_type.DisplayMember ="Name";
+            List<QuestType> questTypeDefault = new List<QuestType> { QuestType.SingleSeclect, QuestType.MultipleSelect, QuestType.TrueFalse };
+            List<int> doTimeDefault = new List<int> { 20, 30, 40, 50, 60, 90, 120, 150, 180 };
 
-            cbb_quest_time.DataSource = new List<int> { 20, 30, 40, 50, 60, 90, 120,150, 180 };
-            cbb_quest_time.Format += (s, e) => e.Value = $"{e.Value} giây";
+            cbb_questType.DataSource = new List<QuestType>(questTypeDefault);
+            cbb_questType.DisplayMember = "Name";
 
-            ChangeQuestInTest();
+            cbb_questTypeFilter.DataSource = new List<QuestType> { new QuestType("Tất cả") }.Concat(questTypeDefault).ToList();
+            cbb_questTypeFilter.DisplayMember = "Name";
+
+            cbb_questType_exam.DataSource = new List<QuestType>(questTypeDefault);
+            cbb_questType_exam.DisplayMember = "Name";
+            cbb_questType_exam.SelectedIndex = -1;
+
+            cbb_doQuestTime.DataSource = new List<int>(doTimeDefault);
+            cbb_doQuestTime.Format += (s, e) => e.Value = $"{e.Value} giây";
+
+            cbb_doQuestTime_exam.DataSource = new List<int>(doTimeDefault);
+            cbb_doQuestTime_exam.SelectedIndex = -1;
+
+            cbb_restEachTime_exam.DataSource = new List<int> { 3, 4, 5, 6 };
+            cbb_restEachTime_exam.Format += (s, e) => e.Value = $"{e.Value} giây";
+            cbb_restEachTime_exam.SelectedIndex = -1;
         }
+        public void NotiHaveNewAnswer(int index){
+                this.TrackExamForm?.RenderAnswer(index);
+        }
+        private void ChangeStateExam()
+        {
+            Test temp = Tests[IndexTestSelected];
+            txt_testTitle.Text = temp.Title;
+            txt_maxPoint.Text = temp.MaxPoint.ToString();
+            lbl_time_remaining.Text = $"Thời gian: {temp.GetTimeOfTest()}s";
 
+            
+            lbl_state_exam.Text = Tests[IndexTestSelected].IsExamining ? $"Trạng thái: Đang thi" : "";
+
+            btn_trackTheExam.Visible = temp.IsExamining;
+            if (DidExams.Contains(temp.Index))
+            {
+                btn_trackTheExam.Visible = true;
+                btn_trackTheExam.Text = "Xem thông kê";
+            }
+            else
+            {
+                btn_trackTheExam.Text = "Theo dõi bài kiểm tra";
+            }
+
+        }
         private void ImportExcel(string filePath)
         {
             try {
@@ -227,35 +273,19 @@ namespace Server
                 MessageBox.Show($"Lỗi xuất file excel: {ex}");
             }
         }
-        private void AddTemplateNewQuestion()
-        {
-            Tests.Add(new Test());
-
-            foreach (Test test in Tests)
-            {
-                ThumbnailTest newTest = new ThumbnailTest(test, true, SelectTest, DeleteTest);
-                pnl_test_list.Controls.Add(newTest);
-            }
-
-            foreach (Quest quest in Tests[IndexTestSelected].Quests) {
-                ThumbnailQuestion newQuestion = new ThumbnailQuestion(DeleteQues, DuplicateQues, SelectQuest, quest, true);
-                this.pnl_slide_question.Controls.Add(newQuestion);
-            }
-
-             // Thêm điều khiển vào FlowLayoutPanel
-            lbl_num_of_quest.Text = this.pnl_slide_question.Controls.Count.ToString();
-            UpdatePaneQuestListlHeight();
-        }
-
         private void ChangeQuestInTest()
         {
-            Quest temp = Tests[IndexTestSelected].Quests[IndexQuestionSelected];
             pnl_body.Controls.Clear();
+            if (IndexQuestionSelected < 0)
+            {
+                MessageBox.Show("Chưa có câu hỏi cho loại này");
+                return;
+            }
+            Quest temp = (this.pnl_slide_question.Controls[IndexQuestionSelected] as ThumbnailQuestion).Quest;
             pnl_body.Controls.Add(new QuestionInfo(temp));
-            cbb_quest_type.SelectedItem = temp.Type;
-            cbb_quest_time.SelectedItem = temp.CountDownTime;
+            cbb_questType.SelectedItem = temp.Type;
+            cbb_doQuestTime.SelectedItem = temp.CountDownTime;
         }
-
         private void ChangeTest()
         {
             
@@ -269,18 +299,11 @@ namespace Server
             }
             pnl_slide_question.Controls.Clear();
 
-            Test temp=Tests[IndexTestSelected];
-            txt_test_title.Text = temp.Title;
-            txt_max_point.Text = temp.MaxPoint.ToString();
+            
+            ChangeStateExam();
 
-            IndexQuestionSelected = 0;
-            for (int i = 0; i < temp.Quests.Count; i++)
-            {
-                bool isFirstQuest = (i == 0);
-                pnl_slide_question.Controls.Add(new ThumbnailQuestion(DeleteQues, DuplicateQues, SelectQuest, temp.Quests[i], isFirstQuest));
-            }
-            UpdatePaneQuestListlHeight();
-            ChangeQuestInTest();
+            
+            FilterQuestByType(cbb_questTypeFilter.SelectedItem as QuestType);
         }
      
         //action delegate
@@ -310,9 +333,11 @@ namespace Server
 
             if (index == IndexQuestionSelected)
             {
-                IndexQuestionSelected = countQuest - 2;
-
-                (pnl_slide_question.Controls[IndexQuestionSelected] as ThumbnailQuestion).ChangeSelectState();
+                IndexQuestionSelected = pnl_slide_question.Controls.Count - 2;
+                if (IndexQuestionSelected > 0)
+                {
+                    (pnl_slide_question.Controls[IndexQuestionSelected] as ThumbnailQuestion).ChangeSelectState();
+                }
                 ChangeQuestInTest();
             }
             else if (index < IndexQuestionSelected)
@@ -329,7 +354,6 @@ namespace Server
 
             item.Dispose();
         }
-
         private void DuplicateQues(ThumbnailQuestion item)
         {
           int index=  pnl_slide_question.Controls.IndexOf(item);
@@ -337,12 +361,11 @@ namespace Server
             if (index != -1) // Kiểm tra xem item có trong panel hay không
             {
                 // Tạo một câu hỏi mới dựa trên câu hỏi hiện tại
-                ThumbnailQuestion duplicatedQuestion = new ThumbnailQuestion(DeleteQues, DuplicateQues, SelectQuest,new Quest(item.Quest), true);
+                ThumbnailQuestion duplicatedQuestion = new ThumbnailQuestion(DeleteQues, DuplicateQues, SelectQuest,new Quest(item.Quest, Tests[IndexTestSelected].Quests.Count), true);
                 Tests[IndexTestSelected].Quests.Add(duplicatedQuestion.Quest);
 
                 (pnl_slide_question.Controls[IndexQuestionSelected] as ThumbnailQuestion).ChangeSelectState();
-                IndexQuestionSelected= duplicatedQuestion.Quest.Index;
-                ChangeQuestInTest();
+                IndexQuestionSelected=index+1;
 
 
                 // Thêm câu hỏi mới vào ngay sau vị trí của item
@@ -350,6 +373,7 @@ namespace Server
 
                 // Di chuyển câu hỏi mới vào vị trí tiếp theo sau item
                 pnl_slide_question.Controls.SetChildIndex(duplicatedQuestion, index + 1);
+                ChangeQuestInTest();
 
                 lbl_num_of_quest.Text = pnl_slide_question.Controls.Count.ToString();
 
@@ -359,7 +383,6 @@ namespace Server
             }
 
         }
-
         private void SelectQuest(ThumbnailQuestion item)
         {
             int index= pnl_slide_question.Controls.IndexOf(item);
@@ -371,7 +394,6 @@ namespace Server
                 ChangeQuestInTest();
             }
         }
-
         private void SelectTest(ThumbnailTest item)
         {
             int index = pnl_test_list.Controls.IndexOf(item);
@@ -384,7 +406,6 @@ namespace Server
             }
 
         }
-
         private void DeleteTest(ThumbnailTest item)
         {
             DialogResult confirmResult = MessageBox.Show(
@@ -422,15 +443,41 @@ namespace Server
             item.Dispose();
         }
 
+        private async void SendQuest()
+        {
+            await Task.Delay(5200);
+
+            Test doingTest =Tests[IndexTestSended];
+            foreach (Quest item in doingTest.Quests)
+            {
+                SendTest(item.GetQuestString(),"QuestCome",-1);
+                doingTest.Progress++;
+                await Task.Delay(item.CountDownTime * 1000+200);
+
+                List<StudentScore> top3 = doingTest.ScoringForClass(Students,3);
+                string mess = "";
+                int index = 1;
+                foreach (StudentScore top in top3)
+                {
+                    mess += $"sts@{top.GetTopString(index)}";
+                    index++;
+                }
+                SendTest(mess, "TopStudent", -1);
+                await Task.Delay(doingTest.RestTimeBetweenQuests * 1000+200); //thêm 0.5s
+            }
+            SendTest("", "TestDone", -1);
+            doingTest.IsExamining = false;
+        }
+
         //update ui
         //
         private void UpdatePaneQuestListlHeight()
         {
             // Cập nhật chiều cao của panel nếu cần thiết
             int newHeight = pnl_slide_question.Controls.Count * 105 + 10; // 105 là chiều cao trung bình của ThumbnailQuestion
-            newHeight = Math.Min(newHeight, 580); // Giới hạn chiều cao tối đa là 580
+            newHeight = Math.Min(newHeight, 490); // Giới hạn chiều cao tối đa là 580
             this.pnl_slide_question.Height = newHeight;
-            if (newHeight >= 580)
+            if (newHeight >= 490)
             {
                 pnl_slide_question.VerticalScroll.Value = pnl_slide_question.VerticalScroll.Maximum;
                 pnl_slide_question.PerformLayout(); // Cập nhật bố cục sau khi cuộn
@@ -446,8 +493,13 @@ namespace Server
         {
             int index = 0;
             foreach (ThumbnailQuestion item in this.pnl_slide_question.Controls)
-            {   
-                if(index < startIndex)
+            {
+                if (!item.Visible)
+                {
+                    continue;
+                }
+
+                if (index < startIndex)
                 {
                     index++;
                     continue;
@@ -456,19 +508,57 @@ namespace Server
                 index++;
             }
         }
+        private void FilterQuestByType(QuestType type)
+        {
+            pnl_slide_question.Controls.Clear();
+            bool isEmpty = true;
+            foreach (Quest quest in Tests[IndexTestSelected].Quests )
+            {
+                if (quest.Type == type||type.Name=="Tất cả")
+                {
+                    pnl_slide_question.Controls.Add(new ThumbnailQuestion(DeleteQues, DuplicateQues, SelectQuest,quest,false));
+                    isEmpty = false;
+                }
+            }
+            IndexQuestionSelected =isEmpty?-1: 0;
+
+            if (pnl_slide_question.Controls.Count > 0){
+                (pnl_slide_question.Controls[IndexQuestionSelected] as ThumbnailQuestion).ChangeSelectState();
+            }
+            lbl_num_of_quest.Text = this.pnl_slide_question.Controls.Count.ToString();
+            SetNumQues(0);
+            UpdatePaneQuestListlHeight();
+            ChangeQuestInTest();
+        }
+
         //action on form
         private void add_question_btn_Click(object sender, EventArgs e)
         {
             int numBefore = Tests[IndexTestSelected].Quests.Count;
-            Tests[IndexTestSelected].Quests.Add(new Quest(numBefore));
-            ThumbnailQuestion thumbnailQuestion = new ThumbnailQuestion(DeleteQues, DuplicateQues, SelectQuest, Tests[IndexTestSelected].Quests.Last(), true);
+            int indexShowCurrent = pnl_slide_question.Controls.Count;
+            if((cbb_questTypeFilter.SelectedItem as QuestType).Name == "Tất cả")
+            {
+                Tests[IndexTestSelected].Quests.Add(new Quest(numBefore));
+            }
+            else
+            {
+                Quest newQ = new Quest(numBefore)
+                {
+                    Type = (cbb_questTypeFilter.SelectedItem as QuestType)
+                };
+                Tests[IndexTestSelected].Quests.Add(newQ);
+            }
+            ThumbnailQuestion thumbnailQuestion = new ThumbnailQuestion(DeleteQues, DuplicateQues, SelectQuest, Tests[IndexTestSelected].Quests.Last(), true, indexShowCurrent);
 
-            (pnl_slide_question.Controls[IndexQuestionSelected] as ThumbnailQuestion).ChangeSelectState();
-            IndexQuestionSelected = thumbnailQuestion.Quest.Index;
+            if (pnl_slide_question.Controls.Count > 0)
+            {
+                (pnl_slide_question.Controls[IndexQuestionSelected] as ThumbnailQuestion).ChangeSelectState();
+            }
+            this.pnl_slide_question.Controls.Add(thumbnailQuestion); // Thêm điều khiển vào FlowLayoutPanel
+            IndexQuestionSelected =pnl_slide_question.Controls.IndexOf( thumbnailQuestion);
             ChangeQuestInTest();
 
 
-            this.pnl_slide_question.Controls.Add(thumbnailQuestion); // Thêm điều khiển vào FlowLayoutPanel
             lbl_num_of_quest.Text = this.pnl_slide_question.Controls.Count.ToString();
             UpdatePaneQuestListlHeight();
         }
@@ -487,38 +577,35 @@ namespace Server
             
             ChangeTest();
         }
-
         private void btn_del_ques_Click(object sender, EventArgs e)
         {
             ThumbnailQuestion temp=this.pnl_slide_question.Controls[IndexQuestionSelected] as ThumbnailQuestion;
             DeleteQues(temp);
         }
-
         private void btn_save_Click(object sender, EventArgs e)
         {
             Test tempTest = Tests[IndexTestSelected];
-            tempTest.Title=txt_test_title.Text.Trim();
-            tempTest.MaxPoint =int.TryParse(txt_max_point.Text.Trim(), out int value)?value:0;
+            tempTest.Title=txt_testTitle.Text.Trim();
+            tempTest.MaxPoint =int.TryParse(txt_maxPoint.Text.Trim(), out int value)?value:0;
 
-            txt_max_point.Text = tempTest.MaxPoint.ToString();
+            txt_maxPoint.Text = tempTest.MaxPoint.ToString();
 
-
-            Quest temp = Tests[IndexTestSelected].Quests[IndexQuestionSelected];
-            temp.CountDownTime = Convert.ToInt32(cbb_quest_time.SelectedValue);
-            temp.Type=cbb_quest_type.SelectedValue as QuestType;
-            (pnl_body.Controls[0] as QuestionInfo).GetNewQuestContent();
-            (this.pnl_slide_question.Controls[IndexQuestionSelected] as ThumbnailQuestion).UpdateUI();
-            (this.pnl_test_list.Controls[IndexTestSelected] as ThumbnailTest).UpdateUI();
-
+            Quest temp;
+            if (IndexQuestionSelected > -1)
+            {
+                temp = Tests[IndexTestSelected].Quests[IndexQuestionSelected];
+                temp.CountDownTime = Convert.ToInt32(cbb_doQuestTime.SelectedValue);
+                temp.Type = cbb_questType.SelectedValue as QuestType;
+                (pnl_body.Controls[0] as QuestionInfo).GetNewQuestContent();
+                (this.pnl_slide_question.Controls[IndexQuestionSelected] as ThumbnailQuestion).UpdateUI();
+                if (temp.GetResultsCorrect().Count < 1)
+                {
+                    MessageBox.Show("Câu hỏi chưa xác định đáp án đúng!", "Thông báo");
+                }
+            }
 
             MessageBox.Show("Lưu thành công", "Thông báo");
-
-            if (temp.GetResultsCorrect().Count < 1)
-            {
-                MessageBox.Show("Câu hỏi chưa xác định đáp án đúng!", "Thông báo");
-            }
         }
-
         private void btn_import_Click(object sender, EventArgs e)
         {
             OpenFileDialog openFileDialog = new OpenFileDialog
@@ -550,13 +637,11 @@ namespace Server
                 }
             }
         }
-        private void btn_start_test_Click(object sender, EventArgs e)
+        private void btn_sendExam_Click(object sender, EventArgs e)
         {
-            SendTest?.Invoke(IndexTestSelected);
+            SendTest(Tests[IndexTestSelected].GetTestStringOutOfQuest(),"Key-Exam",IndexTestSelected);
             IndexTestSended = IndexTestSelected;
-
         }
-
         private void btn_doExam_Click(object sender, EventArgs e)
         {
             if (IndexTestSended == -1)
@@ -565,22 +650,118 @@ namespace Server
                 return;
             }
             Test testReady = Tests[IndexTestSended];
-            if (testReady.NumStudentsReady == 0)
-            {
-                MessageBox.Show("Chưa có sinh viên nào sẵn sàng");
-                return;
-            }
-            DialogResult result=MessageBox.Show($"Bắt đầu thi?","Thông tin",MessageBoxButtons.OKCancel);
+            
+            DialogResult result=MessageBox.Show($"Bắt đầu thi đề: {testReady.Title}?","Xác nhận",MessageBoxButtons.OKCancel);
             if (result == DialogResult.Cancel) return;
+            
+            testReady.IsExamining = true;
+            ChangeStateExam();
+            SendTest("","DoExam",-1);
 
-            this.DoTest?.Invoke();
+            SendQuest();
         }
-
         private void cbb_quest_type_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (IsOpen&&!IsEdit)
+            if (IsOpen||!IsEdit||IndexQuestionSelected<0)
                 return;
-            MessageBox.Show("Change type");
+            IsEdit = false;
+            ThumbnailQuestion item= pnl_slide_question.Controls[IndexQuestionSelected] as ThumbnailQuestion;
+            QuestType newType = cbb_questType.SelectedItem as QuestType;
+            if (item.Quest.Type == newType)
+            {
+                return;
+            }
+            item.Quest.Type = newType;
+            if (item.Quest.Type== QuestType.SingleSeclect)
+            {
+                item.Quest.DropCorrectResult();
+                ChangeQuestInTest();
+            }
+            item.UpdateUI();
+            MessageBox.Show("Đổi loại câu hỏi thành công");
+        }
+        private void cbb_quest_type_filter_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            FilterQuestByType(cbb_questTypeFilter.SelectedItem as QuestType);
+        }
+        private void cbb_quest_type_DropDown(object sender, EventArgs e)
+        {
+            IsEdit = true;
+        }
+        private void cbb_quest_time_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (IsOpen || !IsEdit|| IndexQuestionSelected < 0)
+                return;
+            IsEdit = false;
+
+            ThumbnailQuestion item = pnl_slide_question.Controls[IndexQuestionSelected] as ThumbnailQuestion;
+            int newValue = int.TryParse(cbb_doQuestTime.SelectedItem.ToString(), out int value) ? value : 0;
+
+            if (item.Quest.CountDownTime == newValue||value==0)
+            {
+                return;
+            }
+            item.Quest.CountDownTime = newValue;
+            item.UpdateUI();
+            lbl_time_remaining.Text = $"Thời gian: {Tests[IndexTestSelected].GetTimeOfTest()}s";
+            MessageBox.Show("Đổi thời gian làm cho câu hỏi thành công");
+        }
+        private void btn_refesh_filter_Click(object sender, EventArgs e)
+        {
+            FilterQuestByType(cbb_questTypeFilter.SelectedItem as QuestType);
+        }
+        private void pnl_body_ControlChanged(object sender, ControlEventArgs e)
+        {
+            bool isShow = pnl_body.Controls.Count > 0;
+            btn_del_ques.Enabled = isShow;
+        }
+        private void btn_confirmSetExam_Click(object sender, EventArgs e)
+        {
+            if (cbb_doQuestTime_exam.SelectedIndex == -1 && cbb_questType_exam.SelectedIndex == -1 && cbb_restEachTime_exam.SelectedIndex == -1)
+            {
+                return;
+            }
+            DialogResult dialogResult = MessageBox.Show("Bạn có chắc áp dụng cài đặt trên cho toàn bộ câu hỏi?","Cảnh báo",MessageBoxButtons.OKCancel,MessageBoxIcon.Warning);
+            if (dialogResult == DialogResult.Cancel) {
+                return;
+            }
+
+            QuestType newType = new QuestType("default");
+
+            int newDoTime = 0;
+            int newRestTime = 0;
+
+            if (cbb_questType_exam.SelectedItem != null)
+            {
+                newType=cbb_questType_exam.SelectedItem as QuestType;
+            }
+
+            if (cbb_doQuestTime_exam.SelectedItem != null)
+            {
+                newDoTime = int.Parse(cbb_doQuestTime_exam.SelectedItem.ToString());
+            }
+
+            if (cbb_restEachTime_exam.SelectedItem != null)
+            {
+                newRestTime = int.Parse(cbb_restEachTime_exam.SelectedItem.ToString());
+            }
+
+            Tests[IndexTestSelected].RestTimeBetweenQuests=newRestTime!=0 ? newRestTime : Tests[IndexTestSelected].RestTimeBetweenQuests;
+            foreach (Quest item in Tests[IndexTestSelected].Quests)
+            {
+                item.CountDownTime = newDoTime!=0?newDoTime:item.CountDownTime;
+                item.Type = newType.Name!="default"?newType:item.Type;
+            }
+            cbb_questType_exam.SelectedIndex = -1;
+            cbb_restEachTime_exam.SelectedIndex= -1;
+            cbb_doQuestTime_exam.SelectedIndex = -1;
+            MessageBox.Show("Thay đổi thành công");
+            ChangeTest();
+        }
+        private void btn_trackTheExam_Click(object sender, EventArgs e)
+        {
+          TrackExamForm=  new TrackExam(Tests[IndexTestSelected]);
+          TrackExamForm.ShowDialog();
         }
     }
 }

@@ -15,14 +15,16 @@ namespace testUdpTcp
     {
         private Result Result { get; set; }
         private bool IsSelect {  get; set; }
+        private string Title { get; set; }
         private readonly  Func<Result, bool> SelectAnswer;
-        public ResultOptionUC(Result result, Func<Result, bool> selectAnswer)
+        public ResultOptionUC(Result result, Func<Result, bool> selectAnswer, string title)
         {
             InitializeComponent();
 
             SelectAnswer = selectAnswer;
             this.Result = result;
-            lbl_result.Text = result.Content;
+            Title = title;
+            lbl_result.Text =this.Title+". "+ result.Content;
             IsSelect=false;
 
             ConfigureLabel();

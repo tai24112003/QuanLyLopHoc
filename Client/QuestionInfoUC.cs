@@ -17,24 +17,19 @@ namespace testUdpTcp
         private Quest Quest { get; set; }
         private Timer CountdownTimer { get; set; }
         private int Counter { get; set; }
-        private int ReadyTimeToNextQuest { get; set; }
         private StudentAnswer StudentAnswer { get; set; }
-        private readonly Action ShowNextQuest;
-        private readonly Action<StudentAnswer, int> SendAnswer;
+        private Action<StudentAnswer, int> SendAnswer { get; set; }
         private bool IsAnswer {  get; set; }
-
-        public QuestionInfoUC(Quest quest, Action showNextQuest, Action<StudentAnswer, int> sendAnswer)
+        public QuestionInfoUC(Quest quest, Action<StudentAnswer, int> sendAnswer)
         {
             InitializeComponent();
 
             Quest = quest;
-            ShowNextQuest = showNextQuest;
             SendAnswer = sendAnswer;
-            ReadyTimeToNextQuest = 2;
             StudentAnswer=new StudentAnswer();
             IsAnswer = false;
 
-            Counter = Quest.CountDownTime + ReadyTimeToNextQuest;
+            Counter = Quest.CountDownTime;
             CountdownTimer = new Timer
             {
                 Interval = 1000
@@ -58,7 +53,7 @@ namespace testUdpTcp
             lbl_question.Location = new Point(0, 0);
             lbl_question.Text = Quest.Content;
 
-            lbl_countdown.Text = $"Thời gian: {Counter - ReadyTimeToNextQuest} s";
+            lbl_countdown.Text = $"Thời gian: {Counter} s";
             lbl_countdown.Location = new Point((int)(screenW * 0.03), (int)(screenH * 0.05));
 
             lbl_questtype_info.Text =Quest.Type.Name;
@@ -71,11 +66,14 @@ namespace testUdpTcp
             btn_confirm.Location = new Point((int)(screenW*0.92), (int)(screenH*0.7));
 
             Shuffle(Quest.Results);
+            List<string> titleRs = new List<string> {"A","B","C","D","E","F" };
+            int index = 0;
             foreach (var item in Quest.Results)
             {
-                ResultOptionUC newRs = new ResultOptionUC(item, StudentSelectTheRs);
+                ResultOptionUC newRs = new ResultOptionUC(item, StudentSelectTheRs, titleRs[index]);
                 newRs.ChangeSize(pnl_answers.Width, pnl_answers.Height);
                 pnl_answers.Controls.Add(newRs);
+                index++;
             }
         }
 
@@ -120,22 +118,13 @@ namespace testUdpTcp
             if (Counter > 0)
             {
                 Counter--;
-                if (Counter>ReadyTimeToNextQuest)
-                {
-                    lbl_countdown.Text = $"Thời gian: {Counter - ReadyTimeToNextQuest}s";
-                }
-                else
-                {
-                    this.Controls.Clear();
-                    this.Controls.Add(lbl_countdown);
-                    lbl_countdown.Text = $"Câu hỏi tiếp theo: {Counter}s";
-                }
+                lbl_countdown.Text = $"Thời gian: {Counter}s";
             }
             else
             {
                 CountdownTimer.Stop();
                 lbl_countdown.Text = "Time's up!";
-                ShowNextQuest?.Invoke();
+                this.Dispose();
             }
         }
 
@@ -159,7 +148,7 @@ namespace testUdpTcp
             {
                 return;
             }
-            int timeDo = Quest.CountDownTime - Counter - ReadyTimeToNextQuest;
+            int timeDo = Quest.CountDownTime - Counter;
             StudentAnswer.TimeDoQuest = timeDo;
 
             foreach (Control item in pnl_answers.Controls)

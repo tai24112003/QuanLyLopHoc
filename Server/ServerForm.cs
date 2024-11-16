@@ -30,7 +30,7 @@ namespace Server
     {
         private bool isFullInfoMode = false;
         private WinFormsTimer timer;
-        private string Ip= "192.168.129.175";
+        private string Ip= "172.20.10.4";
         private TcpListener tcpListener;
         private Thread listenThread;
         private Thread screenshotThread;
@@ -61,14 +61,20 @@ namespace Server
         ContextMenuStrip contextMenuStrip1;
         SlideShowForm form1;
 
-        private List<Test> Tests;
-        private int IndexTestReady=-1;
+        SvExamForm ExamForm {  get; set; }
+        private List<Test> Tests {get; set; }
+        private int IndexTestReady {  get; set; }
+        private List<string> StudentsAreReady {get;set;}
+        private List<int> DidExamId {get; set;}
 
         private Dictionary<string, List<List<string>>> groups = new Dictionary<string, List<List<string>>>();
         public svForm()
         {
             InitializeComponent();
             Tests = new List<Test>();
+            IndexTestReady = -1;
+            StudentsAreReady = new List<string>();
+            DidExamId = new List<int>();
         }
         public void Initialize(int userID, string roomID, int classID, RoomBLL roomBLL, int sessionID, SessionComputerBLL sessionComputer, ClassSessionBLL classSession, ClassStudentBLL classStudentBLL, AttendanceBLL attendanceBLL, ComputerBLL computerBLL, StudentBLL studentBLL, IServiceProvider serviceProvider)
         {
@@ -391,7 +397,7 @@ namespace Server
             Console.WriteLine(broadcastAddress);
 
            // SendUDPMessage(broadcastAddress, 11312, Ip);
-            SendUDPMessage(IPAddress.Parse("192.168.129.65"), 11312, Ip);
+            SendUDPMessage(IPAddress.Parse("172.20.10.2"), 11312, Ip);
 
         }
         private void SendUDPMessage(IPAddress ipAddress, int port, String mes)
@@ -420,7 +426,7 @@ namespace Server
         }
         private void ListenForClients()
         {
-           // tcpListener.Start();
+            tcpListener.Start();
 
             Console.WriteLine("Server is listening for clients...");
 
@@ -455,28 +461,27 @@ namespace Server
 
             string[] tmp = receivedMessage.Split(new char[] { '-' }, 2);
             Console.WriteLine(receivedMessage);
-            if (receivedMessage.StartsWith("ms-sv"))
-            {
-                Console.WriteLine(receivedMessage);
-                string[] parts = receivedMessage.Split(new[] { "ms-sv" }, StringSplitOptions.None);
-                if (parts.Length >= 3)
-                {
-                    CheckAndCreateDirectoryAndFile("D:/" + parts[1]);//Tạo folder riêng cho sinh viên
 
-                    File.WriteAllText("D:/" + parts[1] + "/" + parts[1] + "-exam.json", parts[2]);
-                }
-            }else if (tmp[0] == "Ready")
+            if (receivedMessage.StartsWith("Ready-"))
             {
-                Tests[IndexTestReady].NumStudentsReady += 1;
+                string[] parts= receivedMessage.Split('-');
+                if (!StudentsAreReady.Contains(parts[1]))
+                    StudentsAreReady.Add(parts[1]);
             }
-
+            else if (receivedMessage.StartsWith("ReadyAgain"))
+            {
+                string[] parts = receivedMessage.Split('-');
+                StudentsAreReady.Remove(parts[1]);
+                if (!StudentsAreReady.Contains(parts[2]))
+                    StudentsAreReady.Add(parts[2]);
+            }
             else if (receivedMessage.StartsWith("answer@"))
             {
-                Console.WriteLine(receivedMessage);
                 string[] parts = receivedMessage.Split(new[] { "answer@" }, StringSplitOptions.RemoveEmptyEntries);
-                    try {
+                try
+                {
                     StudentAnswer newAnswer = new StudentAnswer();
-                    int indexQuest=-1;
+                    int indexQuest =-1;
 
                     string[] answer = parts[0].Split('-');
                     foreach (string item in answer)
@@ -488,7 +493,7 @@ namespace Server
                         switch (key)
                         {
                             case "indexQuest":
-                                indexQuest = int.TryParse(value, out int typeInt)?typeInt:0;
+                                indexQuest = int.TryParse(value, out int indexQuestO)?indexQuestO:0;
                                 break;
 
                             case "studentId":
@@ -496,11 +501,11 @@ namespace Server
                                 break;
 
                             case "timeDoQuest":
-                                newAnswer.TimeDoQuest= int.TryParse(value, out int typeInt1) ? typeInt1 : 0;
+                                newAnswer.TimeDoQuest= int.TryParse(value, out int timeDoQuestO) ? timeDoQuestO : 0;
                                 break;
 
                             case "selectResultsId":
-                                newAnswer.SelectResultsId=value.Split(',').Select(x=> int.TryParse(x, out int typeInt2) ? typeInt2 : 0).ToList();
+                                newAnswer.SelectResultsId=value.Split(',').Select(x=> int.TryParse(x, out int rsIdO) ? rsIdO : 0).ToList();
                                 break;
                         }                    }
                     if (indexQuest == -1)
@@ -509,12 +514,13 @@ namespace Server
                         return;
                     }
                     Tests[IndexTestReady].Quests[indexQuest].StudentAnswers.Add(newAnswer);
-                    MessageBox.Show($"Nhận câu trả lời thành công");
-                    }
-                    catch (Exception ex)
-                    {
-                        MessageBox.Show($"xử lý câu trả lời thất bại: {ex}");
-                    }
+                    //MessageBox.Show($"Nhận câu trả lời thành công");
+                    ExamForm?.NotiHaveNewAnswer(indexQuest);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"xử lý câu trả lời thất bại: {ex}");
+                }
             }
             else if (tmp[0] == "InfoClient")
             {
@@ -1108,8 +1114,6 @@ namespace Server
             }
         }
 
-
-
         private void AddOrUpdateRowToDataGridView(List<string> entry)
         {
             if (dgv_client.InvokeRequired)
@@ -1259,7 +1263,6 @@ namespace Server
 
             dgv_client.Refresh();
         }
-
 
         private void StopSlideShow_Click(object sender, EventArgs e)
         {
@@ -2016,8 +2019,8 @@ namespace Server
 
         private void tsCreateExam_Click(object sender, EventArgs e)
         {
-            SvExamForm examForm = new SvExamForm(Tests, SendTest,DoTest);
-            examForm.ShowDialog();
+            ExamForm = new SvExamForm(Tests, SendTest, StudentsAreReady, DidExamId);
+            ExamForm.ShowDialog();
         }
 
         private void toolStripButton5_Click(object sender, EventArgs e)
@@ -2044,13 +2047,18 @@ namespace Server
             }
         }
 
-        private void SendTest(int indexTest)
+        private void SendTest(string content, string key, int indexTest=-1)
         {
-            // Đặt lại trạng thái bài thi đã sẵn sàng
-            if (IndexTestReady != -1)
-                Tests[IndexTestReady].ResetCountReady();
+            IndexTestReady = indexTest!=-1?indexTest:IndexTestReady;
+            if (key == "DoExam")
+            {
+                if (StudentsAreReady.Count < 0)
+                {
+                    MessageBox.Show("Chưa có sinh viên nào sẵn sàng!");
+                    return ;
+                }
+            }
 
-            IndexTestReady = indexTest;
             List<Thread> clientThreads = new List<Thread>();
 
             // Tạo luồng để gửi dữ liệu đến từng client
@@ -2076,15 +2084,13 @@ namespace Server
                                 stream = client.GetStream();
 
                                 // Chuẩn bị dữ liệu để gửi
-                                string content = Tests[indexTest]?.GetTestString() ?? "";
+                              //  string content = Tests[indexTest]?.GetTestString() ?? "";
 
-                                if (string.IsNullOrEmpty(content))
-                                {
-                                    MessageBox.Show("Lỗi khi gửi đề");
-                                    return;
-                                }
+                               
 
-                                content = "Key-Exam" + content;
+                                //content = "Key-Exam" + content;
+                                content = key + content;
+
                                 byte[] signalBytes = Encoding.UTF8.GetBytes(content);
                                 int bufferSize = client.SendBufferSize;
                                 int bytesSent = 0;
@@ -2128,71 +2134,9 @@ namespace Server
             {
                 t.Join();
             }
-            MessageBox.Show($"Đề {Tests[indexTest]?.Title} được phát thành công đến tất cả client.");
-        }
-
-        private void DoTest()
-        {
-            List<Thread> clientThreads = new List<Thread>();
-
-            foreach (DataGridViewRow row in dgv_client.Rows)
+            if(key== "Key-Exam")
             {
-                try
-                {
-                    string clientIP = row.Cells[5].Value.ToString();
-                    //string clientIP = "192.168.72.228";
-
-                    // Kiểm tra xem địa chỉ IP có hợp lệ không
-                    if (IsValidIPAddress(clientIP))
-                    {
-                        // Tạo một luồng riêng biệt cho mỗi client
-                        Thread clientThread = new Thread(() =>
-                        {
-                            TcpClient client = null;
-                            NetworkStream stream = null;
-                            try
-                            {
-                                client = new TcpClient(clientIP, 8888);
-                                stream = client.GetStream();
-
-                                // Gửi tín hiệu thông báo
-
-
-                            string content = "DoExam";
-
-                                byte[] signalBytes = Encoding.UTF8.GetBytes(content);
-                                stream.Write(signalBytes, 0, signalBytes.Length);
-                                stream.Flush();
-
-                        }
-                        catch (Exception ex)
-                        {
-                            Console.WriteLine("Lỗi khi gửi thông tin: " + ex.Message);
-                        }
-                        finally
-                        {
-                            // Đảm bảo rằng kết nối được đóng đúng cách
-                            if (stream != null) stream.Close();
-                            if (client != null) client.Close();
-                        }
-                    });
-
-                    // Bắt đầu luồng cho client hiện tại
-                    clientThreads.Add(clientThread);
-                    clientThread.Start();
-                }
-            }
-            catch (Exception ex)
-            {
-                //MessageBox.Show("Mất kết nối với: " + row.Cells[0].Value.ToString());
-                MessageBox.Show("Mất kết nối");
-            }
-          }
-
-            // Chờ tất cả các luồng kết thúc trước khi tiếp tục
-            foreach (Thread t in clientThreads)
-            {
-                t.Join();
+                MessageBox.Show("Đã phát đề");
             }
         }
 
@@ -2319,8 +2263,6 @@ namespace Server
                 MessageBox.Show("Vui lòng chọn một dòng để gửi tín hiệu.", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
         }
-
-
         private async void EndClassToolStripMenuItem_ClickAsync(object sender, EventArgs e)
         {
             await updateAttanceToDB();

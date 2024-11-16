@@ -33,10 +33,10 @@
             this.panel1 = new System.Windows.Forms.Panel();
             this.lbl_ques_time = new System.Windows.Forms.Label();
             this.lbl_num_answers = new System.Windows.Forms.Label();
+            this.btn_del_ques = new System.Windows.Forms.Button();
             this.txt_title_question = new System.Windows.Forms.TextBox();
-            this.lbl_question = new System.Windows.Forms.Label();
-            this.btn_des_ques = new System.Windows.Forms.Button();
             this.btn_dou_ques = new System.Windows.Forms.Button();
+            this.lbl_question = new System.Windows.Forms.Label();
             this.panel1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -50,7 +50,7 @@
             this.panel1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.panel1.Controls.Add(this.lbl_ques_time);
             this.panel1.Controls.Add(this.lbl_num_answers);
-            this.panel1.Controls.Add(this.btn_des_ques);
+            this.panel1.Controls.Add(this.btn_del_ques);
             this.panel1.Controls.Add(this.txt_title_question);
             this.panel1.Controls.Add(this.btn_dou_ques);
             this.panel1.Controls.Add(this.lbl_question);
@@ -81,6 +81,16 @@
             this.lbl_num_answers.Text = "Đáp Án: 4";
             this.lbl_num_answers.Click += new System.EventHandler(this.ThumbnailQuestion_Click);
             // 
+            // btn_del_ques
+            // 
+            this.btn_del_ques.BackgroundImage = global::Server.Properties.Resources.close;
+            this.btn_del_ques.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+            this.btn_del_ques.Location = new System.Drawing.Point(7, 61);
+            this.btn_del_ques.Name = "btn_del_ques";
+            this.btn_del_ques.Size = new System.Drawing.Size(28, 26);
+            this.btn_del_ques.TabIndex = 8;
+            this.btn_del_ques.UseVisualStyleBackColor = true;
+            // 
             // txt_title_question
             // 
             this.txt_title_question.BackColor = System.Drawing.Color.White;
@@ -94,27 +104,6 @@
             this.txt_title_question.TabIndex = 4;
             this.txt_title_question.Click += new System.EventHandler(this.ThumbnailQuestion_Click);
             // 
-            // lbl_question
-            // 
-            this.lbl_question.AutoSize = true;
-            this.lbl_question.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lbl_question.Location = new System.Drawing.Point(29, 9);
-            this.lbl_question.Name = "lbl_question";
-            this.lbl_question.Size = new System.Drawing.Size(89, 13);
-            this.lbl_question.TabIndex = 5;
-            this.lbl_question.Text = "question_label";
-            this.lbl_question.Click += new System.EventHandler(this.ThumbnailQuestion_Click);
-            // 
-            // btn_des_ques
-            // 
-            this.btn_des_ques.BackgroundImage = global::Server.Properties.Resources.close;
-            this.btn_des_ques.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.btn_des_ques.Location = new System.Drawing.Point(7, 61);
-            this.btn_des_ques.Name = "btn_des_ques";
-            this.btn_des_ques.Size = new System.Drawing.Size(28, 26);
-            this.btn_des_ques.TabIndex = 8;
-            this.btn_des_ques.UseVisualStyleBackColor = true;
-            // 
             // btn_dou_ques
             // 
             this.btn_dou_ques.BackgroundImage = global::Server.Properties.Resources.duplicate_icon;
@@ -124,6 +113,17 @@
             this.btn_dou_ques.Size = new System.Drawing.Size(28, 23);
             this.btn_dou_ques.TabIndex = 9;
             this.btn_dou_ques.UseVisualStyleBackColor = true;
+            // 
+            // lbl_question
+            // 
+            this.lbl_question.AutoSize = true;
+            this.lbl_question.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lbl_question.Location = new System.Drawing.Point(10, 9);
+            this.lbl_question.Name = "lbl_question";
+            this.lbl_question.Size = new System.Drawing.Size(89, 13);
+            this.lbl_question.TabIndex = 5;
+            this.lbl_question.Text = "question_label";
+            this.lbl_question.Click += new System.EventHandler(this.ThumbnailQuestion_Click);
             // 
             // ThumbnailQuestion
             // 
@@ -145,7 +145,7 @@
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.Label lbl_ques_time;
         private System.Windows.Forms.Label lbl_num_answers;
-        private System.Windows.Forms.Button btn_des_ques;
+        private System.Windows.Forms.Button btn_del_ques;
         private System.Windows.Forms.TextBox txt_title_question;
         private System.Windows.Forms.Button btn_dou_ques;
         private System.Windows.Forms.Label lbl_question;

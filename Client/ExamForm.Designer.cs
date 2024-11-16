@@ -35,13 +35,17 @@
             this.label1 = new System.Windows.Forms.Label();
             this.label17 = new System.Windows.Forms.Label();
             this.panel4 = new System.Windows.Forms.Panel();
-            this.label3 = new System.Windows.Forms.Label();
+            this.btn_changeMssv = new System.Windows.Forms.Button();
+            this.lbl_mssv = new System.Windows.Forms.Label();
             this.label9 = new System.Windows.Forms.Label();
             this.label8 = new System.Windows.Forms.Label();
             this.label7 = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
             this.pnExam = new System.Windows.Forms.Panel();
             this.lbl_time_to_start = new System.Windows.Forms.Label();
+            this.lbl_top1 = new System.Windows.Forms.Label();
+            this.lbl_top2 = new System.Windows.Forms.Label();
+            this.lbl_top3 = new System.Windows.Forms.Label();
             this.headerPanel.SuspendLayout();
             this.pnInfo.SuspendLayout();
             this.panel4.SuspendLayout();
@@ -123,7 +127,8 @@
             // 
             // panel4
             // 
-            this.panel4.Controls.Add(this.label3);
+            this.panel4.Controls.Add(this.btn_changeMssv);
+            this.panel4.Controls.Add(this.lbl_mssv);
             this.panel4.Controls.Add(this.label9);
             this.panel4.Controls.Add(this.label8);
             this.panel4.Controls.Add(this.label7);
@@ -135,16 +140,26 @@
             this.panel4.Size = new System.Drawing.Size(511, 129);
             this.panel4.TabIndex = 10;
             // 
-            // label3
+            // btn_changeMssv
             // 
-            this.label3.AutoSize = true;
-            this.label3.Font = new System.Drawing.Font("Microsoft Sans Serif", 13.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label3.Location = new System.Drawing.Point(234, 84);
-            this.label3.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(110, 24);
-            this.label3.TabIndex = 25;
-            this.label3.Text = "0306211215";
+            this.btn_changeMssv.Location = new System.Drawing.Point(371, 86);
+            this.btn_changeMssv.Name = "btn_changeMssv";
+            this.btn_changeMssv.Size = new System.Drawing.Size(75, 23);
+            this.btn_changeMssv.TabIndex = 26;
+            this.btn_changeMssv.Text = "Nhập lại";
+            this.btn_changeMssv.UseVisualStyleBackColor = true;
+            this.btn_changeMssv.Click += new System.EventHandler(this.btn_changeMssv_Click);
+            // 
+            // lbl_mssv
+            // 
+            this.lbl_mssv.AutoSize = true;
+            this.lbl_mssv.Font = new System.Drawing.Font("Microsoft Sans Serif", 13.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lbl_mssv.Location = new System.Drawing.Point(234, 84);
+            this.lbl_mssv.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.lbl_mssv.Name = "lbl_mssv";
+            this.lbl_mssv.Size = new System.Drawing.Size(110, 24);
+            this.lbl_mssv.TabIndex = 25;
+            this.lbl_mssv.Text = "0306211215";
             // 
             // label9
             // 
@@ -196,6 +211,9 @@
             // pnExam
             // 
             this.pnExam.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.pnExam.Controls.Add(this.lbl_top3);
+            this.pnExam.Controls.Add(this.lbl_top2);
+            this.pnExam.Controls.Add(this.lbl_top1);
             this.pnExam.Controls.Add(this.lbl_time_to_start);
             this.pnExam.Location = new System.Drawing.Point(0, 133);
             this.pnExam.Margin = new System.Windows.Forms.Padding(2);
@@ -213,6 +231,36 @@
             this.lbl_time_to_start.TabIndex = 0;
             this.lbl_time_to_start.Text = "label11";
             // 
+            // lbl_top1
+            // 
+            this.lbl_top1.AutoSize = true;
+            this.lbl_top1.Font = new System.Drawing.Font("Microsoft Sans Serif", 27.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lbl_top1.Location = new System.Drawing.Point(410, 211);
+            this.lbl_top1.Name = "lbl_top1";
+            this.lbl_top1.Size = new System.Drawing.Size(146, 42);
+            this.lbl_top1.TabIndex = 1;
+            this.lbl_top1.Text = "label11";
+            // 
+            // lbl_top2
+            // 
+            this.lbl_top2.AutoSize = true;
+            this.lbl_top2.Font = new System.Drawing.Font("Microsoft Sans Serif", 27.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lbl_top2.Location = new System.Drawing.Point(447, 277);
+            this.lbl_top2.Name = "lbl_top2";
+            this.lbl_top2.Size = new System.Drawing.Size(146, 42);
+            this.lbl_top2.TabIndex = 2;
+            this.lbl_top2.Text = "label11";
+            // 
+            // lbl_top3
+            // 
+            this.lbl_top3.AutoSize = true;
+            this.lbl_top3.Font = new System.Drawing.Font("Microsoft Sans Serif", 27.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lbl_top3.Location = new System.Drawing.Point(684, 250);
+            this.lbl_top3.Name = "lbl_top3";
+            this.lbl_top3.Size = new System.Drawing.Size(146, 42);
+            this.lbl_top3.TabIndex = 3;
+            this.lbl_top3.Text = "label11";
+            // 
             // ExamForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -228,7 +276,6 @@
             this.Text = "ExamForm";
             this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.ExamForm_FormClosing);
-            this.Load += new System.EventHandler(this.ExamForm_Load);
             this.headerPanel.ResumeLayout(false);
             this.pnInfo.ResumeLayout(false);
             this.pnInfo.PerformLayout();
@@ -252,9 +299,13 @@
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.Label label12;
         public System.Windows.Forms.Label label1;
-        private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.Label lbl_mssv;
         private System.Windows.Forms.Panel pnExam;
         private System.Windows.Forms.Label lblIndex;
         private System.Windows.Forms.Label lbl_time_to_start;
+        private System.Windows.Forms.Button btn_changeMssv;
+        private System.Windows.Forms.Label lbl_top3;
+        private System.Windows.Forms.Label lbl_top2;
+        private System.Windows.Forms.Label lbl_top1;
     }
 }

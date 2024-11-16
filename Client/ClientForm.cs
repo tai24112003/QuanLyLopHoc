@@ -474,11 +474,23 @@ namespace testUdpTcp
                         break;
                     case "DoExam":
                         Console.WriteLine("Làm bài");
-                        if (examFrm==null) {
+                        if (examFrm == null)
+                        {
                             examFrm = new ExamForm(mssvDoTest,Test, sendData,ChangeMSSV);
-                            examFrm.ShowDialog();
+                            if (this.InvokeRequired)
+                            {
+                                this.Invoke(new Action(() => {
+                                    examFrm.Show();
+                                    examFrm.Focus();
+                                }));
+                            }
+                            else
+                            {
+                                examFrm.ShowDialog();
+                            }
                         }
-                           
+                        //examFrm.ShowDialog();
+
                         if (this.InvokeRequired)
                         {
                             this.Invoke(new Action(()=>{
@@ -505,6 +517,7 @@ namespace testUdpTcp
                         if (this.InvokeRequired)
                         {
                             this.Invoke(new Action(() => {
+                                examFrm = null;
                                 this.Show();
                             }));
                         }

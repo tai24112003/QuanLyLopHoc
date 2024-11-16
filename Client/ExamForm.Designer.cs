@@ -42,10 +42,10 @@
             this.label7 = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
             this.pnExam = new System.Windows.Forms.Panel();
-            this.lbl_time_to_start = new System.Windows.Forms.Label();
-            this.lbl_top1 = new System.Windows.Forms.Label();
-            this.lbl_top2 = new System.Windows.Forms.Label();
             this.lbl_top3 = new System.Windows.Forms.Label();
+            this.lbl_top2 = new System.Windows.Forms.Label();
+            this.lbl_top1 = new System.Windows.Forms.Label();
+            this.lbl_time_to_start = new System.Windows.Forms.Label();
             this.headerPanel.SuspendLayout();
             this.pnInfo.SuspendLayout();
             this.panel4.SuspendLayout();
@@ -221,25 +221,15 @@
             this.pnExam.Size = new System.Drawing.Size(1203, 444);
             this.pnExam.TabIndex = 2;
             // 
-            // lbl_time_to_start
+            // lbl_top3
             // 
-            this.lbl_time_to_start.AutoSize = true;
-            this.lbl_time_to_start.Font = new System.Drawing.Font("Microsoft Sans Serif", 27.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lbl_time_to_start.Location = new System.Drawing.Point(580, 150);
-            this.lbl_time_to_start.Name = "lbl_time_to_start";
-            this.lbl_time_to_start.Size = new System.Drawing.Size(146, 42);
-            this.lbl_time_to_start.TabIndex = 0;
-            this.lbl_time_to_start.Text = "label11";
-            // 
-            // lbl_top1
-            // 
-            this.lbl_top1.AutoSize = true;
-            this.lbl_top1.Font = new System.Drawing.Font("Microsoft Sans Serif", 27.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lbl_top1.Location = new System.Drawing.Point(410, 211);
-            this.lbl_top1.Name = "lbl_top1";
-            this.lbl_top1.Size = new System.Drawing.Size(146, 42);
-            this.lbl_top1.TabIndex = 1;
-            this.lbl_top1.Text = "label11";
+            this.lbl_top3.AutoSize = true;
+            this.lbl_top3.Font = new System.Drawing.Font("Microsoft Sans Serif", 27.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lbl_top3.Location = new System.Drawing.Point(684, 250);
+            this.lbl_top3.Name = "lbl_top3";
+            this.lbl_top3.Size = new System.Drawing.Size(146, 42);
+            this.lbl_top3.TabIndex = 3;
+            this.lbl_top3.Text = "label11";
             // 
             // lbl_top2
             // 
@@ -251,15 +241,25 @@
             this.lbl_top2.TabIndex = 2;
             this.lbl_top2.Text = "label11";
             // 
-            // lbl_top3
+            // lbl_top1
             // 
-            this.lbl_top3.AutoSize = true;
-            this.lbl_top3.Font = new System.Drawing.Font("Microsoft Sans Serif", 27.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lbl_top3.Location = new System.Drawing.Point(684, 250);
-            this.lbl_top3.Name = "lbl_top3";
-            this.lbl_top3.Size = new System.Drawing.Size(146, 42);
-            this.lbl_top3.TabIndex = 3;
-            this.lbl_top3.Text = "label11";
+            this.lbl_top1.AutoSize = true;
+            this.lbl_top1.Font = new System.Drawing.Font("Microsoft Sans Serif", 27.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lbl_top1.Location = new System.Drawing.Point(410, 211);
+            this.lbl_top1.Name = "lbl_top1";
+            this.lbl_top1.Size = new System.Drawing.Size(146, 42);
+            this.lbl_top1.TabIndex = 1;
+            this.lbl_top1.Text = "label11";
+            // 
+            // lbl_time_to_start
+            // 
+            this.lbl_time_to_start.AutoSize = true;
+            this.lbl_time_to_start.Font = new System.Drawing.Font("Microsoft Sans Serif", 27.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lbl_time_to_start.Location = new System.Drawing.Point(580, 150);
+            this.lbl_time_to_start.Name = "lbl_time_to_start";
+            this.lbl_time_to_start.Size = new System.Drawing.Size(146, 42);
+            this.lbl_time_to_start.TabIndex = 0;
+            this.lbl_time_to_start.Text = "label11";
             // 
             // ExamForm
             // 
@@ -275,6 +275,7 @@
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "ExamForm";
             this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.ExamForm_FormClosing);
             this.headerPanel.ResumeLayout(false);
             this.pnInfo.ResumeLayout(false);
             this.pnInfo.PerformLayout();

@@ -127,6 +127,22 @@ namespace DAL.Models
             return studentScores;
         }
 
+        public int CreateIndexQuestInTest()
+        {
+            int rs = 0;
+            var sortedQuests = Quests.OrderBy(q => q.Index).ToList();
+            foreach (Quest q in sortedQuests)
+            {
+                if (q.Index == rs)
+                {
+                    rs++; // Tăng rs nếu giá trị Index hiện tại đã được sử dụng
+                    continue;
+                }
+
+                break; // Thoát khỏi vòng lặp nếu rs chưa được sử dụng
+            }
+            return rs; // Trả về giá trị rs nhỏ nhất chưa được sử dụng
+        }
 
     }
 }

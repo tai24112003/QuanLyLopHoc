@@ -333,7 +333,7 @@ namespace Server
 
             if (index == IndexQuestionSelected)
             {
-                IndexQuestionSelected = pnl_slide_question.Controls.Count - 2;
+                IndexQuestionSelected = pnl_slide_question.Controls.Count - 1;
                 if (IndexQuestionSelected > 0)
                 {
                     (pnl_slide_question.Controls[IndexQuestionSelected] as ThumbnailQuestion).ChangeSelectState();
@@ -360,8 +360,9 @@ namespace Server
 
             if (index != -1) // Kiểm tra xem item có trong panel hay không
             {
+                int newId = Tests[IndexTestSelected].CreateIndexQuestInTest();
                 // Tạo một câu hỏi mới dựa trên câu hỏi hiện tại
-                ThumbnailQuestion duplicatedQuestion = new ThumbnailQuestion(DeleteQues, DuplicateQues, SelectQuest,new Quest(item.Quest, Tests[IndexTestSelected].Quests.Count), true);
+                ThumbnailQuestion duplicatedQuestion = new ThumbnailQuestion(DeleteQues, DuplicateQues, SelectQuest,new Quest(item.Quest,newId), true);
                 Tests[IndexTestSelected].Quests.Add(duplicatedQuestion.Quest);
 
                 (pnl_slide_question.Controls[IndexQuestionSelected] as ThumbnailQuestion).ChangeSelectState();
@@ -546,11 +547,11 @@ namespace Server
         //action on form
         private void add_question_btn_Click(object sender, EventArgs e)
         {
-            int numBefore = Tests[IndexTestSelected].Quests.Count;
+            int newId = Tests[IndexTestSelected].CreateIndexQuestInTest();
             int indexShowCurrent = pnl_slide_question.Controls.Count;
             if((cbb_questTypeFilter.SelectedItem as QuestType).Name == "Tất cả")
             {
-                Tests[IndexTestSelected].Quests.Add(new Quest(numBefore));
+                Tests[IndexTestSelected].Quests.Add(new Quest(newId));
             }
             else
             {

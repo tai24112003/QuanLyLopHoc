@@ -18,6 +18,7 @@ namespace testUdpTcp
     public partial class ExamForm : Form
     {
         private bool flag = false;
+        private bool canClose = false;
         private int screenWidth = Screen.PrimaryScreen.Bounds.Width;
         private int screenHeight = Screen.PrimaryScreen.Bounds.Height;
         ThongBaoDiemForm baoDiem;
@@ -147,6 +148,7 @@ namespace testUdpTcp
         {
             pnExam.Controls.Clear();
             MessageBox.Show("Bạn đã thi xong", "Thông tin");
+            canClose = true;
             this.Dispose();
         }
         private void CountdownTimer_Tick(object sender, EventArgs e)
@@ -185,6 +187,11 @@ namespace testUdpTcp
                 return;            
             }
             (new Waiting(ChangeMssvInForm)).ShowDialog();
+        }
+
+        private void ExamForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            e.Cancel = !canClose;
         }
     }
 }

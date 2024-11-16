@@ -621,7 +621,7 @@ namespace Server
                 try
                 {
                     StudentAnswer newAnswer = new StudentAnswer();
-                    int indexQuest =-1;
+                    int indexQuest = -1;
 
                     string[] answer = parts[0].Split('-');
                     foreach (string item in answer)
@@ -633,7 +633,7 @@ namespace Server
                         switch (key)
                         {
                             case "indexQuest":
-                                indexQuest = int.TryParse(value, out int indexQuestO)?indexQuestO:0;
+                                indexQuest = int.TryParse(value, out int indexQuestO) ? indexQuestO : 0;
                                 break;
 
                             case "studentId":
@@ -641,21 +641,40 @@ namespace Server
                                 break;
 
                             case "timeDoQuest":
-                                newAnswer.TimeDoQuest= int.TryParse(value, out int timeDoQuestO) ? timeDoQuestO : 0;
+                                newAnswer.TimeDoQuest = int.TryParse(value, out int timeDoQuestO) ? timeDoQuestO : 0;
                                 break;
 
                             case "selectResultsId":
-                                newAnswer.SelectResultsId=value.Split(',').Select(x=> int.TryParse(x, out int rsIdO) ? rsIdO : 0).ToList();
+                                newAnswer.SelectResultsId = value.Split(',')
+                                    .Select(x => int.TryParse(x, out int rsIdO) ? rsIdO : 0).ToList();
                                 break;
                         }
                     }
+
                     if (indexQuest == -1)
                     {
                         MessageBox.Show("Định dạng thiếu vị trí câu hỏi");
                         return;
                     }
-                    Tests[IndexTestReady].Quests[indexQuest].StudentAnswers.Add(newAnswer);
-                    //MessageBox.Show($"Nhận câu trả lời thành công");
+
+                    // Lấy danh sách các câu trả lời của câu hỏi hiện tại
+                    var studentAnswers = Tests[IndexTestReady].Quests[indexQuest].StudentAnswers;
+
+                    // Kiểm tra xem đã tồn tại câu trả lời của sinh viên này chưa
+                    var existingAnswer = studentAnswers.FirstOrDefault(a => a.StudentID == newAnswer.StudentID);
+
+                    if (existingAnswer != null)
+                    {
+                        // Cập nhật câu trả lời cũ
+                        existingAnswer.TimeDoQuest = newAnswer.TimeDoQuest;
+                        existingAnswer.SelectResultsId = newAnswer.SelectResultsId;
+                    }
+                    else
+                    {
+                        // Thêm câu trả lời mới nếu chưa tồn tại
+                        studentAnswers.Add(newAnswer);
+                    }
+
                     if (this.InvokeRequired)
                     {
                         this.Invoke(new Action(() =>
@@ -2396,7 +2415,7 @@ namespace Server
             IndexTestReady = indexTest!=-1?indexTest:IndexTestReady;
             if (key == "DoExam")
             {
-                if (StudentsAreReady.Count < 0)
+                if (StudentsAreReady.Count < 1)
                 {
                     MessageBox.Show("Chưa có sinh viên nào sẵn sàng!");
                     return ;

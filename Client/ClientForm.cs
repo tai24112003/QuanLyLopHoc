@@ -101,6 +101,7 @@ namespace testUdpTcp
         private void GetMSSV(string mssv)
         {
             this.mssvDoTest = mssv;
+            sendData($"Ready-{mssvDoTest}");
             examFrm = new ExamForm(mssvDoTest, Test, sendData, ChangeMSSV);
             examFrm.ShowDialog();
         }
@@ -325,11 +326,12 @@ namespace testUdpTcp
                 {
                     Test = new Test(parts[0]);
                     Console.WriteLine(Test);
-                    if (!string.IsNullOrEmpty(mssvDoTest) || WaitingFrom != null)
+                    if (!string.IsNullOrEmpty(mssvDoTest))
                     {
                         sendData($"Ready-{mssvDoTest}");
                         return;
                     }
+                    if (WaitingFrom != null) return;
                     if (this.InvokeRequired)
                     {
                         this.Invoke(new Action(() => {
@@ -344,7 +346,6 @@ namespace testUdpTcp
                         WaitingFrom = new Waiting(GetMSSV);
                         WaitingFrom.Show();
                     }
-                    sendData($"Ready-{mssvDoTest}");
                 }
                 catch (Exception ex)
                 {

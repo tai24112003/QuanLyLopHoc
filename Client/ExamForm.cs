@@ -67,7 +67,7 @@ namespace testUdpTcp
         {
             label4.Text = this.Test.Title;
             lbl_mssv.Text = this.Mssv;
-            label8.Text = $"{this.Test.GetTimeOfTest()/60} phút"; 
+            label8.Text = $"{this.Test.GetTimeOfTest()} giây"; 
             this.FormBorderStyle = FormBorderStyle.None;
             this.WindowState = FormWindowState.Maximized;
             pnExam.Location = new Point(0, headerPanel.Height);

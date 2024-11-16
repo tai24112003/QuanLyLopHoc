@@ -51,6 +51,7 @@
             this.Controls.Add(this.lbl_result);
             this.Name = "ResultOptionUC";
             this.Size = new System.Drawing.Size(423, 106);
+            this.EnabledChanged += new System.EventHandler(this.ResultOptionUC_EnabledChanged);
             this.Click += new System.EventHandler(this.lbl_result_Click);
             this.ResumeLayout(false);
             this.PerformLayout();

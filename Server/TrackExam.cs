@@ -80,7 +80,6 @@ namespace Server
             Quest item = Test.Quests[IndexSelectQuest];
 
             int numAnswer = item.Results.Count;
-            item.Results[0].IsCorrect = true;
             // Calculate panel width with a maximum of 80
             int panelWidth = Math.Min(left / numAnswer - 20, 80);
             int totalPanelWidth = panelWidth * numAnswer;

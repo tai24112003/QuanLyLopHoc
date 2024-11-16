@@ -305,6 +305,7 @@ namespace testUdpTcp
                 try
                 {
                     Test = new Test(parts[0]);
+                    Console.WriteLine(Test);
                     if (!string.IsNullOrEmpty(mssvDoTest) || WaitingFrom != null)
                     {
                         sendData($"Ready-{mssvDoTest}");
@@ -320,7 +321,7 @@ namespace testUdpTcp
                     }
                     else
                     {
-                        this.Hide();
+                        //this.Hide();
                         WaitingFrom = new Waiting(GetMSSV);
                         WaitingFrom.Show();
                     }
@@ -363,10 +364,7 @@ namespace testUdpTcp
                 {
                     Quest quest = new Quest(parts[0]);
                     Test.Quests.Add(quest);
-                    if (string.IsNullOrEmpty(mssvDoTest))
-                    {
-
-                    }
+                    Console.WriteLine("Run");
                     if (examFrm == null)
                     {
                         examFrm = new ExamForm(mssvDoTest, Test, sendData, ChangeMSSV);
@@ -418,6 +416,23 @@ namespace testUdpTcp
                         if (examFrm==null) {
                             examFrm = new ExamForm(mssvDoTest,Test, sendData,ChangeMSSV);
                         }
+                        else if (!examFrm.Visible)
+                        {
+                            examFrm = new ExamForm(mssvDoTest, Test, sendData, ChangeMSSV);
+                            if (this.InvokeRequired)
+                            {
+                                this.Invoke(new Action(() => {
+                                    examFrm.StartDoExam();
+                                    examFrm.ShowDialog();
+                                }));
+                            }
+                            else
+                            {
+                                examFrm.StartDoExam();
+                                examFrm.ShowDialog();
+
+                            }
+                        }
                         if (this.InvokeRequired)
                         {
                             this.Invoke(new Action(()=>{
@@ -441,7 +456,12 @@ namespace testUdpTcp
                         {
                             examFrm?.QuestDone();
                         }
-
+                        if (this.InvokeRequired)
+                        {
+                            this.Invoke(new Action(() => {
+                                this.Show();
+                            }));
+                        }
                         break;
                 }
                 tcpClient.Close();

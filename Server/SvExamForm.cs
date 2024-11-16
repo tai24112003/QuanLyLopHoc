@@ -452,7 +452,7 @@ namespace Server
             {
                 SendTest(item.GetQuestString(),"QuestCome",-1);
                 doingTest.Progress++;
-                await Task.Delay(item.CountDownTime * 1000+200);
+                await Task.Delay(item.CountDownTime * 1000+1000);
 
                 List<StudentScore> top3 = doingTest.ScoringForClass(Students,3);
                 string mess = "";
@@ -475,7 +475,7 @@ namespace Server
                 }
 
                 SendTest(mess, "TopStudent", -1);
-                await Task.Delay(doingTest.RestTimeBetweenQuests * 1000+200); //thêm 0.5s
+                await Task.Delay(doingTest.RestTimeBetweenQuests * 1000+1000); //thêm 0.5s
             }
             SendTest("", "TestDone", -1);
             doingTest.IsExamining = false;

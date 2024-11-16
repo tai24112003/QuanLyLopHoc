@@ -390,8 +390,8 @@ namespace Server
                 lst_client.Hide();
                 lst_client.LargeImageList = imageList1;
                 //students = await _classStudentBLL.GetClassStudentsByID(classID);
-                await SetupRoom();
-                await SetupAttendance(classID);
+                //await SetupRoom();
+                //await SetupAttendance(classID);
                 //await updateAttanceToDB();
                 //await updateSessionComputer();
                 sendAllIPInLan();

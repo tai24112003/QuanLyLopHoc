@@ -115,7 +115,7 @@ namespace Server
             {
                 int sum = item.StudentAnswers.Count == 0 ? 1 : item.StudentAnswers.Count;
                 int value = item.GetNumStudentSelectByResult(rs);
-                float valueView = !IsPresent ? value : (float)Math.Round((double)(value / sum * 100), 2);
+                double valueView = !IsPresent ? value : Math.Round((double)(value * 100 / sum ), 2);
 
                 // Create a panel
                 TrackAnswerInfo answerPanel = new TrackAnswerInfo

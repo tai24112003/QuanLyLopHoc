@@ -103,7 +103,6 @@ namespace testUdpTcp
             this.mssvDoTest = mssv;
             examFrm = new ExamForm(mssvDoTest, Test, sendData, ChangeMSSV);
             examFrm.ShowDialog();
-           // this.Show();
         }
         private void ChangeMSSV(string newMSSV)
         {
@@ -384,7 +383,6 @@ namespace testUdpTcp
                 {
                     Quest quest = new Quest(parts[0]);
                     Test.Quests.Add(quest);
-                    Console.WriteLine("Run");
                     if (examFrm == null)
                     {
                         examFrm = new ExamForm(mssvDoTest, Test, sendData, ChangeMSSV, true);
@@ -478,24 +476,9 @@ namespace testUdpTcp
                         Console.WriteLine("Làm bài");
                         if (examFrm==null) {
                             examFrm = new ExamForm(mssvDoTest,Test, sendData,ChangeMSSV);
+                            examFrm.ShowDialog();
                         }
-                        else if (!examFrm.Visible)
-                        {
-                            examFrm = new ExamForm(mssvDoTest, Test, sendData, ChangeMSSV);
-                            if (this.InvokeRequired)
-                            {
-                                this.Invoke(new Action(() => {
-                                    examFrm.ShowDialog();
-                                    examFrm.StartDoExam();
-                                }));
-                            }
-                            else
-                            {
-                                examFrm.ShowDialog();
-                                examFrm.StartDoExam();
-
-                            }
-                        }
+                           
                         if (this.InvokeRequired)
                         {
                             this.Invoke(new Action(()=>{

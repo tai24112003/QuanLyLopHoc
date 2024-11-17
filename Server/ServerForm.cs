@@ -526,8 +526,8 @@ namespace Server
             IPAddress broadcastAddress = GetBroadcastAddress() ?? null;
             Console.WriteLine(broadcastAddress);
 
-            //SendUDPMessage(broadcastAddress, 11312, Ip);
-            SendUDPMessage(IPAddress.Parse("192.168.1.2"), 11312, Ip);
+            //SendUDPMessage(IPAddress.Parse("192.168.129.65"), 11312, Ip);
+            SendUDPMessage(broadcastAddress, 11312, Ip);
 
         }
         private void SendUDPMessage(IPAddress ipAddress, int port, String mes)

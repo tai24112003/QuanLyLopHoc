@@ -33,6 +33,7 @@ namespace testUdpTcp
         public ClientForm()
         {
             InitializeComponent();
+            myIp = getIPServer();
             //myIp = getIPServer();
             //myIp = "192.168.72.228";
             inf = GetDeviceInfo();
@@ -85,6 +86,9 @@ namespace testUdpTcp
         {
 
             udpClient = new UdpClient(11312);
+            isRunningudplisten = true;
+            udpReceiverThread = new Thread(ReceiveDataOnce);
+            udpReceiverThread.Start();
             //isRunningudplisten = true;
             //udpReceiverThread = new Thread(ReceiveDataOnce);
             //udpReceiverThread.Start();
@@ -431,7 +435,7 @@ namespace testUdpTcp
                         //slideShowForm.ServerIP = IpServer;
                         //slideShowForm.Listener = listener;
                         //listener.Stop();
-                        OpenNewForm(tcpClient);
+                        OpenNewForm();
                         // Hiển thị SlideShowForm
                         //slideShowForm.Show();
                         break;
@@ -541,7 +545,8 @@ namespace testUdpTcp
                             }
                             else
                             {
-                                examFrm.ShowDialog();
+                                examFrm.Show();
+                                examFrm.Focus();
                             }
                         }
                         //examFrm.ShowDialog();

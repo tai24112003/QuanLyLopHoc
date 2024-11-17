@@ -99,7 +99,7 @@ namespace Server
             _serviceProvider = serviceProvider;
 
             //Ip = ;
-            //Ip = getIPServer();
+            Ip = getIPServer();
             InitializeContextMenu();
 
             // Thực hiện các logic khởi tạo khác nếu cần thiết
@@ -117,12 +117,14 @@ namespace Server
             var menuItem5 = new ToolStripMenuItem("Chọn sinh viên kiểm tra máy");
 
             // Thêm các mục menu vào ContextMenuStrip
+            contextMenuStrip.Items.Add(menuItem2);
             contextMenuStrip.Items.Add(menuItem3);
             contextMenuStrip1.Items.Add(menuItem4);
             contextMenuStrip1.Items.Add(menuItem5);
 
             // Gắn sự kiện click cho các mục menu
             menuItem3.Click += contextMenu_SlideShowToClient_Click;
+            menuItem2.Click += contextMenu_Refresh_Click;
             menuItem4.Click += async (sender, e) => await AddSelectedStudentsAsync();
             menuItem5.Click += contextMenu_SelectStudentCheckMachine_Click; 
         }
@@ -778,7 +780,6 @@ namespace Server
             {
                 imageList1.Images[listViewItem.ImageIndex] = resizedImage;
             }
-            return b;
         }
 
         // Hàm ResizeImage để thay đổi kích thước ảnh
@@ -2036,7 +2037,7 @@ namespace Server
                                     // Gửi tín hiệu thông báo
                                     string fileName = System.IO.Path.GetFileName(filePath);
 
-                                    string signal = $"SendFile-{fileName}-{toPath}";
+                                    string signal = $"SendFile-FileName-{fileName}-{ctoPath}";
                                     byte[] signalBytes = Encoding.UTF8.GetBytes(signal);
                                     stream.Write(signalBytes, 0, signalBytes.Length); // Gửi tín hiệu
                                     stream.Flush(); // Đảm bảo dữ liệu được gửi đi ngay lập tức
@@ -2144,7 +2145,7 @@ namespace Server
 
                                     // Gửi tín hiệu thông báo
                                     string fileName = System.IO.Path.GetFileName(filePath);
-                                    string signal = $"CollectFile-{fileName}-{folderPath}-{check}";
+                                    string signal = $"CollectFile-FileName-{fileName}FolderPath-{folderPath}Check-{check}";
                                     byte[] signalBytes = Encoding.UTF8.GetBytes(signal);
                                     stream.Write(signalBytes, 0, signalBytes.Length); // Gửi tín hiệu
                                     stream.Flush(); // Đảm bảo dữ liệu được gửi đi ngay lập tức
@@ -2409,6 +2410,7 @@ namespace Server
             }
 
             List<Thread> clientThreads = new List<Thread>();
+            string contentSend = key + content;
 
             // Tạo luồng để gửi dữ liệu đến từng client
             foreach (DataGridViewRow row in dgv_client.Rows)
@@ -2430,9 +2432,8 @@ namespace Server
                                 client = new TcpClient(clientIP, 8888);
                                 client.SendBufferSize = 1024 * 1024; // Thiết lập kích thước buffer lớn (1 MB)
                                 stream = client.GetStream();
-                                content = key + content;
 
-                                byte[] signalBytes = Encoding.UTF8.GetBytes(content);
+                                byte[] signalBytes = Encoding.UTF8.GetBytes(contentSend);
                                 int bufferSize = client.SendBufferSize;
                                 int bytesSent = 0;
 

@@ -192,7 +192,7 @@ namespace testUdpTcp
             if (receivedMessage.StartsWith("SendFile"))
             {
                 // Parse the signal
-                string[] parts = receivedMessage.Split(new char[] { '-' }, 2);
+                string[] parts = receivedMessage.Split(new string[] { "FileName-","ToPath-" }, StringSplitOptions.None);
                 if (parts.Length >= 3)
                 {
                     string fileName = parts[1];
@@ -278,7 +278,7 @@ namespace testUdpTcp
             else if (receivedMessage.StartsWith("CollectFile"))
             {
                 // Parse the signal
-                string[] parts = receivedMessage.Split(new char[] { '-' }, 2);
+                string[] parts = receivedMessage.Split(new string[] { "FileName-","FolderPath-" ,"Check-" }, StringSplitOptions.None);
                 if (parts.Length >= 4)
                 {
                     string fileNamePattern = ConvertWildcardToRegexPattern(parts[1]);
@@ -456,6 +456,7 @@ namespace testUdpTcp
                                 if (form1 != null)
                                 {
                                     form1.StopSlideshow();
+                                    form1=null;
                                 };
                             });
                         }
@@ -465,6 +466,8 @@ namespace testUdpTcp
                             if (form1 != null)
                             {
                                 form1.StopSlideshow();
+                                form1=null;
+
                             }
                         }
                         break;
@@ -477,6 +480,7 @@ namespace testUdpTcp
                                 if (LockScreen != null)
                                 {
                                     LockScreen.UnLockScreen();
+                                    LockScreen=null;
                                 };
                             });
                         }
@@ -486,48 +490,7 @@ namespace testUdpTcp
                             if (LockScreen != null)
                             {
                                 LockScreen.UnLockScreen();
-                            };
-                        }
-                        break;
-                    case "CloseSlideShow":
-
-                        if (this.InvokeRequired)
-                        {
-                            this.BeginInvoke((MethodInvoker)delegate
-                            {
-                                if (form1 != null)
-                                {
-                                    form1.StopSlideshow();
-                                };
-                            });
-                        }
-                        else
-                        {
-
-                            if (form1 != null)
-                            {
-                                form1.StopSlideshow();
-                            }
-                        }
-                        break;
-                    case "CloseLockScreen":
-
-                        if (this.InvokeRequired)
-                        {
-                            this.BeginInvoke((MethodInvoker)delegate
-                            {
-                                if (LockScreen != null)
-                                {
-                                    LockScreen.UnLockScreen();
-                                };
-                            });
-                        }
-                        else
-                        {
-
-                            if (LockScreen != null)
-                            {
-                                LockScreen.UnLockScreen();
+                                LockScreen=null;
                             };
                         }
                         break;
@@ -883,22 +846,6 @@ namespace testUdpTcp
             }
         }
 
-        private void OpenNewFormLockScreen()
-        {
-            if (this.InvokeRequired)
-            {
-                this.BeginInvoke((MethodInvoker)delegate { OpenNewFormLockScreen(); });
-            }
-            else
-            {
-                if (LockScreen == null)
-                {
-                    LockScreen = new LockScreenForm();
-                    LockScreen.Show();
-                }
-            }
-        }
-
         private void OpenNewForm()
         {
             if (this.InvokeRequired)
@@ -1080,8 +1027,8 @@ namespace testUdpTcp
             stringList.Add($"InfoClient-");
 
             // Lấy thông tin về tên máy
-            //string machineName = Environment.MachineName;
-            string machineName = "F71-01";
+            string machineName = Environment.MachineName;
+            // string machineName = "F71-01";
             stringList.Add($"IPC: {myIp}");
             stringList.Add($"Tenmay: {machineName}");
             lblNameComputer.Text = machineName;

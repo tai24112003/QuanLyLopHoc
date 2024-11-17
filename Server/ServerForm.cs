@@ -605,14 +605,14 @@ namespace Server
             if (receivedMessage.StartsWith("Ready-"))
             {
                 string[] parts= receivedMessage.Split('-');
-                if (!StudentsAreReady.Contains(parts[1]))
+                if (!StudentsAreReady.Contains(parts[1])&& !string.IsNullOrEmpty(parts[1]))
                     StudentsAreReady.Add(parts[1]);
             }
             else if (receivedMessage.StartsWith("ReadyAgain"))
             {
                 string[] parts = receivedMessage.Split('-');
                 StudentsAreReady.Remove(parts[1]);
-                if (!StudentsAreReady.Contains(parts[2]))
+                if (!StudentsAreReady.Contains(parts[2]) && !string.IsNullOrEmpty(parts[2]))
                     StudentsAreReady.Add(parts[2]);
             }
             else if (receivedMessage.StartsWith("answer@"))
@@ -2410,7 +2410,7 @@ namespace Server
             }
         }
 
-        private void SendTest(string content, string key, int indexTest=-1)
+        private bool SendTest(string content, string key, int indexTest=-1)
         {
             IndexTestReady = indexTest!=-1?indexTest:IndexTestReady;
             if (key == "DoExam")
@@ -2418,7 +2418,7 @@ namespace Server
                 if (StudentsAreReady.Count < 1)
                 {
                     MessageBox.Show("Chưa có sinh viên nào sẵn sàng!");
-                    return ;
+                    return false ;
                 }
             }
 
@@ -2441,17 +2441,9 @@ namespace Server
                             NetworkStream stream = null;
                             try
                             {
-                                // Tạo kết nối đến client
                                 client = new TcpClient(clientIP, 8888);
                                 client.SendBufferSize = 1024 * 1024; // Thiết lập kích thước buffer lớn (1 MB)
                                 stream = client.GetStream();
-
-                                // Chuẩn bị dữ liệu để gửi
-                              //  string content = Tests[indexTest]?.GetTestString() ?? "";
-
-                               
-
-                                //content = "Key-Exam" + content;
                                 content = key + content;
 
                                 byte[] signalBytes = Encoding.UTF8.GetBytes(content);
@@ -2489,6 +2481,7 @@ namespace Server
                 {
                     MessageBox.Show("Mất kết nối với: " + row.Cells[0].Value.ToString());
                     Console.WriteLine("Mất kết nối: " + ex.Message);
+                    return false;
                 }
             }
 
@@ -2501,6 +2494,7 @@ namespace Server
             {
                 MessageBox.Show("Đã phát đề");
             }
+            return true;
         }
 
         private void tsQuickLauch_Click(object sender, EventArgs e)

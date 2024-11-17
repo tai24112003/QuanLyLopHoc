@@ -78,7 +78,7 @@ namespace DAL.Models
         public void ResetProgress()=>Progress = 0; 
         public int GetTimeOfTest()
         {
-            int restTime = (Quests.Count - 1) * RestTimeBetweenQuests;
+            int restTime = (Quests.Count - 1) * (RestTimeBetweenQuests+3);
             return Quests.Sum(quest => quest.CountDownTime)+restTime;
         }
         public string GetTestString()
@@ -118,7 +118,15 @@ namespace DAL.Models
                 studentScores.Add(new StudentScore { StudentId = studentId, Score=ScoringForStudent(studentId) });   
             }
             studentScores = studentScores.OrderByDescending(s => s.Score).ToList();
+            int i = 1;
+            Console.WriteLine("start---------");
 
+            foreach (string t in studentIds)
+            {
+                Console.WriteLine(t);
+                i++;
+            }
+            Console.WriteLine("end---------");
             // Nếu top > 0, chỉ lấy số lượng phần tử tương ứng
             if (top > 0)
             {

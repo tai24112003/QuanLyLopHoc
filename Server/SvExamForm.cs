@@ -17,14 +17,14 @@ namespace Server
         private int IndexTestSelected { get; set; }
         private int IndexTestSended { get; set; }
         private List<Test> Tests { get; set; }
-        private Action<string, string, int> SendTest { get; set; }
+        private Func<string, string, int, bool> SendTest { get; set; }
         private List<int> DidExams { get; set; }
         private List<string> Students { get; set; }
         private TrackExam TrackExamForm {  get; set; }
         private bool IsOpen = true;
         private bool IsEdit = false;
-
-        public SvExamForm(List<Test> tests, Action<string, string, int> sendTest, List<string> students, List<int> didExam)
+        private bool IsExamining = false;
+        public SvExamForm(List<Test> tests, Func<string, string, int, bool> sendTest, List<string> students, List<int> didExam)
         {
             InitializeComponent();
             Tests = tests;
@@ -62,7 +62,7 @@ namespace Server
             txt_testTitle.Text = Tests.First().Title;
             txt_maxPoint.Text = Tests.First().MaxPoint.ToString();
 
-            List<QuestType> questTypeDefault = new List<QuestType> { QuestType.SingleSeclect, QuestType.MultipleSelect, QuestType.TrueFalse };
+            List<QuestType> questTypeDefault = new List<QuestType> { QuestType.SingleSeclect, QuestType.MultipleSelect };
             List<int> doTimeDefault = new List<int> { 20, 30, 40, 50, 60, 90, 120, 150, 180 };
 
             cbb_questType.DataSource = new List<QuestType>(questTypeDefault);
@@ -377,6 +377,7 @@ namespace Server
                 ChangeQuestInTest();
 
                 lbl_num_of_quest.Text = pnl_slide_question.Controls.Count.ToString();
+                lbl_time_remaining.Text = $"Thời gian: {Tests[IndexTestSelected].GetTimeOfTest()}s";
 
                 // Cập nhật chiều cao của panel
                 UpdatePaneQuestListlHeight();
@@ -453,22 +454,14 @@ namespace Server
             {
                 SendTest(item.GetQuestString(),"QuestCome",-1);
                 doingTest.Progress++;
-                await Task.Delay(item.CountDownTime * 1000+1000);
+                await Task.Delay(item.CountDownTime * 1000+2000);
 
                 List<StudentScore> top3 = doingTest.ScoringForClass(Students,3);
                 string mess = "";
                 int cout=top3.Count;
-                switch (cout)
+                while (top3.Count < 3)
                 {
-                    case 0:
-                        top3 = new List<StudentScore> {new StudentScore(), new StudentScore(), new StudentScore() };
-                        break;
-                    case 1:
-                        top3 = new List<StudentScore>() { top3[0], new StudentScore(),  new StudentScore() };
-                        break;
-                    case 2:
-                        top3 = new List<StudentScore>() { top3[0], top3[1], new StudentScore() };
-                        break;
+                    top3.Add(new StudentScore());
                 }
                 for (int i = 0; i < 3; i++)
                 {
@@ -482,6 +475,7 @@ namespace Server
             doingTest.IsExamining = false;
             doingTest.ResetProgress();
             DidExams.Add(doingTest.Index);
+            IsExamining = false;
             ChangeTest();
         }
 
@@ -572,6 +566,7 @@ namespace Server
             }
             this.pnl_slide_question.Controls.Add(thumbnailQuestion); // Thêm điều khiển vào FlowLayoutPanel
             IndexQuestionSelected =pnl_slide_question.Controls.IndexOf( thumbnailQuestion);
+            lbl_time_remaining.Text = $"Thời gian: {Tests[IndexTestSelected].GetTimeOfTest()}s";
             ChangeQuestInTest();
 
 
@@ -592,11 +587,6 @@ namespace Server
             pnl_test_list.PerformLayout(); // Cập nhật bố cục sau khi cuộn
             
             ChangeTest();
-        }
-        private void btn_del_ques_Click(object sender, EventArgs e)
-        {
-            ThumbnailQuestion temp=this.pnl_slide_question.Controls[IndexQuestionSelected] as ThumbnailQuestion;
-            DeleteQues(temp);
         }
         private void btn_save_Click(object sender, EventArgs e)
         {
@@ -655,11 +645,21 @@ namespace Server
         }
         private void btn_sendExam_Click(object sender, EventArgs e)
         {
+            if (IsExamining)
+            {
+                MessageBox.Show("Đang có bài thi diễn ra");
+                return;
+            }
             SendTest(Tests[IndexTestSelected].GetTestStringOutOfQuest(),"Key-Exam",IndexTestSelected);
             IndexTestSended = IndexTestSelected;
         }
         private void btn_doExam_Click(object sender, EventArgs e)
         {
+            if (IsExamining)
+            {
+                MessageBox.Show("Đang có bài thi diễn ra");
+                return;
+            }
             if (IndexTestSended == -1)
             {
                 MessageBox.Show("Chưa có đề nào được phát");
@@ -670,7 +670,13 @@ namespace Server
             DialogResult result=MessageBox.Show($"Bắt đầu thi đề: {testReady.Title}?","Xác nhận",MessageBoxButtons.OKCancel);
             if (result == DialogResult.Cancel) return;
             
-            SendTest("","DoExam",-1);
+            bool process= SendTest("","DoExam",-1);
+            if (!process)
+            {
+                return;
+            }
+            IsExamining = true;
+
             testReady.IsExamining = true;
             ChangeStateExam();
 
@@ -726,11 +732,6 @@ namespace Server
         {
             FilterQuestByType(cbb_questTypeFilter.SelectedItem as QuestType);
         }
-        private void pnl_body_ControlChanged(object sender, ControlEventArgs e)
-        {
-            bool isShow = pnl_body.Controls.Count > 0;
-            btn_del_ques.Enabled = isShow;
-        }
         private void btn_confirmSetExam_Click(object sender, EventArgs e)
         {
             if (cbb_doQuestTime_exam.SelectedIndex == -1 && cbb_questType_exam.SelectedIndex == -1 && cbb_restEachTime_exam.SelectedIndex == -1)
@@ -778,6 +779,20 @@ namespace Server
         {
           TrackExamForm=  new TrackExam(Tests[IndexTestSelected]);
           TrackExamForm.ShowDialog();
+        }
+
+        private void SvExamForm_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if (e.KeyChar == (char)Keys.Enter) // Kiểm tra nếu ký tự là Enter
+            {
+                e.Handled = true; // Ngăn sự kiện này tiếp tục lan ra các điều khiển khác
+                btn_save_Click(sender, e);
+            }
+        }
+
+        private void SvExamForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            e.Cancel=IsExamining;
         }
     }
 }

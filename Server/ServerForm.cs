@@ -31,8 +31,14 @@ namespace Server
 {
     public partial class svForm : Form
     {
+        private DateTime lastReceivedTime;
+        private System.Timers.Timer idleTimer;
+        private bool isUpdating = false; // Tránh cập nhật lặp lại
+        private readonly int idleTimeInSeconds = 10; // Thời gian chờ không nhận dữ liệu
+
         private bool isFullInfoMode = false;
         private WinFormsTimer timer;
+        Class _classinfo;
         private string Ip= "192.168.1.6";
         private TcpListener tcpListener;
         private Thread listenThread;
@@ -83,6 +89,13 @@ namespace Server
             StudentsAreReady = new List<string>();
             DidExamId = new List<int>();
         }
+        private void InitializeIdleTimer()
+        {
+            idleTimer = new System.Timers.Timer(idleTimeInSeconds * 1000); // Chờ 10 giây
+            idleTimer.AutoReset = false; // Chỉ chạy một lần mỗi khi kích hoạt
+            idleTimer.Elapsed += OnIdleTimerElapsed;
+        }
+
         public void Initialize(int userID, string roomID, int classID, RoomBLL roomBLL, int sessionID, SessionComputerBLL sessionComputer, ClassSessionBLL classSession, ClassStudentBLL classStudentBLL, AttendanceBLL attendanceBLL, ComputerBLL computerBLL, StudentBLL studentBLL, IServiceProvider serviceProvider)
         {
             this.userID = userID;
@@ -734,7 +747,18 @@ namespace Server
             else if (tmp[0] == "InfoClient")
             {
                 ReciveInfo(tmp[1]);
+
+                // Cập nhật thời gian nhận dữ liệu mới nhất
+                lastReceivedTime = DateTime.Now;
+
+                // Khởi động lại timer
+                if (idleTimer != null)
+                {
+                    idleTimer.Stop(); // Dừng timer cũ
+                    idleTimer.Start(); // Bắt đầu lại
+                }
             }
+
             else if (tmp[0] == "LOAD_DONE")
             {
                 isRunning = true;
@@ -754,6 +778,27 @@ namespace Server
             //tcpClient.Close();
         }
 
+        private async void OnIdleTimerElapsed(object sender, System.Timers.ElapsedEventArgs e)
+        {
+            // Đảm bảo chỉ thực hiện một lần
+            if (isUpdating) return;
+            isUpdating = true;
+
+            try
+            {
+                // Thực hiện cập nhật
+                await updateAttanceToDB();
+                await updateSessionComputer();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Lỗi khi cập nhật: {ex}");
+            }
+            finally
+            {
+                isUpdating = false;
+            }
+        }
 
         private void UpdateListView(string machineName, Image image)
         {
@@ -2037,7 +2082,7 @@ namespace Server
                                     // Gửi tín hiệu thông báo
                                     string fileName = System.IO.Path.GetFileName(filePath);
 
-                                    string signal = $"SendFile-FileName-{fileName}-{ctoPath}";
+                                    string signal = $"SendFile-FileName-{fileName}-{toPath}";
                                     byte[] signalBytes = Encoding.UTF8.GetBytes(signal);
                                     stream.Write(signalBytes, 0, signalBytes.Length); // Gửi tín hiệu
                                     stream.Flush(); // Đảm bảo dữ liệu được gửi đi ngay lập tức
@@ -2226,7 +2271,7 @@ namespace Server
         }
 
 
-        private void ExportToExcel(string fileName)
+        private void ExportToExcel(string fileName, DataGridView dataGrid)
         {
             try
             {
@@ -2245,21 +2290,21 @@ namespace Server
                     ExcelWorksheet worksheet = package.Workbook.Worksheets.Add("PhongMayInfo");
 
                     // Đặt tiêu đề cho các cột
-                    for (int i = 0; i < dgv_client.Columns.Count; i++)
+                    for (int i = 0; i < dataGrid.Columns.Count; i++)
                     {
-                        worksheet.Cells[1, i + 1].Value = dgv_client.Columns[i].HeaderText;
+                        worksheet.Cells[1, i + 1].Value = dataGrid.Columns[i].HeaderText;
                     }
 
                     // Đổ dữ liệu từ DataGridView vào tệp Excel và kiểm tra sự khác biệt
-                    for (int i = 0; i < dgv_client.Rows.Count; i++)
+                    for (int i = 0; i < dataGrid.Rows.Count; i++)
                     {
-                        for (int j = 0; j < dgv_client.Columns.Count; j++)
+                        for (int j = 0; j < dataGrid.Columns.Count; j++)
                         {
                             var cell = worksheet.Cells[i + 2, j + 1];
-                            cell.Value = dgv_client.Rows[i].Cells[j].Value?.ToString() ?? "";
+                            cell.Value = dataGrid.Rows[i].Cells[j].Value?.ToString() ?? "";
 
                             // Kiểm tra nếu ô có màu đỏ thì tô màu trong Excel
-                            if (dgv_client.Rows[i].Cells[j].Style.ForeColor == Color.Red)
+                            if (dataGrid.Rows[i].Cells[j].Style.ForeColor == Color.Red)
                             {
                                 cell.Style.Fill.PatternType = ExcelFillStyle.Solid;
                                 cell.Style.Fill.BackgroundColor.SetColor(Color.Red);
@@ -2341,7 +2386,7 @@ namespace Server
             }
         }
 
-        private void Export_Click(object sender, EventArgs e)
+        private void ExportSession_Click(object sender, EventArgs e)
         {
             using (FolderBrowserDialog folderBrowserDialog = new FolderBrowserDialog())
             {
@@ -2352,9 +2397,25 @@ namespace Server
                 if (folderBrowserDialog.ShowDialog() == DialogResult.OK)
                 {
                     string folderPath = folderBrowserDialog.SelectedPath;
-                    Console.WriteLine($"{folderPath}");
                     // Hiển thị đường dẫn thư mục đã chọn, ví dụ trên một label
-                    ExportToExcel(folderPath + @"\F711-Info.xlsx");
+                    ExportToExcel(folderPath + @"\"+roomID+DateTime.Now.ToString("dd/MM/yyyy")+".xlsx",dgv_client);
+                }
+            }
+        }
+        private void ExportAttendance_Click(object sender, EventArgs e)
+        {
+            using (FolderBrowserDialog folderBrowserDialog = new FolderBrowserDialog())
+            {
+                folderBrowserDialog.Description = "Chọn thư mục lưu trữ";
+                folderBrowserDialog.RootFolder = Environment.SpecialFolder.MyComputer;
+                folderBrowserDialog.ShowNewFolderButton = true;
+
+                if (folderBrowserDialog.ShowDialog() == DialogResult.OK)
+                {
+                    string folderPath = folderBrowserDialog.SelectedPath;
+                    // Hiển thị đường dẫn thư mục đã chọn, ví dụ trên một label
+                    ExportToExcel(folderPath + @"\" + roomID + DateTime.Now.ToString("dd/MM/yyyy") + ".xlsx", dgv_attendance);
+
                 }
             }
         }
@@ -2617,10 +2678,29 @@ namespace Server
         }
         private async void EndClassToolStripMenuItem_ClickAsync(object sender, EventArgs e)
         {
-            await updateAttanceToDB();
-            await updateSessionComputer();
-            this.Close();
+            try
+            {
+                sendAllIPInLan();
+
+                // Cài đặt thời gian bắt đầu
+                lastReceivedTime = DateTime.Now;
+
+                // Khởi động Timer
+                if (idleTimer == null)
+                {
+                    InitializeIdleTimer();
+                }
+                idleTimer.Start();
+
+                // Thông báo đã bắt đầu theo dõi
+                Console.WriteLine("Đang chờ thông tin từ các máy con...");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+            }
         }
+
 
         private void toolStripButton17_Click(object sender, EventArgs e)
         {
@@ -2673,7 +2753,10 @@ namespace Server
             {
                 try
                 {
-                    string clientIP = row.Cells[5].Value.ToString();
+                    // Kiểm tra xem hàng có được chọn không
+                    if (!row.Selected) continue;
+
+                    string clientIP = row.Cells[5].Value?.ToString();
 
                     // Kiểm tra xem địa chỉ IP có hợp lệ không
                     if (IsValidIPAddress(clientIP))
@@ -2689,22 +2772,21 @@ namespace Server
                                 stream = client.GetStream();
 
                                 // Gửi tín hiệu thông báo
-                                string signal = $"LockScreen";
+                                string signal = "LockScreen";
                                 byte[] signalBytes = Encoding.UTF8.GetBytes(signal);
                                 stream.Write(signalBytes, 0, signalBytes.Length); // Gửi tín hiệu
                                 stream.Flush(); // Đảm bảo dữ liệu được gửi đi ngay lập tức
-                                Console.WriteLine("Đã gửi tín hiệu send");
-
+                                Console.WriteLine($"Đã gửi tín hiệu khóa màn hình đến {clientIP}");
                             }
                             catch (Exception ex)
                             {
-                                Console.WriteLine("Lỗi khi gửi tệp: " + ex.Message);
+                                Console.WriteLine($"Lỗi khi gửi tín hiệu đến {clientIP}: {ex.Message}");
                             }
                             finally
                             {
                                 // Đảm bảo rằng kết nối được đóng đúng cách
-                                if (stream != null) stream.Close();
-                                if (client != null) client.Close();
+                                stream?.Close();
+                                client?.Close();
                             }
                         });
 
@@ -2715,7 +2797,7 @@ namespace Server
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show("Mất kết nối với: " + row.Cells[0].Value.ToString());
+                    MessageBox.Show($"Mất kết nối với: {row.Cells[0].Value?.ToString()} - {ex.Message}");
                 }
             }
 
@@ -2726,6 +2808,6 @@ namespace Server
             }
         }
 
-     
+
     }
 }

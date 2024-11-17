@@ -29,10 +29,10 @@
         private void InitializeComponent()
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(svForm));
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle4 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle9 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle10 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle11 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle12 = new System.Windows.Forms.DataGridViewCellStyle();
             this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
             this.btnAll = new System.Windows.Forms.Button();
             this.sendFileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -92,9 +92,11 @@
             this.tsUpdateAttendance = new System.Windows.Forms.ToolStripMenuItem();
             this.tsUpdateBoth = new System.Windows.Forms.ToolStripMenuItem();
             this.tsUpdateScore = new System.Windows.Forms.ToolStripMenuItem();
-            this.tsExport = new System.Windows.Forms.ToolStripButton();
             this.tsExam = new System.Windows.Forms.ToolStripDropDownButton();
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
+            this.tsExport = new System.Windows.Forms.ToolStripSplitButton();
+            this.xuấtFilePhiênToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.xuấtFileĐiểmDanhToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.flowLayoutPanel1.SuspendLayout();
             this.toolStrip2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgv_client)).BeginInit();
@@ -278,9 +280,9 @@
             // 
             this.dgv_client.AllowUserToAddRows = false;
             this.dgv_client.AllowUserToDeleteRows = false;
-            dataGridViewCellStyle1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
-            dataGridViewCellStyle1.SelectionBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(149)))), ((int)(((byte)(179)))), ((int)(((byte)(255)))));
-            this.dgv_client.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle1;
+            dataGridViewCellStyle9.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
+            dataGridViewCellStyle9.SelectionBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(149)))), ((int)(((byte)(179)))), ((int)(((byte)(255)))));
+            this.dgv_client.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle9;
             this.dgv_client.AutoSizeRowsMode = System.Windows.Forms.DataGridViewAutoSizeRowsMode.AllCells;
             this.dgv_client.BackgroundColor = System.Drawing.Color.White;
             this.dgv_client.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
@@ -296,14 +298,14 @@
             this.Monitor,
             this.ComputerID,
             this.MismathInfo});
-            dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle2.BackColor = System.Drawing.SystemColors.Window;
-            dataGridViewCellStyle2.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            dataGridViewCellStyle2.ForeColor = System.Drawing.SystemColors.ControlText;
-            dataGridViewCellStyle2.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-            dataGridViewCellStyle2.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            dataGridViewCellStyle2.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
-            this.dgv_client.DefaultCellStyle = dataGridViewCellStyle2;
+            dataGridViewCellStyle10.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle10.BackColor = System.Drawing.SystemColors.Window;
+            dataGridViewCellStyle10.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            dataGridViewCellStyle10.ForeColor = System.Drawing.SystemColors.ControlText;
+            dataGridViewCellStyle10.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle10.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle10.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.dgv_client.DefaultCellStyle = dataGridViewCellStyle10;
             this.dgv_client.Dock = System.Windows.Forms.DockStyle.Left;
             this.dgv_client.GridColor = System.Drawing.Color.White;
             this.dgv_client.Location = new System.Drawing.Point(100, 129);
@@ -404,9 +406,9 @@
             // 
             this.dgv_attendance.AllowUserToAddRows = false;
             this.dgv_attendance.AllowUserToDeleteRows = false;
-            dataGridViewCellStyle3.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
-            dataGridViewCellStyle3.SelectionBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(149)))), ((int)(((byte)(179)))), ((int)(((byte)(255)))));
-            this.dgv_attendance.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle3;
+            dataGridViewCellStyle11.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
+            dataGridViewCellStyle11.SelectionBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(149)))), ((int)(((byte)(179)))), ((int)(((byte)(255)))));
+            this.dgv_attendance.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle11;
             this.dgv_attendance.AutoSizeRowsMode = System.Windows.Forms.DataGridViewAutoSizeRowsMode.AllCells;
             this.dgv_attendance.BackgroundColor = System.Drawing.Color.White;
             this.dgv_attendance.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
@@ -414,14 +416,14 @@
             this.MSSV,
             this.FirstName,
             this.LastName});
-            dataGridViewCellStyle4.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle4.BackColor = System.Drawing.SystemColors.Window;
-            dataGridViewCellStyle4.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            dataGridViewCellStyle4.ForeColor = System.Drawing.SystemColors.ControlText;
-            dataGridViewCellStyle4.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-            dataGridViewCellStyle4.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            dataGridViewCellStyle4.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
-            this.dgv_attendance.DefaultCellStyle = dataGridViewCellStyle4;
+            dataGridViewCellStyle12.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle12.BackColor = System.Drawing.SystemColors.Window;
+            dataGridViewCellStyle12.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            dataGridViewCellStyle12.ForeColor = System.Drawing.SystemColors.ControlText;
+            dataGridViewCellStyle12.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle12.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle12.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.dgv_attendance.DefaultCellStyle = dataGridViewCellStyle12;
             this.dgv_attendance.Dock = System.Windows.Forms.DockStyle.Left;
             this.dgv_attendance.GridColor = System.Drawing.Color.White;
             this.dgv_attendance.Location = new System.Drawing.Point(1035, 129);
@@ -657,19 +659,6 @@
             this.tsUpdateScore.Size = new System.Drawing.Size(260, 22);
             this.tsUpdateScore.Text = "Cập nhật điểm";
             // 
-            // tsExport
-            // 
-            this.tsExport.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.tsExport.Image = ((System.Drawing.Image)(resources.GetObject("tsExport.Image")));
-            this.tsExport.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
-            this.tsExport.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.tsExport.Name = "tsExport";
-            this.tsExport.Size = new System.Drawing.Size(80, 87);
-            this.tsExport.Tag = "";
-            this.tsExport.Text = "Xuất File Excel";
-            this.tsExport.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
-            this.tsExport.Click += new System.EventHandler(this.Export_Click);
-            // 
             // tsExam
             // 
             this.tsExam.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -703,6 +692,35 @@
             this.toolStrip1.Size = new System.Drawing.Size(1443, 90);
             this.toolStrip1.TabIndex = 4;
             this.toolStrip1.Text = "toolStrip1";
+            // 
+            // tsExport
+            // 
+            this.tsExport.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.xuấtFilePhiênToolStripMenuItem,
+            this.xuấtFileĐiểmDanhToolStripMenuItem});
+            this.tsExport.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.tsExport.Image = ((System.Drawing.Image)(resources.GetObject("tsExport.Image")));
+            this.tsExport.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
+            this.tsExport.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsExport.Name = "tsExport";
+            this.tsExport.Size = new System.Drawing.Size(92, 87);
+            this.tsExport.Tag = "";
+            this.tsExport.Text = "Xuất File Excel";
+            this.tsExport.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
+            // 
+            // xuấtFilePhiênToolStripMenuItem
+            // 
+            this.xuấtFilePhiênToolStripMenuItem.Name = "xuấtFilePhiênToolStripMenuItem";
+            this.xuấtFilePhiênToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.xuấtFilePhiênToolStripMenuItem.Text = "Xuất File Phiên";
+            this.xuấtFilePhiênToolStripMenuItem.Click += new System.EventHandler(this.ExportSession_Click);
+            // 
+            // xuấtFileĐiểmDanhToolStripMenuItem
+            // 
+            this.xuấtFileĐiểmDanhToolStripMenuItem.Name = "xuấtFileĐiểmDanhToolStripMenuItem";
+            this.xuấtFileĐiểmDanhToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.xuấtFileĐiểmDanhToolStripMenuItem.Text = "Xuất File Điểm Danh";
+            this.xuấtFileĐiểmDanhToolStripMenuItem.Click += new System.EventHandler(this.ExportAttendance_Click);
             // 
             // svForm
             // 
@@ -797,9 +815,11 @@
         private System.Windows.Forms.ToolStripMenuItem tsUpdateAttendance;
         private System.Windows.Forms.ToolStripMenuItem tsUpdateBoth;
         private System.Windows.Forms.ToolStripMenuItem tsUpdateScore;
-        private System.Windows.Forms.ToolStripButton tsExport;
         private System.Windows.Forms.ToolStripDropDownButton tsExam;
         private System.Windows.Forms.ToolStrip toolStrip1;
+        private System.Windows.Forms.ToolStripSplitButton tsExport;
+        private System.Windows.Forms.ToolStripMenuItem xuấtFilePhiênToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem xuấtFileĐiểmDanhToolStripMenuItem;
     }
 }
 

@@ -41,11 +41,41 @@ namespace Server
 
         private void btnSend_Click(object sender, EventArgs e)
         {
-            string[] filePaths = txtFilePath.Text.Split(new string[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
-            string toPath = txtToPath.Text;
-            FilesSelected?.Invoke(filePaths.ToList(), toPath); // Trigger event with selected file paths
+            // Lấy danh sách file từ TextBox
+            string[] filePaths = txtFilePath.Text
+                .Split(new string[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
+
+            // Lấy đường dẫn đích từ TextBox
+            string toPath = txtToPath.Text.Trim();
+
+            // Validate danh sách file
+            if (filePaths.Length == 0)
+            {
+                MessageBox.Show("Vui lòng chọn ít nhất một tệp để gửi.", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            foreach (string filePath in filePaths)
+            {
+                if (!File.Exists(filePath))
+                {
+                    MessageBox.Show($"Tệp không tồn tại: {filePath}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+            }
+
+            // Validate đường dẫn đích
+            if (string.IsNullOrWhiteSpace(toPath))
+            {
+                MessageBox.Show("Vui lòng nhập đường dẫn đích.", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            // Nếu mọi thứ hợp lệ, kích hoạt sự kiện và đóng form
+            FilesSelected?.Invoke(filePaths.ToList(), toPath);
             this.Close();
         }
+
 
         private void btnCancle_Click(object sender, EventArgs e)
         {

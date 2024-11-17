@@ -277,7 +277,6 @@ namespace testUdpTcp
             }
             else if (receivedMessage.StartsWith("CollectFile"))
             {
-                // Parse the signal
                 string[] parts = receivedMessage.Split(new string[] { "FileName-","FolderPath-" ,"Check-" }, StringSplitOptions.None);
                 if (parts.Length >= 4)
                 {
@@ -828,22 +827,6 @@ namespace testUdpTcp
             // Draw the cursor on the screenshot
             Cursor cursor = Cursors.Default;
             cursor.Draw(graphics, new Rectangle(cursorPosition, cursor.Size));
-        }
-
-        private void OpenNewFormLockScreen()
-        {
-            if (this.InvokeRequired)
-            {
-                this.BeginInvoke((MethodInvoker)delegate { OpenNewFormLockScreen(); });
-            }
-            else
-            {
-                if (LockScreen == null)
-                {
-                    LockScreen = new LockScreenForm();
-                    LockScreen.Show();
-                }
-            }
         }
 
         private void OpenNewForm()

@@ -17,6 +17,8 @@ namespace testUdpTcp
         private UdpClient udpClient;
         private Thread udpListenerThread;
         private string serverIP;
+        private bool isRunning;
+
         public string ServerIP
         {
             get { return serverIP; }
@@ -26,7 +28,7 @@ namespace testUdpTcp
         public SlideShowForm()
         {
             InitializeComponent();
-            
+
             this.FormBorderStyle = FormBorderStyle.None; // Loại bỏ viền của form
             this.WindowState = FormWindowState.Maximized; // Phóng to form ra toàn màn hình
             //this.TopMost = true; // Đặt form ở trên cùng của tất cả các cửa sổ khác
@@ -39,6 +41,7 @@ namespace testUdpTcp
         private void SlideShowForm_Load(object sender, EventArgs e)
         {
             ConnectToServer();
+            isRunning = true;
             udpListenerThread = new Thread(new ThreadStart(ListenForUdpClients));
             udpListenerThread.Start();
         }
@@ -61,14 +64,14 @@ namespace testUdpTcp
                 Console.WriteLine("Error connecting to server: " + ex.Message);
             }
         }
-
         private void ListenForUdpClients()
         {
             Dictionary<int, List<byte[]>> imagesData = new Dictionary<int, List<byte[]>>();
 
-            while (true)
+
+            try
             {
-                try
+                while (isRunning) // Kiểm tra điều kiện dừng
                 {
                     // Tạo một điểm cuối IP bất kỳ để lắng nghe dữ liệu từ UDP client
                     IPEndPoint remoteEP = new IPEndPoint(IPAddress.Any, 0);
@@ -120,50 +123,59 @@ namespace testUdpTcp
                         }
                     }
                 }
-                catch (Exception ex)
+                
+        }
+            catch (Exception ex)
+            {
+                if (isRunning) // Nếu luồng vẫn chạy, in ra lỗi
                 {
                     Console.WriteLine("Lỗi khi nhận dữ liệu UDP: " + ex.Message);
                 }
             }
         }
 
-        // Phương thức cập nhật PictureBox với ảnh mới
-        private void UpdatePictureBox(Image image)
+    private void SlideShowForm_FormClosing(object sender, FormClosingEventArgs e)
+    {
+        if (udpClient != null)
         {
-            if (pictureBox1.InvokeRequired)
-            {
-                pictureBox1.Invoke(new Action<Image>(UpdatePictureBox), image);
-                return;
-            }
-
-            pictureBox1.Image = image;
+            isRunning = false; // Dừng luồng UDP listener
+            udpListenerThread.Abort();
+            udpListenerThread?.Join(); // Đợi luồng hoàn thành
+                                       // Đảm bảo UDP client được đóng và giải phóng tài nguyên
+            udpClient.Close();
+            udpClient.Dispose();
         }
 
-        private void SlideShowForm_FormClosing(object sender, FormClosingEventArgs e)
+        if (!AllowClose)
         {
-            if (udpClient != null)
-            {
-                udpClient.Close();
-                udpClient.Dispose();
-                
-            }
-            if (!AllowClose)
-            {
-                // Nếu không được phép đóng, hủy sự kiện đóng form
-                e.Cancel = true;
-                MessageBox.Show("Form cannot be closed from here.");
-            }
-            else
-            {
-                // Hiển thị lại con trỏ chuột khi form bị đóng
-                Cursor.Show();
-            }
+            // Nếu không được phép đóng, hủy sự kiện đóng form
+            e.Cancel = true;
+            MessageBox.Show("Không được tự đóng form");
         }
-        public void StopSlideshow()
+        else
         {
-            // Thực hiện các thao tác dừng slideshow
-            AllowClose = true; // Cho phép form được đóng
-            this.Close(); // Đóng form
+            // Hiển thị lại con trỏ chuột khi form bị đóng
+            Cursor.Show();
         }
     }
+
+    public void StopSlideshow()
+    {
+        // Thực hiện các thao tác dừng slideshow
+        AllowClose = true; // Cho phép form được đóng
+        this.Close(); // Đóng form
+    }
+
+
+    private void UpdatePictureBox(Image image)
+    {
+        if (pictureBox1.InvokeRequired)
+        {
+            pictureBox1.Invoke(new Action<Image>(UpdatePictureBox), image);
+            return;
+        }
+
+        pictureBox1.Image = image;
+    }
+}
 }

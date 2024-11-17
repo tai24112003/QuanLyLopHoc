@@ -34,7 +34,6 @@ namespace testUdpTcp
         {
             InitializeComponent();
             //myIp = getIPServer();
-            myIp = getIPServer();
             //myIp = "192.168.72.228";
             inf = GetDeviceInfo();
 
@@ -58,7 +57,6 @@ namespace testUdpTcp
         private ExamForm examFrm;
         SlideShowForm form1;
         LockScreenForm LockScreen;
-        private Thread udpReceiverThread;
         //private string IpServer = "192.168.72.249";
         private string IpServer = "127.0.0.1";
 
@@ -68,11 +66,15 @@ namespace testUdpTcp
         private bool sended = false;
         private string hostName;
         TcpListener listener;
-        private Thread listenThread;
         string mssvDoTest { get; set; }
-        private bool isRunning = true;
+        private bool isRunningscreenshot = true;
+        private bool isRunningscreenshot5s = true;
+        private bool isRunningtcplisten = true;
+        private bool isRunningudplisten = true;
         private Thread screenshotThread;
         private Thread screenshotThread5s;
+        private Thread listenThread;
+        private Thread udpReceiverThread;
 
         // Khai báo danh sách để lưu MSSV đã nhập
         List<string> mssvList = new List<string>();
@@ -83,18 +85,20 @@ namespace testUdpTcp
         {
 
             udpClient = new UdpClient(11312);
-            udpReceiverThread = new Thread(new ThreadStart(ReceiveDataOnce));
-            udpReceiverThread.Start();
-            udpReceiverThread.Join();
-            screenshotThread5s = new Thread(() =>
-            {
-                CaptureAndSendScreenshots5s();
+            //isRunningudplisten = true;
+            //udpReceiverThread = new Thread(ReceiveDataOnce);
+            //udpReceiverThread.Start();
 
-            });
+            // Bắt đầu chụp ảnh màn hình mỗi 5 giây
+            isRunningscreenshot5s = true;
+            screenshotThread5s = new Thread(CaptureAndSendScreenshots5s);
             screenshotThread5s.Start();
 
-            listenThread = new Thread(new ThreadStart(ListenForClients));
+            // Bắt đầu lắng nghe kết nối TCP
+            isRunningtcplisten = true;
+            listenThread = new Thread(ListenForClients);
             listenThread.Start();
+
 
         }
 
@@ -112,29 +116,37 @@ namespace testUdpTcp
 
         private void ListenForClients()
         {
-
             listener = new TcpListener(IPAddress.Parse(myIp), 8888);
             listener.Start();
+            Console.WriteLine("TCP listener đang lắng nghe...");
 
-            Console.WriteLine("Client is listening...");
-            while (true)
+            while (isRunningtcplisten)
             {
                 try
                 {
+                    if (!listener.Pending())
+                    {
+                        Thread.Sleep(100); // Giảm tải CPU khi không có kết nối
+                        continue;
+                    }
 
                     TcpClient client = listener.AcceptTcpClient();
-                    // Bạn có thể xử lý kết nối client ở đây
+                    Console.WriteLine("Client kết nối!");
 
+                    // Xử lý kết nối client
                     HandleClient(client);
-
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine(ex);
+                    Console.WriteLine($"Lỗi khi lắng nghe TCP: {ex.Message}");
                     break;
                 }
             }
+
+            listener.Stop();
+            Console.WriteLine("Đã dừng TCP listener.");
         }
+
         private string ConvertWildcardToRegexPattern(string wildcardPattern)
         {
             // Thay thế '*' thành '.*' trong mẫu regex
@@ -176,7 +188,7 @@ namespace testUdpTcp
             if (receivedMessage.StartsWith("SendFile"))
             {
                 // Parse the signal
-                string[] parts = receivedMessage.Split('-');
+                string[] parts = receivedMessage.Split(new char[] { '-' }, 2);
                 if (parts.Length >= 3)
                 {
                     string fileName = parts[1];
@@ -222,7 +234,7 @@ namespace testUdpTcp
             {
                 // Parse the signal
                 string[] parts = receivedMessage.Split(new char[] { '-' }, 2);
-                if (parts.Length >= 3)
+                if (parts.Length >= 2)
                 {
                     string fileName = parts[1];
                     Process.Start(fileName);
@@ -246,7 +258,7 @@ namespace testUdpTcp
             }
             else if (receivedMessage.StartsWith("Mouse"))
             {
-                string[] parts = receivedMessage.Split('-');
+                string[] parts = receivedMessage.Split(new char[] { '-' }, 2);
                 string[] coords = parts[1].Split(',');
                 int mouseX = int.Parse(coords[0]);
                 int mouseY = int.Parse(coords[1]);
@@ -262,7 +274,7 @@ namespace testUdpTcp
             else if (receivedMessage.StartsWith("CollectFile"))
             {
                 // Parse the signal
-                string[] parts = receivedMessage.Split('-');
+                string[] parts = receivedMessage.Split(new char[] { '-' }, 2);
                 if (parts.Length >= 4)
                 {
                     string fileNamePattern = ConvertWildcardToRegexPattern(parts[1]);
@@ -425,7 +437,7 @@ namespace testUdpTcp
                         break;
                     case "SlideShowToClient":
                         sendData("ReadyToCapture");
-                        isRunning = true;
+                        isRunningscreenshot = true;
 
                         screenshotThread = new Thread(new ThreadStart(CaptureAndSendScreenshotsContinuously));
                         screenshotThread.Start();
@@ -609,7 +621,7 @@ namespace testUdpTcp
             IPAddress broadcastAddress = GetBroadcastAddress();
             int i = 1;
             int fps = 120;
-            while (isRunning)
+            while (isRunningscreenshot)
             {
                 try
                 {
@@ -688,13 +700,12 @@ namespace testUdpTcp
 
         private void CaptureAndSendScreenshots5s()
         {
-            bool isRunning = true; // Cờ điều khiển vòng lặp, có thể được cập nhật từ bên ngoài
-
-            while (isRunning)
+            while (isRunningscreenshot5s)
             {
                 try
                 {
-                    // Lấy kích thước của vùng hiển thị thực sự của màn hình
+                    Console.WriteLine("Chụp ảnh màn hình...");
+
                     int screenLeft = SystemInformation.VirtualScreen.Left;
                     int screenTop = SystemInformation.VirtualScreen.Top;
                     int screenWidth = SystemInformation.VirtualScreen.Width;
@@ -705,29 +716,22 @@ namespace testUdpTcp
                         using (Graphics graphics = Graphics.FromImage(screenshot))
                         {
                             graphics.CopyFromScreen(screenLeft, screenTop, 0, 0, screenshot.Size, CopyPixelOperation.SourceCopy);
-
-                            // Vẽ con trỏ chuột trên ảnh chụp màn hình
                             DrawCursorOnScreenshot(graphics);
-
-                            // Gửi ảnh chụp màn hình
                             SendImage(IpServer, 8765, Environment.MachineName, screenshot);
                         }
                     }
 
-                    // Chờ 5 giây trước khi chụp và gửi ảnh tiếp theo
-                    Thread.Sleep(5000);
-                }
-                catch (ThreadInterruptedException ex)
-                {
-                    Console.WriteLine("Thread interrupted: " + ex.Message);
-                    isRunning = false; // Thoát vòng lặp nếu bị ngắt
+                    Thread.Sleep(5000); // Đợi 5 giây
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine("Lỗi khi chụp hoặc gửi ảnh: " + ex.Message);
+                    Console.WriteLine($"Lỗi khi chụp hoặc gửi ảnh: {ex.Message}");
                 }
             }
+
+            Console.WriteLine("Đã dừng chụp ảnh 5 giây/lần.");
         }
+
 
 
 
@@ -832,11 +836,11 @@ namespace testUdpTcp
             }
         }
 
-        private void OpenNewForm(TcpClient tcpclient)
+        private void OpenNewForm()
         {
             if (this.InvokeRequired)
             {
-                this.BeginInvoke((MethodInvoker)delegate { OpenNewForm(tcpclient); });
+                this.BeginInvoke((MethodInvoker)delegate { OpenNewForm(); });
             }
             else
             {
@@ -935,27 +939,36 @@ namespace testUdpTcp
 
         private void ReceiveDataOnce()
         {
-
-            try
+            while (isRunningudplisten)
             {
-                IPEndPoint remoteEndPoint = new IPEndPoint(IPAddress.Any, 0);
+                try
+                {
+                    Console.WriteLine("Đang nghe UDP...");
+                    IPEndPoint remoteEndPoint = new IPEndPoint(IPAddress.Any, 0);
 
-                // Gọi Receive một lần để nhận dữ liệu
-                byte[] receivedBytes = udpClient.Receive(ref remoteEndPoint);
-                string receivedMessage = Encoding.UTF8.GetString(receivedBytes);
-                IpServer = receivedMessage;
-                // Xử lý dữ liệu nhận được
-                //DisplayMessage(IpServer);
-                sendInfToServer();
-                //if (sended) MessageBox.Show("Gửi thành công", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                //else MessageBox.Show("Gửi thất bại", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    byte[] receivedBytes = udpClient.Receive(ref remoteEndPoint);
+                    string receivedMessage = Encoding.UTF8.GetString(receivedBytes);
 
+                    IpServer = receivedMessage;
+                    Console.WriteLine($"Dữ liệu nhận được: {IpServer}");
+
+                    // Gửi thông tin tới server
+                    sendInfToServer();
+                }
+                catch (SocketException ex)
+                {
+                    Console.WriteLine($"Lỗi khi nhận dữ liệu UDP: {ex.Message}");
+                    Thread.Sleep(1000); // Tạm dừng 1 giây trước khi thử lại
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Lỗi không xác định: {ex.Message}");
+                }
             }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Lỗi khi nhận dữ liệu: {ex.Message}");
-            }
+
+            Console.WriteLine("Đã dừng UDP listener.");
         }
+
 
         List<string> stringList = new List<string>();
         public static bool HasUsbDevice(string deviceType)
@@ -1004,7 +1017,8 @@ namespace testUdpTcp
             stringList.Add($"InfoClient-");
 
             // Lấy thông tin về tên máy
-            string machineName = Environment.MachineName;
+            //string machineName = Environment.MachineName;
+            string machineName = "F71-01";
             stringList.Add($"IPC: {myIp}");
             stringList.Add($"Tenmay: {machineName}");
             lblNameComputer.Text = machineName;
@@ -1150,16 +1164,6 @@ namespace testUdpTcp
                 mssvLst.Clear();
             }
 
-            // Tạo mới InfoUC để hiển thị thông tin sinh viên
-            InfoUC infoUC = new InfoUC();
-            infoUC.Image = Properties.Resources.male_student;
-            infoUC.TextLabel = $"{fullName} - {mssv}";  // Hiển thị họ tên và MSSV
-            InForGroup.Controls.Add(infoUC);
-
-            // Xóa nội dung các TextBox sau khi xử lý
-            txtMSSV.Text = String.Empty;
-            txtFullName.Text = String.Empty;
-
             // Gửi thông tin lên server
             sendInfToServer();
 
@@ -1171,11 +1175,21 @@ namespace testUdpTcp
 
             if (sended)
             {
+                InfoUC infoUC = new InfoUC();
+                infoUC.Image = Properties.Resources.male_student;
+                infoUC.TextLabel = $"{fullName} - {mssv}";  // Hiển thị họ tên và MSSV
+                InForGroup.Controls.Add(infoUC);
+
+                // Xóa nội dung các TextBox sau khi xử lý
+                txtMSSV.Text = String.Empty;
+                txtFullName.Text = String.Empty;
+
                 MessageBox.Show("Gửi thành công", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             else
             {
                 MessageBox.Show("Gửi thất bại", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+
             }
         }
 
@@ -1250,12 +1264,25 @@ namespace testUdpTcp
 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
-            udpClient.Close();
-            listenThread.Abort();
-            Cursor.Show();
-            if (listener != null)
-                listener.Stop();
-            screenshotThread5s.Abort();
+            // Dừng UDP listener
+            isRunningudplisten = false;
+            udpReceiverThread?.Join(); // Chờ thread kết thúc
+
+            // Dừng chụp ảnh màn hình mỗi 5 giây
+            isRunningscreenshot5s = false;
+            screenshotThread5s?.Join();
+
+            // Dừng lắng nghe TCP client
+            isRunningtcplisten = false;
+            listenThread?.Join();
+
+            // Dừng chụp ảnh màn hình liên tục
+            isRunningscreenshot = false;
+            screenshotThread?.Join();
+
+            // Cleanup nếu cần thiết
+            listener?.Stop();
+            udpClient?.Close();
         }
 
         private void SimulateLeftClick()

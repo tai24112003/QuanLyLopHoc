@@ -99,7 +99,7 @@ namespace Server
             _serviceProvider = serviceProvider;
 
             //Ip = ;
-            Ip = getIPServer();
+            //Ip = getIPServer();
             InitializeContextMenu();
 
             // Thực hiện các logic khởi tạo khác nếu cần thiết
@@ -112,6 +112,7 @@ namespace Server
 
             // Tạo các mục menu
             var menuItem3 = new ToolStripMenuItem("Trình chiếu đến máy chủ");
+            var menuItem2 = new ToolStripMenuItem("Gửi Tín Hiệu");
             var menuItem4 = new ToolStripMenuItem("Thêm sinh viên");
             var menuItem5 = new ToolStripMenuItem("Chọn sinh viên kiểm tra máy");
 
@@ -390,18 +391,9 @@ namespace Server
                 lst_client.Hide();
                 lst_client.LargeImageList = imageList1;
                 //students = await _classStudentBLL.GetClassStudentsByID(classID);
-                //await SetupRoom();
-                //await SetupAttendance(classID);
-                //await updateAttanceToDB();
-                //await updateSessionComputer();
+                await SetupRoom();
+                await SetupAttendance(classID);
                 sendAllIPInLan();
-                timer = new WinFormsTimer();
-                timer.Interval = 5000;
-                // Gán sự kiện xảy ra khi Timer đã chạy đủ thời gian
-                timer.Tick += OnTimerTick;
-                this.ContextMenuStrip = contextMenuStrip;
-                // Bắt đầu Timer
-                timer.Start();
                 //IPAddress ip = IPAddress.Parse("127.0.0.1");
                 IPAddress ip = IPAddress.Parse(Ip);
                 int tcpPort = 8765;
@@ -554,14 +546,7 @@ namespace Server
             }
 
         }
-        private void OnTimerTick(object sender, EventArgs e)
-        {
-
-            // Gửi tin nhắn UDP đến từng địa chỉ IP trong mạng
-            sendAllIPInLan();
-            // Dừng Timer sau khi đã thực hiện công việc
-            //timer.Stop();
-        }
+       
         private void ListenForClients()
         {
             tcpListener.Start();
@@ -2609,6 +2594,11 @@ namespace Server
             {
                 MessageBox.Show($"Đã xảy ra lỗi: {ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+        }
+        private void contextMenu_Refresh_Click(object sender, EventArgs e)
+        {
+            sendAllIPInLan();
+           
         }
         private void contextMenu_SlideShowToClient_Click(object sender, EventArgs e)
         {

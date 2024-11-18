@@ -112,8 +112,7 @@ namespace Server
             _serviceProvider = serviceProvider;
 
             //Ip = ;
-            Ip = getIPServer();
-            InitializeContextMenu();
+            //Ip = getIPServer();
 
             // Thực hiện các logic khởi tạo khác nếu cần thiết
         }
@@ -401,13 +400,14 @@ namespace Server
             try
             {
                 this.Hide();
+                InitializeContextMenu();
                 imageList1.ImageSize = new Size(64, 64);
                 dgv_attendance.Hide();
                 lst_client.Hide();
                 lst_client.LargeImageList = imageList1;
                 //students = await _classStudentBLL.GetClassStudentsByID(classID);
-                await SetupRoom();
-                await SetupAttendance(classID);
+               // await SetupRoom();
+                //await SetupAttendance(classID);
                 sendAllIPInLan();
                 //IPAddress ip = IPAddress.Parse("127.0.0.1");
                 IPAddress ip = IPAddress.Parse(Ip);
@@ -541,8 +541,8 @@ namespace Server
             IPAddress broadcastAddress = GetBroadcastAddress() ?? null;
             Console.WriteLine(broadcastAddress);
 
-            //SendUDPMessage(IPAddress.Parse("192.168.129.65"), 11312, Ip);
-            SendUDPMessage(broadcastAddress, 11312, Ip);
+            SendUDPMessage(IPAddress.Parse("192.168.1.2"), 11312, Ip);
+            //SendUDPMessage(broadcastAddress, 11312, Ip);
 
         }
         private void SendUDPMessage(IPAddress ipAddress, int port, String mes)

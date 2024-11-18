@@ -344,6 +344,22 @@ namespace testUdpTcp
                     if (!string.IsNullOrEmpty(mssvDoTest))
                     {
                         sendData($"Ready-{mssvDoTest}");
+                        if (this.InvokeRequired)
+                        {
+                            this.Invoke(new Action(() => {
+                                this.Hide();
+                                examFrm = new ExamForm(mssvDoTest, Test, sendData, ChangeMSSV);
+                                examFrm.Show();
+                                examFrm.Focus();
+                            }));
+                        }
+                        else
+                        {
+                            this.Hide();
+                            examFrm = new ExamForm(mssvDoTest, Test, sendData, ChangeMSSV);
+                            examFrm.Show();
+                            examFrm.Focus();
+                        }
                         return;
                     }
                     if (WaitingFrom != null) return;
@@ -407,12 +423,12 @@ namespace testUdpTcp
                     if (this.InvokeRequired)
                     {
                         this.Invoke(new Action(() => { 
-                            examFrm.NotiQuestCome(quest.Index);
+                            examFrm?.NotiQuestCome(quest.Index);
                         }));
                     }
                     else
                     {
-                        examFrm.NotiQuestCome(quest.Index);
+                        examFrm?.NotiQuestCome(quest.Index);
                     }
 
                 }
@@ -516,32 +532,34 @@ namespace testUdpTcp
                         if (this.InvokeRequired)
                         {
                             this.Invoke(new Action(()=>{
+                                this.Hide();
                                 examFrm.StartDoExam();
                             }));
                         }
                         else
                         {
+                            this.Hide();
                             examFrm.StartDoExam();
                         }
 
                         break;
                     case "TestDone":
+                        Test.Quests.Clear();
                         if (this.InvokeRequired)
                         {
                             this.Invoke(new Action(() => {
-                                examFrm.QuestDone();
+                                this.Show();
+                                examFrm?.Focus();
+                                examFrm?.QuestDone();
+                                examFrm = null;
                             }));
                         }
                         else
                         {
-                            examFrm.QuestDone();
-                        }
-                        if (this.InvokeRequired)
-                        {
-                            this.Invoke(new Action(() => {
-                                examFrm = null;
-                                this.Show();
-                            }));
+                            this.Show();
+                            examFrm?.Focus();
+                            examFrm?.QuestDone();
+                            examFrm = null;
                         }
                         break;
                 }

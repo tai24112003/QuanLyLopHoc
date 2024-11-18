@@ -113,6 +113,11 @@ namespace testUdpTcp
         }
         public void ShowTop(List<string> top)
         {
+            pnExam.Controls.Clear();
+            pnExam.Controls.Add(lbl_top1);
+            pnExam.Controls.Add(lbl_top2);
+            pnExam.Controls.Add(lbl_top3);
+
             lbl_top1.Text = top[0];
             CenterLabelInPanel(lbl_top1, 1);
 
@@ -122,10 +127,6 @@ namespace testUdpTcp
             lbl_top3.Text = top[2];
             CenterLabelInPanel(lbl_top3, 3);
 
-            pnExam.Controls.Clear();
-            pnExam.Controls.Add(lbl_top1);
-            pnExam.Controls.Add(lbl_top2);
-            pnExam.Controls.Add(lbl_top3);
 
             lbl_top1.Visible = true;
             lbl_top2.Visible = true;
@@ -135,18 +136,22 @@ namespace testUdpTcp
             btn_changeMssv.Visible = false;
             CountdownTimer.Start();
         }
-        public void NotiQuestCome(int indexQ)
+        public async void NotiQuestCome(int indexQ)
         {
             while (CounterA > 0)
             {
-
+                await Task.Delay(1500);
             }
             CreateQuestUI(indexQ);
         }
-        public void QuestDone()
+        public async void QuestDone()
         {
             pnExam.Controls.Clear();
-            MessageBox.Show("Bạn đã thi xong", "Thông tin");
+            lbl_time_to_start.Text = "Bạn đã thi xong";
+            lbl_time_to_start.Visible = true;
+            pnExam.Controls.Add(lbl_time_to_start);
+            CenterLabelInPanel(lbl_time_to_start, 2);
+            await Task.Delay(4000);
             canClose = true;
             this.Dispose();
         }

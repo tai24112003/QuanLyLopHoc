@@ -333,7 +333,7 @@ namespace Server
 
                         worksheet1.Cells[row1, 1].Value = $"Câu {countIndex}";
                         worksheet1.Cells[row1, 2].Value = $"{quest.Content}";
-                        worksheet1.Cells[row1, 3].Value = $"{quest.Type.Id}";
+                        worksheet1.Cells[row1, 3].Value = $"{quest.Type.Name}";
 
                         string v = string.Join(", ", quest.GetResultsCorrect()
                                                     .Select(item => item.Content).ToList());
@@ -370,6 +370,8 @@ namespace Server
                         worksheet2.Cells[row2, 3].Value = st.Score.ToString();
                         worksheet2.Cells[row2, 4].Value = st.NumCorrect.ToString();
                     }
+
+
 
                     package.Save();
                 }

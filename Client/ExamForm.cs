@@ -144,10 +144,10 @@ namespace testUdpTcp
             }
             CreateQuestUI(indexQ);
         }
-        public async void QuestDone()
+        public async void QuestDone(string mess)
         {
             pnExam.Controls.Clear();
-            lbl_time_to_start.Text = "Bạn đã thi xong";
+            lbl_time_to_start.Text = mess;
             lbl_time_to_start.Visible = true;
             pnExam.Controls.Add(lbl_time_to_start);
             CenterLabelInPanel(lbl_time_to_start, 2);

@@ -527,7 +527,6 @@ namespace testUdpTcp
                                 examFrm.Focus();
                             }
                         }
-                        //examFrm.ShowDialog();
 
                         if (this.InvokeRequired)
                         {
@@ -543,14 +542,15 @@ namespace testUdpTcp
                         }
 
                         break;
-                    case "TestDone":
+                    case "CancelTest":
                         Test.Quests.Clear();
+                        string messCancelTest = "Bài kiểm tra đã bị giáo viên hủy";
                         if (this.InvokeRequired)
                         {
                             this.Invoke(new Action(() => {
                                 this.Show();
                                 examFrm?.Focus();
-                                examFrm?.QuestDone();
+                                examFrm?.QuestDone(messCancelTest);
                                 examFrm = null;
                             }));
                         }
@@ -558,7 +558,27 @@ namespace testUdpTcp
                         {
                             this.Show();
                             examFrm?.Focus();
-                            examFrm?.QuestDone();
+                            examFrm?.QuestDone(messCancelTest);
+                            examFrm = null;
+                        }
+                        break;
+                    case "TestDone": 
+                        Test.Quests.Clear();
+                        string messTestDone = "Bạn đã thi xong";
+                        if (this.InvokeRequired)
+                        {
+                            this.Invoke(new Action(() => {
+                                this.Show();
+                                examFrm?.Focus();
+                                examFrm?.QuestDone(messTestDone);
+                                examFrm = null;
+                            }));
+                        }
+                        else
+                        {
+                            this.Show();
+                            examFrm?.Focus();
+                            examFrm?.QuestDone(messTestDone);
                             examFrm = null;
                         }
                         break;

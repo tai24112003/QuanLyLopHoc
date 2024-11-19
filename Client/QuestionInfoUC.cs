@@ -46,7 +46,7 @@ namespace testUdpTcp
             int screenW = SystemInformation.VirtualScreen.Width;
             int screenH = SystemInformation.VirtualScreen.Height;
 
-            pnl_quest.Size = new Size((int)(screenW * 0.8), (int)(screenH * 0.23));
+            pnl_quest.Size = new Size((int)(screenW * 0.8), (int)(screenH * 0.18));
             pnl_quest.Location = new Point((int)(screenW * 0.1), (int)(screenH * 0.15));
 
             lbl_question.MaximumSize = new Size((int)(pnl_quest.Width - 5), 0);
@@ -60,7 +60,7 @@ namespace testUdpTcp
             lbl_questtype_info.Location = new Point((int)(screenW * 0.8), (int)(screenH * 0.05));
             toolTip.SetToolTip(lbl_questtype_info, Quest.Type.Description);
 
-            pnl_answers.Size = new Size((int)(screenW * 0.8), (int)(screenH * 0.4));
+            pnl_answers.Size = new Size((int)(screenW * 0.8), (int)(screenH * 0.5));
             pnl_answers.Location = new Point((int)(screenW * 0.1), (int)(screenH * 0.4));
 
             btn_confirm.Location = new Point((int)(screenW*0.92), (int)(screenH*0.7));

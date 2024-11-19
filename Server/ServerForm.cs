@@ -665,13 +665,11 @@ namespace Server
 
                     if (existingAnswer != null)
                     {
-                        // Cập nhật câu trả lời cũ
                         existingAnswer.TimeDoQuest = newAnswer.TimeDoQuest;
                         existingAnswer.SelectResultsId = newAnswer.SelectResultsId;
                     }
                     else
                     {
-                        // Thêm câu trả lời mới nếu chưa tồn tại
                         studentAnswers.Add(newAnswer);
                     }
 
@@ -680,13 +678,11 @@ namespace Server
                         this.Invoke(new Action(() =>
                         {
                             ExamForm?.NotiHaveNewAnswer(indexQuest);
-
                         }));
                     }
                     else
                     {
-                    ExamForm?.NotiHaveNewAnswer(indexQuest);
-
+                        ExamForm?.NotiHaveNewAnswer(indexQuest);
                     }
                 }
                 catch (Exception ex)
@@ -2430,8 +2426,17 @@ namespace Server
 
         private void tsCreateExam_Click(object sender, EventArgs e)
         {
-            ExamForm = new SvExamForm(Tests, SendTest, StudentsAreReady, DidExamId);
-            ExamForm.ShowDialog();
+            if (ExamForm != null && !ExamForm.IsDisposed)
+            {
+                if (!ExamForm.Visible) // Nếu form đã tồn tại nhưng đang bị ẩn
+                {
+                    ExamForm.Show();
+                }
+                ExamForm.Focus(); // Đưa form lên phía trước
+                return;
+            }
+            ExamForm = new SvExamForm(Tests, SendTest,IndexTestReady, DidExamId);
+            ExamForm.Show();
         }
 
         private void toolStripButton5_Click(object sender, EventArgs e)

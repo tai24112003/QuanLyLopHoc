@@ -46,6 +46,7 @@
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.btn_refesh_filter = new System.Windows.Forms.Button();
             this.btn_confirmSetExam = new System.Windows.Forms.Button();
+            this.btn_stop_exam = new System.Windows.Forms.Button();
             this.panel2 = new System.Windows.Forms.Panel();
             this.panel3 = new System.Windows.Forms.Panel();
             this.label3 = new System.Windows.Forms.Label();
@@ -216,7 +217,7 @@
             // 
             this.btn_save.BackgroundImage = global::Server.Properties.Resources.save;
             this.btn_save.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.btn_save.Location = new System.Drawing.Point(1093, 692);
+            this.btn_save.Location = new System.Drawing.Point(1100, 692);
             this.btn_save.Name = "btn_save";
             this.btn_save.Size = new System.Drawing.Size(50, 50);
             this.btn_save.TabIndex = 5;
@@ -248,6 +249,19 @@
             this.toolTip1.SetToolTip(this.btn_confirmSetExam, "Xác nhận cài đặt bài kiểm tra");
             this.btn_confirmSetExam.UseVisualStyleBackColor = true;
             this.btn_confirmSetExam.Click += new System.EventHandler(this.btn_confirmSetExam_Click);
+            // 
+            // btn_stop_exam
+            // 
+            this.btn_stop_exam.BackgroundImage = global::Server.Properties.Resources.close;
+            this.btn_stop_exam.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+            this.btn_stop_exam.Location = new System.Drawing.Point(1100, 585);
+            this.btn_stop_exam.Name = "btn_stop_exam";
+            this.btn_stop_exam.Size = new System.Drawing.Size(50, 50);
+            this.btn_stop_exam.TabIndex = 17;
+            this.btn_stop_exam.TextAlign = System.Drawing.ContentAlignment.BottomCenter;
+            this.toolTip1.SetToolTip(this.btn_stop_exam, "Hủy thi");
+            this.btn_stop_exam.UseVisualStyleBackColor = true;
+            this.btn_stop_exam.Click += new System.EventHandler(this.btn_stop_exam_Click);
             // 
             // panel2
             // 
@@ -337,7 +351,7 @@
             // 
             this.lbl_state_exam.AutoSize = true;
             this.lbl_state_exam.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lbl_state_exam.Location = new System.Drawing.Point(520, 132);
+            this.lbl_state_exam.Location = new System.Drawing.Point(263, 132);
             this.lbl_state_exam.Name = "lbl_state_exam";
             this.lbl_state_exam.Size = new System.Drawing.Size(50, 16);
             this.lbl_state_exam.TabIndex = 12;
@@ -506,6 +520,7 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1231, 761);
+            this.Controls.Add(this.btn_stop_exam);
             this.Controls.Add(this.btn_trackTheExam);
             this.Controls.Add(this.grb_setting_exam);
             this.Controls.Add(this.grb_setting_quest);
@@ -582,5 +597,6 @@
         private System.Windows.Forms.ComboBox cbb_questType_exam;
         private System.Windows.Forms.Button btn_confirmSetExam;
         private System.Windows.Forms.Button btn_trackTheExam;
+        private System.Windows.Forms.Button btn_stop_exam;
     }
 }

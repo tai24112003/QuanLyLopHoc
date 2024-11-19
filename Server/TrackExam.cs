@@ -15,17 +15,31 @@ namespace Server
     {
         private Test Test { get; set; }
         private bool IsPresent { get; set; }
+        private bool IsScore { get; set; }
         private int IndexSelectQuest { get; set; }
+        private BindingList<StudentScore> RankingList { get; set; }
         public TrackExam(Test test)
         {
             InitializeComponent();
             Test = test;
-
             Init();
         }
 
         private void Init()
         {
+            RankingList = new BindingList<StudentScore>();
+            dgv_ranking.DataSource = RankingList;
+            dgv_ranking.ReadOnly = true;
+            dgv_ranking.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+            dgv_ranking.DefaultCellStyle.SelectionBackColor = Color.Blue;
+            dgv_ranking.DefaultCellStyle.SelectionForeColor = Color.White;
+            dgv_ranking.Columns["Top"].HeaderText = "Thứ hạng";
+            dgv_ranking.Columns["StudentId"].HeaderText = "MSSV";
+            dgv_ranking.Columns["Score"].HeaderText = "Điểm";
+            dgv_ranking.Columns["NumCorrect"].HeaderText = "Câu đúng";
+            dgv_ranking.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+            dgv_ranking.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+          
             this.lbl_currentQuest.Visible = false;
             IndexSelectQuest = 0;
             RenderSlideQuests();
@@ -40,34 +54,32 @@ namespace Server
         }
         public void UpdateUI(int index)
         {
-            if (index != IndexSelectQuest)
+            int foundCount = 0;
+            foreach (ThumbnailQuestion item in pnl_slideQuests.Controls)
             {
-                foreach (ThumbnailQuestion item in pnl_slideQuests.Controls)
+                if (item.Quest.Index == IndexSelectQuest)
                 {
-                    if (item.Quest.Index != IndexSelectQuest)
-                    {
-                        continue;
-                    }
                     item.ChangeSelectState();
-                    break;
+                    foundCount++;
                 }
-                IndexSelectQuest=index;
-                foreach (ThumbnailQuestion item in pnl_slideQuests.Controls)
+
+                if (item.Quest.Index == index)
                 {
-                    if (item.Quest.Index != IndexSelectQuest)
-                    {
-                        continue;
-                    }
                     item.ChangeSelectState();
-                    break;
+                    foundCount++;
                 }
+
+                if (foundCount == 2)
+                    break;
             }
+            IndexSelectQuest = index;
+
             int numQ = Test.Quests.Count;
             this.lbl_testTitle.Text = Test.Title;
             this.btn_switchView.Text = IsPresent ? "Phần trăm" : "Số lượng";
             this.lbl_state.Text = "Trạng thái: " + (Test.IsExamining ? "Đang thi" : "Đã thi");
             this.lbl_numQuest.Text = $"Số câu hỏi: {numQ}";
-
+            this.lbl_numStudent.Text = $"Số sinh viên làm: {Test.GetNumStudentDo()}";
 
             if (Test.IsExamining)
             {
@@ -75,6 +87,7 @@ namespace Server
                 this.lbl_currentQuest.Text = $"Tiến trình: {Test.Progress}/{numQ}";
             }
             RenderAnswer();
+            UpdateRankings();
         }
 
         private void SelectQuest(ThumbnailQuestion item)
@@ -88,24 +101,45 @@ namespace Server
                 RenderAnswer();
             }
         }
+        private void UpdateRankings()
+        {
+            List<StudentScore> studentsScore = Test.ScoringForClass();
+
+            // Cập nhật danh sách
+            RankingList.Clear();
+            foreach (var student in studentsScore)
+            {
+                RankingList.Add(student);
+            }
+        }
+
         private void RenderAnswer()
         {
             pnl_chart.Controls.Clear();
             pnl_chart.Controls.Add(this.btn_switchView);
             int mH = (int)(this.pnl_chart.ClientSize.Height * 0.6);
-            int left = this.pnl_chart.ClientSize.Width;
+            int w = this.pnl_chart.ClientSize.Width;
             int top = this.pnl_chart.ClientSize.Height - btn_switchView.Bottom;
-
 
             Quest item = Test.Quests[IndexSelectQuest];
 
+            lbl_fastest.Text = "";
+            StudentAnswer fastest = item.GetFastestStudent();
+            if (fastest != null)
+            {
+                lbl_fastest.Text = $"Sinh viên nhanh nhất: {fastest.StudentID}; Thời gian: {fastest.TimeDoQuest}s";
+            }
+
+            lbl_studentDo.Text = $"Số sinh viên làm: {item.StudentAnswers.Count}/{Test.GetNumStudentDo()}";
+            pnl_chart.Controls.Add(lbl_studentDo);
+            pnl_chart.Controls.Add(lbl_fastest);
             int numAnswer = item.Results.Count;
-            // Calculate panel width with a maximum of 80
-            int panelWidth = Math.Min(left / numAnswer - 20, 80);
+            // Calculate panel width with a maximum of 60
+            int panelWidth = Math.Min(w / numAnswer - 20, 60);
             int totalPanelWidth = panelWidth * numAnswer;
 
             // Calculate spacing to center the panels
-            int spacing = (left - totalPanelWidth) / (numAnswer + 1);
+            int spacing = (w - totalPanelWidth) / (numAnswer + 1);
             int tmp = 0;
 
             List<string> titles = new List<string> {"A","B","C","D",
@@ -127,14 +161,11 @@ namespace Server
                 };
                 toolTip1.SetToolTip(answerPanel, rs.Content);
 
-                // Calculate position
                 int x = spacing + tmp * (panelWidth + spacing);
                 int y = pnl_chart.ClientSize.Height - top + 80; // Center vertically
                 answerPanel.Location = new Point(x, y);
                 pnl_chart.Controls.Add(answerPanel);
 
-                // Add content to panel (e.g., answer text)
-                // Label title
                 Label answerTitle = new Label
                 {
                     AutoSize = false, // Disable AutoSize to control width
@@ -163,19 +194,21 @@ namespace Server
 
                 tmp++;
             }
-
         }
-
-      
         private void btn_switchView_Click(object sender, EventArgs e)
         {
            IsPresent=!IsPresent;
            UpdateUI(IndexSelectQuest);
         }
-
         private void TrackExam_FormClosing(object sender, FormClosingEventArgs e)
         {
             this.Dispose();
+        }
+
+        private void btn_switchScoreView_Click(object sender, EventArgs e)
+        {
+            IsScore = !IsScore;
+
         }
     }
 }

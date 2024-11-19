@@ -866,7 +866,21 @@ namespace testUdpTcp
             Cursor cursor = Cursors.Default;
             cursor.Draw(graphics, new Rectangle(cursorPosition, cursor.Size));
         }
-
+        private void OpenNewFormLockScreen()
+        {
+            if (this.InvokeRequired)
+            {
+                this.BeginInvoke((MethodInvoker)delegate { OpenNewFormLockScreen(); });
+            }
+            else
+            {
+                if (LockScreen == null)
+                {
+                    LockScreen = new LockScreenForm();
+                    LockScreen.Show();
+                }
+            }
+        }
         private void OpenNewForm()
         {
             if (this.InvokeRequired)

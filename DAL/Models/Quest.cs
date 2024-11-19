@@ -147,6 +147,23 @@ namespace DAL.Models
             }
             return rs;
         }
+
+        public int CreateIndexResultInQuest()
+        {
+            int rs = 0;
+            var sortedRs = Results.OrderBy(q => q.Id).ToList();
+            foreach (Result q in sortedRs)
+            {
+                if (q.Id == rs)
+                {
+                    rs++; // Tăng rs nếu giá trị Index hiện tại đã được sử dụng
+                    continue;
+                }
+
+                break; // Thoát khỏi vòng lặp nếu rs chưa được sử dụng
+            }
+            return rs; // Trả về giá trị rs nhỏ nhất chưa được sử dụng
+        }
     }
 
     public class StudentAnswer
@@ -180,29 +197,25 @@ namespace DAL.Models
 
     public class StudentScore
     {
+        public int Top { get; set; }
         public string StudentId { get; set; }
-        public int Score { get; set; }
+        public double Score { get; set; }
+        public int NumCorrect { get; set; }
         public StudentScore()
         {
             StudentId = "";
-            Score = 0;
+            Score = 0.0;
+            Top = 0;
+            NumCorrect = 0;
         }
 
-        public StudentScore(string studentCoreString)
+        public string GetTopNumCorrectString()
         {
-            string[] parts = studentCoreString.Split(new string[] { "sts-" }, StringSplitOptions.RemoveEmptyEntries);
-            StudentId = parts[0].Split(new string[] { "sts:" },StringSplitOptions.RemoveEmptyEntries)[1];
-            Score = int.Parse(parts[1].Split(new string[] { "sts:" }, StringSplitOptions.RemoveEmptyEntries)[1]);
+            return $"top {Top}: {StudentId} câu đúng: {NumCorrect}";
         }
-
-        public string GetString()
+        public string GetTopScoreString()
         {
-            return $"sts-studentIdsts:{StudentId}sts-scorests:{Score}";
-        }
-
-        public string GetTopString(int top)
-        {
-            return $"top {top}: {StudentId} điểm: {Score}";
+            return $"top {Top}: {StudentId} điểm: {Score}";
         }
     }
 }

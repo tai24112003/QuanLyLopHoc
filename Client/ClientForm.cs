@@ -994,7 +994,20 @@ namespace testUdpTcp
                     byte[] receivedBytes = udpClient.Receive(ref remoteEndPoint);
                     string receivedMessage = Encoding.UTF8.GetString(receivedBytes);
 
-                    IpServer = receivedMessage;
+                    // Tách chuỗi để lấy IP và xử lý trạng thái
+                    string ip;
+
+                    if (receivedMessage.Contains("-End"))
+                    {
+                        ip = receivedMessage.Replace("-End", "").Trim();
+                        isRunningudplisten = false; // Dừng lắng nghe
+                    }
+                    else
+                    {
+                        ip = receivedMessage.Trim();
+                    }
+
+                    IpServer = ip;
                     Console.WriteLine($"Dữ liệu nhận được: {IpServer}");
 
                     // Gửi thông tin tới server
@@ -1013,6 +1026,7 @@ namespace testUdpTcp
 
             Console.WriteLine("Đã dừng UDP listener.");
         }
+
 
 
         List<string> stringList = new List<string>();

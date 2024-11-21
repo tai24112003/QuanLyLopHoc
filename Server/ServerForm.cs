@@ -112,7 +112,7 @@ namespace Server
             _serviceProvider = serviceProvider;
 
             //Ip = ;
-            //Ip = getIPServer();
+            Ip = getIPServer();
 
             // Thực hiện các logic khởi tạo khác nếu cần thiết
         }
@@ -312,6 +312,7 @@ namespace Server
         }
 
 
+
         private async Task SetupRoom()
         {
             room = await _roomBLL.GetRoomsByName(roomID);
@@ -405,10 +406,10 @@ namespace Server
                 dgv_attendance.Hide();
                 lst_client.Hide();
                 lst_client.LargeImageList = imageList1;
-                //students = await _classStudentBLL.GetClassStudentsByID(classID);
-               // await SetupRoom();
-                //await SetupAttendance(classID);
-                sendAllIPInLan();
+                students = await _classStudentBLL.GetClassStudentsByID(classID);
+                await SetupRoom();
+                await SetupAttendance(classID);
+                sendAllIPInLan("");
                 //IPAddress ip = IPAddress.Parse("127.0.0.1");
                 IPAddress ip = IPAddress.Parse(Ip);
                 int tcpPort = 8765;
@@ -535,14 +536,14 @@ namespace Server
 
 
 
-        private void sendAllIPInLan()
+        private void sendAllIPInLan(string mess)
         {
 
             IPAddress broadcastAddress = GetBroadcastAddress() ?? null;
             Console.WriteLine(broadcastAddress);
 
-            SendUDPMessage(IPAddress.Parse("192.168.1.2"), 11312, Ip);
-            //SendUDPMessage(broadcastAddress, 11312, Ip);
+            //SendUDPMessage(IPAddress.Parse("192.168.1.2"), 11312, Ip);
+            SendUDPMessage(broadcastAddress, 11312, Ip+mess);
 
         }
         private void SendUDPMessage(IPAddress ipAddress, int port, String mes)
@@ -2078,7 +2079,7 @@ namespace Server
                                     // Gửi tín hiệu thông báo
                                     string fileName = System.IO.Path.GetFileName(filePath);
 
-                                    string signal = $"SendFile-FileName-{fileName}-{toPath}";
+                                    string signal = $"SendFile-FileName-{fileName}ToPath-{toPath}";
                                     byte[] signalBytes = Encoding.UTF8.GetBytes(signal);
                                     stream.Write(signalBytes, 0, signalBytes.Length); // Gửi tín hiệu
                                     stream.Flush(); // Đảm bảo dữ liệu được gửi đi ngay lập tức
@@ -2188,7 +2189,7 @@ namespace Server
                                     string fileName = System.IO.Path.GetFileName(filePath);
                                     string signal = $"CollectFile-FileName-{fileName}FolderPath-{folderPath}Check-{check}";
                                     byte[] signalBytes = Encoding.UTF8.GetBytes(signal);
-                                    stream.Write(signalBytes, 0, signalBytes.Length); // Gửi tín hiệu
+                                    stream.Write(signalBytes, 0, signalBytes.Length); // Gửi tín hiệu 
                                     stream.Flush(); // Đảm bảo dữ liệu được gửi đi ngay lập tức
                                     Console.WriteLine("Đã gửi tín hiệu send");
 
@@ -2394,7 +2395,7 @@ namespace Server
                 {
                     string folderPath = folderBrowserDialog.SelectedPath;
                     // Hiển thị đường dẫn thư mục đã chọn, ví dụ trên một label
-                    ExportToExcel(folderPath + @"\"+roomID+DateTime.Now.ToString("dd/MM/yyyy")+".xlsx",dgv_client);
+                    ExportToExcel(folderPath + @"\"+room.RoomName+"_"+DateTime.Now.ToString("dd-MM-yyyy")+".xlsx",dgv_client);
                 }
             }
         }
@@ -2410,7 +2411,7 @@ namespace Server
                 {
                     string folderPath = folderBrowserDialog.SelectedPath;
                     // Hiển thị đường dẫn thư mục đã chọn, ví dụ trên một label
-                    ExportToExcel(folderPath + @"\" + roomID + DateTime.Now.ToString("dd/MM/yyyy") + ".xlsx", dgv_attendance);
+                    ExportToExcel(folderPath + @"\" + room.RoomName+"_" + DateTime.Now.ToString("dd-MM-yyyy") + ".xlsx", dgv_attendance);
 
                 }
             }
@@ -2665,7 +2666,7 @@ namespace Server
         }
         private void contextMenu_Refresh_Click(object sender, EventArgs e)
         {
-            sendAllIPInLan();
+            sendAllIPInLan("");
            
         }
         private void contextMenu_SlideShowToClient_Click(object sender, EventArgs e)
@@ -2685,7 +2686,7 @@ namespace Server
         {
             try
             {
-                sendAllIPInLan();
+                sendAllIPInLan("-End");
 
                 // Cài đặt thời gian bắt đầu
                 lastReceivedTime = DateTime.Now;

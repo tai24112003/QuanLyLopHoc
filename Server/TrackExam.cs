@@ -80,6 +80,7 @@ namespace Server
             this.lbl_state.Text = "Trạng thái: " + (Test.IsExamining ? "Đang thi" : "Đã thi");
             this.lbl_numQuest.Text = $"Số câu hỏi: {numQ}";
             this.lbl_numStudent.Text = $"Số sinh viên làm: {Test.GetNumStudentDo()}";
+            this.lbl_maxP.Text = $"Điểm tối đa: {Test.MaxPoint}";
 
             if (Test.IsExamining)
             {
@@ -142,22 +143,19 @@ namespace Server
             int spacing = (w - totalPanelWidth) / (numAnswer + 1);
             int tmp = 0;
 
-            List<string> titles = new List<string> {"A","B","C","D",
-                    "E",
-                    "F" };
+            List<string> titles = new List<string> {"A","B","C","D","E","F" };
             foreach (Result rs in item.Results)
             {
-                int sum = item.StudentAnswers.Count == 0 ? 1 : item.StudentAnswers.Count;
+                int sum = Test.GetNumStudentDo() == 0 ? 1 : Test.GetNumStudentDo();
                 int value = item.GetNumStudentSelectByResult(rs);
                 double valueView = !IsPresent ? value : Math.Round((double)(value * 100 / sum ), 2);
 
-                // Create a panel
                 TrackAnswerInfo answerPanel = new TrackAnswerInfo
                 {
                     Width = panelWidth,
-                    Height = mH*value/sum+5, // Adjust height as needed
+                    Height = mH*value/sum+5,  
                     BackColor = rs.IsCorrect ? Color.LimeGreen : Color.LightGray, // Optional: distinguishable background color
-                    BorderStyle = BorderStyle.FixedSingle // Optional: border for better visibility
+                    BorderStyle = BorderStyle.FixedSingle 
                 };
                 toolTip1.SetToolTip(answerPanel, rs.Content);
 
@@ -177,7 +175,6 @@ namespace Server
                 };
                 pnl_chart.Controls.Add(answerTitle);
                 
-                // Label value
                 Label answerValue = new Label
                 {
                     Name = "lbl_value" + tmp,

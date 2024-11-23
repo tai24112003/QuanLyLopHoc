@@ -217,7 +217,7 @@
             // 
             this.btn_save.BackgroundImage = global::Server.Properties.Resources.save;
             this.btn_save.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.btn_save.Location = new System.Drawing.Point(1100, 692);
+            this.btn_save.Location = new System.Drawing.Point(1017, 692);
             this.btn_save.Name = "btn_save";
             this.btn_save.Size = new System.Drawing.Size(50, 50);
             this.btn_save.TabIndex = 5;

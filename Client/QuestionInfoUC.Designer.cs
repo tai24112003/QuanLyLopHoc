@@ -84,9 +84,9 @@
             this.btn_confirm.BackColor = System.Drawing.SystemColors.Highlight;
             this.btn_confirm.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btn_confirm.ForeColor = System.Drawing.SystemColors.ButtonHighlight;
-            this.btn_confirm.Location = new System.Drawing.Point(764, 553);
+            this.btn_confirm.Location = new System.Drawing.Point(756, 540);
             this.btn_confirm.Name = "btn_confirm";
-            this.btn_confirm.Size = new System.Drawing.Size(105, 34);
+            this.btn_confirm.Size = new System.Drawing.Size(113, 47);
             this.btn_confirm.TabIndex = 4;
             this.btn_confirm.Text = "Xác nhận";
             this.btn_confirm.UseVisualStyleBackColor = false;

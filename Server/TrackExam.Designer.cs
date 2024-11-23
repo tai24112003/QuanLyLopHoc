@@ -29,13 +29,14 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
             this.lbl_testTitle = new System.Windows.Forms.Label();
             this.lbl_state = new System.Windows.Forms.Label();
             this.lbl_numQuest = new System.Windows.Forms.Label();
             this.lbl_currentQuest = new System.Windows.Forms.Label();
             this.panel1 = new System.Windows.Forms.Panel();
             this.pnl_chart = new System.Windows.Forms.Panel();
+            this.lbl_fastest = new System.Windows.Forms.Label();
             this.lbl_studentDo = new System.Windows.Forms.Label();
             this.btn_switchView = new System.Windows.Forms.Button();
             this.pnl_slideQuests = new System.Windows.Forms.FlowLayoutPanel();
@@ -44,7 +45,7 @@
             this.label1 = new System.Windows.Forms.Label();
             this.lbl_numStudent = new System.Windows.Forms.Label();
             this.dgv_ranking = new System.Windows.Forms.DataGridView();
-            this.lbl_fastest = new System.Windows.Forms.Label();
+            this.lbl_maxP = new System.Windows.Forms.Label();
             this.pnl_chart.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgv_ranking)).BeginInit();
             this.SuspendLayout();
@@ -83,7 +84,7 @@
             // 
             this.lbl_currentQuest.AutoSize = true;
             this.lbl_currentQuest.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lbl_currentQuest.Location = new System.Drawing.Point(13, 56);
+            this.lbl_currentQuest.Location = new System.Drawing.Point(172, 58);
             this.lbl_currentQuest.Name = "lbl_currentQuest";
             this.lbl_currentQuest.Size = new System.Drawing.Size(44, 16);
             this.lbl_currentQuest.TabIndex = 3;
@@ -107,6 +108,16 @@
             this.pnl_chart.Name = "pnl_chart";
             this.pnl_chart.Size = new System.Drawing.Size(866, 656);
             this.pnl_chart.TabIndex = 5;
+            // 
+            // lbl_fastest
+            // 
+            this.lbl_fastest.AutoSize = true;
+            this.lbl_fastest.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lbl_fastest.Location = new System.Drawing.Point(409, 6);
+            this.lbl_fastest.Name = "lbl_fastest";
+            this.lbl_fastest.Size = new System.Drawing.Size(44, 16);
+            this.lbl_fastest.TabIndex = 10;
+            this.lbl_fastest.Text = "label1";
             // 
             // lbl_studentDo
             // 
@@ -171,29 +182,29 @@
             // 
             this.dgv_ranking.AllowUserToAddRows = false;
             this.dgv_ranking.BackgroundColor = System.Drawing.SystemColors.Control;
-            dataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
-            dataGridViewCellStyle3.BackColor = System.Drawing.SystemColors.Control;
-            dataGridViewCellStyle3.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            dataGridViewCellStyle3.ForeColor = System.Drawing.SystemColors.WindowText;
-            dataGridViewCellStyle3.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-            dataGridViewCellStyle3.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            dataGridViewCellStyle3.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
-            this.dgv_ranking.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle3;
+            dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+            dataGridViewCellStyle1.BackColor = System.Drawing.SystemColors.Control;
+            dataGridViewCellStyle1.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            dataGridViewCellStyle1.ForeColor = System.Drawing.SystemColors.WindowText;
+            dataGridViewCellStyle1.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle1.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle1.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.dgv_ranking.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle1;
             this.dgv_ranking.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dgv_ranking.Location = new System.Drawing.Point(1094, 90);
             this.dgv_ranking.Name = "dgv_ranking";
             this.dgv_ranking.Size = new System.Drawing.Size(376, 641);
             this.dgv_ranking.TabIndex = 1;
             // 
-            // lbl_fastest
+            // lbl_maxP
             // 
-            this.lbl_fastest.AutoSize = true;
-            this.lbl_fastest.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lbl_fastest.Location = new System.Drawing.Point(409, 6);
-            this.lbl_fastest.Name = "lbl_fastest";
-            this.lbl_fastest.Size = new System.Drawing.Size(44, 16);
-            this.lbl_fastest.TabIndex = 10;
-            this.lbl_fastest.Text = "label1";
+            this.lbl_maxP.AutoSize = true;
+            this.lbl_maxP.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lbl_maxP.Location = new System.Drawing.Point(13, 58);
+            this.lbl_maxP.Name = "lbl_maxP";
+            this.lbl_maxP.Size = new System.Drawing.Size(62, 16);
+            this.lbl_maxP.TabIndex = 9;
+            this.lbl_maxP.Text = "lbl_maxP";
             // 
             // TrackExam
             // 
@@ -201,6 +212,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoScroll = true;
             this.ClientSize = new System.Drawing.Size(1484, 771);
+            this.Controls.Add(this.lbl_maxP);
             this.Controls.Add(this.dgv_ranking);
             this.Controls.Add(this.lbl_numStudent);
             this.Controls.Add(this.label1);
@@ -243,5 +255,6 @@
         private System.Windows.Forms.Label lbl_studentDo;
         private System.Windows.Forms.DataGridView dgv_ranking;
         private System.Windows.Forms.Label lbl_fastest;
+        private System.Windows.Forms.Label lbl_maxP;
     }
 }

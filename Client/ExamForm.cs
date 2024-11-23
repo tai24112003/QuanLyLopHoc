@@ -17,19 +17,17 @@ namespace testUdpTcp
 {
     public partial class ExamForm : Form
     {
-        private bool flag = false;
         private bool canClose = false;
         private int screenWidth = Screen.PrimaryScreen.Bounds.Width;
         private int screenHeight = Screen.PrimaryScreen.Bounds.Height;
         ThongBaoDiemForm baoDiem;
-
 
         private Test Test { get; set; }
 
         private Timer CountdownTimer { get; set; }
         private int CounterA { get; set; }
         private  Action<string> SendData { get; set; }
-        private readonly Action<string> ChangeMssvInClientForm;
+        private  Action<string> ChangeMssvInClientForm { get; set; }
         private string Mssv { get; set; }
         private bool IsLate {  get; set; }
         public ExamForm(string mssv,Test test, Action<string> sendAnswer,Action<string> changeMssv, bool state=false )
@@ -47,9 +45,6 @@ namespace testUdpTcp
         }
         private void InitForm()
         {
-            //Test.Quests.Add(new Quest());
-            //Test.Quests[1].Content = "Câu hỏi 2";
-
             int screenWidth = SystemInformation.VirtualScreen.Width;
             pnExam.Width = screenWidth;
 
@@ -67,6 +62,7 @@ namespace testUdpTcp
         {
             label4.Text = this.Test.Title;
             lbl_mssv.Text = this.Mssv;
+            lbl_maxP.Text = $"Điểm tối đa: {Test.MaxPoint}";
             this.FormBorderStyle = FormBorderStyle.None;
             this.WindowState = FormWindowState.Maximized;
             pnExam.Location = new Point(0, headerPanel.Height);
@@ -81,7 +77,6 @@ namespace testUdpTcp
             lbl_time_to_start.Text = $"Chờ tín hiệu làm bài";
             CenterLabelInPanel(lbl_time_to_start, 2);
         }
-
         private void CreateQuestUI(int indexQ)
         {
             pnExam.Controls.Clear();
@@ -132,8 +127,16 @@ namespace testUdpTcp
             lbl_top2.Visible = true;
             lbl_top3.Visible = true;
         }
-        public void StartDoExam() {
+        public bool CheckStarted()
+        {
+            return CounterA > 0;
+        }
+
+        public void StartDoExam(bool islate=false) {
             btn_changeMssv.Visible = false;
+            if (islate) {
+                CounterA = 0;
+            }else
             CountdownTimer.Start();
         }
         public async void NotiQuestCome(int indexQ)
@@ -192,7 +195,6 @@ namespace testUdpTcp
             }
             (new Waiting(ChangeMssvInForm)).ShowDialog();
         }
-
         private void ExamForm_FormClosing(object sender, FormClosingEventArgs e)
         {
             e.Cancel = !canClose;

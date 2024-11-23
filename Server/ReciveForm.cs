@@ -37,13 +37,34 @@ namespace Server
 
         private void btnCollect_Click(object sender, EventArgs e)
         {
-
-            string filePath = txtCollect.Text;
-            string folderPath = txtFolder.Text;
-            string folderRecivePath = txtFolderRecive.Text;
+            string filePath = txtCollect.Text.Trim();
+            string folderPath = txtFolder.Text.Trim();
+            string folderRecivePath = txtFolderRecive.Text.Trim();
             bool check = cbDelete.Checked;
-            FilePathSelected?.Invoke(filePath, folderPath,folderRecivePath, check); // Gọi sự kiện với đường dẫn tệp được chọn
+
+            // Kiểm tra các trường hợp bị bỏ trống
+            if (string.IsNullOrEmpty(filePath))
+            {
+                MessageBox.Show("Vui lòng nhập tên tệp cần thu thập.", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            if (string.IsNullOrEmpty(folderPath))
+            {
+                MessageBox.Show("Vui lòng nhập đường dẫn thư mục nguồn của tệp.", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            if (string.IsNullOrEmpty(folderRecivePath))
+            {
+                MessageBox.Show("Vui lòng chọn thư mục đích để lưu trữ.", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            // Nếu tất cả hợp lệ, thực hiện sự kiện
+            FilePathSelected?.Invoke(filePath, folderPath, folderRecivePath, check);
             this.Close();
         }
+
     }
 }

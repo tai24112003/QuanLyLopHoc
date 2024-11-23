@@ -154,12 +154,6 @@
     <Compile Include="QuickLaunchForm.Designer.cs">
       <DependentUpon>QuickLaunchForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="RandomStudentForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="RandomStudentForm.Designer.cs">
-      <DependentUpon>RandomStudentForm.cs</DependentUpon>
-    </Compile>
     <Compile Include="ReciveForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -225,9 +219,6 @@
     </EmbeddedResource>
     <EmbeddedResource Include="QuickLaunchForm.resx">
       <DependentUpon>QuickLaunchForm.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="RandomStudentForm.resx">
-      <DependentUpon>RandomStudentForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="ReciveForm.resx">
       <DependentUpon>ReciveForm.cs</DependentUpon>

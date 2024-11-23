@@ -320,7 +320,6 @@ namespace testUdpTcp
             }
             else if (receivedMessage.StartsWith("CollectFile"))
             {
-                // Parse the signal
                 string[] parts = receivedMessage.Split(new string[] { "FileName-","FolderPath-" ,"Check-" }, StringSplitOptions.None);
                 if (parts.Length >= 4)
                 {
@@ -908,7 +907,6 @@ namespace testUdpTcp
             Cursor cursor = Cursors.Default;
             cursor.Draw(graphics, new Rectangle(cursorPosition, cursor.Size));
         }
-
         private void OpenNewFormLockScreen()
         {
             if (this.InvokeRequired)
@@ -924,7 +922,6 @@ namespace testUdpTcp
                 }
             }
         }
-
         private void OpenNewForm()
         {
             if (this.InvokeRequired)
@@ -1038,7 +1035,20 @@ namespace testUdpTcp
                     byte[] receivedBytes = udpClient.Receive(ref remoteEndPoint);
                     string receivedMessage = Encoding.UTF8.GetString(receivedBytes);
 
-                    IpServer = receivedMessage;
+                    // Tách chuỗi để lấy IP và xử lý trạng thái
+                    string ip;
+
+                    if (receivedMessage.Contains("-End"))
+                    {
+                        ip = receivedMessage.Replace("-End", "").Trim();
+                        isRunningudplisten = false; // Dừng lắng nghe
+                    }
+                    else
+                    {
+                        ip = receivedMessage.Trim();
+                    }
+
+                    IpServer = ip;
                     Console.WriteLine($"Dữ liệu nhận được: {IpServer}");
 
                     // Gửi thông tin tới server
@@ -1057,6 +1067,7 @@ namespace testUdpTcp
 
             Console.WriteLine("Đã dừng UDP listener.");
         }
+
 
 
         List<string> stringList = new List<string>();

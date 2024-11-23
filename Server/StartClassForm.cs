@@ -260,7 +260,11 @@ namespace Server
 
             // Lấy thông tin phòng
             var room = await _roomBLL.GetRoomsByName(roomID);
-
+            if (room == null)
+            {
+                MessageBox.Show("Phòng " + roomID + " chưa tồn tại vui lòng liên hệ khoa để biết thêm thông tin","Lỗi",MessageBoxButtons.OK,MessageBoxIcon.Error);
+                return;
+            }
             try
             {
                 // Tạo và khởi tạo đối tượng ClassSession
@@ -282,6 +286,12 @@ namespace Server
                 var svFormFactory = _serviceProvider.GetRequiredService<svFormFactory>();
                 var svForms = svFormFactory.Create(userID, roomID, sessionID, classID);
                 svForms.Show();
+
+                svForms.FormClosed += (s, args) =>
+                {
+                    this.Show(); // Hiển thị lại form hiện tại
+                };
+
                 Console.WriteLine("Buổi học đã được bắt đầu thành công!");
             }
             catch (Exception ex)
@@ -418,8 +428,8 @@ namespace Server
         {
             OpenFileDialog openFileDialog = new OpenFileDialog
             {
-                Filter = "Excel Files|*.xlsx;*.xls;*.xlsm",
-                Title = "Select an Excel File"
+                Filter = "Tệp Excel|*.xlsx;*.xls;*.xlsm",
+                Title = "Chọn một tệp Excel"
             };
 
             if (openFileDialog.ShowDialog() == DialogResult.OK)
@@ -432,31 +442,27 @@ namespace Server
                     string filePath = openFileDialog.FileName;
                     var excelData = ReadExcelFile(filePath);
 
-
-
                     var success = await _excelController.AddDataFromExcel(excelData);
 
                     if (success != null)
                     {
-                        MessageBox.Show("Data added successfully.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
+                        MessageBox.Show("Dữ liệu đã được thêm thành công.", "Thành công", MessageBoxButtons.OK, MessageBoxIcon.Information, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
                     }
                     else
                     {
-                        MessageBox.Show("Failed to add data. Data has been saved locally.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
+                        MessageBox.Show("Thêm dữ liệu thất bại. Dữ liệu đã được lưu cục bộ.", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
                     }
-
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Error migrating computer and student data: {ex.Message}");
+                    Console.WriteLine($"Lỗi khi nhập dữ liệu máy tính và sinh viên: {ex.Message}");
                     Console.WriteLine($"Stack Trace: {ex.StackTrace}");
 
                     if (ex.InnerException != null)
                     {
-                        Console.WriteLine($"Inner Exception: {ex.InnerException.Message}");
-                        Console.WriteLine($"Inner Stack Trace: {ex.InnerException.StackTrace}");
+                        Console.WriteLine($"Lỗi bên trong: {ex.InnerException.Message}");
+                        Console.WriteLine($"Stack Trace bên trong: {ex.InnerException.StackTrace}");
                     }
-
                 }
                 finally
                 {

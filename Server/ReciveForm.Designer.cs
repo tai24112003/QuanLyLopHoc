@@ -48,7 +48,7 @@ namespace Server
             this.btnBrowse.Name = "btnBrowse";
             this.btnBrowse.Size = new System.Drawing.Size(56, 24);
             this.btnBrowse.TabIndex = 13;
-            this.btnBrowse.Text = "Browse";
+            this.btnBrowse.Text = "Chọn";
             this.btnBrowse.UseVisualStyleBackColor = true;
             this.btnBrowse.Click += new System.EventHandler(this.btnBrowse_Click);
             // 
@@ -60,7 +60,7 @@ namespace Server
             this.btnCancel.Name = "btnCancel";
             this.btnCancel.Size = new System.Drawing.Size(73, 24);
             this.btnCancel.TabIndex = 12;
-            this.btnCancel.Text = "Cancel";
+            this.btnCancel.Text = "Hủy";
             this.btnCancel.UseVisualStyleBackColor = true;
             // 
             // btnCollect
@@ -71,7 +71,7 @@ namespace Server
             this.btnCollect.Name = "btnCollect";
             this.btnCollect.Size = new System.Drawing.Size(73, 24);
             this.btnCollect.TabIndex = 11;
-            this.btnCollect.Text = "Collect";
+            this.btnCollect.Text = "Thu";
             this.btnCollect.UseVisualStyleBackColor = true;
             this.btnCollect.Click += new System.EventHandler(this.btnCollect_Click);
             // 
@@ -92,9 +92,9 @@ namespace Server
             this.label2.Location = new System.Drawing.Point(11, 40);
             this.label2.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(94, 17);
+            this.label2.Size = new System.Drawing.Size(98, 17);
             this.label2.TabIndex = 9;
-            this.label2.Text = "Collect Folder";
+            this.label2.Text = "Thư mục chứa";
             // 
             // txtCollect
             // 
@@ -113,18 +113,18 @@ namespace Server
             this.label1.Location = new System.Drawing.Point(11, 14);
             this.label1.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(76, 17);
+            this.label1.Size = new System.Drawing.Size(84, 17);
             this.label1.TabIndex = 7;
-            this.label1.Text = "Collect File";
+            this.label1.Text = "Tệp cần thu";
             // 
             // cbDelete
             // 
             this.cbDelete.AutoSize = true;
             this.cbDelete.Location = new System.Drawing.Point(126, 93);
             this.cbDelete.Name = "cbDelete";
-            this.cbDelete.Size = new System.Drawing.Size(236, 17);
+            this.cbDelete.Size = new System.Drawing.Size(190, 17);
             this.cbDelete.TabIndex = 14;
-            this.cbDelete.Text = "Delete files on student computer after collect";
+            this.cbDelete.Text = "Xóa file ở máy học sinh sau khi thu";
             this.cbDelete.UseVisualStyleBackColor = true;
             // 
             // txtFolderRecive
@@ -144,9 +144,9 @@ namespace Server
             this.label3.Location = new System.Drawing.Point(11, 67);
             this.label3.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(111, 17);
+            this.label3.Size = new System.Drawing.Size(61, 17);
             this.label3.TabIndex = 15;
-            this.label3.Text = "Folder to Recive";
+            this.label3.Text = "Nhận về";
             // 
             // ReciveForm
             // 

@@ -35,6 +35,7 @@
             this.label1 = new System.Windows.Forms.Label();
             this.label17 = new System.Windows.Forms.Label();
             this.panel4 = new System.Windows.Forms.Panel();
+            this.btn_changeMssv = new System.Windows.Forms.Button();
             this.lbl_mssv = new System.Windows.Forms.Label();
             this.label9 = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
@@ -43,7 +44,7 @@
             this.lbl_top2 = new System.Windows.Forms.Label();
             this.lbl_top1 = new System.Windows.Forms.Label();
             this.lbl_time_to_start = new System.Windows.Forms.Label();
-            this.btn_changeMssv = new System.Windows.Forms.Button();
+            this.lbl_maxP = new System.Windows.Forms.Label();
             this.headerPanel.SuspendLayout();
             this.pnInfo.SuspendLayout();
             this.panel4.SuspendLayout();
@@ -126,6 +127,7 @@
             // 
             // panel4
             // 
+            this.panel4.Controls.Add(this.lbl_maxP);
             this.panel4.Controls.Add(this.btn_changeMssv);
             this.panel4.Controls.Add(this.lbl_mssv);
             this.panel4.Controls.Add(this.label9);
@@ -137,11 +139,21 @@
             this.panel4.Size = new System.Drawing.Size(511, 129);
             this.panel4.TabIndex = 10;
             // 
+            // btn_changeMssv
+            // 
+            this.btn_changeMssv.Location = new System.Drawing.Point(371, 86);
+            this.btn_changeMssv.Name = "btn_changeMssv";
+            this.btn_changeMssv.Size = new System.Drawing.Size(75, 23);
+            this.btn_changeMssv.TabIndex = 26;
+            this.btn_changeMssv.Text = "Nhập lại";
+            this.btn_changeMssv.UseVisualStyleBackColor = true;
+            this.btn_changeMssv.Click += new System.EventHandler(this.btn_changeMssv_Click);
+            // 
             // lbl_mssv
             // 
             this.lbl_mssv.AutoSize = true;
             this.lbl_mssv.Font = new System.Drawing.Font("Microsoft Sans Serif", 13.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lbl_mssv.Location = new System.Drawing.Point(234, 84);
+            this.lbl_mssv.Location = new System.Drawing.Point(216, 84);
             this.lbl_mssv.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.lbl_mssv.Name = "lbl_mssv";
             this.lbl_mssv.Size = new System.Drawing.Size(110, 24);
@@ -152,7 +164,7 @@
             // 
             this.label9.AutoSize = true;
             this.label9.Font = new System.Drawing.Font("Microsoft Sans Serif", 13.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label9.Location = new System.Drawing.Point(150, 84);
+            this.label9.Location = new System.Drawing.Point(132, 84);
             this.label9.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label9.Name = "label9";
             this.label9.Size = new System.Drawing.Size(68, 24);
@@ -228,15 +240,16 @@
             this.lbl_time_to_start.TabIndex = 0;
             this.lbl_time_to_start.Text = "label11";
             // 
-            // btn_changeMssv
+            // lbl_maxP
             // 
-            this.btn_changeMssv.Location = new System.Drawing.Point(371, 86);
-            this.btn_changeMssv.Name = "btn_changeMssv";
-            this.btn_changeMssv.Size = new System.Drawing.Size(75, 23);
-            this.btn_changeMssv.TabIndex = 26;
-            this.btn_changeMssv.Text = "Nhập lại";
-            this.btn_changeMssv.UseVisualStyleBackColor = true;
-            this.btn_changeMssv.Click += new System.EventHandler(this.btn_changeMssv_Click);
+            this.lbl_maxP.AutoSize = true;
+            this.lbl_maxP.Font = new System.Drawing.Font("Microsoft Sans Serif", 13.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lbl_maxP.Location = new System.Drawing.Point(133, 52);
+            this.lbl_maxP.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.lbl_maxP.Name = "lbl_maxP";
+            this.lbl_maxP.Size = new System.Drawing.Size(68, 24);
+            this.lbl_maxP.TabIndex = 27;
+            this.lbl_maxP.Text = "MSSV:";
             // 
             // ExamForm
             // 
@@ -282,5 +295,6 @@
         private System.Windows.Forms.Label lbl_top2;
         private System.Windows.Forms.Label lbl_top1;
         private System.Windows.Forms.Button btn_changeMssv;
+        private System.Windows.Forms.Label lbl_maxP;
     }
 }

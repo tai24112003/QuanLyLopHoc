@@ -230,44 +230,53 @@ namespace Server
                     worksheetTest.Cells[2, 1].Value = "Điểm tối đa";
                     worksheetTest.Cells[2, 2].Value = test.MaxPoint;
 
-                    worksheetTest.Cells[3, 1].Value = "Thời gian nghỉ giữa câu hỏi";
+                    worksheetTest.Cells[3, 1].Value = "Thời gian nghỉ giữa các câu hỏi";
                     worksheetTest.Cells[3, 2].Value = test.RestTimeBetweenQuests;
 
-                    worksheetTest.Cells[5, 1].Value = "STT";
-                    worksheetTest.Cells[5, 2].Value = "Nội dung câu hỏi";
-                    worksheetTest.Cells[5, 3].Value = "Loại câu hỏi";
-                    worksheetTest.Cells[5, 4].Value = "Thời gian làm (giây)";
-                    worksheetTest.Cells[5, 5].Value = "Đáp án";
-                    worksheetTest.Cells[5, 6].Value = "Kết quả 0";
-                    worksheetTest.Cells[5, 7].Value = "Kết quả 1";
-                    worksheetTest.Cells[5, 8].Value = "Kết quả 2";
-                    worksheetTest.Cells[5, 9].Value = "Kết quả 3";
-                    worksheetTest.Cells[5, 10].Value = "Kết quả 4";
-                    worksheetTest.Cells[5,11].Value = "Kết quả 5";
+                    worksheetTest.Cells[5, 1].Value = "Nội dung câu hỏi";
+                    worksheetTest.Cells[5, 2].Value = "Loại câu hỏi";
+                    worksheetTest.Cells[5, 3].Value = "Thời gian làm (giây)";
+                    worksheetTest.Cells[5, 4].Value = "Kết quả 0";
+                    worksheetTest.Cells[5, 5].Value = "Kết quả 1";
+                    worksheetTest.Cells[5, 6].Value = "Kết quả 2";
+                    worksheetTest.Cells[5, 7].Value = "Kết quả 3";
+                    worksheetTest.Cells[5, 8].Value = "Kết quả 4";
+                    worksheetTest.Cells[5,9].Value = "Kết quả 5";
 
-                    worksheetTest.Cells[5, 12].Value = "Đáp án đúng";
+                    worksheetTest.Cells[5, 10].Value = "Đáp án đúng";
+
+                    //note for test
+                    worksheetTest.Cells["M5"].Value = "LƯU Ý:";
+                    worksheetTest.Cells["N5"].Value = "LOẠI CÂU HỎI";
+                    worksheetTest.Cells["O5"].Value = 0;
+                    worksheetTest.Cells["O6"].Value = 1;
+                    worksheetTest.Cells["P5"].Value = "Trắc nghiệm 1 đáp án";
+                    worksheetTest.Cells["P6"].Value = "Trắc nghiệm nhiều đáp án";
+
+
+
 
                     int row = 6;
                     int questionIndex = 1;
 
                     foreach (Quest quest in test.Quests)
                     {
-                        worksheetTest.Cells[row, 1].Value = questionIndex;
-                        worksheetTest.Cells[row, 2].Value = quest.Content;
-                        worksheetTest.Cells[row, 3].Value = quest.Type.Id;
-                        worksheetTest.Cells[row, 4].Value = quest.CountDownTime;
+                       // worksheetTest.Cells[row, 1].Value = questionIndex;
+                        worksheetTest.Cells[row, 1].Value = quest.Content;
+                        worksheetTest.Cells[row, 2].Value = quest.Type.Id;
+                        worksheetTest.Cells[row, 3].Value = quest.CountDownTime;
 
-                        int col = 6;
+                        int col = 4;
                         foreach (var result in quest.Results)
                         {
                             worksheetTest.Cells[row, col].Value = result.Content;
                             col++;
                         }
 
-                        string correctAnswers = string.Join(", ", quest.Results
+                        string correctAnswers = string.Join(",", quest.Results
                             .Select((r, idx) => r.IsCorrect ? idx + 1 : (int?)null)
                             .Where(idx => idx != null));
-                        worksheetTest.Cells[row, 12].Value = correctAnswers;
+                        worksheetTest.Cells[row, 10].Value = correctAnswers;
 
                         row++;
                         questionIndex++;
@@ -276,7 +285,8 @@ namespace Server
                     ExcelWorksheet worksheet1 = package.Workbook.Worksheets.Add("Thống kê bài làm");
                     ExcelWorksheet worksheet2 = package.Workbook.Worksheets.Add("Điểm sinh viên");
 
-
+                    int numStudentsDo = test.GetNumStudentDo();
+                    bool isTested = numStudentsDo>0;
                     // Đặt tiêu đề cho các cột
                     worksheet1.Cells[1, 1].Value = test.Title;
                     worksheet1.Cells[2, 1].Value = "Thống kê";
@@ -287,14 +297,17 @@ namespace Server
                     //số sinh viên làm bài KT
                     //3.1 Sinh viên làm kiểm tra 3.2 num
                     worksheet1.Cells[3, 1].Value = "Số sinh viên thực hiện";
-                    worksheet1.Cells[3, 2].Value = $"{test.GetNumStudentDo()}";
+                    worksheet1.Cells[3, 2].Value = $"{numStudentsDo}";
 
                     List<StudentScore> studentScores = test.ScoringForClass();
                     worksheet1.Cells[3, 3].Value = "Top 3 sinh viên điểm cao nhất";
                     worksheet1.Cells[3, 4].Value = "Top 1";
-                    worksheet1.Cells[3, 5].Value = studentScores[0].StudentId;
-                    worksheet1.Cells[3, 6].Value = studentScores[0].Score.ToString();
-                    worksheet1.Cells[3, 7].Value = studentScores[0].NumCorrect.ToString();
+                    if (studentScores.Count > 0)
+                    {
+                        worksheet1.Cells[3, 5].Value = studentScores[0].StudentId;
+                        worksheet1.Cells[3, 6].Value = studentScores[0].Score.ToString();
+                        worksheet1.Cells[3, 7].Value = studentScores[0].NumCorrect.ToString();
+                    }
 
                     worksheet1.Cells[4, 4].Value = "Top 2";
                     if (studentScores.Count > 1)
@@ -588,7 +601,10 @@ namespace Server
                 Test doingTest = Tests[IndexTestSended];
                 foreach (Quest item in doingTest.Quests)
                 {
-                    SendTest(item.GetQuestString(), "QuestCome", -1);
+                    string messQ=item.GetQuestString();
+                    messQ = Tests[IndexTestSended].GetTestStringOutOfQuest()+"test@@"+messQ;
+
+                    SendTest(messQ, "QuestCome", -1);
                     doingTest.Progress++;
                     await Task.Delay(item.CountDownTime * 1000 + 2000, CancellationTokenSource.Token);
 

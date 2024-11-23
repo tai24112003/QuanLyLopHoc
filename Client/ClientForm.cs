@@ -110,12 +110,56 @@ namespace testUdpTcp
         {
             this.mssvDoTest = mssv;
             sendData($"Ready-{mssvDoTest}");
-            examFrm = new ExamForm(mssvDoTest, Test, sendData, ChangeMSSV);
+            WaitingFrom = null; 
+            examFrm = new ExamForm(mssvDoTest, Test, sendData, UpdateMSSV);
             examFrm.ShowDialog();
         }
-        private void ChangeMSSV(string newMSSV)
+        private void UpdateMSSV(string newMSSV)
         {
             this.mssvDoTest= newMSSV;
+            WaitingFrom = null;
+        }
+        private void ShowWaitingForm(Action<string> bindingMssv)
+        {
+            if (this.InvokeRequired)
+            {
+                this.Invoke(new Action(() =>
+                {
+                    this.Hide();
+                    WaitingFrom = new Waiting(bindingMssv);
+                    WaitingFrom.Show();
+                }));
+            }
+            else
+            {
+                this.Hide();
+                WaitingFrom = new Waiting(bindingMssv);
+                WaitingFrom.Show();
+            }
+        }
+        private void ClosingExam(string mess)
+        {
+            Test.Quests.Clear();
+            if (this.InvokeRequired)
+            {
+                this.Invoke(new Action(() => {
+                    WaitingFrom?.Dispose();
+                    WaitingFrom = null;
+                    this.Show();
+                    examFrm?.Focus();
+                    examFrm?.QuestDone(mess);
+                    examFrm = null;
+                }));
+            }
+            else
+            {
+                WaitingFrom?.Dispose();
+                WaitingFrom = null;
+                this.Show();
+                examFrm?.Focus();
+                examFrm?.QuestDone(mess);
+                examFrm = null;
+            }
         }
 
         private void ListenForClients()
@@ -164,8 +208,7 @@ namespace testUdpTcp
 
             return regexPattern;
         }
-
-
+        
         private void HandleClient(TcpClient tcpClient)
         {
             NetworkStream clientStream = tcpClient.GetStream();
@@ -349,7 +392,7 @@ namespace testUdpTcp
                         {
                             this.Invoke(new Action(() => {
                                 this.Hide();
-                                examFrm = new ExamForm(mssvDoTest, Test, sendData, ChangeMSSV);
+                                examFrm = new ExamForm(mssvDoTest, Test, sendData, UpdateMSSV);
                                 examFrm.Show();
                                 examFrm.Focus();
                             }));
@@ -357,27 +400,17 @@ namespace testUdpTcp
                         else
                         {
                             this.Hide();
-                            examFrm = new ExamForm(mssvDoTest, Test, sendData, ChangeMSSV);
+                            examFrm = new ExamForm(mssvDoTest, Test, sendData, UpdateMSSV);
                             examFrm.Show();
                             examFrm.Focus();
                         }
                         return;
                     }
-                    if (WaitingFrom != null) return;
-                    if (this.InvokeRequired)
+                    if (WaitingFrom != null)
                     {
-                        this.Invoke(new Action(() => {
-                            this.Hide();
-                            WaitingFrom = new Waiting(GetMSSV);
-                            WaitingFrom.Show();
-                        }));
+                        return;
                     }
-                    else
-                    {
-                        //this.Hide();
-                        WaitingFrom = new Waiting(GetMSSV);
-                        WaitingFrom.Show();
-                    }
+                    ShowWaitingForm(GetMSSV);
                 }
                 catch (Exception ex)
                 {
@@ -387,15 +420,25 @@ namespace testUdpTcp
             } 
             else if (receivedMessage.StartsWith("TopStudent"))
             {
-                string[] parts = receivedMessage.Split(new[] { "TopStudent" }, StringSplitOptions.RemoveEmptyEntries);
                 try
                 {
+                    if (string.IsNullOrEmpty(mssvDoTest))
+                    {
+                        if (WaitingFrom != null)
+                            return;
+                        
+                        ShowWaitingForm(UpdateMSSV);
+                        return;
+                    }
+                    string[] parts = receivedMessage.Split(new[] { "TopStudent" }, StringSplitOptions.RemoveEmptyEntries);
+
                     List<string> topString = parts[0].Split(new[] { "sts@" }, StringSplitOptions.RemoveEmptyEntries).ToList();
 
                     if (this.InvokeRequired)
                     {
-                        this.Invoke(new Action(() => {
-                          
+                        this.Invoke(new Action(() =>
+                        {
+
                             examFrm?.ShowTop(topString);
                         }));
                     }
@@ -404,39 +447,64 @@ namespace testUdpTcp
                         examFrm?.ShowTop(topString);
                     }
                 }
-                catch (Exception ex) { 
-                    Console.WriteLine("Lỗi khi nhận score top: "+ex.Message);
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Lỗi khi nhận score top: " + ex.Message);
                 }
                 finally { tcpClient.Close(); }
 
             }
             else if (receivedMessage.StartsWith("QuestCome")) {
-                string[] parts = receivedMessage.Split(new[] { "QuestCome" }, StringSplitOptions.RemoveEmptyEntries);
                 try
                 {
-                    Quest quest = new Quest(parts[0]);
+                    string[] mess = receivedMessage.Split(new[] { "QuestCome" }, StringSplitOptions.RemoveEmptyEntries);
+                    string[] pts = mess[0].Split(new[] { "test@@" }, StringSplitOptions.RemoveEmptyEntries);
+                    if (Test == null)
+                    {
+                        Test = new Test(pts[0]);
+                    }
+
+                    if (string.IsNullOrEmpty(mssvDoTest))
+                    {
+                        if (WaitingFrom != null)
+                        {
+                            return;
+                        };
+                        ShowWaitingForm(UpdateMSSV);
+                        return;
+                    }
+
+                    Quest quest = new Quest(pts[1]);
                     Test.Quests.Add(quest);
                     if (examFrm == null)
                     {
-                        examFrm = new ExamForm(mssvDoTest, Test, sendData, ChangeMSSV, true);
+                        examFrm = new ExamForm(mssvDoTest, Test, sendData, UpdateMSSV, true);
                     }
 
                     if (this.InvokeRequired)
                     {
-                        this.Invoke(new Action(() => { 
+                        this.Invoke(new Action(() =>
+                        {
+                            examFrm?.Show();
+                            examFrm?.Focus();
+                            examFrm?.StartDoExam(true);
                             examFrm?.NotiQuestCome(quest.Index);
                         }));
                     }
                     else
                     {
+                        examFrm?.Show();
+                        examFrm?.Focus();
+                        examFrm?.StartDoExam(true);
                         examFrm?.NotiQuestCome(quest.Index);
                     }
 
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine("Lỗi khi nhận câu hỏi: "+ex.Message);
-                }finally { tcpClient.Close(); }
+                    Console.WriteLine("Lỗi khi nhận câu hỏi: " + ex.Message);
+                }
+                finally { tcpClient.Close(); }
             }
             else
             {
@@ -512,9 +580,16 @@ namespace testUdpTcp
                         break;
                     case "DoExam":
                         Console.WriteLine("Làm bài");
+                        if (string.IsNullOrEmpty(mssvDoTest))
+                        {
+                            if (WaitingFrom != null) break;
+
+                            ShowWaitingForm(UpdateMSSV);
+                            break;
+                        }
                         if (examFrm == null)
                         {
-                            examFrm = new ExamForm(mssvDoTest,Test, sendData,ChangeMSSV);
+                            examFrm = new ExamForm(mssvDoTest,Test, sendData,UpdateMSSV);
                             if (this.InvokeRequired)
                             {
                                 this.Invoke(new Action(() => {
@@ -533,64 +608,30 @@ namespace testUdpTcp
                         {
                             this.Invoke(new Action(()=>{
                                 this.Hide();
-                                examFrm.StartDoExam();
+                                examFrm?.StartDoExam();
                             }));
                         }
                         else
                         {
                             this.Hide();
-                            examFrm.StartDoExam();
+                            examFrm?.StartDoExam();
                         }
 
                         break;
                     case "CancelTest":
-                        Test.Quests.Clear();
                         string messCancelTest = "Bài kiểm tra đã bị giáo viên hủy";
-                        if (this.InvokeRequired)
-                        {
-                            this.Invoke(new Action(() => {
-                                this.Show();
-                                examFrm?.Focus();
-                                examFrm?.QuestDone(messCancelTest);
-                                examFrm = null;
-                            }));
-                        }
-                        else
-                        {
-                            this.Show();
-                            examFrm?.Focus();
-                            examFrm?.QuestDone(messCancelTest);
-                            examFrm = null;
-                        }
+                        ClosingExam(messCancelTest);
                         break;
                     case "TestDone": 
-                        Test.Quests.Clear();
                         string messTestDone = "Bạn đã thi xong";
-                        if (this.InvokeRequired)
-                        {
-                            this.Invoke(new Action(() => {
-                                this.Show();
-                                examFrm?.Focus();
-                                examFrm?.QuestDone(messTestDone);
-                                examFrm = null;
-                            }));
-                        }
-                        else
-                        {
-                            this.Show();
-                            examFrm?.Focus();
-                            examFrm?.QuestDone(messTestDone);
-                            examFrm = null;
-                        }
+                        ClosingExam(messTestDone);
                         break;
                 }
                 tcpClient.Close();
-
             }
-
-
         }
 
+        
         private void UpdateKeyboard(string key)
         {
             // Ensure that updating the mouse position is done on the UI thread

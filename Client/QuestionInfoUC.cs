@@ -63,7 +63,8 @@ namespace testUdpTcp
             pnl_answers.Size = new Size((int)(screenW * 0.8), (int)(screenH * 0.5));
             pnl_answers.Location = new Point((int)(screenW * 0.1), (int)(screenH * 0.4));
 
-            btn_confirm.Location = new Point((int)(screenW*0.92), (int)(screenH*0.7));
+            btn_confirm.Location = new Point((int)(screenW*0.5-btn_confirm.Width/2), (int)(screenH*0.75));
+            btn_confirm.Visible = StudentAnswer.SelectResultsId.Any();
 
             Shuffle(Quest.Results);
             List<string> titleRs = new List<string> {"A","B","C","D","E","F" };
@@ -85,6 +86,7 @@ namespace testUdpTcp
                 if (StudentAnswer.SelectResultsId.Contains(rs.Id))
                 {
                     StudentAnswer.SelectResultsId.Remove(rs.Id);
+                    btn_confirm.Visible = StudentAnswer.SelectResultsId.Any();
                     return true;
                 }
 
@@ -95,6 +97,7 @@ namespace testUdpTcp
                 }
                 int indexRs = Quest.Results[index].Id;
                 StudentAnswer.SelectResultsId.Add(indexRs);
+                btn_confirm.Visible = StudentAnswer.SelectResultsId.Any();
                 return true;
             }
 

@@ -100,6 +100,17 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Properties\String.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>String.resx</DependentUpon>
+    </Compile>
+    <Compile Include="ConfigForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ConfigForm.Designer.cs">
+      <DependentUpon>ConfigForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="TrackAnswerInfo.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -199,6 +210,17 @@
     <Compile Include="ThumbnailTest.Designer.cs">
       <DependentUpon>ThumbnailTest.cs</DependentUpon>
     </Compile>
+    <EmbeddedResource Include="Properties\String.en.resx">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\String.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>String.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ConfigForm.resx">
+      <DependentUpon>ConfigForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="TrackExam.resx">
       <DependentUpon>TrackExam.cs</DependentUpon>
     </EmbeddedResource>

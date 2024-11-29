@@ -67,14 +67,17 @@ namespace Server
         private List<SessionComputer> sessionComputers = new List<SessionComputer>();
         private List<ClassSession> classSessions = new List<ClassSession>();
         private List<ClassStudent> classStudents = new List<ClassStudent>();
-        private List<Attendance> attendances = new List<Attendance>();
         private List<ClassStudent> students;
         private IServiceProvider _serviceProvider;
         ContextMenuStrip contextMenuStrip;
         ContextMenuStrip contextMenuStrip1;
         SlideShowForm form1;
         ImageList imageList1 = new ImageList();
-
+        private int FPS = 30;
+        private int Quality = 40;
+        private int widthScreen;
+        private int heighScreen;
+        private string Protocal = "UDP";
         SvExamForm ExamForm { get; set; }
         private List<Test> Tests { get; set; }
         private int IndexTestReady { get; set; }
@@ -185,8 +188,20 @@ namespace Server
                     class_students.Add(clst);
                 }
 
+                // Thực hiện thêm sinh viên vào cơ sở dữ liệu và danh sách lớp
                 await _studentBLL.InsertStudent(students);
                 await _classStudentBLL.InsertClassStudent(class_students);
+
+                // Lặp qua các dòng trong dgv_attendance để thay đổi ForeColor
+                foreach (DataGridViewRow selectedRow in dgv_attendance.SelectedRows)
+                {
+                    string studentID = selectedRow.Cells["StudentID"]?.Value?.ToString();
+                    if (!string.IsNullOrEmpty(studentID))
+                    {
+                        // Thay đổi ForeColor thành màu đen cho các dòng có MSSV đã thêm thành công
+                        selectedRow.DefaultCellStyle.ForeColor = Color.Black;
+                    }
+                }
 
                 // Thông báo sau khi thêm xong
                 MessageBox.Show($"Đã thêm {dgv_attendance.SelectedRows.Count} sinh viên vào danh sách.");
@@ -196,6 +211,7 @@ namespace Server
                 MessageBox.Show($"Lỗi khi thêm sinh viên: {ex.Message}");
             }
         }
+
 
         // Event handler for "Chọn sinh viên kiểm tra máy"
         private void contextMenu_SelectStudentCheckMachine_Click(object sender, EventArgs e)
@@ -233,7 +249,8 @@ namespace Server
                     dgv_attendance.Columns.Add("LastName", "Last Name");
                 }
 
-                var attendances = await _attendanceBLL.GetAttendanceByClassID(classID);
+                //var attendances = await _attendanceBLL.GetAttendanceByClassID(classID);
+                List<ClassSession> attendances = null;
 
                 if (attendances == null || !attendances.Any())
                 {
@@ -248,7 +265,7 @@ namespace Server
                     }
                     if (students == null || students.Count == 0)
                     {
-                        MessageBox.Show("Không có thông tin học sinh.");
+                        MessageBox.Show("Không có thông tin học sinh.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     }
                     else
                         foreach (var student in students)
@@ -321,6 +338,8 @@ namespace Server
             btnAll.Text = "All:" + room.NumberOfComputers;
             btnAll.Click += (s, e) => LoadFullInfoListIntoDataGridView(fullInfoList);
             roomID = room.RoomID.ToString();
+            room.Status = "Đang học";
+            await _roomBLL.UpdateRoom(room.RoomID.ToString(), room);
             var computers = await _computerBLL.GetComputersByID(room.RoomID.ToString());
             foreach (var computer in computers)
                 InitializeStandard(computer.ID, computer.ComputerName, computer.CPU, computer.RAM, computer.HDD);
@@ -337,7 +356,13 @@ namespace Server
                 var btnGroup = new Button
                 {
                     Text = groupName,
-                    Width = 100
+                    Font = new System.Drawing.Font("Tahoma", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0))),
+                    Location = new System.Drawing.Point(100, 5),
+                    Margin = new System.Windows.Forms.Padding(100, 5, 3, 3),
+                    Name = "btnAll",
+                    Size = new System.Drawing.Size(131, 36),
+                    TabIndex = 0,
+                    UseVisualStyleBackColor = true,
                 };
 
                 // Tạo ContextMenuStrip cho nút
@@ -419,9 +444,10 @@ namespace Server
                 tcpListener = new TcpListener(ip, tcpPort);
                 listenThread = new Thread(new ThreadStart(ListenForClients));
                 listenThread.Start();
-                int screenWidth = Screen.PrimaryScreen.Bounds.Width;
+                widthScreen = Screen.PrimaryScreen.Bounds.Width;
+                heighScreen = Screen.PrimaryScreen.Bounds.Height;
 
-                double width80Percent = screenWidth * 0.8;
+                double width80Percent = widthScreen * 0.8;
 
 
                 dgv_attendance.Width = int.Parse(width80Percent.ToString());
@@ -545,7 +571,7 @@ namespace Server
             //SendUDPMessage(IPAddress.Parse("192.168.1.2"), 11312, Ip);
             SendUDPMessage(broadcastAddress, 11312, Ip + mess);
         }
-        private void SendUDPMessage(IPAddress ipAddress, int port, String mes)
+        private void SendUDPMessage(IPAddress ipAddress, int port, string mes)
         {
             using (UdpClient udpClient = new UdpClient())
             {
@@ -758,11 +784,25 @@ namespace Server
 
             else if (tmp[0] == "LOAD_DONE")
             {
-                isRunning = true;
+                isRunning = true; // Đặt cờ là đang chạy
+                if (Protocal == "UDP")
+                {
+                    // Nếu là UDP, bắt đầu chụp và gửi ảnh liên tục
+                    screenshotThread = new Thread(new ThreadStart(CaptureAndSendScreenshotsContinuously));
+                    screenshotThread.Start();
+                }
+                else
+                {
+                    // Nếu không phải UDP, mở một luồng mới để gửi ảnh cho từng client
+                    Thread sendScreenshotThread = new Thread(() =>
+                    {
+                        SendScreenshotsToClients(FPS, Quality); // Gửi ảnh tới các client
+                    });
 
-                screenshotThread = new Thread(new ThreadStart(CaptureAndSendScreenshotsContinuously));
-                screenshotThread.Start();
+                    sendScreenshotThread.Start(); // Bắt đầu luồng mới
+                }
             }
+
             else if (tmp[0] == "ReadyToCapture")
             {
                 OpenNewForm(IPSlideToSV);
@@ -785,17 +825,30 @@ namespace Server
             {
                 // Thực hiện cập nhật
                 await updateAttanceToDB();
-                await updateSessionComputer();
+                bool check = await updateSessionComputer();
+                if (!check) { 
+            isUpdating = false;
+
+                    return;
+                }
+
+                room.Status = "Trống";
+                await _roomBLL.UpdateRoom(room.RoomID.ToString(), room);
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Lỗi khi cập nhật: {ex}");
             }
-            finally
+            isUpdating = false;
+            if (this.InvokeRequired)
             {
-                isUpdating = false;
+                this.Invoke(new Action(() => this.Close()));
+            }
+            else
+            {
                 this.Close();
             }
+
         }
 
         private void UpdateListView(string machineName, Image image)
@@ -1235,7 +1288,7 @@ namespace Server
                     // Lấy chỉ số cột dựa trên sessionID
                     int columnIndex = dgv_attendance.Columns[sessionID.ToString()].Index;
                     newRow.Cells[columnIndex].Value = value;
-                    newRow.DefaultCellStyle.BackColor = Color.Red; // Đánh dấu hàng mới
+                    newRow.DefaultCellStyle.ForeColor = Color.Red; // Đánh dấu hàng mới
                     dgv_attendance.Rows.Add(newRow);
 
 
@@ -1572,6 +1625,84 @@ namespace Server
 
             isRunning = false;
         }
+        private void SendScreenshotsToClients(int fps, long quality)
+        {
+            foreach (DataGridViewRow row in dgv_client.Rows)
+            {
+                string clientIP = row.Cells[5]?.Value?.ToString();
+                if (!string.IsNullOrEmpty(clientIP) && IsValidIPAddress(clientIP))
+                {
+                    Thread clientThread = new Thread(() =>
+                    {
+                        CaptureAndSendScreenshots(clientIP, 8765, fps, quality); // Thêm FPS và chất lượng ảnh
+                    });
+
+                    clientThread.Start();
+                }
+            }
+        }
+
+        private void CaptureAndSendScreenshots(string clientIP, int port, int fps, long quality)
+        {
+            int interval = 1000 / fps; // Khoảng thời gian giữa các lần gửi (ms)
+            while (isRunning) // `isRunning` là cờ để dừng vòng lặp khi cần
+            {
+                try
+                {
+                    CaptureAndSendScreenshot(clientIP, port, quality);
+                    Thread.Sleep(interval); // Chờ trước khi chụp tiếp
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Lỗi khi gửi ảnh đến {clientIP}: {ex.Message}");
+                    break;
+                }
+            }
+        }
+
+        private void CaptureAndSendScreenshot(string clientIP, int port, long quality)
+        {
+            try
+            {
+                using (TcpClient client = new TcpClient(clientIP, port))
+                using (NetworkStream stream = client.GetStream())
+                {
+                    // Chụp màn hình
+                    int screenLeft = SystemInformation.VirtualScreen.Left;
+                    int screenTop = SystemInformation.VirtualScreen.Top;
+                    int screenWidth = SystemInformation.VirtualScreen.Width;
+                    int screenHeight = SystemInformation.VirtualScreen.Height;
+
+                    using (Bitmap screenshot = new Bitmap(screenWidth, screenHeight, PixelFormat.Format32bppArgb))
+                    {
+                        using (Graphics graphics = Graphics.FromImage(screenshot))
+                        {
+                            graphics.CopyFromScreen(screenLeft, screenTop, 0, 0, screenshot.Size, CopyPixelOperation.SourceCopy);
+                        }
+
+                        // Nén ảnh và chuyển đổi thành mảng byte
+                        using (MemoryStream ms = new MemoryStream())
+                        {
+                            SaveJpeg(ms, screenshot, quality); // Lưu ảnh dưới dạng JPEG với chất lượng chỉ định
+                            byte[] imageData = ms.ToArray();
+
+                            // Gửi độ dài dữ liệu trước
+                            byte[] lengthData = BitConverter.GetBytes(imageData.Length);
+                            stream.Write(lengthData, 0, lengthData.Length);
+
+                            // Gửi dữ liệu ảnh
+                            stream.Write(imageData, 0, imageData.Length);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Không thể gửi dữ liệu đến {clientIP}: {ex.Message}");
+            }
+        }
+
+
 
         private void CaptureAndSendScreenshotsContinuously()
         {
@@ -1581,7 +1712,6 @@ namespace Server
             // Lấy địa chỉ broadcast của mạng local
             IPAddress broadcastAddress = GetBroadcastAddress();
             int i = 1;
-            int fps = 60;
             while (isRunning)
             {
                 try
@@ -1608,10 +1738,10 @@ namespace Server
                             }
                         }
                     }
-                    if (i > fps - 1) i = 1;
+                    if (i > FPS - 1) i = 1;
                     i++;
                     // Chờ khoảng thời gian trước khi chụp và gửi tiếp
-                    Thread.Sleep(1000 / fps); // Chờ 1/fps giây (mili giây) trước khi gửi hình tiếp theo
+                    Thread.Sleep(1000 / FPS); // Chờ 1/fps giây (mili giây) trước khi gửi hình tiếp theo
                 }
                 catch (ThreadInterruptedException ex)
                 {
@@ -1623,16 +1753,11 @@ namespace Server
 
         private void CompressAndSendImage(int i, Bitmap image, MemoryStream stream, int bufferSize, UdpClient udpClient, IPAddress broadcastAddress)
         {
-            long quality = 100L; // Bắt đầu với chất lượng 90%
 
             byte[] imageData;
-            do
-            {
-                stream.SetLength(0); // Đặt lại stream cho mỗi lần nén
-                SaveJpeg(stream, image, quality);
-                imageData = stream.ToArray();
-                quality -= 10; // Giảm chất lượng đi 10% cho lần tiếp theo nếu cần
-            } while (imageData.Length > bufferSize && quality > 10);
+            stream.SetLength(0);
+            SaveJpeg(stream, image, Quality);
+            imageData = stream.ToArray();
 
             int bytesSent = 0;
             int index = 0;
@@ -1649,7 +1774,7 @@ namespace Server
 
                 // Tạo một mảng byte mới để chứa tín hiệu và dữ liệu cần gửi
                 byte[] dataToSend = new byte[signalLength + bytesToSend];
-                Console.WriteLine(imageData.Length + " " + cutCount + " " + i + " " + quality);
+                Console.WriteLine(imageData.Length + " " + cutCount + " " + i + " " + Quality);
                 // Sao chép tín hiệu và dữ liệu vào mảng mới
                 Array.Copy(signal, 0, dataToSend, 0, signalLength);
                 Array.Copy(imageData, index, dataToSend, signalLength, bytesToSend);
@@ -1776,7 +1901,7 @@ namespace Server
 
         }
 
-        private async Task updateSessionComputer()
+        private async Task<bool> updateSessionComputer()
         {
             sessionComputers.Clear();
 
@@ -1818,17 +1943,29 @@ namespace Server
                     else
                     {
                         MessageBox.Show("Chọn một sinh viên từ bảng điểm danh để kiểm tra máy!!");
-                        return;
-                        
+                        return false;
+
                     }
                 }
             }
 
             if (sessionComputers.Count == room.NumberOfComputers)
             {
-                await _sessionComputerBLL.InsertSessionComputer(sessionID, sessionComputers);
+                var lstSessionComputer = await _sessionComputerBLL.InsertSessionComputer(sessionID, sessionComputers);
+                if (lstSessionComputer.Count > 0)
+                {
+                    string lstStudentNotExit = "";
+                    foreach (var sessionComputer in lstSessionComputer)
+                    {
+                        lstStudentNotExit += sessionComputer.StudentID.ToString() + "\n";
+                    }
+                    MessageBox.Show("Danh sách sinh viên không tồn tại: "+lstStudentNotExit+" Vui lòng xóa hoặc vào điểm danh để thêm sinh viên","Thông Báo");
+
+                }
+                return true;
             }
-            
+            return false;
+
         }
 
         private async Task updateAttanceToDB()
@@ -1838,30 +1975,26 @@ namespace Server
             foreach (DataGridViewRow row in dgv_attendance.Rows)
             {
                 string studentID = row.Cells["MSSV"].Value?.ToString();
+                string present = row.Cells[3].Value?.ToString().ToLower();
 
-                foreach (DataGridViewColumn col in dgv_attendance.Columns)
+                // Kiểm tra màu sắc của ô (nếu màu nền là đỏ thì không thêm vào danh sách)
+                if (row.Cells[0].Style.BackColor != Color.Red) // Kiểm tra nếu màu nền không phải màu đỏ
                 {
-                    // Kiểm tra xem cột hiện tại có tên là SessionID hay không
-                    if (col.Index > 2)
+                    Attendance attendance = new Attendance
                     {
-                        string present = row.Cells[col.Index].Value?.ToString().ToLower();
+                        StudentID = studentID,
+                        SessionID = sessionID,
+                        Present = present,
+                    };
 
-                        Attendance attendance = new Attendance
-                        {
-                            StudentID = studentID,
-                            SessionID = sessionID,
-                            Present = present,
-                        };
-
-                        lstAttendances.Add(attendance);
-                        break; // Thoát khỏi vòng lặp cột sau khi tìm thấy cột SessionID
-                    }
+                    lstAttendances.Add(attendance); // Thêm vào danh sách
                 }
             }
 
             // Gọi BLL để thực hiện lưu danh sách Attendance vào cơ sở dữ liệu
             await _attendanceBLL.InsertAttendance(sessionID, lstAttendances);
         }
+
 
         private void toolStripButton6_Click(object sender, EventArgs e)
         {
@@ -1931,6 +2064,10 @@ namespace Server
         {
             List<Thread> clientThreads = new List<Thread>();
 
+            if (dgv_client.SelectedRows.Count > 1)
+            {
+                MessageBox.Show("Chỉ được chọn 1 máy để trình chiếu!!", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
             foreach (DataGridViewRow row in dgv_client.Rows)
             {
                 try
@@ -1944,7 +2081,7 @@ namespace Server
                         if (IsValidIPAddress(clientIP))
                         {
                             // Kiểm tra nếu dòng này đang được chọn
-                            string message = row.Selected ? "SlideShowToClient" : "SlideShow";
+                            string message = row.Selected ? "SlideShowToClient" : @"SlideShow-" + widthScreen + "-" + heighScreen;
                             byte[] data = Encoding.UTF8.GetBytes(message);
 
                             // Tạo một luồng riêng biệt cho mỗi client
@@ -2447,6 +2584,10 @@ namespace Server
 
         private void toolStripButton5_Click(object sender, EventArgs e)
         {
+            if (lst_client.Visible == true)
+            {
+                StopCapture5s();
+            }
             dgv_client.Hide();
             lst_client.Hide();
             dgv_attendance.Show();
@@ -2570,11 +2711,7 @@ namespace Server
             sendForm.Show();
         }
 
-        private void tsUpdate_ButtonClick(object sender, EventArgs e)
-        {
-
-        }
-
+      
         private async void tsUpdateInfoSession_Click(object sender, EventArgs e)
         {
             await updateSessionComputer();
@@ -2717,10 +2854,72 @@ namespace Server
                 Console.WriteLine(ex.ToString());
             }
         }
+        private void StopCapture5s()
+        {
+            dgv_client.Hide();
+            dgv_attendance.Hide();
+            lst_client.Show();
 
+            string message = "StopCapture5s";
+            byte[] data = Encoding.UTF8.GetBytes(message);
+
+            List<Thread> clientThreads = new List<Thread>();
+
+            foreach (DataGridViewRow row in dgv_client.Rows)
+            {
+                try
+                {
+                    string clientIP = "";
+                    if (row.Cells[5].Value.ToString() != null)
+                        clientIP = row.Cells[5].Value.ToString();
+
+                    // Kiểm tra xem địa chỉ IP có hợp lệ không
+                    if (IsValidIPAddress(clientIP))
+                    {
+                        // Tạo một luồng riêng biệt cho mỗi client
+                        Thread clientThread = new Thread(() =>
+                        {
+                            try
+                            {
+                                TcpClient client = new TcpClient(clientIP, 8888);
+
+                                // Gửi yêu cầu khóa tới máy Client
+                                NetworkStream stream = client.GetStream();
+                                stream.Write(data, 0, data.Length);
+                                // Đóng kết nối
+                                client.Close();
+                            }
+                            catch (Exception ex)
+                            {
+                                MessageBox.Show("Mất kết nối với: " + row.Cells[0].Value.ToString());
+                            }
+                        });
+
+                        // Bắt đầu luồng cho client hiện tại
+                        clientThreads.Add(clientThread);
+                        clientThread.Start();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Mất kết nối với: " + row.Cells[0].Value.ToString());
+                }
+            }
+
+            // Chờ tất cả các luồng kết thúc trước khi tiếp tục
+            foreach (Thread t in clientThreads)
+            {
+                t.Join();
+            }
+        }
 
         private void toolStripButton17_Click(object sender, EventArgs e)
         {
+            if (lst_client.Visible == true)
+            {
+                StopCapture5s();
+            }
+
             dgv_client.Show();
             dgv_attendance.Hide();
             lst_client.Hide();
@@ -2728,9 +2927,63 @@ namespace Server
 
         private void toolStripButton16_Click(object sender, EventArgs e)
         {
+
+
             dgv_client.Hide();
             dgv_attendance.Hide();
             lst_client.Show();
+
+            string message = "Capture5s";
+            byte[] data = Encoding.UTF8.GetBytes(message);
+
+            List<Thread> clientThreads = new List<Thread>();
+
+            foreach (DataGridViewRow row in dgv_client.Rows)
+            {
+                try
+                {
+                    string clientIP = "";
+                    if (row.Cells[5].Value.ToString() != null)
+                        clientIP = row.Cells[5].Value.ToString();
+
+                    // Kiểm tra xem địa chỉ IP có hợp lệ không
+                    if (IsValidIPAddress(clientIP))
+                    {
+                        // Tạo một luồng riêng biệt cho mỗi client
+                        Thread clientThread = new Thread(() =>
+                        {
+                            try
+                            {
+                                TcpClient client = new TcpClient(clientIP, 8888);
+
+                                // Gửi yêu cầu khóa tới máy Client
+                                NetworkStream stream = client.GetStream();
+                                stream.Write(data, 0, data.Length);
+                                // Đóng kết nối
+                                client.Close();
+                            }
+                            catch (Exception ex)
+                            {
+                                MessageBox.Show("Mất kết nối với: " + row.Cells[0].Value.ToString());
+                            }
+                        });
+
+                        // Bắt đầu luồng cho client hiện tại
+                        clientThreads.Add(clientThread);
+                        clientThread.Start();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Mất kết nối với: " + row.Cells[0].Value.ToString());
+                }
+            }
+
+            // Chờ tất cả các luồng kết thúc trước khi tiếp tục
+            foreach (Thread t in clientThreads)
+            {
+                t.Join();
+            }
         }
 
         private void tsUpdate_ButtonClick_1(object sender, EventArgs e)
@@ -2825,6 +3078,25 @@ namespace Server
             }
         }
 
+        private void càiĐặtToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            ConfigForm configForm = new ConfigForm
+            {
+                // Gán giá trị mặc định
+                FPS = FPS,
+                Quality = Quality,
+                UseTCP = Protocal == "TCP" ? true : false,
+            };
 
+            // Hiển thị ConfigForm dưới dạng dialog
+            if (configForm.ShowDialog() == DialogResult.OK)
+            {
+                // Lấy giá trị từ ConfigForm sau khi nhấn Save
+                FPS = configForm.FPS;
+                Quality = configForm.Quality;
+                Protocal = configForm.Protocol;
+
+            }
+        }
     }
 }

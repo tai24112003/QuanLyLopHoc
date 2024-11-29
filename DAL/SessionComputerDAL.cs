@@ -38,8 +38,11 @@ public class SessionComputerDAL
         }
     }
 
-    public async Task InsertSessionComputerLocal(int sessionId, List<SessionComputer> sessionComputers)
+    public async Task<List<SessionComputer>> InsertSessionComputerLocal(int sessionId, List<SessionComputer> sessionComputers)
     {
+        List<SessionComputer> missingSessionComputers = new List<SessionComputer>();
+        HashSet<string> missingStudentIDs = new HashSet<string>(); // Sử dụng HashSet để theo dõi các StudentID bị thiếu
+
         // Đảm bảo sessionID là số âm (nếu cần)
         int sessionID = sessionId < 0 ? sessionId : sessionId * -1;
 
@@ -54,16 +57,40 @@ public class SessionComputerDAL
         if (!deleteSuccess)
         {
             Console.WriteLine("Failed to delete previous session computer records.");
-            return; // Dừng nếu không xóa được các bản ghi cũ
+            return missingSessionComputers; // Trả về danh sách trống nếu không xóa được
         }
 
-        // Chèn các bản ghi mới
+        // Chèn các bản ghi mới và kiểm tra MSSV
         foreach (SessionComputer sessionComputer in sessionComputers)
         {
+            // Kiểm tra nếu StudentID không tồn tại trong bảng Students
+            if (missingStudentIDs.Contains(sessionComputer.StudentID))
+            {
+                // Nếu StudentID đã bị bỏ qua trước đó, bỏ qua không kiểm tra lại
+                continue;
+            }
+
+            string checkQuery = "SELECT COUNT(*) FROM Students WHERE StudentID = @StudentID";
+            OleDbParameter[] checkParameters = new OleDbParameter[]
+            {
+            new OleDbParameter("@StudentID", sessionComputer.StudentID)
+            };
+
+            int count = (int)(await Task.Run(() => DataProvider.RunScalar(checkQuery, checkParameters)) ?? 0);
+            if (count == 0)
+            {
+                // Nếu không tồn tại, thêm vào danh sách các đối tượng SessionComputer không hợp lệ
+                missingSessionComputers.Add(sessionComputer);
+                missingStudentIDs.Add(sessionComputer.StudentID); // Thêm StudentID vào HashSet để tránh kiểm tra lại
+                continue;
+            }
+
+            // Nếu StudentID tồn tại, thực hiện chèn bản ghi
             OleDbParameter[] parameters = new OleDbParameter[]
             {
             new OleDbParameter("@SessionID", sessionID),
             new OleDbParameter("@ComputerID", sessionComputer.ComputerID),
+            new OleDbParameter("@ComputerName", sessionComputer.ComputerName),
             new OleDbParameter("@RAM", sessionComputer.RAM),
             new OleDbParameter("@HDD", sessionComputer.HDD),
             new OleDbParameter("@CPU", sessionComputer.CPU),
@@ -71,20 +98,24 @@ public class SessionComputerDAL
             new OleDbParameter("@KeyboardConnected", sessionComputer.KeyboardConnected),
             new OleDbParameter("@MonitorConnected", sessionComputer.MonitorConnected),
             new OleDbParameter("@MismatchInfo", sessionComputer.MismatchInfo),
-            new OleDbParameter("@StudentID", sessionComputer.StudentID),
+            new OleDbParameter("@RepairNote", sessionComputer.RepairNote),
+            new OleDbParameter("@StudentID", sessionComputer.StudentID)
             };
 
-            string insertQuery = "INSERT INTO `Session_Computer` (`SessionID`, `ComputerID`, `RAM`, `HDD`, `CPU`, " +
-                                 "`MouseConnected`, `KeyboardConnected`, `MonitorConnected`, `MismatchInfo`, `StudentID`) " +
-                                 "VALUES (@SessionID, @ComputerID, @RAM, @HDD, @CPU, " +
-                                 "@MouseConnected, @KeyboardConnected, @MonitorConnected, @MismatchInfo, @StudentID)";
+            string insertQuery = "INSERT INTO `Session_Computer` (`SessionID`, `ComputerID`, `ComputerName`, `RAM`, `HDD`, `CPU`, " +
+                                 "`MouseConnected`, `KeyboardConnected`, `MonitorConnected`, `MismatchInfo`, `RepairNote`, `StudentID`) " +
+                                 "VALUES (@SessionID, @ComputerID, @ComputerName, @RAM, @HDD, @CPU, " +
+                                 "@MouseConnected, @KeyboardConnected, @MonitorConnected, @MismatchInfo, @RepairNote, @StudentID)";
 
             bool insertSuccess = await Task.Run(() => DataProvider.RunNonQuery(insertQuery, parameters));
             if (!insertSuccess)
             {
-                Console.WriteLine("Failed to insert session computer into database.");
+                Console.WriteLine($"Failed to insert session computer for ComputerID: {sessionComputer.ComputerID}");
             }
         }
+
+        // Trả về danh sách các SessionComputer có StudentID không tồn tại
+        return missingSessionComputers;
     }
 
 

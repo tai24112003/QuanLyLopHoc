@@ -42,8 +42,6 @@ public class RoomBLL
     {
         try
         {
-            Console.WriteLine("load api");
-
             // Get data from the server
             string RoomsJson = await _RoomDAL.GetRoomByRoomName(id);
             List<Room> lstRoom = ParseRooms(RoomsJson);
@@ -72,5 +70,21 @@ public class RoomBLL
         }
     }
 
-    
+    public async Task UpdateRoom(string id,Room room)
+    {
+        try
+        {
+            // Get data from the server
+            string RoomsJson = JsonConvert.SerializeObject(room);
+             await _RoomDAL.UpdateRoom(id,RoomsJson); 
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Error fetching Rooms by id from BLL, loading local data: " + ex.Message);
+
+
+        }
+    }
+
+
 }

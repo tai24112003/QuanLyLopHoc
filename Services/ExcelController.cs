@@ -12,7 +12,7 @@ public class ExcelController
     private readonly UserBLL _userBLL;
     private readonly ClassStudentBLL _classStudentBLL;
 
-    public ExcelController(LocalDataHandler localDataHandler, ClassStudentBLL classStudentBLL, ClassSessionBLL classSessionBLL, StudentBLL studentBLL, ClassBLL classBLL, UserBLL userBLL)
+    public ExcelController( ClassStudentBLL classStudentBLL, ClassSessionBLL classSessionBLL, StudentBLL studentBLL, ClassBLL classBLL, UserBLL userBLL)
     {
         _classSessionBLL = classSessionBLL;
         _studentBLL = studentBLL;
@@ -35,7 +35,6 @@ public class ExcelController
             var classEntity = new Class { ClassName = excelData.ClassName, UserID=user.id,  LastTime = formattedDateTime };
             var addedClass = await _classBLL.InsertClass(classEntity);
 
-            // Add Students
             // Add ClassStudent
             List<ClassStudent> students = new List<ClassStudent>();
             foreach (var student in excelData.Students)

@@ -60,7 +60,8 @@ namespace testUdpTcp
         LockScreenForm LockScreen;
         //private string IpServer = "192.168.72.249";
         private string IpServer = "127.0.0.1";
-
+        private int widthSv;
+        private int heightSv;
         private string myIp = "127.0.0.1";
         private List<string> inf;
         private List<string> mssvLst = new List<string>();
@@ -298,7 +299,7 @@ namespace testUdpTcp
             if (receivedMessage.StartsWith("SendFile"))
             {
                 // Parse the signal
-                string[] parts = receivedMessage.Split(new string[] { "FileName-","ToPath-" }, StringSplitOptions.None);
+                string[] parts = receivedMessage.Split(new string[] { "FileName-", "ToPath-" }, StringSplitOptions.None);
                 if (parts.Length >= 3)
                 {
                     string fileName = parts[1];
@@ -383,7 +384,7 @@ namespace testUdpTcp
             }
             else if (receivedMessage.StartsWith("CollectFile"))
             {
-                string[] parts = receivedMessage.Split(new string[] { "FileName-","FolderPath-" ,"Check-" }, StringSplitOptions.None);
+                string[] parts = receivedMessage.Split(new string[] { "FileName-", "FolderPath-", "Check-" }, StringSplitOptions.None);
                 if (parts.Length >= 4)
                 {
                     string fileNamePattern = ConvertWildcardToRegexPattern(parts[1]);
@@ -441,7 +442,7 @@ namespace testUdpTcp
             }
             else if (receivedMessage.StartsWith("Key-Exam"))
             {
-             
+
                 string[] parts = receivedMessage.Split(new[] { "Key-Exam" }, StringSplitOptions.RemoveEmptyEntries);
                 try
                 {
@@ -452,7 +453,8 @@ namespace testUdpTcp
                         sendData($"Ready-{mssvDoTest}");
                         if (this.InvokeRequired)
                         {
-                            this.Invoke(new Action(() => {
+                            this.Invoke(new Action(() =>
+                            {
                                 this.Hide();
                                 examFrm = new ExamForm(mssvDoTest, Test, sendData, UpdateMSSV);
                                 examFrm.Show();
@@ -477,9 +479,10 @@ namespace testUdpTcp
                 catch (Exception ex)
                 {
                     MessageBox.Show($"Lỗi khi nhận đề: {ex.Message}");
-                }finally { tcpClient.Close(); }
+                }
+                finally { tcpClient.Close(); }
 
-            } 
+            }
             else if (receivedMessage.StartsWith("TopStudent"))
             {
                 try
@@ -488,7 +491,7 @@ namespace testUdpTcp
                     {
                         if (WaitingFrom != null)
                             return;
-                        
+
                         ShowWaitingForm(UpdateMSSV);
                         return;
                     }
@@ -516,7 +519,8 @@ namespace testUdpTcp
                 finally { tcpClient.Close(); }
 
             }
-            else if (receivedMessage.StartsWith("QuestCome")) {
+            else if (receivedMessage.StartsWith("QuestCome"))
+            {
                 try
                 {
                     string[] mess = receivedMessage.Split(new[] { "QuestCome" }, StringSplitOptions.RemoveEmptyEntries);
@@ -570,23 +574,20 @@ namespace testUdpTcp
                 }
                 finally { tcpClient.Close(); }
             }
+            else if (receivedMessage.StartsWith("SlideShow"))
+            {
+                string[] parts=receivedMessage.Split('-');
+                widthSv = int.Parse(parts[1]);
+                heightSv = int.Parse(parts[2]);
+                OpenNewForm();
+            }
             else
             {
                 switch (receivedMessage)
                 {
                     case "LOCK_ACCESS": LockWeb(); Console.WriteLine("nhan dc tin hieu"); tcpClient.Close(); break;
                     case "LockScreen": OpenNewFormLockScreen(); break;
-                    case "SlideShow":
-                        //SlideShowForm slideShowForm = new SlideShowForm();
 
-                        // Gán địa chỉ IP của máy chủ từ ClientForm sang SlideShowForm
-                        //slideShowForm.ServerIP = IpServer;
-                        //slideShowForm.Listener = listener;
-                        //listener.Stop();
-                        OpenNewForm();
-                        // Hiển thị SlideShowForm
-                        //slideShowForm.Show();
-                        break;
                     case "SlideShowToClient":
                         sendData("ReadyToCapture");
                         isRunningscreenshot = true;
@@ -604,7 +605,7 @@ namespace testUdpTcp
                                 if (form1 != null)
                                 {
                                     form1.StopSlideshow();
-                                    form1=null;
+                                    form1 = null;
                                 };
                             });
                         }
@@ -614,7 +615,7 @@ namespace testUdpTcp
                             if (form1 != null)
                             {
                                 form1.StopSlideshow();
-                                form1=null;
+                                form1 = null;
 
                             }
                         }
@@ -628,7 +629,7 @@ namespace testUdpTcp
                                 if (LockScreen != null)
                                 {
                                     LockScreen.UnLockScreen();
-                                    LockScreen=null;
+                                    LockScreen = null;
                                 };
                             });
                         }
@@ -638,7 +639,7 @@ namespace testUdpTcp
                             if (LockScreen != null)
                             {
                                 LockScreen.UnLockScreen();
-                                LockScreen=null;
+                                LockScreen = null;
                             };
                         }
                         break;
@@ -653,10 +654,11 @@ namespace testUdpTcp
                         }
                         if (examFrm == null)
                         {
-                            examFrm = new ExamForm(mssvDoTest,Test, sendData,UpdateMSSV);
+                            examFrm = new ExamForm(mssvDoTest, Test, sendData, UpdateMSSV);
                             if (this.InvokeRequired)
                             {
-                                this.Invoke(new Action(() => {
+                                this.Invoke(new Action(() =>
+                                {
                                     examFrm.Show();
                                     examFrm.Focus();
                                 }));
@@ -670,7 +672,8 @@ namespace testUdpTcp
 
                         if (this.InvokeRequired)
                         {
-                            this.Invoke(new Action(()=>{
+                            this.Invoke(new Action(() =>
+                            {
                                 this.Hide();
                                 examFrm?.StartDoExam();
                                 Test.IsExamining = true;
@@ -691,7 +694,7 @@ namespace testUdpTcp
                         string messCancelTest = "Bài kiểm tra đã bị giáo viên hủy";
                         ClosingExam(messCancelTest);
                         break;
-                    case "TestDone": 
+                    case "TestDone":
                         string messTestDone = "Bạn đã thi xong";
                         ClosingExam(messTestDone);
                         break;
@@ -703,16 +706,15 @@ namespace testUdpTcp
         
         private void UpdateKeyboard(string key)
         {
-            // Ensure that updating the mouse position is done on the UI thread
             if (this.InvokeRequired)
             {
                 this.Invoke(new Action<string>(UpdateKeyboard), new object[] { key });
                 return;
             }
             if (string.IsNullOrEmpty(key)) ;
-            //VirtualKeyCode vKey  = KeyCodeMapper.MapStringToVirtualKeyCode(key);
+            VirtualKeyCode vKey = KeyCodeMapper.MapStringToVirtualKeyCode(key);
             InputSimulator sim = new InputSimulator();
-            //sim.Keyboard.KeyPress(vKey);
+            sim.Keyboard.KeyPress(vKey);
         }
 
 
@@ -727,12 +729,8 @@ namespace testUdpTcp
             }
             int screenWidth = SystemInformation.VirtualScreen.Width;
             int screenHeight = SystemInformation.VirtualScreen.Height;
-            // Get the size of the form (which is fullscreen) and the screen
-
-            // Map the received coordinates to the form's size (this assumes the coordinates are proportional)
-            // You might need to scale the coordinates if they're in a different resolution or range
-            int scaledX = (int)(x * screenWidth / 1600.0); // Assume 1920x1080 as the reference resolution
-            int scaledY = (int)(y * screenHeight / 900.0);
+            int scaledX = (int)(x * screenWidth / widthSv); 
+            int scaledY = (int)(y * screenHeight / heightSv);
 
             // Set the cursor position to the mapped coordinates
             Cursor.Position = new Point(scaledX, scaledY);

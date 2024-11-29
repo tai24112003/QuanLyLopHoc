@@ -29,6 +29,17 @@ public class RoomDAL
             throw ex;
         }
     }
+    public async Task UpdateRoom(string roomID,string roomjson)
+    {
+        try
+        {
+            string roomJson = await _dataService.PutAsync($"room/{roomID}",roomjson);
+        }
+        catch (Exception ex)
+        {
+            throw ex;
+        }
+    }
     public void SaveLocalData(string RoomsJson)
     {
         var roomResponse = JsonConvert.DeserializeObject<RoomResponse>(RoomsJson);

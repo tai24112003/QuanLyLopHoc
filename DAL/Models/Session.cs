@@ -4,6 +4,7 @@ using System.Collections.Generic;
 public class Session
 {
     public string ID { get; set; }
+    public string Display { get; set; }
     public string StartTime { get; set; }
     public string EndTime { get; set; }
 

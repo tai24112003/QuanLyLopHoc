@@ -34,12 +34,12 @@ namespace Server
         private DateTime lastReceivedTime;
         private System.Timers.Timer idleTimer;
         private bool isUpdating = false; // Tránh cập nhật lặp lại
-        private readonly int idleTimeInSeconds = 10; // Thời gian chờ không nhận dữ liệu
+        private readonly int idleTimeInSeconds = 5; // Thời gian chờ không nhận dữ liệu
 
         private bool isFullInfoMode = false;
         private WinFormsTimer timer;
         Class _classinfo;
-        private string Ip= "172.16.13.30";
+        private string Ip = "192.168.1.6";
         private TcpListener tcpListener;
         private Thread listenThread;
         private Thread screenshotThread;
@@ -74,11 +74,11 @@ namespace Server
         SlideShowForm form1;
         ImageList imageList1 = new ImageList();
 
-        SvExamForm ExamForm {  get; set; }
-        private List<Test> Tests {get; set; }
-        private int IndexTestReady {  get; set; }
-        private List<string> StudentsAreReady {get;set;}
-        private List<int> DidExamId {get; set;}
+        SvExamForm ExamForm { get; set; }
+        private List<Test> Tests { get; set; }
+        private int IndexTestReady { get; set; }
+        private List<string> StudentsAreReady { get; set; }
+        private List<int> DidExamId { get; set; }
 
         private Dictionary<string, List<List<string>>> groups = new Dictionary<string, List<List<string>>>();
         public svForm()
@@ -138,7 +138,7 @@ namespace Server
             menuItem3.Click += contextMenu_SlideShowToClient_Click;
             menuItem2.Click += contextMenu_Refresh_Click;
             menuItem4.Click += async (sender, e) => await AddSelectedStudentsAsync();
-            menuItem5.Click += contextMenu_SelectStudentCheckMachine_Click; 
+            menuItem5.Click += contextMenu_SelectStudentCheckMachine_Click;
         }
 
         private async Task AddSelectedStudentsAsync()
@@ -208,7 +208,7 @@ namespace Server
                     return;
                 }
 
-                selectedStudent = dgv_attendance.SelectedRows[0].Cells["StudentID"]?.Value?.ToString();
+                selectedStudent = dgv_attendance.SelectedRows[0].Cells["MSSV"]?.Value?.ToString();
             }
             catch (Exception ex)
             {
@@ -542,9 +542,8 @@ namespace Server
             IPAddress broadcastAddress = GetBroadcastAddress() ?? null;
             Console.WriteLine(broadcastAddress);
 
-            SendUDPMessage(IPAddress.Parse("127.0.0.1"), 11312, Ip);
-            //SendUDPMessage(broadcastAddress, 11312, Ip+mess);
-
+            //SendUDPMessage(IPAddress.Parse("192.168.1.2"), 11312, Ip);
+            SendUDPMessage(broadcastAddress, 11312, Ip + mess);
         }
         private void SendUDPMessage(IPAddress ipAddress, int port, String mes)
         {
@@ -562,7 +561,7 @@ namespace Server
             }
 
         }
-       
+
         private void ListenForClients()
         {
             tcpListener.Start();
@@ -605,8 +604,8 @@ namespace Server
 
             if (receivedMessage.StartsWith("Ready-"))
             {
-                string[] parts= receivedMessage.Split('-');
-                if (!StudentsAreReady.Contains(parts[1])&& !string.IsNullOrEmpty(parts[1]))
+                string[] parts = receivedMessage.Split('-');
+                if (!StudentsAreReady.Contains(parts[1]) && !string.IsNullOrEmpty(parts[1]))
                     StudentsAreReady.Add(parts[1]);
             }
             else if (receivedMessage.StartsWith("ReadyAgain"))
@@ -729,8 +728,9 @@ namespace Server
 
                                 }
                             }
-                            catch (Exception ex) { 
-                                Console.WriteLine("Nhan anh loi"+ex.ToString());
+                            catch (Exception ex)
+                            {
+                                Console.WriteLine("Nhan anh loi" + ex.ToString());
                             }
 
                         }
@@ -794,6 +794,7 @@ namespace Server
             finally
             {
                 isUpdating = false;
+                this.Close();
             }
         }
 
@@ -1237,7 +1238,7 @@ namespace Server
                     newRow.DefaultCellStyle.BackColor = Color.Red; // Đánh dấu hàng mới
                     dgv_attendance.Rows.Add(newRow);
 
-                 
+
                 }
             }
 
@@ -1804,26 +1805,30 @@ namespace Server
                         MismatchInfo = row.Cells[10].Value?.ToString()
                         // Add more properties as needed corresponding to the columns in your DataGridView
                     };
-
-                    if (sessionComputer.StudentID != "")
+                    if (selectedStudent != "")
                     {
-                        if (selectedStudent != "")
+
+                        if (sessionComputer.StudentID == "")
                         {
                             sessionComputer.StudentID = selectedStudent;
-                            sessionComputers.Add(sessionComputer);
                         }
+                        sessionComputers.Add(sessionComputer);
+
+                    }
+                    else
+                    {
+                        MessageBox.Show("Chọn một sinh viên từ bảng điểm danh để kiểm tra máy!!");
+                        return;
+                        
                     }
                 }
             }
 
-            if (sessionComputers.Count != numbercomputer)
+            if (sessionComputers.Count == room.NumberOfComputers)
             {
                 await _sessionComputerBLL.InsertSessionComputer(sessionID, sessionComputers);
             }
-            else
-            {
-                MessageBox.Show("Chọn một sinh viên từ bảng điểm danh để kiểm tra máy!!");
-            }
+            
         }
 
         private async Task updateAttanceToDB()
@@ -2395,7 +2400,7 @@ namespace Server
                 {
                     string folderPath = folderBrowserDialog.SelectedPath;
                     // Hiển thị đường dẫn thư mục đã chọn, ví dụ trên một label
-                    ExportToExcel(folderPath + @"\"+room.RoomName+"_"+DateTime.Now.ToString("dd-MM-yyyy")+".xlsx",dgv_client);
+                    ExportToExcel(folderPath + @"\" + room.RoomName + "_" + DateTime.Now.ToString("dd-MM-yyyy") + ".xlsx", dgv_client);
                 }
             }
         }
@@ -2411,7 +2416,7 @@ namespace Server
                 {
                     string folderPath = folderBrowserDialog.SelectedPath;
                     // Hiển thị đường dẫn thư mục đã chọn, ví dụ trên một label
-                    ExportToExcel(folderPath + @"\" + room.RoomName+"_" + DateTime.Now.ToString("dd-MM-yyyy") + ".xlsx", dgv_attendance);
+                    ExportToExcel(folderPath + @"\" + room.RoomName + "_" + DateTime.Now.ToString("dd-MM-yyyy") + ".xlsx", dgv_attendance);
 
                 }
             }
@@ -2435,7 +2440,7 @@ namespace Server
                 ExamForm.Focus(); // Đưa form lên phía trước
                 return;
             }
-            ExamForm = new SvExamForm(Tests, SendTest,IndexTestReady, DidExamId);
+            ExamForm = new SvExamForm(Tests, SendTest, IndexTestReady, DidExamId);
             ExamForm.Show();
         }
 
@@ -2463,15 +2468,15 @@ namespace Server
             }
         }
 
-        private bool SendTest(string content, string key, int indexTest=-1)
+        private bool SendTest(string content, string key, int indexTest = -1)
         {
-            IndexTestReady = indexTest!=-1?indexTest:IndexTestReady;
+            IndexTestReady = indexTest != -1 ? indexTest : IndexTestReady;
             if (key == "DoExam")
             {
                 if (StudentsAreReady.Count < 1)
                 {
                     MessageBox.Show("Chưa có sinh viên nào sẵn sàng!");
-                    return false ;
+                    return false;
                 }
                 Test testReady=Tests[IndexTestReady];
                 DialogResult result = MessageBox.Show($"Đã có {StudentsAreReady.Count} sinh viên sẵn sàng. Bắt đầu thi đề: {testReady.Title}?", "Xác nhận", MessageBoxButtons.OKCancel);
@@ -2673,7 +2678,7 @@ namespace Server
         private void contextMenu_Refresh_Click(object sender, EventArgs e)
         {
             sendAllIPInLan("");
-           
+
         }
         private void contextMenu_SlideShowToClient_Click(object sender, EventArgs e)
         {

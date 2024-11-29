@@ -112,7 +112,7 @@ namespace Server
             _serviceProvider = serviceProvider;
 
             //Ip = ;
-            Ip = getIPServer();
+            //Ip = getIPServer();
 
             // Thực hiện các logic khởi tạo khác nếu cần thiết
         }
@@ -406,9 +406,9 @@ namespace Server
                 dgv_attendance.Hide();
                 lst_client.Hide();
                 lst_client.LargeImageList = imageList1;
-                students = await _classStudentBLL.GetClassStudentsByID(classID);
-                await SetupRoom();
-                await SetupAttendance(classID);
+                //students = await _classStudentBLL.GetClassStudentsByID(classID);
+                //await SetupRoom();
+                //await SetupAttendance(classID);
                 sendAllIPInLan("");
                 //IPAddress ip = IPAddress.Parse("127.0.0.1");
                 IPAddress ip = IPAddress.Parse(Ip);
@@ -544,7 +544,6 @@ namespace Server
 
             //SendUDPMessage(IPAddress.Parse("192.168.1.2"), 11312, Ip);
             SendUDPMessage(broadcastAddress, 11312, Ip + mess);
-
         }
         private void SendUDPMessage(IPAddress ipAddress, int port, String mes)
         {
@@ -2430,7 +2429,6 @@ namespace Server
         }
 
 
-
         private void tsCreateExam_Click(object sender, EventArgs e)
         {
             if (ExamForm != null && !ExamForm.IsDisposed)
@@ -2480,6 +2478,9 @@ namespace Server
                     MessageBox.Show("Chưa có sinh viên nào sẵn sàng!");
                     return false;
                 }
+                Test testReady=Tests[IndexTestReady];
+                DialogResult result = MessageBox.Show($"Đã có {StudentsAreReady.Count} sinh viên sẵn sàng. Bắt đầu thi đề: {testReady.Title}?", "Xác nhận", MessageBoxButtons.OKCancel);
+                if (result == DialogResult.Cancel) return false;
             }
 
             List<Thread> clientThreads = new List<Thread>();
@@ -2496,14 +2497,18 @@ namespace Server
                     if (IsValidIPAddress(clientIP))
                     {
                         // Tạo một luồng riêng biệt cho mỗi client
-                        Thread clientThread = new Thread(() =>
+                        Thread clientThread = new Thread(async () =>
                         {
                             TcpClient client = null;
                             NetworkStream stream = null;
                             try
                             {
-                                client = new TcpClient(clientIP, 8888);
-                                client.SendBufferSize = 1024 * 1024; // Thiết lập kích thước buffer lớn (1 MB)
+                                client = new TcpClient(clientIP, 8888)
+                                {
+                                    SendBufferSize = 1024 * 1024, // Thiết lập kích thước buffer lớn (1 MB)
+                                    SendTimeout = 5000, // 5 giây
+                                    ReceiveTimeout = 5000 // 5 giây
+                                };
                                 stream = client.GetStream();
 
                                 byte[] signalBytes = Encoding.UTF8.GetBytes(contentSend);
@@ -2514,7 +2519,7 @@ namespace Server
                                 while (bytesSent < signalBytes.Length)
                                 {
                                     int bytesToSend = Math.Min(bufferSize, signalBytes.Length - bytesSent);
-                                    stream.Write(signalBytes, bytesSent, bytesToSend);
+                                    await stream.WriteAsync(signalBytes, bytesSent, bytesToSend);
                                     bytesSent += bytesToSend;
                                 }
 
@@ -2546,11 +2551,11 @@ namespace Server
             }
 
             // Chờ tất cả các luồng kết thúc trước khi tiếp tục
-            foreach (Thread t in clientThreads)
-            {
-                t.Join();
-            }
-            if (key == "Key-Exam")
+            //foreach (Thread t in clientThreads)
+            //{
+            //    t.Join();
+            //}
+            if(key== "Key-Exam")
             {
                 MessageBox.Show("Đã phát đề");
             }

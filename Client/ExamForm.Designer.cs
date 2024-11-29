@@ -30,11 +30,11 @@
         {
             this.headerPanel = new System.Windows.Forms.Panel();
             this.pnInfo = new System.Windows.Forms.Panel();
-            this.lblIndex = new System.Windows.Forms.Label();
             this.label12 = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
             this.label17 = new System.Windows.Forms.Label();
             this.panel4 = new System.Windows.Forms.Panel();
+            this.lbl_maxP = new System.Windows.Forms.Label();
             this.btn_changeMssv = new System.Windows.Forms.Button();
             this.lbl_mssv = new System.Windows.Forms.Label();
             this.label9 = new System.Windows.Forms.Label();
@@ -44,7 +44,6 @@
             this.lbl_top2 = new System.Windows.Forms.Label();
             this.lbl_top1 = new System.Windows.Forms.Label();
             this.lbl_time_to_start = new System.Windows.Forms.Label();
-            this.lbl_maxP = new System.Windows.Forms.Label();
             this.headerPanel.SuspendLayout();
             this.pnInfo.SuspendLayout();
             this.panel4.SuspendLayout();
@@ -65,7 +64,6 @@
             // 
             // pnInfo
             // 
-            this.pnInfo.Controls.Add(this.lblIndex);
             this.pnInfo.Controls.Add(this.label12);
             this.pnInfo.Controls.Add(this.label1);
             this.pnInfo.Controls.Add(this.label17);
@@ -75,17 +73,6 @@
             this.pnInfo.Name = "pnInfo";
             this.pnInfo.Size = new System.Drawing.Size(635, 129);
             this.pnInfo.TabIndex = 11;
-            // 
-            // lblIndex
-            // 
-            this.lblIndex.AutoSize = true;
-            this.lblIndex.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblIndex.Location = new System.Drawing.Point(239, 102);
-            this.lblIndex.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.lblIndex.Name = "lblIndex";
-            this.lblIndex.Size = new System.Drawing.Size(14, 13);
-            this.lblIndex.TabIndex = 23;
-            this.lblIndex.Text = "1";
             // 
             // label12
             // 
@@ -138,6 +125,17 @@
             this.panel4.Name = "panel4";
             this.panel4.Size = new System.Drawing.Size(511, 129);
             this.panel4.TabIndex = 10;
+            // 
+            // lbl_maxP
+            // 
+            this.lbl_maxP.AutoSize = true;
+            this.lbl_maxP.Font = new System.Drawing.Font("Microsoft Sans Serif", 13.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lbl_maxP.Location = new System.Drawing.Point(133, 52);
+            this.lbl_maxP.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.lbl_maxP.Name = "lbl_maxP";
+            this.lbl_maxP.Size = new System.Drawing.Size(68, 24);
+            this.lbl_maxP.TabIndex = 27;
+            this.lbl_maxP.Text = "MSSV:";
             // 
             // btn_changeMssv
             // 
@@ -240,17 +238,6 @@
             this.lbl_time_to_start.TabIndex = 0;
             this.lbl_time_to_start.Text = "label11";
             // 
-            // lbl_maxP
-            // 
-            this.lbl_maxP.AutoSize = true;
-            this.lbl_maxP.Font = new System.Drawing.Font("Microsoft Sans Serif", 13.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lbl_maxP.Location = new System.Drawing.Point(133, 52);
-            this.lbl_maxP.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.lbl_maxP.Name = "lbl_maxP";
-            this.lbl_maxP.Size = new System.Drawing.Size(68, 24);
-            this.lbl_maxP.TabIndex = 27;
-            this.lbl_maxP.Text = "MSSV:";
-            // 
             // ExamForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -289,7 +276,6 @@
         public System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label lbl_mssv;
         private System.Windows.Forms.Panel pnExam;
-        private System.Windows.Forms.Label lblIndex;
         private System.Windows.Forms.Label lbl_time_to_start;
         private System.Windows.Forms.Label lbl_top3;
         private System.Windows.Forms.Label lbl_top2;

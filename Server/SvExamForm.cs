@@ -19,13 +19,14 @@ namespace Server
         private int IndexTestSended { get; set; }
         private List<Test> Tests { get; set; }
         private Func<string, string, int, bool> SendTest { get; set; }
+        private Action<string> ReSendSigal { get; set; }
         private List<int> DidExams { get; set; }
         private TrackExam TrackExamForm {  get; set; }
         private bool IsOpen = true;
         private bool IsEdit = false;
         private bool IsExamining = false;
         private CancellationTokenSource CancellationTokenSource { get; set; }
-        public SvExamForm(List<Test> tests, Func<string, string, int, bool> sendTest,int indexSendedTest,  List<int> didExam)
+        public SvExamForm(List<Test> tests, Func<string, string, int, bool> sendTest,int indexSendedTest,  List<int> didExam, Action<string> reSendSignal)
         {
             InitializeComponent();
             Tests = tests;
@@ -34,6 +35,7 @@ namespace Server
             IndexTestSelected = 0;
             IndexTestSended = indexSendedTest;
             DidExams = didExam;
+            ReSendSigal = reSendSignal;
 
             this.FormBorderStyle = FormBorderStyle.FixedSingle;
             this.MaximizeBox = false;
@@ -1019,6 +1021,11 @@ namespace Server
                 q.StudentAnswers.Clear();
             }
             ChangeTest();
+        }
+
+        private void btn_sendSignal_Click(object sender, EventArgs e)
+        {
+            ReSendSigal?.Invoke("");
         }
     }
 }

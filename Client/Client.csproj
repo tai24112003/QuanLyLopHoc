@@ -196,5 +196,8 @@
   <ItemGroup>
     <None Include="Resources\Set of various books, stack of books vector illustration stickers cartoon retro style_ Read more.jpg" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\school-background.jpg" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

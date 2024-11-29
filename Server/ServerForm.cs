@@ -39,6 +39,7 @@ namespace Server
         private bool isFullInfoMode = false;
         private WinFormsTimer timer;
         Class _classinfo;
+
         private string Ip = "192.168.1.6";
         private TcpListener tcpListener;
         private Thread listenThread;
@@ -541,7 +542,6 @@ namespace Server
 
             IPAddress broadcastAddress = GetBroadcastAddress() ?? null;
             Console.WriteLine(broadcastAddress);
-
             //SendUDPMessage(IPAddress.Parse("192.168.1.2"), 11312, Ip);
             SendUDPMessage(broadcastAddress, 11312, Ip + mess);
         }
@@ -2440,7 +2440,8 @@ namespace Server
                 ExamForm.Focus(); // Đưa form lên phía trước
                 return;
             }
-            ExamForm = new SvExamForm(Tests, SendTest, IndexTestReady, DidExamId);
+            ExamForm = new SvExamForm(Tests, SendTest,IndexTestReady, DidExamId, sendAllIPInLan);
+
             ExamForm.Show();
         }
 
@@ -2678,7 +2679,6 @@ namespace Server
         private void contextMenu_Refresh_Click(object sender, EventArgs e)
         {
             sendAllIPInLan("");
-
         }
         private void contextMenu_SlideShowToClient_Click(object sender, EventArgs e)
         {

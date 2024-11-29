@@ -52,7 +52,7 @@
             // 
             // headerPanel
             // 
-            this.headerPanel.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(224)))), ((int)(((byte)(192)))));
+            this.headerPanel.BackColor = System.Drawing.Color.RoyalBlue;
             this.headerPanel.Controls.Add(this.pnInfo);
             this.headerPanel.Controls.Add(this.panel4);
             this.headerPanel.Dock = System.Windows.Forms.DockStyle.Top;
@@ -77,6 +77,7 @@
             // label12
             // 
             this.label12.AutoSize = true;
+            this.label12.ForeColor = System.Drawing.Color.White;
             this.label12.Location = new System.Drawing.Point(140, 84);
             this.label12.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label12.Name = "label12";
@@ -91,6 +92,7 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.label1.AutoSize = true;
             this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 19.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label1.ForeColor = System.Drawing.Color.White;
             this.label1.Location = new System.Drawing.Point(130, 8);
             this.label1.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label1.Name = "label1";
@@ -105,6 +107,7 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.label17.AutoSize = true;
             this.label17.Font = new System.Drawing.Font("Microsoft Sans Serif", 19.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label17.ForeColor = System.Drawing.Color.White;
             this.label17.Location = new System.Drawing.Point(22, 46);
             this.label17.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label17.Name = "label17";
@@ -130,6 +133,7 @@
             // 
             this.lbl_maxP.AutoSize = true;
             this.lbl_maxP.Font = new System.Drawing.Font("Microsoft Sans Serif", 13.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lbl_maxP.ForeColor = System.Drawing.Color.White;
             this.lbl_maxP.Location = new System.Drawing.Point(133, 52);
             this.lbl_maxP.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.lbl_maxP.Name = "lbl_maxP";
@@ -151,6 +155,7 @@
             // 
             this.lbl_mssv.AutoSize = true;
             this.lbl_mssv.Font = new System.Drawing.Font("Microsoft Sans Serif", 13.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lbl_mssv.ForeColor = System.Drawing.Color.White;
             this.lbl_mssv.Location = new System.Drawing.Point(216, 84);
             this.lbl_mssv.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.lbl_mssv.Name = "lbl_mssv";
@@ -162,6 +167,7 @@
             // 
             this.label9.AutoSize = true;
             this.label9.Font = new System.Drawing.Font("Microsoft Sans Serif", 13.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label9.ForeColor = System.Drawing.Color.White;
             this.label9.Location = new System.Drawing.Point(132, 84);
             this.label9.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label9.Name = "label9";
@@ -176,6 +182,7 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.label4.AutoSize = true;
             this.label4.Font = new System.Drawing.Font("Microsoft Sans Serif", 19.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label4.ForeColor = System.Drawing.Color.White;
             this.label4.Location = new System.Drawing.Point(128, 8);
             this.label4.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label4.Name = "label4";
@@ -185,7 +192,7 @@
             // 
             // pnExam
             // 
-            this.pnExam.BackgroundImage = global::testUdpTcp.Properties.Resources.Set_of_various_books__stack_of_books_vector_illustration_stickers_cartoon_retro_style__Read_more;
+            this.pnExam.BackgroundImage = global::testUdpTcp.Properties.Resources.school_background;
             this.pnExam.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
             this.pnExam.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.pnExam.Controls.Add(this.lbl_top3);
@@ -201,7 +208,9 @@
             // lbl_top3
             // 
             this.lbl_top3.AutoSize = true;
+            this.lbl_top3.BackColor = System.Drawing.Color.Transparent;
             this.lbl_top3.Font = new System.Drawing.Font("Microsoft Sans Serif", 27.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lbl_top3.ForeColor = System.Drawing.Color.Yellow;
             this.lbl_top3.Location = new System.Drawing.Point(684, 250);
             this.lbl_top3.Name = "lbl_top3";
             this.lbl_top3.Size = new System.Drawing.Size(146, 42);
@@ -211,7 +220,9 @@
             // lbl_top2
             // 
             this.lbl_top2.AutoSize = true;
+            this.lbl_top2.BackColor = System.Drawing.Color.Transparent;
             this.lbl_top2.Font = new System.Drawing.Font("Microsoft Sans Serif", 27.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lbl_top2.ForeColor = System.Drawing.Color.Green;
             this.lbl_top2.Location = new System.Drawing.Point(447, 277);
             this.lbl_top2.Name = "lbl_top2";
             this.lbl_top2.Size = new System.Drawing.Size(146, 42);
@@ -221,7 +232,9 @@
             // lbl_top1
             // 
             this.lbl_top1.AutoSize = true;
+            this.lbl_top1.BackColor = System.Drawing.Color.Transparent;
             this.lbl_top1.Font = new System.Drawing.Font("Microsoft Sans Serif", 27.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lbl_top1.ForeColor = System.Drawing.Color.Red;
             this.lbl_top1.Location = new System.Drawing.Point(410, 211);
             this.lbl_top1.Name = "lbl_top1";
             this.lbl_top1.Size = new System.Drawing.Size(146, 42);
@@ -231,10 +244,12 @@
             // lbl_time_to_start
             // 
             this.lbl_time_to_start.AutoSize = true;
-            this.lbl_time_to_start.Font = new System.Drawing.Font("Microsoft Sans Serif", 27.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lbl_time_to_start.BackColor = System.Drawing.Color.Transparent;
+            this.lbl_time_to_start.Font = new System.Drawing.Font("Microsoft Sans Serif", 48F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lbl_time_to_start.ForeColor = System.Drawing.Color.Black;
             this.lbl_time_to_start.Location = new System.Drawing.Point(580, 150);
             this.lbl_time_to_start.Name = "lbl_time_to_start";
-            this.lbl_time_to_start.Size = new System.Drawing.Size(146, 42);
+            this.lbl_time_to_start.Size = new System.Drawing.Size(247, 73);
             this.lbl_time_to_start.TabIndex = 0;
             this.lbl_time_to_start.Text = "label11";
             // 

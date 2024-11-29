@@ -139,8 +139,12 @@ namespace testUdpTcp
         }
         private void ClosingExam(string mess)
         {
-            Test.Quests.Clear();
-            Test.IsExamining = false;
+            if (Test != null)
+            {
+                Test.Quests.Clear();
+                Test.IsExamining = false;
+            }
+
             if (this.InvokeRequired)
             {
                 this.Invoke(new Action(() => {
@@ -283,7 +287,7 @@ namespace testUdpTcp
                 Console.WriteLine(receivedMessage);
 
                 // Nếu nhận đủ thông điệp
-                if (receivedMessage.Contains("-") && !receivedMessage.StartsWith("Key-Examt-"))
+                if ((receivedMessage.Contains("-") && !receivedMessage.StartsWith("Key-Examt-")) && (receivedMessage.Contains("-") && !receivedMessage.StartsWith("QuestComet")))
                 {
                     break;
                 }

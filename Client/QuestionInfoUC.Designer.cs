@@ -43,12 +43,12 @@
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.lbl_question.AutoSize = true;
-            this.lbl_question.BackColor = System.Drawing.Color.White;
-            this.lbl_question.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lbl_question.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.lbl_question.BackColor = System.Drawing.Color.Transparent;
+            this.lbl_question.Font = new System.Drawing.Font("Microsoft Sans Serif", 20.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lbl_question.ForeColor = System.Drawing.Color.Black;
             this.lbl_question.Location = new System.Drawing.Point(3, 13);
             this.lbl_question.Name = "lbl_question";
-            this.lbl_question.Size = new System.Drawing.Size(32, 24);
+            this.lbl_question.Size = new System.Drawing.Size(44, 31);
             this.lbl_question.TabIndex = 0;
             this.lbl_question.Text = "lbl";
             // 
@@ -72,10 +72,12 @@
             // lbl_countdown
             // 
             this.lbl_countdown.AutoSize = true;
-            this.lbl_countdown.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lbl_countdown.Location = new System.Drawing.Point(87, 17);
+            this.lbl_countdown.BackColor = System.Drawing.Color.Transparent;
+            this.lbl_countdown.Font = new System.Drawing.Font("Microsoft Sans Serif", 26.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lbl_countdown.ForeColor = System.Drawing.Color.Black;
+            this.lbl_countdown.Location = new System.Drawing.Point(45, 9);
             this.lbl_countdown.Name = "lbl_countdown";
-            this.lbl_countdown.Size = new System.Drawing.Size(66, 24);
+            this.lbl_countdown.Size = new System.Drawing.Size(115, 39);
             this.lbl_countdown.TabIndex = 3;
             this.lbl_countdown.Text = "label1";
             // 
@@ -95,10 +97,12 @@
             // lbl_questtype_info
             // 
             this.lbl_questtype_info.AutoSize = true;
-            this.lbl_questtype_info.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lbl_questtype_info.BackColor = System.Drawing.Color.Transparent;
+            this.lbl_questtype_info.Font = new System.Drawing.Font("Microsoft Sans Serif", 20.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lbl_questtype_info.ForeColor = System.Drawing.Color.Black;
             this.lbl_questtype_info.Location = new System.Drawing.Point(202, 17);
             this.lbl_questtype_info.Name = "lbl_questtype_info";
-            this.lbl_questtype_info.Size = new System.Drawing.Size(66, 24);
+            this.lbl_questtype_info.Size = new System.Drawing.Size(92, 31);
             this.lbl_questtype_info.TabIndex = 5;
             this.lbl_questtype_info.Text = "label1";
             // 
@@ -106,7 +110,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.BackgroundImage = global::testUdpTcp.Properties.Resources.Set_of_various_books__stack_of_books_vector_illustration_stickers_cartoon_retro_style__Read_more;
+            this.BackgroundImage = global::testUdpTcp.Properties.Resources.school_background;
             this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
             this.Controls.Add(this.lbl_questtype_info);
             this.Controls.Add(this.btn_confirm);

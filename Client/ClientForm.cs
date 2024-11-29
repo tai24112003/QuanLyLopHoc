@@ -81,7 +81,7 @@ namespace testUdpTcp
         List<string> mssvList = new List<string>();
 
         private Test Test { get; set; }
-        Form WaitingFrom;
+        Form WaitingFrom { get; set; }
         private void Form1_Load(object sender, EventArgs e)
         {
 
@@ -112,7 +112,7 @@ namespace testUdpTcp
             sendData($"Ready-{mssvDoTest}");
             WaitingFrom = null; 
             examFrm = new ExamForm(mssvDoTest, Test, sendData, UpdateMSSV);
-            examFrm.ShowDialog();
+            examFrm.Show();
         }
         private void UpdateMSSV(string newMSSV)
         {
@@ -139,7 +139,11 @@ namespace testUdpTcp
         }
         private void ClosingExam(string mess)
         {
-            Test.Quests.Clear();
+            if (Test != null)
+            {
+                Test.Quests.Clear();
+                Test.IsExamining = false;
+            }
             if (this.InvokeRequired)
             {
                 this.Invoke(new Action(() => {
@@ -162,6 +166,64 @@ namespace testUdpTcp
             }
         }
 
+        private async Task TestConnection()
+        {
+            int maxRetries = 10;
+            int retryDelay = 1000;
+            bool isConnected = true;
+
+            try {
+                Console.WriteLine("Start connection checking");
+
+                while (Test.IsExamining)
+                {
+                    for (int i = 0; i < maxRetries; i++)
+                    {
+                        if (await IsServerReachable())
+                        {
+                            isConnected = true;
+                            Console.WriteLine("Connection  still exists");
+                            break; // Thoát nếu kết nối thành công
+                        }
+
+                        // Kết nối không thành công, chờ trước khi thử lại
+                        isConnected = false;
+                        Console.WriteLine("The connection to the Server has been lost, attempting to reconnect");
+                        await Task.Delay(retryDelay);
+                    }
+
+                    // Nếu sau maxRetries vẫn không kết nối được
+                    if (!isConnected)
+                    {
+                        ClosingExam("Mất kết nối đến máy chủ. Ứng dụng sẽ đóng.");
+                        return;
+                    }
+
+                    await Task.Delay(10000); //kiểm tra sau mỗi 10s
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An error occurred during the connection test: {ex.Message}");
+            }
+            Console.WriteLine("Connection has been stopped");
+
+        }
+        private async Task<bool> IsServerReachable()
+        {
+            try
+            {
+                using (Ping ping = new Ping())
+                {
+                    PingReply reply = await ping.SendPingAsync(IpServer, 1000); // 1 giây timeout
+                    return reply.Status == IPStatus.Success;
+                }
+            }
+            catch
+            {
+                return false;
+            }
+        }
         private void ListenForClients()
         {
             listener = new TcpListener(IPAddress.Parse(myIp), 8888);
@@ -224,7 +286,7 @@ namespace testUdpTcp
                 Console.WriteLine(receivedMessage);
 
                 // Nếu nhận đủ thông điệp
-                if (receivedMessage.Contains("-") && !receivedMessage.StartsWith("Key-Examt-"))
+                if ((receivedMessage.Contains("-") && !receivedMessage.StartsWith("Key-Examt-")) && (receivedMessage.Contains("-") && !receivedMessage.StartsWith("QuestComet")))
                 {
                     break;
                 }
@@ -478,6 +540,8 @@ namespace testUdpTcp
                     if (examFrm == null)
                     {
                         examFrm = new ExamForm(mssvDoTest, Test, sendData, UpdateMSSV, true);
+                        Test.IsExamining = true;
+                        _ = TestConnection();
                     }
 
                     if (this.InvokeRequired)
@@ -608,12 +672,17 @@ namespace testUdpTcp
                             this.Invoke(new Action(()=>{
                                 this.Hide();
                                 examFrm?.StartDoExam();
+                                Test.IsExamining = true;
+                                _=TestConnection();
+
                             }));
                         }
                         else
                         {
                             this.Hide();
                             examFrm?.StartDoExam();
+                            Test.IsExamining = true;
+                            _ = TestConnection();
                         }
 
                         break;

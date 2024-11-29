@@ -70,6 +70,7 @@
             this.label5 = new System.Windows.Forms.Label();
             this.cbb_questType_exam = new System.Windows.Forms.ComboBox();
             this.btn_trackTheExam = new System.Windows.Forms.Button();
+            this.btn_sendSignal = new System.Windows.Forms.Button();
             this.pnl_header.SuspendLayout();
             this.pnl_exam_info.SuspendLayout();
             this.grb_setting_quest.SuspendLayout();
@@ -132,7 +133,7 @@
             // 
             this.pnl_test_list.Location = new System.Drawing.Point(3, 3);
             this.pnl_test_list.Name = "pnl_test_list";
-            this.pnl_test_list.Size = new System.Drawing.Size(564, 84);
+            this.pnl_test_list.Size = new System.Drawing.Size(569, 84);
             this.pnl_test_list.TabIndex = 1;
             // 
             // btn_import
@@ -183,7 +184,7 @@
             // 
             // btn_add_question
             // 
-            this.btn_add_question.Location = new System.Drawing.Point(44, 696);
+            this.btn_add_question.Location = new System.Drawing.Point(34, 696);
             this.btn_add_question.Name = "btn_add_question";
             this.btn_add_question.Size = new System.Drawing.Size(142, 56);
             this.btn_add_question.TabIndex = 4;
@@ -515,11 +516,26 @@
             this.btn_trackTheExam.UseVisualStyleBackColor = true;
             this.btn_trackTheExam.Click += new System.EventHandler(this.btn_trackTheExam_Click);
             // 
+            // btn_sendSignal
+            // 
+            this.btn_sendSignal.BackColor = System.Drawing.SystemColors.Highlight;
+            this.btn_sendSignal.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btn_sendSignal.ForeColor = System.Drawing.Color.White;
+            this.btn_sendSignal.Location = new System.Drawing.Point(1100, 119);
+            this.btn_sendSignal.Margin = new System.Windows.Forms.Padding(0);
+            this.btn_sendSignal.Name = "btn_sendSignal";
+            this.btn_sendSignal.Size = new System.Drawing.Size(120, 30);
+            this.btn_sendSignal.TabIndex = 18;
+            this.btn_sendSignal.Text = "Gửi lại tín hiệu";
+            this.btn_sendSignal.UseVisualStyleBackColor = false;
+            this.btn_sendSignal.Click += new System.EventHandler(this.btn_sendSignal_Click);
+            // 
             // SvExamForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1231, 761);
+            this.Controls.Add(this.btn_sendSignal);
             this.Controls.Add(this.btn_stop_exam);
             this.Controls.Add(this.btn_trackTheExam);
             this.Controls.Add(this.grb_setting_exam);
@@ -598,5 +614,6 @@
         private System.Windows.Forms.Button btn_confirmSetExam;
         private System.Windows.Forms.Button btn_trackTheExam;
         private System.Windows.Forms.Button btn_stop_exam;
+        private System.Windows.Forms.Button btn_sendSignal;
     }
 }

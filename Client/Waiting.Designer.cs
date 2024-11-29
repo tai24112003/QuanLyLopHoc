@@ -51,11 +51,11 @@
             // btnLogin
             // 
             this.btnLogin.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.btnLogin.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(192)))), ((int)(((byte)(0)))));
+            this.btnLogin.BackColor = System.Drawing.Color.Blue;
             this.btnLogin.Font = new System.Drawing.Font("Tahoma", 13.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnLogin.ForeColor = System.Drawing.Color.Yellow;
+            this.btnLogin.ForeColor = System.Drawing.Color.White;
             this.btnLogin.Location = new System.Drawing.Point(386, 262);
-            this.btnLogin.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.btnLogin.Margin = new System.Windows.Forms.Padding(2);
             this.btnLogin.Name = "btnLogin";
             this.btnLogin.Size = new System.Drawing.Size(133, 41);
             this.btnLogin.TabIndex = 2;
@@ -66,10 +66,10 @@
             // txtMSSV
             // 
             this.txtMSSV.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.txtMSSV.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(192)))), ((int)(((byte)(0)))));
+            this.txtMSSV.BackColor = System.Drawing.Color.Gainsboro;
             this.txtMSSV.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.txtMSSV.Font = new System.Drawing.Font("Tahoma", 19.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.txtMSSV.ForeColor = System.Drawing.Color.White;
+            this.txtMSSV.ForeColor = System.Drawing.Color.Black;
             this.txtMSSV.Location = new System.Drawing.Point(300, 196);
             this.txtMSSV.Margin = new System.Windows.Forms.Padding(225, 2, 225, 2);
             this.txtMSSV.Name = "txtMSSV";
@@ -81,14 +81,14 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.BackgroundImage = global::testUdpTcp.Properties.Resources.bgWaiting1;
+            this.BackgroundImage = global::testUdpTcp.Properties.Resources.school_background;
             this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
             this.ClientSize = new System.Drawing.Size(892, 562);
             this.Controls.Add(this.btnLogin);
             this.Controls.Add(this.txtMSSV);
             this.Controls.Add(this.label1);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
-            this.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.Margin = new System.Windows.Forms.Padding(2);
             this.Name = "Waiting";
             this.Text = "Waiting";
             this.WindowState = System.Windows.Forms.FormWindowState.Maximized;

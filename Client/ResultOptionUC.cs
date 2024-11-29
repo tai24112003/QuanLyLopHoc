@@ -54,15 +54,13 @@ namespace testUdpTcp
 
             IsSelect =!IsSelect;
             UpdateState();
-        
-        
         }
 
         private void UpdateState()
         {
             this.BorderStyle =IsSelect?BorderStyle.Fixed3D:BorderStyle.FixedSingle;
-            this.lbl_result.BackColor = IsSelect ? Color.Blue: Color.LightGreen;
-            this.lbl_result.ForeColor = IsSelect ? Color.White: Color.Black;
+            this.lbl_result.BackColor = IsSelect ? Color.Blue: Color.FromArgb(255,128,128,128);
+            this.lbl_result.ForeColor = IsSelect ? Color.White : Color.White;
         }
 
         private void ResultOptionUC_EnabledChanged(object sender, EventArgs e)
@@ -74,6 +72,7 @@ namespace testUdpTcp
             else if(!IsSelect)
             {
                 this.lbl_result.BackColor = Color.LightGray; // Màu nền khi bị vô hiệu hóa
+                this.lbl_result.ForeColor = Color.White;
             }
         }
     }

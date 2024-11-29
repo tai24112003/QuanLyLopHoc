@@ -42,6 +42,7 @@ namespace DAL.Models
         public Test(string testString)
         {
             IsExamining = false;
+            Quests = new List<Quest>();
 
             string[] parts = testString.Split(new string[] { "t-" }, StringSplitOptions.RemoveEmptyEntries);
             foreach (var item in parts)
@@ -69,10 +70,6 @@ namespace DAL.Models
                             .Select((questString) => new Quest(questString)).ToList();
                         break;
                 }
-            }
-            if (Quests == null)
-            {
-                Quests = new List<Quest>();
             }
         }
         public void ResetProgress()=>Progress = 0; 

@@ -113,6 +113,16 @@ namespace testUdpTcp.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap school_background {
+            get {
+                object obj = ResourceManager.GetObject("school-background", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap Set_of_various_books__stack_of_books_vector_illustration_stickers_cartoon_retro_style__Read_more {
             get {
                 object obj = ResourceManager.GetObject("Set of various books, stack of books vector illustration stickers cartoon retro s" +

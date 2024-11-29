@@ -116,7 +116,7 @@ namespace Server
             _serviceProvider = serviceProvider;
 
             //Ip = ;
-            //Ip = getIPServer();
+            Ip = getIPServer();
 
             // Thực hiện các logic khởi tạo khác nếu cần thiết
         }
@@ -432,9 +432,9 @@ namespace Server
                 dgv_attendance.Hide();
                 lst_client.Hide();
                 lst_client.LargeImageList = imageList1;
-                //students = await _classStudentBLL.GetClassStudentsByID(classID);
-                //await SetupRoom();
-                //await SetupAttendance(classID);
+                students = await _classStudentBLL.GetClassStudentsByID(classID);
+                await SetupRoom();
+                await SetupAttendance(classID);
                 sendAllIPInLan("");
                 //IPAddress ip = IPAddress.Parse("127.0.0.1");
                 IPAddress ip = IPAddress.Parse(Ip);
@@ -463,7 +463,27 @@ namespace Server
         }
         private void serverForm_FormClosing(object sender, FormClosingEventArgs e)
         {
-            tcpListener.Stop();
+            try
+            {
+                sendAllIPInLan("-End");
+
+                // Cài đặt thời gian bắt đầu
+                lastReceivedTime = DateTime.Now;
+
+                // Khởi động Timer
+                if (idleTimer == null)
+                {
+                    InitializeIdleTimer();
+                }
+                idleTimer.Start();
+
+                // Thông báo đã bắt đầu theo dõi
+                Console.WriteLine("Đang chờ thông tin từ các máy con...");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+            }
         }
 
 
@@ -943,7 +963,7 @@ namespace Server
         {
             Dictionary<string, string> result = new Dictionary<string, string>();
             Dictionary<string, string> matchedInfo = null;
-            Dictionary<string, string> mismatchInfo = new Dictionary<string, string>(); // Mới: lưu trữ tất cả sai lệch
+            Dictionary<string, string> mismatchInfo = new Dictionary<string, string>(); // Lưu trữ thông tin sai lệch
 
             // Check privateStandardInfoList first
             foreach (var info in privateStandardInfoList)
@@ -955,168 +975,145 @@ namespace Server
                 }
             }
 
-            // So sánh từng thông tin trong newInfo
             if (matchedInfo != null)
+            {
+                // So sánh từng thông tin trong newInfo
                 foreach (var key in newInfo.Keys)
                 {
                     if (key == "Chuột" || key == "Bàn phím" || key == "Màn hình")
                     {
+                        // Kiểm tra kết nối của thiết bị ngoại vi
                         if (newInfo[key] == "Đã kết nối")
                         {
                             result[key] = newInfo[key] + ":1";
-
                         }
                         else
                         {
                             result[key] = newInfo[key] + ":0";
-                            mismatchInfo[key] = key + ": Mất kết nối";
-
-
+                            mismatchInfo[key] = $"{key}: Mất kết nối";
                         }
                     }
                     else if (key == "Ổ cứng")
                     {
-                        // So sánh ổ cứng (Model, Interface, Size) - hỗ trợ nhiều ổ cứng
-                        string[] parts = newInfo[key].Split('|');
-                        List<string> newOcungModels = new List<string>();
-                        List<string> newOcungInterfaces = new List<string>();
-                        List<string> newOcungSizes = new List<string>();
+                        // So sánh thông tin ổ cứng (Model, Interface, Size)
+                        string[] partsReceived = newInfo[key].Split('|');
+                        string[] partsExpected = matchedInfo[key].Split('|');
 
-                        // Tách thông tin ổ cứng
-                        foreach (var part in parts)
+                        List<string> mismatchDetails = new List<string>();
+                        for (int i = 0; i < partsReceived.Length; i++)
                         {
-                            if (part != "")
-                            {
-                                var split = part.Split(new string[] { "Model:", "Interface:", "Size:" }, StringSplitOptions.None);
-                                newOcungModels.Add(split[1].Trim());
-                                newOcungInterfaces.Add(split[2].Trim());
-                                newOcungSizes.Add(split[3].Trim());
-                            }
-                        }
-                        string[] parts1 = matchedInfo[key].Split('|');
-                        List<string> newOcungModelsDB = new List<string>();
-                        List<string> newOcungInterfacesDB = new List<string>();
-                        List<string> newOcungSizesDB = new List<string>();
-                        foreach (var part in parts1)
-                        {
-                            if (part != "")
-                            {
-                                var split = part.Split(new string[] { "Model:", "Interface:", "Size:" }, StringSplitOptions.None);
-                                newOcungModelsDB.Add(split[1].Trim());
-                                newOcungInterfacesDB.Add(split[2].Trim());
-                                newOcungSizesDB.Add(split[3].Trim());
-                            }
-                        }
-                        // So sánh từng ổ cứng
-                        bool allMatching = true;
-                        for (int i = 0; i < newOcungModels.Count; i++)
-                        {
-                            string model = newOcungModels[i];
-                            string interfaceType = newOcungInterfaces[i];
-                            string sizeStr = newOcungSizes[i];
-                            string modelInDB = newOcungModelsDB[i].Trim();
-                            string interfaceInDB = newOcungInterfacesDB[i].Trim();
-                            string sizeInDB = newOcungSizesDB[i].Trim();
+                            string[] receivedParts = partsReceived[i].Split(new string[] { "Model:", "Interface:", "Size:" }, StringSplitOptions.None);
+                            string[] expectedParts = i < partsExpected.Length
+                                ? partsExpected[i].Split(new string[] { "Model:", "Interface:", "Size:" }, StringSplitOptions.None)
+                                : new string[] { "N/A", "N/A", "N/A" };
 
-                            double sizeInDBValue = Convert.ToDouble(sizeInDB.Replace(" GB", "").Trim());
-                            double sizeReceivedValue = Convert.ToDouble(sizeStr.Replace(" GB", "").Trim());
+                            string modelReceived = receivedParts[1].Trim();
+                            string modelExpected = expectedParts[1].Trim();
+                            string interfaceReceived = receivedParts[2].Trim();
+                            string interfaceExpected = expectedParts[2].Trim();
+                            double sizeReceived = Convert.ToDouble(receivedParts[3].Replace(" GB", "").Trim());
+                            double sizeExpected = Convert.ToDouble(expectedParts[3].Replace(" GB", "").Trim());
 
-                            double tolerance = 0.1 * sizeInDBValue; // Sai số cho phép là 10%
-                            bool sizeMatches = Math.Abs(sizeInDBValue - sizeReceivedValue) <= tolerance;
+                            double tolerance = 0.1 * sizeExpected; // Sai số cho phép là 10%
+                            bool sizeMatches = Math.Abs(sizeExpected - sizeReceived) <= tolerance;
 
-                            if (!(model == modelInDB && interfaceType == interfaceInDB && sizeMatches))
+                            if (modelReceived != modelExpected || interfaceReceived != interfaceExpected || !sizeMatches)
                             {
-                                allMatching = false;
-                                break;
+                                mismatchDetails.Add(
+                                    $"Model {modelReceived} (Expected: {modelExpected}), " +
+                                    $"Interface {interfaceReceived} (Expected: {interfaceExpected}), " +
+                                    $"Size {sizeReceived} GB (Expected: {sizeExpected} GB)"
+                                );
                             }
                         }
 
-                        if (allMatching)
+                        if (mismatchDetails.Count > 0)
                         {
-                            result[key] = newInfo[key] + ":1";
+                            result[key] = newInfo[key] + ":0";
+                            mismatchInfo[key] = "Sai lệch ổ cứng: " + string.Join("; ", mismatchDetails);
                         }
                         else
                         {
-                            result[key] = newInfo[key] + ":0";
-                            mismatchInfo["Ocung"] = "Sai lệch ổ cứng: Kích thước hoặc Model ổ cứng không khớp.";
+                            result[key] = newInfo[key] + ":1";
                         }
                     }
                     else if (key == "CPU")
                     {
                         // So sánh CPU
                         string cpuReceived = newInfo[key].Trim();
-                        string cpuInDB = matchedInfo["CPU"].Trim();
+                        string cpuExpected = matchedInfo[key].Trim();
 
-                        if (cpuReceived == cpuInDB)
+                        if (cpuReceived == cpuExpected)
                         {
                             result[key] = newInfo[key] + ":1";
                         }
                         else
                         {
                             result[key] = newInfo[key] + ":0";
-                            mismatchInfo["CPU"] = $"Sai lệch CPU: {cpuReceived} (Expected: {cpuInDB})";
+                            mismatchInfo[key] = $"Sai lệch CPU: {cpuReceived} (Expected: {cpuExpected})";
                         }
                     }
                     else if (key == "RAM")
                     {
-                        // So sánh RAM - hỗ trợ nhiều RAM
+                        // So sánh RAM (dung lượng, nhà sản xuất)
                         string[] ramReceived = newInfo[key].Split('|');
-                        List<string> receivedRAMs = new List<string>();
+                        string[] ramExpected = matchedInfo[key].Split('|');
 
-                        // Tách các phần tử RAM
-                        foreach (var ram in ramReceived)
+                        List<string> mismatchDetails = new List<string>();
+                        for (int i = 0; i < ramReceived.Length; i++)
                         {
-                            if (ram.Trim() != "")
-                                receivedRAMs.Add(ram.Trim());
-                        }
+                            if (ramReceived[i] == "") continue; 
+                            string ramReceivedItem = ramReceived[i].Trim();
+                            string ramExpectedItem = i < ramExpected.Length ? ramExpected[i].Trim() : "N/A";
 
-                        string[] ramInDB = matchedInfo["RAM"].Split('|');
-                        List<string> dbRAMs = new List<string>(ramInDB);
-
-                        bool allRAMMatching = true;
-                        for (int i = 0; i < receivedRAMs.Count; i++)
-                        {
-                            if (receivedRAMs[i].Trim() != dbRAMs[i].Trim())
+                            if (ramReceivedItem != ramExpectedItem)
                             {
-                                allRAMMatching = false;
-                                break;
+                                mismatchDetails.Add($"RAM {ramReceivedItem} (Expected: {ramExpectedItem})");
                             }
                         }
 
-                        if (allRAMMatching)
+                        if (mismatchDetails.Count > 0)
                         {
-                            result[key] = newInfo[key] + ":1";
+                            result[key] = newInfo[key] + ":0";
+                            mismatchInfo[key] = "Sai lệch RAM: " + string.Join(", ", mismatchDetails);
                         }
                         else
                         {
-                            result[key] = newInfo[key] + ":0";
-                            mismatchInfo["RAM"] = "Sai lệch RAM: Dung lượng hoặc nhà sản xuất RAM không khớp.";
+                            result[key] = newInfo[key] + ":1";
                         }
                     }
                     else
                     {
+                        // So sánh các thông tin khác
                         if (key != "Tên máy" && key != "MSSV" && key != "IPC")
                         {
-                            if (matchedInfo != null && matchedInfo.ContainsKey(key) && matchedInfo[key] == newInfo[key])
+                            if (matchedInfo.ContainsKey(key) && matchedInfo[key] == newInfo[key])
                             {
                                 result[key] = newInfo[key] + ":1";
                             }
-                            else
-                            {
-                                result[key] = newInfo[key] + ":0";
-                            }
+                            //else
+                            //{
+                            //    result[key] = newInfo[key] + ":0";
+                            //    mismatchInfo[key] = $"{key}: Giá trị không khớp";
+                            //}
                         }
                     }
                 }
+            }
 
-            // Nếu có sai lệch thì thêm vào MismatchInfo
+            // Nếu có sai lệch, thêm vào kết quả
             if (mismatchInfo.Count > 0)
             {
-                result["MismatchInfo"] = string.Join("\n ", mismatchInfo.Values);
+                result["MismatchInfo"] = string.Join("\n", mismatchInfo.Values);
             }
-            else return newInfo;
+            else
+            {
+                return newInfo; // Không có sai lệch
+            }
+
             return result;
         }
+
 
 
         // Hàm tách và lấy các mã số sinh viên
@@ -2464,8 +2461,8 @@ namespace Server
 
         private void btnUnlock_Click(object sender, EventArgs e)
         {
-            //string thongTinMayTinh = "InfoClient-IPC: 192.168.1.40Tenmay: F71-01Chuot: Ðã k?t n?iBanphim: Ðã k?t n?iManhinh: Ðã k?t n?iOcung: Model: INTEL SSDPEKNU512GZInterface: SCSISize: 476 GBCPU: AMD Ryzen 71 4800H with Radeon Graphics         RAM: Capacity: 8 GB, Manufacturer: Micron Technology|MSSV: nguyen tan tai - 0306211189 + truong tang chi vinh - 0306211215 +";
-            //ReciveInfo(thongTinMayTinh);
+            string thongTinMayTinh = "InfoClient-IPC: 192.168.1.40Tenmay: F710-01Chuot: Ðã k?t n?iBanphim: Ðã k?t n?iManhinh: Ðã k?t n?iOcung: Model: INTEL SSDPEKNU512GZInterface: SCSISize: 476 GBCPU: AMD Ryzen 71 4800H with Radeon Graphics         RAM: Capacity: 8 GB, Manufacturer: Micron Technology|MSSV: nguyen tan tai - 0306211189 + truong tang chi vinh - 0306211215 +";
+            ReciveInfo(thongTinMayTinh);
             List<Thread> clientThreads = new List<Thread>();
 
             foreach (DataGridViewRow row in dgv_client.Rows)

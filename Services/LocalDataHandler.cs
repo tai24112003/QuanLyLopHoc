@@ -183,13 +183,13 @@ public class LocalDataHandler
             if (settingServer != null && settingLocal != null)
             {
                 DateTime lastTimeUpdateStudentLocal = DateTime.Parse(settingLocal.lastTimeUpdateStudent);
-                DateTime lastTimeUpdateStudentServer = DateTime.Parse(settingServer.lastTimeUpdateStudent).AddYears(1);
+                DateTime lastTimeUpdateStudentServer = DateTime.Parse(settingServer.lastTimeUpdateStudent).AddDays(1);
 
                 DateTime lastTimeUpdateComputerLocal = DateTime.Parse(settingLocal.lastTimeUpdateComputer);
-                DateTime lastTimeUpdateComputerServer = DateTime.Parse(settingServer.lastTimeUpdateComputer).AddYears(1);
+                DateTime lastTimeUpdateComputerServer = DateTime.Parse(settingServer.lastTimeUpdateComputer).AddDays(1);
 
                 DateTime lastTimeUpdateClassLocal = DateTime.Parse(settingLocal.lastTimeUpdateComputer);
-                DateTime lastTimeUpdateClassServer = DateTime.Parse(settingServer.lastTimeUpdateComputer).AddYears(1);
+                DateTime lastTimeUpdateClassServer = DateTime.Parse(settingServer.lastTimeUpdateComputer).AddDays(1);
 
                 await _roomBLL.GetRoomsByName("F72");
                 await SyncStudentData(lastTimeUpdateStudentLocal, lastTimeUpdateStudentServer, settingServer);

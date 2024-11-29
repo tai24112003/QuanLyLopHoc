@@ -144,6 +144,7 @@ namespace testUdpTcp
                 Test.Quests.Clear();
                 Test.IsExamining = false;
             }
+
             if (this.InvokeRequired)
             {
                 this.Invoke(new Action(() => {
@@ -1100,7 +1101,9 @@ namespace testUdpTcp
                 {
                     Console.WriteLine("Đang nghe UDP...");
                     IPEndPoint remoteEndPoint = new IPEndPoint(IPAddress.Any, 0);
-
+                    inf = GetDeviceInfo();
+                    inf.Add($" {string.Join("-", mssvLst)}");
+                      
                     byte[] receivedBytes = udpClient.Receive(ref remoteEndPoint);
                     string receivedMessage = Encoding.UTF8.GetString(receivedBytes);
 
@@ -1330,7 +1333,6 @@ namespace testUdpTcp
             if (inf[inf.Count - 1] != tmp && !string.IsNullOrEmpty(tmp))
             {
                 inf.Add($" {string.Join("-", mssvLst)}");
-                mssvLst.Clear();
             }
 
             // Gửi thông tin lên server

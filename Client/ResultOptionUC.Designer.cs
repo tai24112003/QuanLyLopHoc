@@ -34,10 +34,10 @@
             // lbl_result
             // 
             this.lbl_result.AutoSize = true;
-            this.lbl_result.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lbl_result.Font = new System.Drawing.Font("Microsoft Sans Serif", 12.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lbl_result.Location = new System.Drawing.Point(45, 50);
             this.lbl_result.Name = "lbl_result";
-            this.lbl_result.Size = new System.Drawing.Size(44, 16);
+            this.lbl_result.Size = new System.Drawing.Size(53, 20);
             this.lbl_result.TabIndex = 0;
             this.lbl_result.Text = "label1";
             this.lbl_result.Click += new System.EventHandler(this.lbl_result_Click);
@@ -49,6 +49,7 @@
             this.BackColor = System.Drawing.Color.White;
             this.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.Controls.Add(this.lbl_result);
+            this.Cursor = System.Windows.Forms.Cursors.Hand;
             this.Name = "ResultOptionUC";
             this.Size = new System.Drawing.Size(423, 106);
             this.EnabledChanged += new System.EventHandler(this.ResultOptionUC_EnabledChanged);

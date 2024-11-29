@@ -109,13 +109,14 @@ namespace Server
             btn_trackTheExam.Visible = temp.IsExamining;
             if (DidExams.Contains(temp.Index))
             {
-                btn_trackTheExam.Visible = true;
                 btn_trackTheExam.Text = "Xem thông kê";
+                if (temp.IsExamining)
+                {
+                    btn_trackTheExam.Text = "Theo dõi bài kiểm tra";
+                }
+                btn_trackTheExam.Visible = true;
             }
-            else
-            {
-                btn_trackTheExam.Text = "Theo dõi bài kiểm tra";
-            }
+          
         }
         private void ImportExcel(string filePath)
         {
@@ -468,7 +469,7 @@ namespace Server
             if (index == IndexQuestionSelected)
             {
                 IndexQuestionSelected = pnl_slide_question.Controls.Count - 1;
-                if (IndexQuestionSelected > 0)
+                if (IndexQuestionSelected > -1)
                 {
                     (pnl_slide_question.Controls[IndexQuestionSelected] as ThumbnailQuestion).ChangeSelectState();
                 }
@@ -596,7 +597,7 @@ namespace Server
         {
             try
             {
-                await Task.Delay(5200, CancellationTokenSource.Token);
+                await Task.Delay(5200, CancellationTokenSource.Token); //thời gian chuẩn bị khi bắt đầu 5s + 0.2s cho trường hợp mạng chậm
 
                 Test doingTest = Tests[IndexTestSended];
                 foreach (Quest item in doingTest.Quests)
@@ -606,7 +607,7 @@ namespace Server
 
                     SendTest(messQ, "QuestCome", -1);
                     doingTest.Progress++;
-                    await Task.Delay(item.CountDownTime * 1000 + 2000, CancellationTokenSource.Token);
+                    await Task.Delay(item.CountDownTime * 1000 + 2000, CancellationTokenSource.Token); //thời gian làm bài + 2s cho trường hợp mạng chậm
 
                     List<StudentScore> top3 = doingTest.ScoringForClass(3);
                     string mess = "";
@@ -621,8 +622,9 @@ namespace Server
                     }
 
                     SendTest(mess, "TopStudent", -1);
-                    await Task.Delay(doingTest.RestTimeBetweenQuests * 1000 + 1000, CancellationTokenSource.Token); //thêm 0.5s
+                    await Task.Delay(doingTest.RestTimeBetweenQuests * 1000 + 1000, CancellationTokenSource.Token); //thêm 1s cho quá trình theo dõi top
                 }
+
                 SendTest("", "TestDone", -1);
                 doingTest.IsExamining = false;
                 doingTest.ResetProgress();
@@ -868,9 +870,6 @@ namespace Server
                     item.StudentAnswers.Clear();
                 }
             }
-
-            DialogResult result=MessageBox.Show($"Bắt đầu thi đề: {testReady.Title}?","Xác nhận",MessageBoxButtons.OKCancel);
-            if (result == DialogResult.Cancel) return;
             
             bool process= SendTest("","DoExam",-1);
             if (!process)
@@ -981,8 +980,11 @@ namespace Server
         }
         private void btn_trackTheExam_Click(object sender, EventArgs e)
         {
-          TrackExamForm=  new TrackExam(Tests[IndexTestSelected]);
-          TrackExamForm.ShowDialog();
+            TrackExamForm = new TrackExam(Tests[IndexTestSelected]);
+            this.Hide();
+            TrackExamForm.ShowDialog();
+            this.Show();
+            this.Focus();
         }
         private void SvExamForm_KeyPress(object sender, KeyPressEventArgs e)
         {

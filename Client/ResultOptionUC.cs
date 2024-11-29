@@ -54,8 +54,6 @@ namespace testUdpTcp
 
             IsSelect =!IsSelect;
             UpdateState();
-        
-        
         }
 
         private void UpdateState()

@@ -61,10 +61,11 @@ public class ComputerDAL
 
         foreach (var Computer in ComputerResponse.data)
         {
-            string query = "INSERT INTO Computers (RoomID, ComputerName, RAM, HDD, CPU) VALUES (@RoomID, @ComputerName, @RAM, @HHD, @CPU)";
+            string query = "INSERT INTO Computers (ComputerID, RoomID, ComputerName, RAM, HDD, CPU) VALUES (@ComputerID,@RoomID, @ComputerName, @RAM, @HHD, @CPU)";
 
             OleDbParameter[] parameters = new OleDbParameter[]
             {
+                new OleDbParameter("@ComputerID", Computer.ID),
                 new OleDbParameter("@RoomID", Computer.RoomID),
                 new OleDbParameter("@ComputerName", Computer.ComputerName),
                 new OleDbParameter("@RAM", Computer.RAM),

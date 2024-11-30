@@ -44,6 +44,7 @@ public class RoomBLL
         {
             // Get data from the server
             string RoomsJson = await _RoomDAL.GetRoomByRoomName(id);
+            if (RoomsJson == null) return null;
             List<Room> lstRoom = ParseRooms(RoomsJson);
 
             if (lstRoom.Count > 0)

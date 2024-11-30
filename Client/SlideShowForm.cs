@@ -20,6 +20,7 @@ namespace testUdpTcp
         private Thread udpListenerThread;
         private Thread tcpListenerThread;
         private string serverIP;
+        private string protocal;
         private bool isRunning;
 
         public string ServerIP
@@ -27,7 +28,12 @@ namespace testUdpTcp
             get { return serverIP; }
             set { serverIP = value; }
         }
-        string myIp;
+        public string Protocal
+        {
+            get { return protocal; }
+            set { protocal = value; }
+        }
+        string myIp="127.0.0.1";
         public SlideShowForm()
         {
             InitializeComponent();
@@ -35,7 +41,7 @@ namespace testUdpTcp
             this.FormBorderStyle = FormBorderStyle.None; // Loại bỏ viền của form
             this.WindowState = FormWindowState.Maximized; // Phóng to form ra toàn màn hình
             //this.TopMost = true; // Đặt form ở trên cùng của tất cả các cửa sổ khác
-            myIp = getIPServer();
+            //myIp = getIPServer();
 
             // Ẩn con trỏ chuột
             //Cursor.Hide();
@@ -76,10 +82,16 @@ namespace testUdpTcp
         {
             ConnectToServer();
             isRunning = true;
-            udpListenerThread = new Thread(new ThreadStart(ListenForUdpClients));
-            udpListenerThread.Start();
-            tcpListenerThread = new Thread(new ThreadStart(ListenForTcpClients));
-            tcpListenerThread.Start();
+            if (protocal == "UDP")
+            {
+                udpListenerThread = new Thread(new ThreadStart(ListenForUdpClients));
+                udpListenerThread.Start();
+            }
+            else
+            {
+                tcpListenerThread = new Thread(new ThreadStart(ListenForTcpClients));
+                tcpListenerThread.Start();
+            }
         }
 
         private void ConnectToServer()
@@ -172,30 +184,33 @@ namespace testUdpTcp
 
         private void SlideShowForm_FormClosing(object sender, FormClosingEventArgs e)
         {
-            if (udpClient != null)
-            {
-                isRunning = false; // Dừng luồng UDP listener
-                udpListenerThread.Abort();
-                udpListenerThread?.Join(); // Đợi luồng hoàn thành
-                udpClient.Close();
-                udpClient.Dispose();
-                tcpListenerThread.Abort();
-                tcpListenerThread?.Join();
-                tcpListener.Stop();
-                tcpListener = null;
-            }
-
             if (!AllowClose)
             {
-                // Nếu không được phép đóng, hủy sự kiện đóng form
+                // Ngăn người dùng đóng form nếu không được phép
                 e.Cancel = true;
                 MessageBox.Show("Không được tự đóng form");
+                return;
             }
-            else
+
+            // Đặt cờ dừng
+            isRunning = false;
+
+            // Dừng luồng UDP nếu đang sử dụng giao thức UDP
+            if (udpListenerThread != null && udpListenerThread.IsAlive)
             {
-                // Hiển thị lại con trỏ chuột khi form bị đóng
-                Cursor.Show();
+                udpClient?.Close(); // Đóng UdpClient
+                udpListenerThread.Join(); // Chờ luồng hoàn tất
             }
+
+            // Dừng luồng TCP nếu đang sử dụng giao thức TCP
+            if (tcpListenerThread != null && tcpListenerThread.IsAlive)
+            {
+                tcpListener?.Stop(); // Dừng TcpListener
+                tcpListenerThread.Join(); // Chờ luồng hoàn tất
+            }
+
+            // Hiển thị lại con trỏ chuột khi form bị đóng
+            Cursor.Show();
         }
 
         public void StopSlideshow()
@@ -204,6 +219,7 @@ namespace testUdpTcp
             AllowClose = true; // Cho phép form được đóng
             this.Close(); // Đóng form
         }
+
 
 
         private void UpdatePictureBox(Image image)
@@ -221,33 +237,22 @@ namespace testUdpTcp
         {
             try
             {
-                // Khởi tạo TCPListener để lắng nghe kết nối từ client trên cổng 8765
-                tcpListener = new TcpListener(IPAddress.Parse(myIp), 8765);
+                // Khởi tạo TCPListener để lắng nghe kết nối từ client trên cổng 8998
+                tcpListener = new TcpListener(IPAddress.Parse(myIp), 8998);
                 tcpListener.Start();
-                Console.WriteLine("Listening for TCP connections on port 8765...");
+                Console.WriteLine("Listening for TCP connections on port 8998...");
 
                 while (isRunning)
                 {
-                    // Chấp nhận kết nối từ client
                     TcpClient tcpClient = tcpListener.AcceptTcpClient();
-                    NetworkStream stream = tcpClient.GetStream();
+                    Console.WriteLine("Đã kết nối với một client.");
 
-                    // Đọc dữ liệu từ stream
-                    byte[] buffer = new byte[4096]; // Tạo buffer tạm để nhận dữ liệu
-                    int bytesRead;
-
-                    while ((bytesRead = stream.Read(buffer, 0, buffer.Length)) > 0)
+                    Thread clientThread = new Thread(() =>
                     {
-                        // Nếu có dữ liệu nhận được, xử lý chúng
-                        ProcessReceivedTcpData(buffer.Take(bytesRead).ToArray());
-                    }
-
-                    // Đóng kết nối sau khi nhận xong dữ liệu
-                    tcpClient.Close();
+                        HandleClient(tcpClient); // Xử lý client trong một thread riêng
+                    });
+                    clientThread.Start();
                 }
-
-                // Dừng lắng nghe kết nối khi không còn chạy
-                tcpListener.Stop();
             }
             catch (Exception ex)
             {
@@ -257,16 +262,79 @@ namespace testUdpTcp
                 }
             }
         }
+        private void HandleClient(TcpClient tcpClient)
+        {
+            try
+            {
+                using (NetworkStream stream = tcpClient.GetStream())
+                {
+                    while (true)
+                    {
+                        // Bước 1: Đọc 4 byte đầu tiên để lấy độ dài dữ liệu
+                        byte[] lengthBuffer = new byte[4];
+                        int bytesRead = 0;
+
+                        // Đọc đủ 4 byte để lấy độ dài dữ liệu
+                        while (bytesRead < 4)
+                        {
+                            int read = stream.Read(lengthBuffer, bytesRead, 4 - bytesRead);
+                            if (read == 0)
+                            {
+                                Console.WriteLine("Kết nối bị đóng.");
+                                return;
+                            }
+                            bytesRead += read;
+                        }
+
+                        int imageDataLength = BitConverter.ToInt32(lengthBuffer, 0);
+                        if (imageDataLength <= 0)
+                        {
+                            Console.WriteLine("Độ dài dữ liệu không hợp lệ. Đóng kết nối.");
+                            break;
+                        }
+
+                        // Bước 2: Đọc dữ liệu ảnh
+                        byte[] imageData = new byte[imageDataLength];
+                        bytesRead = 0;
+
+                        while (bytesRead < imageDataLength)
+                        {
+                            int chunkSize = stream.Read(imageData, bytesRead, imageDataLength - bytesRead);
+                            if (chunkSize == 0) // Kết nối bị đóng trước khi nhận đủ dữ liệu
+                            {
+                                Console.WriteLine("Kết nối bị đóng bất ngờ.");
+                                return;
+                            }
+                            bytesRead += chunkSize;
+                        }
+                        Console.WriteLine($"Đã nhận đủ {bytesRead}/{imageDataLength} byte.");
+
+                        if (bytesRead == imageDataLength)
+                        {
+                            // Bước 3: Xử lý ảnh và hiển thị
+                            ProcessReceivedTcpData(imageData);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Lỗi trong quá trình xử lý client: " + ex.Message);
+            }
+            finally
+            {
+                tcpClient.Close();
+            }
+        }
 
         private void ProcessReceivedTcpData(byte[] receivedData)
         {
-            // Chuyển dữ liệu byte thành ảnh và cập nhật giao diện
             try
             {
                 using (MemoryStream ms = new MemoryStream(receivedData))
                 {
                     Image image = Image.FromStream(ms);
-                    Console.WriteLine("Received and displaying image via TCP.");
+                    Console.WriteLine("Nhận và hiển thị ảnh qua TCP.");
                     UpdatePictureBox(image);
                 }
             }
@@ -275,6 +343,7 @@ namespace testUdpTcp
                 Console.WriteLine("Lỗi khi xử lý ảnh TCP: " + ex.Message);
             }
         }
+
 
     }
 }

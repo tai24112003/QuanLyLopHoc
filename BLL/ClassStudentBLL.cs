@@ -154,4 +154,26 @@ public class ClassStudentBLL
         }
     }
 
+
+    public async Task<List<ClassStudent>> GetClassStudentsByIDAPI(int id)
+    {
+        try
+        {
+            string jsoncalssStudent = await _ClassStudentDAL.GetClassStudentsByIDAPI(id);
+            var ClassStudentResponse = JsonConvert.DeserializeObject<ClassStudentResponse>(jsoncalssStudent);
+            _ClassStudentDAL.SaveLocalData(jsoncalssStudent);
+            if (ClassStudentResponse != null)
+            {
+                return ClassStudentResponse.data;
+            }
+            return null;
+        }
+        catch (Exception ex)
+        {
+            ;
+            Console.WriteLine("Error fetching ClassStudent list by role from BLL");
+            return null;
+        }
+    }
+
 }

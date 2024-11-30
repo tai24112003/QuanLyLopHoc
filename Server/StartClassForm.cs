@@ -1,6 +1,7 @@
 ﻿using Autofac;
 using Microsoft.Extensions.DependencyInjection;
 using OfficeOpenXml;
+using OfficeOpenXml.ConditionalFormatting.Contracts;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -57,7 +58,6 @@ namespace Server
             {
                 // Chạy các tác vụ bất đồng bộ
                 await _localDataHandler.MigrateData();
-                await SetupClassAutoComplete();
                 await SetupUserAutoComplete();
                 await SetupSesisionAutoComplete();
             }
@@ -134,18 +134,22 @@ namespace Server
             {
                 List<User> users = await _userBLL.GetUserLocal();
                 AutoCompleteStringCollection userCollection = new AutoCompleteStringCollection();
-                foreach (var user in users)
+                if (users != null)
                 {
-                    userCollection.Add(user.name);
+                    foreach (var user in users)
+                    {
+                        userCollection.Add(user.name);
 
+                    }
+
+
+                    cbbName.DataSource = users;
+                    cbbName.AutoCompleteCustomSource = userCollection;
+                    cbbName.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
+                    cbbName.AutoCompleteSource = AutoCompleteSource.CustomSource;
+                    cbbName.DisplayMember = "name";
+                    cbbName.ValueMember = "id";
                 }
-
-                cbbName.DataSource = users;
-                cbbName.AutoCompleteCustomSource = userCollection;
-                cbbName.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
-                cbbName.AutoCompleteSource = AutoCompleteSource.CustomSource;
-                cbbName.DisplayMember = "name";
-                cbbName.ValueMember = "id";
             }
             catch (Exception ex)
             {
@@ -153,19 +157,7 @@ namespace Server
             }
         }
 
-        private async Task SetupClassAutoComplete()
-        {
-            try
-            {
-                classes = await _classBLL.GetAllClass();
-                cbbName.SelectedValue = cbbClass.SelectedValue;
-
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("Error: " + ex.Message);
-            }
-        }
+      
         private void cbbSession_SelectedIndexChanged(object sender, EventArgs e)
         {
             int selectedIndex = cbbSession.SelectedIndex;

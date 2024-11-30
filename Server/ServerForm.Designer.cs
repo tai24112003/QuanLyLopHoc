@@ -138,7 +138,7 @@
             this.reciveFileToolStripMenuItem.Name = "reciveFileToolStripMenuItem";
             this.reciveFileToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.reciveFileToolStripMenuItem.Text = "Recive File";
-            this.reciveFileToolStripMenuItem.Click += new System.EventHandler(this.reciveFileToolStripMenuItem_Click);
+            this.reciveFileToolStripMenuItem.Click += new System.EventHandler(this.receiveFileToolStripMenuItem_Click);
             // 
             // toolStripSplitButton5
             // 
@@ -528,14 +528,14 @@
             // 
             this.tsStopSlideShow.Font = new System.Drawing.Font("Arial", 9F);
             this.tsStopSlideShow.Name = "tsStopSlideShow";
-            this.tsStopSlideShow.Size = new System.Drawing.Size(180, 22);
+            this.tsStopSlideShow.Size = new System.Drawing.Size(165, 22);
             this.tsStopSlideShow.Text = "Dừng trình chiếu";
             this.tsStopSlideShow.Click += new System.EventHandler(this.StopSlideShow_Click);
             // 
             // tsStartSlideShow
             // 
             this.tsStartSlideShow.Name = "tsStartSlideShow";
-            this.tsStartSlideShow.Size = new System.Drawing.Size(180, 22);
+            this.tsStartSlideShow.Size = new System.Drawing.Size(165, 22);
             this.tsStartSlideShow.Text = "Bắt đầu trình chiếu";
             this.tsStartSlideShow.Click += new System.EventHandler(this.SlideShowClick);
             // 
@@ -561,7 +561,7 @@
             this.tsCollect.Name = "tsCollect";
             this.tsCollect.Size = new System.Drawing.Size(108, 22);
             this.tsCollect.Text = "Thu tệp";
-            this.tsCollect.Click += new System.EventHandler(this.reciveFileToolStripMenuItem_Click);
+            this.tsCollect.Click += new System.EventHandler(this.receiveFileToolStripMenuItem_Click);
             // 
             // tsSend
             // 
@@ -725,6 +725,7 @@
             this.Controls.Add(this.toolStrip2);
             this.Controls.Add(this.flowLayoutPanel1);
             this.Controls.Add(this.toolStrip1);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Margin = new System.Windows.Forms.Padding(2);
             this.Name = "svForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
@@ -771,9 +772,6 @@
         private System.Windows.Forms.ToolStripButton tsAttendance;
         private System.Windows.Forms.DataGridView dgv_client;
         private System.Windows.Forms.DataGridView dgv_attendance;
-        private System.Windows.Forms.DataGridViewTextBoxColumn MSSV;
-        private System.Windows.Forms.DataGridViewTextBoxColumn FirstName;
-        private System.Windows.Forms.DataGridViewTextBoxColumn LastName;
         private System.Windows.Forms.ListView lst_client;
         private System.Windows.Forms.ToolStripSplitButton tsManageClass;
         private System.Windows.Forms.ToolStripMenuItem EndClassTS;
@@ -809,6 +807,9 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn Monitor;
         private System.Windows.Forms.DataGridViewTextBoxColumn ComputerID;
         private System.Windows.Forms.DataGridViewTextBoxColumn MismathInfo;
+        private System.Windows.Forms.DataGridViewTextBoxColumn MSSV;
+        private System.Windows.Forms.DataGridViewTextBoxColumn FirstName;
+        private System.Windows.Forms.DataGridViewTextBoxColumn LastName;
     }
 }
 

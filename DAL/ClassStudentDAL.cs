@@ -41,7 +41,7 @@ public class ClassStudentDAL
             return null;
         }
     }
-    public async Task<string> GetClassStudentsByID(int ID)
+    public async Task<string> GetClassStudentsByIDAPI(int ID)
     {
         try
         {

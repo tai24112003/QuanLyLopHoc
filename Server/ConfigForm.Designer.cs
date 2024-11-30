@@ -62,7 +62,7 @@
             this.groupBox1.Size = new System.Drawing.Size(438, 100);
             this.groupBox1.TabIndex = 1;
             this.groupBox1.TabStop = false;
-            this.groupBox1.Text = Properties.String.gbSendImage;
+            this.groupBox1.Text = "Phương Thức Gửi Ảnh";
             // 
             // radTCP
             // 
@@ -72,7 +72,7 @@
             this.radTCP.Size = new System.Drawing.Size(405, 23);
             this.radTCP.TabIndex = 0;
             this.radTCP.TabStop = true;
-            this.radTCP.Text = Properties.String.radTCP;
+            this.radTCP.Text = "Gửi đến từng máy (ảnh nhận đủ nhưng tốc độ chậm)";
             this.radTCP.UseVisualStyleBackColor = true;
             // 
             // radUDP
@@ -83,7 +83,7 @@
             this.radUDP.Size = new System.Drawing.Size(357, 23);
             this.radUDP.TabIndex = 1;
             this.radUDP.TabStop = true;
-            this.radUDP.Text = Properties.String.radUDP;
+            this.radUDP.Text = "Gửi đến nhìu máy (dễ mất ảnh nếu mạng yếu)";
             this.radUDP.UseVisualStyleBackColor = true;
             // 
             // btnSave

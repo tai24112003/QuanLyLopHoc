@@ -85,7 +85,8 @@ public class ComputerBLL
     {
         if (computersToSync == null || computersToSync.Count == 0)
         {
-            throw new ArgumentException("List of computers to sync cannot be null or empty", nameof(computersToSync));
+            Console.WriteLine("List of computers to sync cannot be null or empty", nameof(computersToSync));
+            return false;
         }
 
         foreach (var computer in computersToSync)

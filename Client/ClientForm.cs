@@ -33,7 +33,6 @@ namespace testUdpTcp
         public ClientForm()
         {
             InitializeComponent();
-            myIp = getIPServer();
             //myIp = getIPServer();
             //myIp = "192.168.72.228";
             inf = GetDeviceInfo();
@@ -90,14 +89,9 @@ namespace testUdpTcp
             isRunningudplisten = true;
             udpReceiverThread = new Thread(ReceiveDataOnce);
             udpReceiverThread.Start();
-            //isRunningudplisten = true;
-            //udpReceiverThread = new Thread(ReceiveDataOnce);
-            //udpReceiverThread.Start();
+            
 
-            // Bắt đầu chụp ảnh màn hình mỗi 5 giây
-            isRunningscreenshot5s = true;
-            screenshotThread5s = new Thread(CaptureAndSendScreenshots5s);
-            screenshotThread5s.Start();
+            
 
             // Bắt đầu lắng nghe kết nối TCP
             isRunningtcplisten = true;
@@ -579,7 +573,23 @@ namespace testUdpTcp
                 string[] parts=receivedMessage.Split('-');
                 widthSv = int.Parse(parts[1]);
                 heightSv = int.Parse(parts[2]);
-                OpenNewForm();
+                OpenNewForm(parts[3]);
+            }
+            else if (receivedMessage.StartsWith("Capture5s"))
+            {
+                // Bắt đầu chụp ảnh màn hình mỗi 5 giây
+                isRunningscreenshot5s = true;
+                screenshotThread5s = new Thread(CaptureAndSendScreenshots5s);
+                screenshotThread5s.Start();
+            }
+            else if (receivedMessage.StartsWith("StopCapture5s"))
+            {
+                if (screenshotThread5s != null)
+                {
+                    screenshotThread5s.Abort();
+                    screenshotThread5s?.Join();
+                    screenshotThread5s = null;
+                }
             }
             else
             {
@@ -990,11 +1000,11 @@ namespace testUdpTcp
                 }
             }
         }
-        private void OpenNewForm()
+        private void OpenNewForm(string protocal)
         {
             if (this.InvokeRequired)
             {
-                this.BeginInvoke((MethodInvoker)delegate { OpenNewForm(); });
+                this.BeginInvoke((MethodInvoker)delegate { OpenNewForm(protocal); });
             }
             else
             {
@@ -1002,6 +1012,7 @@ namespace testUdpTcp
                 {
                     form1 = new SlideShowForm();
                     form1.ServerIP = IpServer;
+                    form1.Protocal = protocal;
                     form1.Show();
                 }
             }
@@ -1099,8 +1110,7 @@ namespace testUdpTcp
                 {
                     Console.WriteLine("Đang nghe UDP...");
                     IPEndPoint remoteEndPoint = new IPEndPoint(IPAddress.Any, 0);
-                    inf = GetDeviceInfo();
-                    inf.Add($" {string.Join("-", mssvLst)}");
+                   
                       
                     byte[] receivedBytes = udpClient.Receive(ref remoteEndPoint);
                     string receivedMessage = Encoding.UTF8.GetString(receivedBytes);
@@ -1112,6 +1122,13 @@ namespace testUdpTcp
                     {
                         ip = receivedMessage.Replace("-End", "").Trim();
                         isRunningudplisten = false; // Dừng lắng nghe
+                        if (this.InvokeRequired)
+                            this.Invoke(new Action(() =>
+                            {
+                                inf = GetDeviceInfo();
+                            }));
+                        else inf = GetDeviceInfo();
+                        inf.Add($" {string.Join("-", mssvLst)}");
                     }
                     else
                     {
@@ -1185,10 +1202,10 @@ namespace testUdpTcp
         private List<string> GetDeviceInfo()
         {
             stringList.Add($"InfoClient-");
-
+            InForGroup.Controls.Clear();
             // Lấy thông tin về tên máy
-            string machineName = Environment.MachineName;
-            // string machineName = "F71-01";
+            //string machineName = Environment.MachineName;
+            string machineName = "F710-01";
             stringList.Add($"IPC: {myIp}");
             stringList.Add($"Tenmay: {machineName}");
             lblNameComputer.Text = machineName;

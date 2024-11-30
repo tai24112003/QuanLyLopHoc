@@ -33,14 +33,14 @@ namespace Server
     {
         private DateTime lastReceivedTime;
         private System.Timers.Timer idleTimer;
-        private bool isUpdating = false; // Tránh cập nhật lặp lại
+        private bool isUpdating = true; // Tránh cập nhật lặp lại
         private readonly int idleTimeInSeconds = 5; // Thời gian chờ không nhận dữ liệu
 
         private bool isFullInfoMode = false;
         private WinFormsTimer timer;
         Class _classinfo;
 
-        private string Ip = "192.168.1.6";
+        private string Ip = "127.0.0.1";
         private TcpListener tcpListener;
         private Thread listenThread;
         private Thread screenshotThread;
@@ -116,7 +116,7 @@ namespace Server
             _serviceProvider = serviceProvider;
 
             //Ip = ;
-            Ip = getIPServer();
+            //Ip = getIPServer();
 
             // Thực hiện các logic khởi tạo khác nếu cần thiết
         }
@@ -163,7 +163,7 @@ namespace Server
                 foreach (DataGridViewRow selectedRow in dgv_attendance.SelectedRows)
                 {
                     // Lấy thông tin từ dòng
-                    string studentID = selectedRow.Cells["StudentID"]?.Value?.ToString();
+                    string studentID = selectedRow.Cells["MSSV"]?.Value?.ToString();
                     string firstName = selectedRow.Cells["FirstName"]?.Value?.ToString();
                     string lastName = selectedRow.Cells["LastName"]?.Value?.ToString();
 
@@ -195,7 +195,7 @@ namespace Server
                 // Lặp qua các dòng trong dgv_attendance để thay đổi ForeColor
                 foreach (DataGridViewRow selectedRow in dgv_attendance.SelectedRows)
                 {
-                    string studentID = selectedRow.Cells["StudentID"]?.Value?.ToString();
+                    string studentID = selectedRow.Cells["MSSV"]?.Value?.ToString();
                     if (!string.IsNullOrEmpty(studentID))
                     {
                         // Thay đổi ForeColor thành màu đen cho các dòng có MSSV đã thêm thành công
@@ -257,11 +257,9 @@ namespace Server
                     students = await _classStudentBLL.GetClassStudentsByID(classID);
 
 
-                    // Thêm cột ngày hiện tại cho buổi học
-                    string sessionID = DateTime.Now.ToString("ddMMyyyy");
-                    if (!dgv_attendance.Columns.Contains(sessionID))
+                    if (!dgv_attendance.Columns.Contains(sessionID.ToString()))
                     {
-                        dgv_attendance.Columns.Add(sessionID, DateTime.Now.ToString("dd/MM/yyyy"));
+                        dgv_attendance.Columns.Add(sessionID.ToString(), DateTime.Now.ToString("dd/MM/yyyy"));
                     }
                     if (students == null || students.Count == 0)
                     {
@@ -463,28 +461,36 @@ namespace Server
         }
         private void serverForm_FormClosing(object sender, FormClosingEventArgs e)
         {
-            try
+            if (isUpdating)
             {
-                sendAllIPInLan("-End");
-
-                // Cài đặt thời gian bắt đầu
-                lastReceivedTime = DateTime.Now;
-
-                // Khởi động Timer
-                if (idleTimer == null)
+                e.Cancel = true; // Ngăn việc đóng form
+                MessageBox.Show("Đang cập nhật dữ liệu. Vui lòng chờ.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                try
                 {
-                    InitializeIdleTimer();
-                }
-                idleTimer.Start();
+                    sendAllIPInLan("-End");
 
-                // Thông báo đã bắt đầu theo dõi
-                Console.WriteLine("Đang chờ thông tin từ các máy con...");
+                    // Cài đặt thời gian bắt đầu
+                    lastReceivedTime = DateTime.Now;
+
+                    // Khởi động Timer
+                    if (idleTimer == null)
+                    {
+                        InitializeIdleTimer();
+                    }
+                    idleTimer.Start();
+
+                    // Thông báo đã bắt đầu theo dõi
+                    Console.WriteLine("Đang chờ thông tin từ các máy con...");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.ToString());
+                }
             }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.ToString());
-            }
+
+            
         }
+
 
 
         private void LoadFullInfoListIntoDataGridView(List<List<string>> fullInfoList)
@@ -789,10 +795,8 @@ namespace Server
             }
             else if (tmp[0] == "InfoClient")
             {
-                ReciveInfo(tmp[1]);
+                receiveInfo(tmp[1]);
 
-                // Cập nhật thời gian nhận dữ liệu mới nhất
-                lastReceivedTime = DateTime.Now;
 
                 // Khởi động lại timer
                 if (idleTimer != null)
@@ -837,29 +841,31 @@ namespace Server
 
         private async void OnIdleTimerElapsed(object sender, System.Timers.ElapsedEventArgs e)
         {
-            // Đảm bảo chỉ thực hiện một lần
-            if (isUpdating) return;
-            isUpdating = true;
+         
 
             try
             {
                 // Thực hiện cập nhật
-                await updateAttanceToDB();
                 bool check = await updateSessionComputer();
-                if (!check) { 
-            isUpdating = false;
-
+                if (!check)
+                {
                     return;
                 }
-
+                await updateAttanceToDB();
                 room.Status = "Trống";
                 await _roomBLL.UpdateRoom(room.RoomID.ToString(), room);
+                Console.WriteLine("update ne");
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Lỗi khi cập nhật: {ex}");
             }
+            
+                if(tcpListener!=null)
+                    tcpListener.Stop();
+                tcpListener = null;
             isUpdating = false;
+
             if (this.InvokeRequired)
             {
                 this.Invoke(new Action(() => this.Close()));
@@ -870,6 +876,7 @@ namespace Server
             }
 
         }
+
 
         private void UpdateListView(string machineName, Image image)
         {
@@ -950,7 +957,7 @@ namespace Server
                 newEntry.Add(privateInfo["Bàn phím"]);
                 newEntry.Add(privateInfo["Màn hình"]);
                 newEntry.Add(privateInfo["ID"]);
-                newEntry.Add("");
+                newEntry.Add("Mất kết nối");
 
 
 
@@ -1145,7 +1152,7 @@ namespace Server
         }
 
 
-        public void ReciveInfo(string info)
+        public void receiveInfo(string info)
         {
             Console.WriteLine(info);
 
@@ -1615,10 +1622,10 @@ namespace Server
             }
 
             // Chờ tất cả các luồng kết thúc trước khi tiếp tục
-            foreach (Thread t in clientThreads)
-            {
-                t.Join();
-            }
+            //foreach (Thread t in clientThreads)
+            //{
+            //    t.Join();
+            //}
 
             isRunning = false;
         }
@@ -1631,7 +1638,7 @@ namespace Server
                 {
                     Thread clientThread = new Thread(() =>
                     {
-                        CaptureAndSendScreenshots(clientIP, 8765, fps, quality); // Thêm FPS và chất lượng ảnh
+                        CaptureAndSendScreenshots(clientIP, 8998, fps, quality); // Thêm FPS và chất lượng ảnh
                     });
 
                     clientThread.Start();
@@ -1905,7 +1912,7 @@ namespace Server
             foreach (DataGridViewRow row in dgv_client.Rows)
             {
                 // Lấy giá trị StudentID từ cột
-                string studentIDValue = row.Cells[4].Value?.ToString() == "" ? students[0].Student.StudentID : row.Cells[4].Value?.ToString();
+                string studentIDValue = row.Cells[4].Value?.ToString() == "" ? selectedStudent : row.Cells[4].Value?.ToString();
 
                 // Tách StudentID nếu có dấu xuống dòng
                 var studentIDs = studentIDValue.Split(new[] { '\n' }, StringSplitOptions.RemoveEmptyEntries);
@@ -1944,12 +1951,13 @@ namespace Server
 
                     }
                 }
+                return true;
             }
 
             if (sessionComputers.Count == room.NumberOfComputers)
             {
                 var lstSessionComputer = await _sessionComputerBLL.InsertSessionComputer(sessionID, sessionComputers);
-                if (lstSessionComputer.Count > 0)
+                if (lstSessionComputer!=null)
                 {
                     string lstStudentNotExit = "";
                     foreach (var sessionComputer in lstSessionComputer)
@@ -1975,7 +1983,7 @@ namespace Server
                 string present = row.Cells[3].Value?.ToString().ToLower();
 
                 // Kiểm tra màu sắc của ô (nếu màu nền là đỏ thì không thêm vào danh sách)
-                if (row.Cells[0].Style.BackColor != Color.Red) // Kiểm tra nếu màu nền không phải màu đỏ
+                if (row.Cells[0].Style.ForeColor != Color.Red) // Kiểm tra nếu màu nền không phải màu đỏ
                 {
                     Attendance attendance = new Attendance
                     {
@@ -2078,7 +2086,7 @@ namespace Server
                         if (IsValidIPAddress(clientIP))
                         {
                             // Kiểm tra nếu dòng này đang được chọn
-                            string message = row.Selected ? "SlideShowToClient" : @"SlideShow-" + widthScreen + "-" + heighScreen;
+                            string message = row.Selected ? "SlideShowToClient" : "SlideShow-" + widthScreen + "-" + heighScreen +"-"+Protocal;
                             byte[] data = Encoding.UTF8.GetBytes(message);
 
                             // Tạo một luồng riêng biệt cho mỗi client
@@ -2113,10 +2121,10 @@ namespace Server
             }
 
             // Chờ tất cả các luồng kết thúc trước khi tiếp tục
-            foreach (Thread t in clientThreads)
-            {
-                t.Join();
-            }
+            //foreach (Thread t in clientThreads)
+            //{
+            //    t.Join();
+            //}
         }
 
         private void sendFileToolStripMenuItem_Click(object sender, EventArgs e)
@@ -2183,10 +2191,10 @@ namespace Server
             }
 
             // Chờ tất cả các luồng kết thúc trước khi tiếp tục
-            foreach (Thread t in clientThreads)
-            {
-                t.Join();
-            }
+            //foreach (Thread t in clientThreads)
+            //{
+            //    t.Join();
+            //}
         }
         private void SendFileForm_FilePathSelected(List<string> filePaths, string toPath)
         {
@@ -2265,10 +2273,10 @@ namespace Server
                 }
 
                 // Chờ tất cả các luồng kết thúc trước khi tiếp tục
-                foreach (Thread t in clientThreads)
-                {
-                    t.Join();
-                }
+                //foreach (Thread t in clientThreads)
+                //{
+                //    t.Join();
+                //}
             }
         }
         private void OpenNewForm(string ip)
@@ -2287,14 +2295,14 @@ namespace Server
                 }
             }
         }
-        private void reciveFileToolStripMenuItem_Click(object sender, EventArgs e)
+        private void receiveFileToolStripMenuItem_Click(object sender, EventArgs e)
         {
             ReciveForm sendForm = new ReciveForm();
-            sendForm.FilePathSelected += ReciveFileForm_FilePathSelected;
+            sendForm.FilePathSelected += receiveFileForm_FilePathSelected;
             sendForm.Show();
         }
 
-        private void ReciveFileForm_FilePathSelected(string filePath, string folderPath, string folderToSavePath, bool check)
+        private void receiveFileForm_FilePathSelected(string filePath, string folderPath, string folderToSavePath, bool check)
         {
             // Xử lý đường dẫn tệp nhận được từ FormSendFile
             Console.WriteLine("Đường dẫn tệp nhận được: " + filePath);
@@ -2393,10 +2401,10 @@ namespace Server
             }
 
             // Chờ tất cả các luồng kết thúc trước khi tiếp tục
-            foreach (Thread t in clientThreads)
-            {
-                t.Join();
-            }
+            //foreach (Thread t in clientThreads)
+            //{
+            //    t.Join();
+            //}
         }
 
         private void sendWork_ButtonClick(object sender, EventArgs e)
@@ -2462,7 +2470,7 @@ namespace Server
         private void btnUnlock_Click(object sender, EventArgs e)
         {
             string thongTinMayTinh = "InfoClient-IPC: 192.168.1.40Tenmay: F710-01Chuot: Ðã k?t n?iBanphim: Ðã k?t n?iManhinh: Ðã k?t n?iOcung: Model: INTEL SSDPEKNU512GZInterface: SCSISize: 476 GBCPU: AMD Ryzen 71 4800H with Radeon Graphics         RAM: Capacity: 8 GB, Manufacturer: Micron Technology|MSSV: nguyen tan tai - 0306211189 + truong tang chi vinh - 0306211215 +";
-            ReciveInfo(thongTinMayTinh);
+            receiveInfo(thongTinMayTinh);
             List<Thread> clientThreads = new List<Thread>();
 
             foreach (DataGridViewRow row in dgv_client.Rows)
@@ -2516,10 +2524,10 @@ namespace Server
             }
 
             // Chờ tất cả các luồng kết thúc trước khi tiếp tục
-            foreach (Thread t in clientThreads)
-            {
-                t.Join();
-            }
+            //foreach (Thread t in clientThreads)
+            //{
+            //    t.Join();
+            //}
         }
 
         private void ExportSession_Click(object sender, EventArgs e)
@@ -2829,27 +2837,7 @@ namespace Server
         }
         private async void EndClassToolStripMenuItem_ClickAsync(object sender, EventArgs e)
         {
-            try
-            {
-                sendAllIPInLan("-End");
-
-                // Cài đặt thời gian bắt đầu
-                lastReceivedTime = DateTime.Now;
-
-                // Khởi động Timer
-                if (idleTimer == null)
-                {
-                    InitializeIdleTimer();
-                }
-                idleTimer.Start();
-
-                // Thông báo đã bắt đầu theo dõi
-                Console.WriteLine("Đang chờ thông tin từ các máy con...");
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.ToString());
-            }
+           this.Close();
         }
         private void StopCapture5s()
         {
@@ -2904,10 +2892,10 @@ namespace Server
             }
 
             // Chờ tất cả các luồng kết thúc trước khi tiếp tục
-            foreach (Thread t in clientThreads)
-            {
-                t.Join();
-            }
+            //foreach (Thread t in clientThreads)
+            //{
+            //    t.Join();
+            //}
         }
 
         private void toolStripButton17_Click(object sender, EventArgs e)
@@ -2976,11 +2964,11 @@ namespace Server
                 }
             }
 
-            // Chờ tất cả các luồng kết thúc trước khi tiếp tục
-            foreach (Thread t in clientThreads)
-            {
-                t.Join();
-            }
+            //// Chờ tất cả các luồng kết thúc trước khi tiếp tục
+            //foreach (Thread t in clientThreads)
+            //{
+            //    t.Join();
+            //}
         }
 
         private void tsUpdate_ButtonClick_1(object sender, EventArgs e)
@@ -3069,10 +3057,10 @@ namespace Server
             }
 
             // Chờ tất cả các luồng kết thúc trước khi tiếp tục
-            foreach (Thread t in clientThreads)
-            {
-                t.Join();
-            }
+            //foreach (Thread t in clientThreads)
+            //{
+            //    t.Join();
+            //}
         }
 
         private void càiĐặtToolStripMenuItem_Click(object sender, EventArgs e)
@@ -3095,5 +3083,7 @@ namespace Server
 
             }
         }
+
+      
     }
 }

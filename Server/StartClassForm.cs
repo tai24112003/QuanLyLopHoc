@@ -386,7 +386,7 @@ namespace Server
 
                 // Mở form buổi học
                 var svFormFactory = _serviceProvider.GetRequiredService<svFormFactory>();
-                var svForms = svFormFactory.Create(userID, roomID, sessionID, classID);
+                var svForms = svFormFactory.Create(userID, roomID, classSession, classID);
                 svForms.Show();
 
                 svForms.FormClosed += (s, args) =>

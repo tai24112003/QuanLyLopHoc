@@ -78,6 +78,9 @@ namespace Server
         private int widthScreen;
         private int heighScreen;
         private string Protocal = "UDP";
+        private int newSession = -99999999;
+        private ClassSession classSession;
+        private bool isupdateClassSession = false;
         SvExamForm ExamForm { get; set; }
         private List<Test> Tests { get; set; }
         private int IndexTestReady { get; set; }
@@ -100,7 +103,7 @@ namespace Server
             idleTimer.Elapsed += OnIdleTimerElapsed;
         }
 
-        public void Initialize(int userID, string roomID, int classID, RoomBLL roomBLL, int sessionID, SessionComputerBLL sessionComputer, ClassSessionBLL classSession, ClassStudentBLL classStudentBLL, AttendanceBLL attendanceBLL, ComputerBLL computerBLL, StudentBLL studentBLL, IServiceProvider serviceProvider)
+        public void Initialize(int userID, string roomID, int classID, RoomBLL roomBLL, ClassSession classSession1, SessionComputerBLL sessionComputer, ClassSessionBLL classSession, ClassStudentBLL classStudentBLL, AttendanceBLL attendanceBLL, ComputerBLL computerBLL, StudentBLL studentBLL, IServiceProvider serviceProvider)
         {
             this.userID = userID;
             this.roomID = roomID;
@@ -111,7 +114,8 @@ namespace Server
             this._classSessionBLL = classSession;
             this._attendanceBLL = attendanceBLL;
             this._computerBLL = computerBLL;
-            this.sessionID = sessionID;
+            this.sessionID = classSession1.SessionID;
+            this.classSession = classSession1;
             this._studentBLL = studentBLL;
             _serviceProvider = serviceProvider;
 
@@ -1907,6 +1911,8 @@ namespace Server
 
         private async Task<bool> updateSessionComputer()
         {
+            await checkUpdateClassSession();
+
             sessionComputers.Clear();
 
             foreach (DataGridViewRow row in dgv_client.Rows)
@@ -1930,9 +1936,8 @@ namespace Server
                         KeyboardConnected = row.Cells[7].Value?.ToString().ToLower() == "đã kết nối",
                         MonitorConnected = row.Cells[8].Value?.ToString().ToLower() == "đã kết nối",
                         ComputerID = int.Parse(row.Cells[9].Value?.ToString()),
-                        SessionID = sessionID,
+                        SessionID = sessionID < 0 ? newSession < 0 ? sessionID : newSession : sessionID,
                         MismatchInfo = row.Cells[10].Value?.ToString()
-                        // Add more properties as needed corresponding to the columns in your DataGridView
                     };
                     if (selectedStudent != "")
                     {
@@ -1973,8 +1978,17 @@ namespace Server
 
         }
 
+        private async Task checkUpdateClassSession()
+        {
+            if (sessionID < 0 && newSession<0)
+            { 
+                newSession= (await _classSessionBLL.InsertClassSession(classSession)).SessionID;
+            }
+        }
+
         private async Task updateAttanceToDB()
         {
+            await checkUpdateClassSession();
             List<Attendance> lstAttendances = new List<Attendance>();
 
             foreach (DataGridViewRow row in dgv_attendance.Rows)
@@ -1988,7 +2002,7 @@ namespace Server
                     Attendance attendance = new Attendance
                     {
                         StudentID = studentID,
-                        SessionID = sessionID,
+                        SessionID = sessionID<0?newSession<0? sessionID:newSession:sessionID,
                         Present = present,
                     };
 

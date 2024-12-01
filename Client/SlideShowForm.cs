@@ -40,11 +40,11 @@ namespace testUdpTcp
 
             this.FormBorderStyle = FormBorderStyle.None; // Loại bỏ viền của form
             this.WindowState = FormWindowState.Maximized; // Phóng to form ra toàn màn hình
-            //this.TopMost = true; // Đặt form ở trên cùng của tất cả các cửa sổ khác
-            //myIp = getIPServer();
+            this.TopMost = true; // Đặt form ở trên cùng của tất cả các cửa sổ khác
+            myIp = getIPServer();
 
             // Ẩn con trỏ chuột
-            //Cursor.Hide();
+            Cursor.Hide();
             udpClient = new UdpClient(8889); // Khởi tạo UDP client và lắng nghe trên cổng 8889
         }
         private string getIPServer()

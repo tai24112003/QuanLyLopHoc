@@ -26,7 +26,23 @@ public class ClassStudentDAL
             throw ex;
         }
     }
-   
+
+    public async Task<string> DeleteClassStudentByStudentID(List<ClassStudent> classStudent)
+    {
+        try
+        {
+            string classStudentJson=JsonConvert.SerializeObject(classStudent);
+            string ClassStudentsJson = await _dataService.PostAsync("class_student/delete",classStudentJson);
+            return ClassStudentsJson;
+        }
+        catch (Exception ex)
+        {
+            throw ex;
+        }
+    }
+
+
+
     public async Task<string> InsertClassStudent(List<ClassStudent> student)
     {
         try

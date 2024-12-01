@@ -74,25 +74,30 @@ public class ClassStudentBLL
         return allClassStudents.Where(cs => cs.ClassID == classID).ToList();
     }
    
-    public async Task<string> GetClassStudents()
+   
+
+    public async Task<bool> DeleteLstClassStudentByStudentID(List<ClassStudent> classStudent)
     {
         try
         {
             // Get ClassStudents from server
-            string ClassStudentsJson = await _ClassStudentDAL.GetAllClassStudents();
-            // Save ClassStudents and last update time to local database
-            _ClassStudentDAL.SaveLocalData(ClassStudentsJson);
-            return ClassStudentsJson;
+            string ClassStudentsJson = await _ClassStudentDAL.DeleteClassStudentByStudentID(classStudent);
+            if (!string.IsNullOrEmpty(ClassStudentsJson))
+            {
+                ClassStudentResponse ClassStudentResponse = JsonConvert.DeserializeObject<ClassStudentResponse>(ClassStudentsJson);
+                return ClassStudentResponse.status== "success";
+            }
+            return false;
         }
         catch (Exception ex)
         {
             Console.WriteLine("Error fetching ClassStudents from BLL", ex);
-            return null;
+            return false;
         }
     }
 
 
-    
+
 
     public async Task<List<ClassStudent>> GetClassStudentsByID(int id)
     {

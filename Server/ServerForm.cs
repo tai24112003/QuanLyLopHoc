@@ -120,7 +120,7 @@ namespace Server
             _serviceProvider = serviceProvider;
 
             //Ip = ;
-            //Ip = getIPServer();
+            Ip = getIPServer();
 
             // Thực hiện các logic khởi tạo khác nếu cần thiết
         }
@@ -135,17 +135,25 @@ namespace Server
             var menuItem2 = new ToolStripMenuItem("Gửi Tín Hiệu");
             var menuItem4 = new ToolStripMenuItem("Thêm sinh viên");
             var menuItem5 = new ToolStripMenuItem("Chọn sinh viên kiểm tra máy");
+            var menuItem6 = new ToolStripMenuItem("Xóa sinh viên");
+            var menuItem7 = new ToolStripMenuItem("Cập nhật sinh viên");
+
 
             // Thêm các mục menu vào ContextMenuStrip
             contextMenuStrip.Items.Add(menuItem2);
             contextMenuStrip.Items.Add(menuItem3);
             contextMenuStrip1.Items.Add(menuItem4);
+            contextMenuStrip1.Items.Add(menuItem6);
+            contextMenuStrip1.Items.Add(menuItem7);
+
             contextMenuStrip1.Items.Add(menuItem5);
 
             // Gắn sự kiện click cho các mục menu
             menuItem3.Click += contextMenu_SlideShowToClient_Click;
             menuItem2.Click += contextMenu_Refresh_Click;
             menuItem4.Click += async (sender, e) => await AddSelectedStudentsAsync();
+            menuItem6.Click += async (sender, e) => await DeleteSelectedStudentsAsync();
+            menuItem7.Click += async (sender, e) => await AddSelectedStudentsAsync();
             menuItem5.Click += contextMenu_SelectStudentCheckMachine_Click;
         }
 
@@ -156,7 +164,7 @@ namespace Server
                 // Kiểm tra nếu không có dòng nào được chọn
                 if (dgv_attendance.SelectedRows.Count == 0)
                 {
-                    MessageBox.Show("Vui lòng chọn ít nhất một sinh viên để thêm.");
+                    MessageBox.Show("Vui lòng chọn ít nhất một sinh viên để thêm.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     return;
                 }
 
@@ -174,7 +182,7 @@ namespace Server
                     // Kiểm tra dữ liệu hợp lệ
                     if (string.IsNullOrWhiteSpace(studentID) || string.IsNullOrWhiteSpace(firstName) || string.IsNullOrWhiteSpace(lastName))
                     {
-                        MessageBox.Show("Thông tin sinh viên không hợp lệ, vui lòng kiểm tra lại.");
+                        MessageBox.Show("Thông tin sinh viên không hợp lệ, vui lòng kiểm tra lại.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
                         continue;
                     }
 
@@ -208,11 +216,71 @@ namespace Server
                 }
 
                 // Thông báo sau khi thêm xong
-                MessageBox.Show($"Đã thêm {dgv_attendance.SelectedRows.Count} sinh viên vào danh sách.");
+                MessageBox.Show($"Đã thêm {dgv_attendance.SelectedRows.Count} sinh viên vào danh sách.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Lỗi khi thêm sinh viên: {ex.Message}");
+                MessageBox.Show($"Lỗi khi thêm sinh viên: {ex.Message}", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+        }
+
+
+        private async Task DeleteSelectedStudentsAsync()
+        {
+            try
+            {
+                // Kiểm tra nếu không có dòng nào được chọn
+                if (dgv_attendance.SelectedRows.Count == 0)
+                {
+                    MessageBox.Show("Vui lòng chọn ít nhất một sinh viên để xóa.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    return;
+                }
+
+                // Hiển thị hộp thoại xác nhận trước khi xóa
+                var confirmResult = MessageBox.Show("Bạn có chắc chắn muốn xóa những sinh viên này không? Việc xóa sẽ làm mất cả thông tin điểm danh của sinh viên",
+                                                     "Xác nhận xóa",
+                                                     MessageBoxButtons.YesNo,
+                                                     MessageBoxIcon.Warning);
+
+                // Nếu người dùng chọn "No", dừng hàm
+                if (confirmResult == DialogResult.No)
+                {
+                    return;
+                }
+
+                List<ClassStudent> class_students = new List<ClassStudent>();
+
+                // Duyệt qua các dòng được chọn
+                foreach (DataGridViewRow selectedRow in dgv_attendance.SelectedRows)
+                {
+                    // Lấy thông tin từ dòng
+                    string studentID = selectedRow.Cells["MSSV"]?.Value?.ToString();
+
+                    var clst = new ClassStudent { StudentID = studentID, ClassID = classID };
+                    class_students.Add(clst);
+                }
+
+                // Thực hiện xóa sinh viên
+                var check = await _classStudentBLL.DeleteLstClassStudentByStudentID(class_students);
+                if (check)
+                {
+                    // Lặp qua các dòng trong dgv_attendance để xóa các sinh viên đã chọn
+                    foreach (DataGridViewRow selectedRow in dgv_attendance.SelectedRows)
+                    {
+                        dgv_attendance.Rows.RemoveAt(selectedRow.Index);
+                    }
+
+                    // Thông báo sau khi xóa thành công
+                    MessageBox.Show($"Đã xóa sinh viên thành công","Thông báo",MessageBoxButtons.OK,MessageBoxIcon.Information);
+                }
+                else
+                {
+                    MessageBox.Show($"Không thể xóa sinh viên không tồn tại", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Lỗi khi xóa sinh viên: {ex.Message}", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
 
@@ -225,7 +293,7 @@ namespace Server
                 // Kiểm tra nếu không có dòng nào được chọn
                 if (dgv_attendance.SelectedRows.Count == 0)
                 {
-                    MessageBox.Show("Vui lòng chọn ít nhất một sinh viên.");
+                    MessageBox.Show("Vui lòng chọn ít nhất một sinh viên.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     return;
                 }
 
@@ -233,7 +301,7 @@ namespace Server
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Lỗi khi chọn sinh viên kiểm tra máy: {ex.Message}");
+                MessageBox.Show($"Lỗi khi chọn sinh viên kiểm tra máy: {ex.Message}", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
 
@@ -324,10 +392,12 @@ namespace Server
                         dgv_attendance.Rows.Add(row);
                     }
                 }
+                dgv_attendance.Columns[0].ReadOnly = true;
+
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error setting up attendance: {ex.Message}");
+                MessageBox.Show($"Error setting up attendance: {ex.Message}", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
 
@@ -709,7 +779,7 @@ namespace Server
 
                     if (indexQuest == -1)
                     {
-                        MessageBox.Show("Định dạng thiếu vị trí câu hỏi");
+                        MessageBox.Show("Định dạng thiếu vị trí câu hỏi", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
                         return;
                     }
 
@@ -743,7 +813,7 @@ namespace Server
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show($"xử lý câu trả lời thất bại: {ex}");
+                    MessageBox.Show($"xử lý câu trả lời thất bại: {ex}", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
             }
             else if (receivedMessage.StartsWith("Picture5s"))
@@ -1285,6 +1355,7 @@ namespace Server
                     newRow.Cells[0].Value = student.Value;
                     newRow.Cells[1].Value = firstName;
                     newRow.Cells[2].Value = lastName;
+                    newRow.Cells[0].ReadOnly = false;
 
                     // Kiểm tra và thêm cột sessionID nếu chưa tồn tại
                     if (!dgv_attendance.Columns.Contains(sessionID.ToString()))
@@ -1610,7 +1681,7 @@ namespace Server
                             }
                             catch (Exception ex)
                             {
-                                MessageBox.Show("Mất kết nối với: " + row.Cells[0].Value.ToString());
+                                MessageBox.Show("Mất kết nối với: " + row.Cells[0].Value.ToString(), "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
                             }
                         });
 
@@ -1621,7 +1692,7 @@ namespace Server
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show("Mất kết nối với: " + row.Cells[0].Value.ToString());
+                    MessageBox.Show("Mất kết nối với: " + row.Cells[0].Value.ToString(), "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
             }
 
@@ -1662,7 +1733,7 @@ namespace Server
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show($"Lỗi khi gửi ảnh đến {clientIP}: {ex.Message}");
+                    MessageBox.Show($"Lỗi khi gửi ảnh đến {clientIP}: {ex.Message}", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     break;
                 }
             }
@@ -1706,7 +1777,7 @@ namespace Server
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Không thể gửi dữ liệu đến {clientIP}: {ex.Message}");
+                MessageBox.Show($"Không thể gửi dữ liệu đến {clientIP}: {ex.Message}", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
 
@@ -1951,12 +2022,11 @@ namespace Server
                     }
                     else
                     {
-                        MessageBox.Show("Chọn một sinh viên từ bảng điểm danh để kiểm tra máy!!");
+                        MessageBox.Show("Chọn một sinh viên từ bảng điểm danh để kiểm tra máy!!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
                         return false;
 
                     }
                 }
-                return true;
             }
 
             if (sessionComputers.Count == room.NumberOfComputers)
@@ -2118,7 +2188,7 @@ namespace Server
                                 }
                                 catch (Exception ex)
                                 {
-                                    MessageBox.Show("Mất kết nối với: " + row.Cells[0].Value.ToString());
+                                    MessageBox.Show("Mất kết nối với: " + row.Cells[0].Value.ToString(), "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
                                 }
                             });
 
@@ -2130,7 +2200,7 @@ namespace Server
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show("Mất kết nối với: " + row.Cells[0].Value.ToString());
+                    MessageBox.Show("Mất kết nối với: " + row.Cells[0].Value.ToString(), "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
             }
 
@@ -2200,7 +2270,7 @@ namespace Server
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show("Mất kết nối với: " + row.Cells[0].Value.ToString());
+                    MessageBox.Show("Mất kết nối với: " + row.Cells[0].Value.ToString(), "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
             }
 
@@ -2282,7 +2352,7 @@ namespace Server
                     }
                     catch (Exception ex)
                     {
-                        MessageBox.Show("Mất kết nối với: " + row.Cells[0].Value.ToString());
+                        MessageBox.Show("Mất kết nối với: " + row.Cells[0].Value.ToString(), "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     }
                 }
 
@@ -2378,7 +2448,7 @@ namespace Server
                                             // Xóa file zip tạm thời
                                             File.Delete(tempZipPath);
 
-                                            MessageBox.Show("Các tệp đã được nhận và lưu thành công tại: " + folderToSavePath);
+                                            MessageBox.Show("Các tệp đã được nhận và lưu thành công tại: " + folderToSavePath, "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
                                         }
                                         catch (EndOfStreamException eosEx)
                                         {
@@ -2410,7 +2480,7 @@ namespace Server
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show("Mất kết nối với: " + row.Cells[0].Value.ToString());
+                    MessageBox.Show("Mất kết nối với: " + row.Cells[0].Value.ToString(), "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
             }
 
@@ -2533,7 +2603,7 @@ namespace Server
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show("Mất kết nối với: " + row.Cells[0].Value.ToString());
+                    MessageBox.Show("Mất kết nối với: " + row.Cells[0].Value.ToString(), "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
             }
 
@@ -2636,7 +2706,7 @@ namespace Server
             {
                 if (StudentsAreReady.Count < 1)
                 {
-                    MessageBox.Show("Chưa có sinh viên nào sẵn sàng!");
+                    MessageBox.Show("Chưa có sinh viên nào sẵn sàng!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     return false;
                 }
                 Test testReady=Tests[IndexTestReady];
@@ -2705,7 +2775,7 @@ namespace Server
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show("Mất kết nối với: " + row.Cells[0].Value.ToString());
+                    MessageBox.Show("Mất kết nối với: " + row.Cells[0].Value.ToString(), "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     Console.WriteLine("Mất kết nối: " + ex.Message);
                     return false;
                 }
@@ -2718,7 +2788,7 @@ namespace Server
             //}
             if(key== "Key-Exam")
             {
-                MessageBox.Show("Đã phát đề");
+                MessageBox.Show("Đã phát đề", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             return true;
         }
@@ -2815,7 +2885,7 @@ namespace Server
                         catch (Exception ex)
                         {
                             // Xử lý lỗi nếu mất kết nối
-                            MessageBox.Show("Mất kết nối với: " + row.Cells[0].Value?.ToString());
+                            MessageBox.Show("Mất kết nối với: " + row.Cells[0].Value?.ToString(), "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
                         }
                     });
 
@@ -2890,7 +2960,7 @@ namespace Server
                             }
                             catch (Exception ex)
                             {
-                                MessageBox.Show("Mất kết nối với: " + row.Cells[0].Value.ToString());
+                                MessageBox.Show("Mất kết nối với: " + row.Cells[0].Value.ToString(), "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
                             }
                         });
 
@@ -2901,7 +2971,7 @@ namespace Server
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show("Mất kết nối với: " + row.Cells[0].Value.ToString());
+                    MessageBox.Show("Mất kết nối với: " + row.Cells[0].Value.ToString(), "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
             }
 
@@ -2963,7 +3033,7 @@ namespace Server
                             }
                             catch (Exception ex)
                             {
-                                MessageBox.Show("Mất kết nối với: " + row.Cells[0].Value.ToString());
+                                MessageBox.Show("Mất kết nối với: " + row.Cells[0].Value.ToString(), "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
                             }
                         });
 
@@ -2974,7 +3044,7 @@ namespace Server
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show("Mất kết nối với: " + row.Cells[0].Value.ToString());
+                    MessageBox.Show("Mất kết nối với: " + row.Cells[0].Value.ToString(), "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
             }
 
@@ -3010,7 +3080,7 @@ namespace Server
             }
             else
             {
-                MessageBox.Show("Không có dữ liệu!");
+                MessageBox.Show("Không có dữ liệu!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
 
@@ -3066,7 +3136,7 @@ namespace Server
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show($"Mất kết nối với: {row.Cells[0].Value?.ToString()} - {ex.Message}");
+                    MessageBox.Show($"Mất kết nối với: {row.Cells[0].Value?.ToString()} - {ex.Message}", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
             }
 

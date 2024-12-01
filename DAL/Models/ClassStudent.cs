@@ -11,5 +11,6 @@ public class ClassStudent
 
 public class ClassStudentResponse
 {
+    public string status { get; set; }
     public List<ClassStudent> data { get; set; }
 }

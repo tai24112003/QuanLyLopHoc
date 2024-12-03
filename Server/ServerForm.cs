@@ -574,12 +574,12 @@ namespace Server
 
             foreach (List<string> infoList in fullInfoList)
             {
-                if (infoList.Count == 10)
+                if (infoList.Count == 12)
                 {
-                    infoList.Insert(10, "");
+                    infoList.Insert(12, "");
                 }
                 // Check if the information contains "không kết nối"
-                bool isDisconnected = infoList.Any(value => value.Contains("không kết nối"));
+                bool isDisconnected = infoList.Any(value => value.Contains("Chưa mở phần mềm"));
 
                 // Process values by removing ":0", ":1" and replacing "|" with newlines
                 var processedInfo = infoList
@@ -623,6 +623,14 @@ namespace Server
 
 
 
+        private void dgv_CellBeginEdit(object sender, DataGridViewCellCancelEventArgs e)
+        {
+            // Chỉ cho phép chỉnh sửa cột 8
+            if (e.ColumnIndex != 8) // Cột 8 có chỉ số 7
+            {
+                e.Cancel = true; // Hủy chỉnh sửa
+            }
+        }
 
 
 
@@ -1063,7 +1071,7 @@ namespace Server
         {
             string keysString = "ID?Tên máy?Ổ cứng?CPU?RAM?MSSV?IPC?Chuột?Bàn phím?Màn hình";
             // Chuỗi chứa các value cho standardInfoList
-            string privateStandardValuesString = id + "?" + name + "?" + hdd + "?" + cpu + "? " + ram + "? ? ?không kết nối?không kết nối?không kết nối";
+            string privateStandardValuesString = id + "?" + name + "?" + hdd + "?" + cpu + "? " + ram + "? ? ? ? ? ";
             // Chuỗi chứa các value cho privateStandardInfoList
 
             // Tách các key và value từ chuỗi
@@ -1090,16 +1098,19 @@ namespace Server
                 //Kiểm tra nếu máy tồn tại trong privateStandardInfoList
                 var privateInfo = privateStandardInfoList.FirstOrDefault(info => info.ContainsKey("Tên máy") && info["Tên máy"] == machineName);
                 newEntry.Add(privateInfo["Tên máy"]);
+                newEntry.Add("");
                 newEntry.Add(privateInfo["Ổ cứng"]);
+                newEntry.Add("");
                 newEntry.Add(privateInfo["CPU"]);
+                newEntry.Add(privateInfo["IPC"]);
+                newEntry.Add("");
                 newEntry.Add(privateInfo["RAM"]);
                 newEntry.Add(privateInfo["MSSV"]);
-                newEntry.Add(privateInfo["IPC"]);
                 newEntry.Add(privateInfo["Chuột"]);
                 newEntry.Add(privateInfo["Bàn phím"]);
                 newEntry.Add(privateInfo["Màn hình"]);
                 newEntry.Add(privateInfo["ID"]);
-                newEntry.Add("Mất kết nối");
+                newEntry.Add("Chưa mở phần mềm");
 
 
 
@@ -1307,10 +1318,13 @@ namespace Server
     {
         infC[2],  // Tên máy
         infC[6],  // Ổ cứng
+        "",
         infC[7],  // CPU
-        infC[8],  // RAM
-        string.Join("\n", studentIDs.Values),  // MSSV
+        "",
         infC[1],  // IPC
+        infC[8],  // RAM
+        "",
+        string.Join("\n", studentIDs.Values),  // MSSV
         infC[3],  // Chuột
         infC[4],  // Bàn phím
         infC[5],   // Màn hình
@@ -1492,10 +1506,14 @@ namespace Server
                     // Cập nhật thông tin cho danh sách đầy đủ, bỏ qua chỉ mục 9
                     for (int j = 0; j < newEntry.Count; j++)
                     {
-                        if (j == 9) // Bỏ qua phần tử ở chỉ mục 9
+                        if (j == 12) // Bỏ qua phần tử ở chỉ mục 9
                         {
                             fullInfoList[i][j + 1] = newEntry[j];
                             break;
+                        }
+                        else if(j == 2 || j ==4 ||j == 7)
+                        {
+                            continue;
                         }
                         else
                         {
@@ -1506,10 +1524,10 @@ namespace Server
                     entryExists = true;
 
                     // Nếu đang ở chế độ xem đầy đủ, cập nhật hiển thị
-                    if (isFullInfoMode)
-                    {
-                        AddOrUpdateRowToDataGridView(newEntry);
-                    }
+                    //if (isFullInfoMode)
+                    //{
+                    //    AddOrUpdateRowToDataGridView(newEntry);
+                    //}
                     break;
                 }
             }
@@ -1527,20 +1545,22 @@ namespace Server
 
         }
 
+       
+
         private int GetIndexForKey(string key)
         {
             switch (key)
             {
                 case "Tên máy": return 0;
                 case "Ổ cứng": return 1;
-                case "CPU": return 2;
-                case "RAM": return 3;
-                case "MSSV": return 4;
+                case "CPU": return 3;
+                case "RAM": return 6;
+                case "MSSV": return 8;
                 case "IPC": return 5;
-                case "Chuột": return 6;
-                case "Bàn phím": return 7;
-                case "Màn hình": return 8;
-                case "MismatchInfo": return 9;
+                case "Chuột": return 9;
+                case "Bàn phím": return 10;
+                case "Màn hình": return 11;
+                case "MismatchInfo": return 12;
                 default: return -1;
             }
         }
@@ -2057,7 +2077,7 @@ namespace Server
             foreach (DataGridViewRow row in dgv_client.Rows)
             {
                 // Lấy giá trị StudentID từ cột
-                string studentIDValue = row.Cells[4].Value?.ToString().Trim() == "" ? selectedStudent : row.Cells[4].Value?.ToString();
+                string studentIDValue = row.Cells[GetIndexForKey("MSSV")].Value?.ToString().Trim() == "" ? selectedStudent : row.Cells[GetIndexForKey("MSSV")].Value?.ToString();
 
                 // Tách StudentID nếu có dấu xuống dòng
                 var studentIDs = studentIDValue.Split(new[] { '\n' }, StringSplitOptions.RemoveEmptyEntries);
@@ -2067,18 +2087,19 @@ namespace Server
                     {
                         SessionComputer sessionComputer = new SessionComputer
                         {
-                            ComputerName = row.Cells[0].Value?.ToString(),
-                            HDD = row.Cells[1].Value?.ToString(),
-                            CPU = row.Cells[2].Value?.ToString(),
-                            RAM = row.Cells[3].Value?.ToString(),
+                            ComputerName = row.Cells[GetIndexForKey("Tên máy")].Value?.ToString(),
+                            HDD = row.Cells[GetIndexForKey("Ổ cứng")].Value?.ToString(),
+                            CPU = row.Cells[GetIndexForKey("CPU")].Value?.ToString(),
+                            RAM = row.Cells[GetIndexForKey("RAM")].Value?.ToString(),
                             StudentID = studentID.Trim(),
-                            MouseConnected = row.Cells[6].Value?.ToString().ToLower() == "đã kết nối",
-                            KeyboardConnected = row.Cells[7].Value?.ToString().ToLower() == "đã kết nối",
-                            MonitorConnected = row.Cells[8].Value?.ToString().ToLower() == "đã kết nối",
-                            ComputerID = int.Parse(row.Cells[9].Value?.ToString()),
-                            SessionID = sessionID < 0 ? newSession < 0 ? sessionID : newSession : sessionID,
-                            MismatchInfo = row.Cells[10].Value?.ToString()
+                            MouseConnected = row.Cells[GetIndexForKey("Chuột")].Value?.ToString().ToLower() == "đã kết nối",
+                            KeyboardConnected = row.Cells[GetIndexForKey("Bàn phím")].Value?.ToString().ToLower() == "đã kết nối",
+                            MonitorConnected = row.Cells[GetIndexForKey("Màn hình")].Value?.ToString().ToLower() == "đã kết nối",
+                            ComputerID = int.Parse(row.Cells[12].Value?.ToString()),
+                            SessionID = sessionID < 0 ? (newSession < 0 ? sessionID : newSession) : sessionID,
+                            MismatchInfo = row.Cells[GetIndexForKey("MismatchInfo")].Value?.ToString()
                         };
+
                         if (selectedStudent != "")
                         {
 
@@ -2134,7 +2155,7 @@ namespace Server
             if (sessionComputers.Count >= room.NumberOfComputers)
             {
                 var lstSessionComputer = await _sessionComputerBLL.InsertSessionComputer(sessionID, sessionComputers);
-                if (lstSessionComputer != null && lstSessionComputer.Count == 0)
+                if (lstSessionComputer != null && lstSessionComputer.Count > 0)
                 {
                     string lstStudentNotExit = "";
                     foreach (var sessionComputer in lstSessionComputer)

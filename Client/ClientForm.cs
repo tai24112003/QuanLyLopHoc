@@ -1227,8 +1227,8 @@ namespace testUdpTcp
             stringList.Add($"InfoClient-");
             InForGroup.Controls.Clear();
             // Lấy thông tin về tên máy
-            string machineName = Environment.MachineName;
-            //string machineName = "F710-01";
+            //string machineName = Environment.MachineName;
+            string machineName = "F710-01";
             stringList.Add($"IPC: {myIp}");
             stringList.Add($"Tenmay: {machineName}");
             lblNameComputer.Text = machineName;

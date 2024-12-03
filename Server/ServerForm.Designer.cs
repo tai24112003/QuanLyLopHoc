@@ -59,10 +59,13 @@
             this.dgv_client = new System.Windows.Forms.DataGridView();
             this.NameComputer = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Disk = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.DiskDB = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.CPU = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.Ram = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.StudentID = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.CPUDB = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.IPC = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Ram = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.RamDB = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.StudentID = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Mouse = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Keyboard = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Monitor = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -277,10 +280,13 @@
             this.dgv_client.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.NameComputer,
             this.Disk,
+            this.DiskDB,
             this.CPU,
-            this.Ram,
-            this.StudentID,
+            this.CPUDB,
             this.IPC,
+            this.Ram,
+            this.RamDB,
+            this.StudentID,
             this.Mouse,
             this.Keyboard,
             this.Monitor,
@@ -301,6 +307,7 @@
             this.dgv_client.RowHeadersWidth = 51;
             this.dgv_client.Size = new System.Drawing.Size(935, 480);
             this.dgv_client.TabIndex = 9;
+            this.dgv_client.CellBeginEdit += new System.Windows.Forms.DataGridViewCellCancelEventHandler(this.dgv_CellBeginEdit);
             this.dgv_client.CellValueChanged += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgv_client_CellValueChanged);
             this.dgv_client.MouseClick += new System.Windows.Forms.MouseEventHandler(this.dgv_client_MouseClick);
             // 
@@ -320,6 +327,12 @@
             this.Disk.Name = "Disk";
             this.Disk.Width = 96;
             // 
+            // DiskDB
+            // 
+            this.DiskDB.Frozen = true;
+            this.DiskDB.HeaderText = "Ổ Cứng Chuẩn";
+            this.DiskDB.Name = "DiskDB";
+            // 
             // CPU
             // 
             this.CPU.Frozen = true;
@@ -328,21 +341,11 @@
             this.CPU.Name = "CPU";
             this.CPU.Width = 97;
             // 
-            // Ram
+            // CPUDB
             // 
-            this.Ram.Frozen = true;
-            this.Ram.HeaderText = "Ram";
-            this.Ram.MinimumWidth = 6;
-            this.Ram.Name = "Ram";
-            this.Ram.Width = 97;
-            // 
-            // StudentID
-            // 
-            this.StudentID.Frozen = true;
-            this.StudentID.HeaderText = "MSSV";
-            this.StudentID.MinimumWidth = 6;
-            this.StudentID.Name = "StudentID";
-            this.StudentID.Width = 96;
+            this.CPUDB.Frozen = true;
+            this.CPUDB.HeaderText = "CPU Chuẩn";
+            this.CPUDB.Name = "CPUDB";
             // 
             // IPC
             // 
@@ -352,6 +355,28 @@
             this.IPC.Name = "IPC";
             this.IPC.Visible = false;
             this.IPC.Width = 97;
+            // 
+            // Ram
+            // 
+            this.Ram.Frozen = true;
+            this.Ram.HeaderText = "Ram";
+            this.Ram.MinimumWidth = 6;
+            this.Ram.Name = "Ram";
+            this.Ram.Width = 97;
+            // 
+            // RamDB
+            // 
+            this.RamDB.Frozen = true;
+            this.RamDB.HeaderText = "Ram Chuẩn";
+            this.RamDB.Name = "RamDB";
+            // 
+            // StudentID
+            // 
+            this.StudentID.Frozen = true;
+            this.StudentID.HeaderText = "MSSV";
+            this.StudentID.MinimumWidth = 6;
+            this.StudentID.Name = "StudentID";
+            this.StudentID.Width = 96;
             // 
             // Mouse
             // 
@@ -797,20 +822,23 @@
         private System.Windows.Forms.ToolStripMenuItem tsExportSession;
         private System.Windows.Forms.ToolStripMenuItem tsExportAttendance;
         private System.Windows.Forms.ToolStripMenuItem càiĐặtToolStripMenuItem;
+        private System.Windows.Forms.DataGridViewTextBoxColumn MSSV;
+        private System.Windows.Forms.DataGridViewTextBoxColumn FirstName;
+        private System.Windows.Forms.DataGridViewTextBoxColumn LastName;
         private System.Windows.Forms.DataGridViewTextBoxColumn NameComputer;
         private System.Windows.Forms.DataGridViewTextBoxColumn Disk;
+        private System.Windows.Forms.DataGridViewTextBoxColumn DiskDB;
         private System.Windows.Forms.DataGridViewTextBoxColumn CPU;
-        private System.Windows.Forms.DataGridViewTextBoxColumn Ram;
-        private System.Windows.Forms.DataGridViewTextBoxColumn StudentID;
+        private System.Windows.Forms.DataGridViewTextBoxColumn CPUDB;
         private System.Windows.Forms.DataGridViewTextBoxColumn IPC;
+        private System.Windows.Forms.DataGridViewTextBoxColumn Ram;
+        private System.Windows.Forms.DataGridViewTextBoxColumn RamDB;
+        private System.Windows.Forms.DataGridViewTextBoxColumn StudentID;
         private System.Windows.Forms.DataGridViewTextBoxColumn Mouse;
         private System.Windows.Forms.DataGridViewTextBoxColumn Keyboard;
         private System.Windows.Forms.DataGridViewTextBoxColumn Monitor;
         private System.Windows.Forms.DataGridViewTextBoxColumn ComputerID;
         private System.Windows.Forms.DataGridViewTextBoxColumn MismathInfo;
-        private System.Windows.Forms.DataGridViewTextBoxColumn MSSV;
-        private System.Windows.Forms.DataGridViewTextBoxColumn FirstName;
-        private System.Windows.Forms.DataGridViewTextBoxColumn LastName;
     }
 }
 

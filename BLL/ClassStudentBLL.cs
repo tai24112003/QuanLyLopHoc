@@ -74,25 +74,30 @@ public class ClassStudentBLL
         return allClassStudents.Where(cs => cs.ClassID == classID).ToList();
     }
    
-    public async Task<string> GetClassStudents()
+   
+
+    public async Task<bool> DeleteLstClassStudentByStudentID(List<ClassStudent> classStudent)
     {
         try
         {
             // Get ClassStudents from server
-            string ClassStudentsJson = await _ClassStudentDAL.GetAllClassStudents();
-            // Save ClassStudents and last update time to local database
-            _ClassStudentDAL.SaveLocalData(ClassStudentsJson);
-            return ClassStudentsJson;
+            string ClassStudentsJson = await _ClassStudentDAL.DeleteClassStudentByStudentID(classStudent);
+            if (!string.IsNullOrEmpty(ClassStudentsJson))
+            {
+                ClassStudentResponse ClassStudentResponse = JsonConvert.DeserializeObject<ClassStudentResponse>(ClassStudentsJson);
+                return ClassStudentResponse.status== "success";
+            }
+            return false;
         }
         catch (Exception ex)
         {
             Console.WriteLine("Error fetching ClassStudents from BLL", ex);
-            return null;
+            return false;
         }
     }
 
 
-    
+
 
     public async Task<List<ClassStudent>> GetClassStudentsByID(int id)
     {
@@ -151,6 +156,28 @@ public class ClassStudentBLL
         {
             Console.WriteLine($"Error deleting student in BLL: {ex.Message}");
             Console.WriteLine($"Error deleting student with ID {StudentID} in BLL.", ex);
+        }
+    }
+
+
+    public async Task<List<ClassStudent>> GetClassStudentsByIDAPI(int id)
+    {
+        try
+        {
+            string jsoncalssStudent = await _ClassStudentDAL.GetClassStudentsByIDAPI(id);
+            var ClassStudentResponse = JsonConvert.DeserializeObject<ClassStudentResponse>(jsoncalssStudent);
+            _ClassStudentDAL.SaveLocalData(jsoncalssStudent);
+            if (ClassStudentResponse != null)
+            {
+                return ClassStudentResponse.data;
+            }
+            return null;
+        }
+        catch (Exception ex)
+        {
+            ;
+            Console.WriteLine("Error fetching ClassStudent list by role from BLL");
+            return null;
         }
     }
 

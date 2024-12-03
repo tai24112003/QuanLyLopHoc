@@ -56,7 +56,6 @@
     <Compile Include="ClassDAL.cs" />
     <Compile Include="ClassSessionDAL.cs" />
     <Compile Include="ClassStudentDAL.cs" />
-    <Compile Include="ClassSubjectDAL.cs" />
     <Compile Include="ComputerDAL.cs" />
     <Compile Include="DataProvider.cs" />
     <Compile Include="ExamDAL.cs" />

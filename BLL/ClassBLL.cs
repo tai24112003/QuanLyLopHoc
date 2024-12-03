@@ -42,16 +42,20 @@ public class ClassBLL
             
             var classId = random.Next() * -1;
             classSession.ClassID = classId;
-            var classList = new List<Class> { classSession };
-            var classResponse = new ClassResponse { data = classList };
-            string classJson = JsonConvert.SerializeObject(classResponse);
-            await _ClassDAL.SaveLocalData(classJson);
+            await SaveLocalData(classSession);
 
             Console.WriteLine("Error inserting class session in BLL, Save local Success:  " + ex.Message);
             return classSession;
         }
     }
-
+    public async Task<Class> SaveLocalData(Class classSession)
+    {
+        var classList = new List<Class> { classSession };
+        var classResponse = new ClassResponse { data = classList };
+        string classJson = JsonConvert.SerializeObject(classResponse);
+        await _ClassDAL.SaveLocalData(classJson);
+        return classSession;
+    }
     private async Task<Class> GetClassByName(string className)
     {
         var lstClass = await GetAllClass();
@@ -113,7 +117,6 @@ public class ClassBLL
             // Get Class from server
             string ClassJson = await _ClassDAL.GetAllClass();
             // Save Class and last update time to local database
-            await _ClassDAL.SaveLocalData(ClassJson);
             return ClassJson;
 
         }

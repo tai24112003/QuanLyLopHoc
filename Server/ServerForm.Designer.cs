@@ -53,10 +53,9 @@
             this.toolStripButton2 = new System.Windows.Forms.ToolStripButton();
             this.toolStripButton1 = new System.Windows.Forms.ToolStripButton();
             this.toolStrip2 = new System.Windows.Forms.ToolStrip();
-            this.toolStripButton17 = new System.Windows.Forms.ToolStripButton();
-            this.toolStripButton16 = new System.Windows.Forms.ToolStripButton();
-            this.toolStripButton5 = new System.Windows.Forms.ToolStripButton();
-            this.toolStripButton15 = new System.Windows.Forms.ToolStripButton();
+            this.tsHome = new System.Windows.Forms.ToolStripButton();
+            this.tsScreen = new System.Windows.Forms.ToolStripButton();
+            this.tsAttendance = new System.Windows.Forms.ToolStripButton();
             this.dgv_client = new System.Windows.Forms.DataGridView();
             this.NameComputer = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Disk = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -75,11 +74,12 @@
             this.LastName = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.lst_client = new System.Windows.Forms.ListView();
             this.tsManageClass = new System.Windows.Forms.ToolStripSplitButton();
+            this.càiĐặtToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.EndClassTS = new System.Windows.Forms.ToolStripMenuItem();
             this.tsGroup = new System.Windows.Forms.ToolStripButton();
             this.tsRandom = new System.Windows.Forms.ToolStripButton();
             this.tsSlideShow = new System.Windows.Forms.ToolStripSplitButton();
-            this.tsDungChieu = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsStopSlideShow = new System.Windows.Forms.ToolStripMenuItem();
             this.tsStartSlideShow = new System.Windows.Forms.ToolStripMenuItem();
             this.tsSendAndCollect = new System.Windows.Forms.ToolStripDropDownButton();
             this.tsCollect = new System.Windows.Forms.ToolStripMenuItem();
@@ -91,10 +91,11 @@
             this.tsUpdateInfoSession = new System.Windows.Forms.ToolStripMenuItem();
             this.tsUpdateAttendance = new System.Windows.Forms.ToolStripMenuItem();
             this.tsUpdateBoth = new System.Windows.Forms.ToolStripMenuItem();
-            this.tsUpdateScore = new System.Windows.Forms.ToolStripMenuItem();
-            this.tsExport = new System.Windows.Forms.ToolStripButton();
             this.tsExam = new System.Windows.Forms.ToolStripDropDownButton();
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
+            this.tsExport = new System.Windows.Forms.ToolStripSplitButton();
+            this.tsExportSession = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsExportAttendance = new System.Windows.Forms.ToolStripMenuItem();
             this.flowLayoutPanel1.SuspendLayout();
             this.toolStrip2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgv_client)).BeginInit();
@@ -137,7 +138,7 @@
             this.reciveFileToolStripMenuItem.Name = "reciveFileToolStripMenuItem";
             this.reciveFileToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.reciveFileToolStripMenuItem.Text = "Recive File";
-            this.reciveFileToolStripMenuItem.Click += new System.EventHandler(this.reciveFileToolStripMenuItem_Click);
+            this.reciveFileToolStripMenuItem.Click += new System.EventHandler(this.receiveFileToolStripMenuItem_Click);
             // 
             // toolStripSplitButton5
             // 
@@ -221,58 +222,47 @@
             this.toolStrip2.Dock = System.Windows.Forms.DockStyle.Left;
             this.toolStrip2.ImageScalingSize = new System.Drawing.Size(20, 20);
             this.toolStrip2.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.toolStripButton17,
-            this.toolStripButton16,
-            this.toolStripButton5,
-            this.toolStripButton15});
+            this.tsHome,
+            this.tsScreen,
+            this.tsAttendance});
             this.toolStrip2.Location = new System.Drawing.Point(0, 129);
             this.toolStrip2.Name = "toolStrip2";
             this.toolStrip2.Size = new System.Drawing.Size(100, 480);
             this.toolStrip2.TabIndex = 5;
             this.toolStrip2.Text = "toolStrip2";
             // 
-            // toolStripButton17
+            // tsHome
             // 
-            this.toolStripButton17.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.toolStripButton17.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButton17.Image")));
-            this.toolStripButton17.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
-            this.toolStripButton17.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.toolStripButton17.Name = "toolStripButton17";
-            this.toolStripButton17.Size = new System.Drawing.Size(98, 74);
-            this.toolStripButton17.Text = "Trang Chủ";
-            this.toolStripButton17.Click += new System.EventHandler(this.toolStripButton17_Click);
+            this.tsHome.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.tsHome.Image = ((System.Drawing.Image)(resources.GetObject("tsHome.Image")));
+            this.tsHome.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
+            this.tsHome.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsHome.Name = "tsHome";
+            this.tsHome.Size = new System.Drawing.Size(98, 74);
+            this.tsHome.Text = "Trang Chủ";
+            this.tsHome.Click += new System.EventHandler(this.toolStripButton17_Click);
             // 
-            // toolStripButton16
+            // tsScreen
             // 
-            this.toolStripButton16.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.toolStripButton16.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButton16.Image")));
-            this.toolStripButton16.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
-            this.toolStripButton16.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.toolStripButton16.Name = "toolStripButton16";
-            this.toolStripButton16.Size = new System.Drawing.Size(98, 74);
-            this.toolStripButton16.Text = "Xem Danh Sách Màn Hình";
-            this.toolStripButton16.Click += new System.EventHandler(this.toolStripButton16_Click);
+            this.tsScreen.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.tsScreen.Image = ((System.Drawing.Image)(resources.GetObject("tsScreen.Image")));
+            this.tsScreen.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
+            this.tsScreen.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsScreen.Name = "tsScreen";
+            this.tsScreen.Size = new System.Drawing.Size(98, 74);
+            this.tsScreen.Text = "Xem Danh Sách Màn Hình";
+            this.tsScreen.Click += new System.EventHandler(this.toolStripButton16_Click);
             // 
-            // toolStripButton5
+            // tsAttendance
             // 
-            this.toolStripButton5.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.toolStripButton5.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButton5.Image")));
-            this.toolStripButton5.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
-            this.toolStripButton5.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.toolStripButton5.Name = "toolStripButton5";
-            this.toolStripButton5.Size = new System.Drawing.Size(98, 74);
-            this.toolStripButton5.Text = "Điểm Danh";
-            this.toolStripButton5.Click += new System.EventHandler(this.toolStripButton5_Click);
-            // 
-            // toolStripButton15
-            // 
-            this.toolStripButton15.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.toolStripButton15.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButton15.Image")));
-            this.toolStripButton15.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
-            this.toolStripButton15.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.toolStripButton15.Name = "toolStripButton15";
-            this.toolStripButton15.Size = new System.Drawing.Size(98, 74);
-            this.toolStripButton15.Text = "toolStripButton15";
+            this.tsAttendance.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.tsAttendance.Image = ((System.Drawing.Image)(resources.GetObject("tsAttendance.Image")));
+            this.tsAttendance.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
+            this.tsAttendance.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsAttendance.Name = "tsAttendance";
+            this.tsAttendance.Size = new System.Drawing.Size(98, 74);
+            this.tsAttendance.Text = "Điểm Danh";
+            this.tsAttendance.Click += new System.EventHandler(this.toolStripButton5_Click);
             // 
             // dgv_client
             // 
@@ -429,6 +419,7 @@
             this.dgv_attendance.RowHeadersWidth = 51;
             this.dgv_attendance.Size = new System.Drawing.Size(183, 480);
             this.dgv_attendance.TabIndex = 10;
+            this.dgv_attendance.MouseClick += new System.Windows.Forms.MouseEventHandler(this.dgv_attendance_MouseClick);
             // 
             // MSSV
             // 
@@ -464,6 +455,7 @@
             // tsManageClass
             // 
             this.tsManageClass.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.càiĐặtToolStripMenuItem,
             this.EndClassTS});
             this.tsManageClass.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.tsManageClass.Image = ((System.Drawing.Image)(resources.GetObject("tsManageClass.Image")));
@@ -474,6 +466,13 @@
             this.tsManageClass.Tag = "";
             this.tsManageClass.Text = "Quản lí lớp học";
             this.tsManageClass.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
+            // 
+            // càiĐặtToolStripMenuItem
+            // 
+            this.càiĐặtToolStripMenuItem.Name = "càiĐặtToolStripMenuItem";
+            this.càiĐặtToolStripMenuItem.Size = new System.Drawing.Size(174, 22);
+            this.càiĐặtToolStripMenuItem.Text = "Cài đặt";
+            this.càiĐặtToolStripMenuItem.Click += new System.EventHandler(this.càiĐặtToolStripMenuItem_Click);
             // 
             // EndClassTS
             // 
@@ -513,7 +512,7 @@
             // tsSlideShow
             // 
             this.tsSlideShow.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.tsDungChieu,
+            this.tsStopSlideShow,
             this.tsStartSlideShow});
             this.tsSlideShow.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.tsSlideShow.Image = ((System.Drawing.Image)(resources.GetObject("tsSlideShow.Image")));
@@ -525,19 +524,19 @@
             this.tsSlideShow.Text = "Trình Chiếu";
             this.tsSlideShow.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
             // 
-            // tsDungChieu
+            // tsStopSlideShow
             // 
-            this.tsDungChieu.Font = new System.Drawing.Font("Arial", 9F);
-            this.tsDungChieu.Name = "tsDungChieu";
-            this.tsDungChieu.Size = new System.Drawing.Size(138, 22);
-            this.tsDungChieu.Text = "Dừng chiếu";
-            this.tsDungChieu.Click += new System.EventHandler(this.StopSlideShow_Click);
+            this.tsStopSlideShow.Font = new System.Drawing.Font("Arial", 9F);
+            this.tsStopSlideShow.Name = "tsStopSlideShow";
+            this.tsStopSlideShow.Size = new System.Drawing.Size(165, 22);
+            this.tsStopSlideShow.Text = "Dừng trình chiếu";
+            this.tsStopSlideShow.Click += new System.EventHandler(this.StopSlideShow_Click);
             // 
             // tsStartSlideShow
             // 
             this.tsStartSlideShow.Name = "tsStartSlideShow";
-            this.tsStartSlideShow.Size = new System.Drawing.Size(138, 22);
-            this.tsStartSlideShow.Text = "Trình chiếu";
+            this.tsStartSlideShow.Size = new System.Drawing.Size(165, 22);
+            this.tsStartSlideShow.Text = "Bắt đầu trình chiếu";
             this.tsStartSlideShow.Click += new System.EventHandler(this.SlideShowClick);
             // 
             // tsSendAndCollect
@@ -562,7 +561,7 @@
             this.tsCollect.Name = "tsCollect";
             this.tsCollect.Size = new System.Drawing.Size(108, 22);
             this.tsCollect.Text = "Thu tệp";
-            this.tsCollect.Click += new System.EventHandler(this.reciveFileToolStripMenuItem_Click);
+            this.tsCollect.Click += new System.EventHandler(this.receiveFileToolStripMenuItem_Click);
             // 
             // tsSend
             // 
@@ -617,8 +616,7 @@
             this.tsUpdate.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.tsUpdateInfoSession,
             this.tsUpdateAttendance,
-            this.tsUpdateBoth,
-            this.tsUpdateScore});
+            this.tsUpdateBoth});
             this.tsUpdate.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.tsUpdate.Image = ((System.Drawing.Image)(resources.GetObject("tsUpdate.Image")));
             this.tsUpdate.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
@@ -650,25 +648,6 @@
             this.tsUpdateBoth.Size = new System.Drawing.Size(260, 22);
             this.tsUpdateBoth.Text = "Cập nhật thông tin phiên và điểm danh";
             this.tsUpdateBoth.Click += new System.EventHandler(this.tsUpdateBoth_Click);
-            // 
-            // tsUpdateScore
-            // 
-            this.tsUpdateScore.Name = "tsUpdateScore";
-            this.tsUpdateScore.Size = new System.Drawing.Size(260, 22);
-            this.tsUpdateScore.Text = "Cập nhật điểm";
-            // 
-            // tsExport
-            // 
-            this.tsExport.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.tsExport.Image = ((System.Drawing.Image)(resources.GetObject("tsExport.Image")));
-            this.tsExport.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
-            this.tsExport.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.tsExport.Name = "tsExport";
-            this.tsExport.Size = new System.Drawing.Size(80, 87);
-            this.tsExport.Tag = "";
-            this.tsExport.Text = "Xuất File Excel";
-            this.tsExport.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
-            this.tsExport.Click += new System.EventHandler(this.Export_Click);
             // 
             // tsExam
             // 
@@ -704,6 +683,35 @@
             this.toolStrip1.TabIndex = 4;
             this.toolStrip1.Text = "toolStrip1";
             // 
+            // tsExport
+            // 
+            this.tsExport.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.tsExportSession,
+            this.tsExportAttendance});
+            this.tsExport.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.tsExport.Image = ((System.Drawing.Image)(resources.GetObject("tsExport.Image")));
+            this.tsExport.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
+            this.tsExport.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsExport.Name = "tsExport";
+            this.tsExport.Size = new System.Drawing.Size(92, 87);
+            this.tsExport.Tag = "";
+            this.tsExport.Text = "Xuất File Excel";
+            this.tsExport.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
+            // 
+            // tsExportSession
+            // 
+            this.tsExportSession.Name = "tsExportSession";
+            this.tsExportSession.Size = new System.Drawing.Size(170, 22);
+            this.tsExportSession.Text = "Xuất File Phiên";
+            this.tsExportSession.Click += new System.EventHandler(this.ExportSession_Click);
+            // 
+            // tsExportAttendance
+            // 
+            this.tsExportAttendance.Name = "tsExportAttendance";
+            this.tsExportAttendance.Size = new System.Drawing.Size(170, 22);
+            this.tsExportAttendance.Text = "Xuất File Điểm Danh";
+            this.tsExportAttendance.Click += new System.EventHandler(this.ExportAttendance_Click);
+            // 
             // svForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -717,6 +725,7 @@
             this.Controls.Add(this.toolStrip2);
             this.Controls.Add(this.flowLayoutPanel1);
             this.Controls.Add(this.toolStrip1);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Margin = new System.Windows.Forms.Padding(2);
             this.Name = "svForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
@@ -757,34 +766,19 @@
         private System.Windows.Forms.ToolStripButton toolStripButton2;
         private System.Windows.Forms.ToolStripButton toolStripButton1;
         private System.Windows.Forms.ToolStrip toolStrip2;
-        private System.Windows.Forms.ToolStripButton toolStripButton15;
-        private System.Windows.Forms.ToolStripButton toolStripButton17;
-        private System.Windows.Forms.ToolStripButton toolStripButton16;
+        private System.Windows.Forms.ToolStripButton tsHome;
+        private System.Windows.Forms.ToolStripButton tsScreen;
         private System.Windows.Forms.Button btnAll;
-        private System.Windows.Forms.ToolStripButton toolStripButton5;
+        private System.Windows.Forms.ToolStripButton tsAttendance;
         private System.Windows.Forms.DataGridView dgv_client;
         private System.Windows.Forms.DataGridView dgv_attendance;
-        private System.Windows.Forms.DataGridViewTextBoxColumn MSSV;
-        private System.Windows.Forms.DataGridViewTextBoxColumn FirstName;
-        private System.Windows.Forms.DataGridViewTextBoxColumn LastName;
         private System.Windows.Forms.ListView lst_client;
-        private System.Windows.Forms.DataGridViewTextBoxColumn NameComputer;
-        private System.Windows.Forms.DataGridViewTextBoxColumn Disk;
-        private System.Windows.Forms.DataGridViewTextBoxColumn CPU;
-        private System.Windows.Forms.DataGridViewTextBoxColumn Ram;
-        private System.Windows.Forms.DataGridViewTextBoxColumn StudentID;
-        private System.Windows.Forms.DataGridViewTextBoxColumn IPC;
-        private System.Windows.Forms.DataGridViewTextBoxColumn Mouse;
-        private System.Windows.Forms.DataGridViewTextBoxColumn Keyboard;
-        private System.Windows.Forms.DataGridViewTextBoxColumn Monitor;
-        private System.Windows.Forms.DataGridViewTextBoxColumn ComputerID;
-        private System.Windows.Forms.DataGridViewTextBoxColumn MismathInfo;
         private System.Windows.Forms.ToolStripSplitButton tsManageClass;
         private System.Windows.Forms.ToolStripMenuItem EndClassTS;
         private System.Windows.Forms.ToolStripButton tsGroup;
         private System.Windows.Forms.ToolStripButton tsRandom;
         private System.Windows.Forms.ToolStripSplitButton tsSlideShow;
-        private System.Windows.Forms.ToolStripMenuItem tsDungChieu;
+        private System.Windows.Forms.ToolStripMenuItem tsStopSlideShow;
         private System.Windows.Forms.ToolStripMenuItem tsStartSlideShow;
         private System.Windows.Forms.ToolStripDropDownButton tsSendAndCollect;
         private System.Windows.Forms.ToolStripMenuItem tsCollect;
@@ -796,10 +790,26 @@
         private System.Windows.Forms.ToolStripMenuItem tsUpdateInfoSession;
         private System.Windows.Forms.ToolStripMenuItem tsUpdateAttendance;
         private System.Windows.Forms.ToolStripMenuItem tsUpdateBoth;
-        private System.Windows.Forms.ToolStripMenuItem tsUpdateScore;
-        private System.Windows.Forms.ToolStripButton tsExport;
         private System.Windows.Forms.ToolStripDropDownButton tsExam;
         private System.Windows.Forms.ToolStrip toolStrip1;
+        private System.Windows.Forms.ToolStripSplitButton tsExport;
+        private System.Windows.Forms.ToolStripMenuItem tsExportSession;
+        private System.Windows.Forms.ToolStripMenuItem tsExportAttendance;
+        private System.Windows.Forms.ToolStripMenuItem càiĐặtToolStripMenuItem;
+        private System.Windows.Forms.DataGridViewTextBoxColumn NameComputer;
+        private System.Windows.Forms.DataGridViewTextBoxColumn Disk;
+        private System.Windows.Forms.DataGridViewTextBoxColumn CPU;
+        private System.Windows.Forms.DataGridViewTextBoxColumn Ram;
+        private System.Windows.Forms.DataGridViewTextBoxColumn StudentID;
+        private System.Windows.Forms.DataGridViewTextBoxColumn IPC;
+        private System.Windows.Forms.DataGridViewTextBoxColumn Mouse;
+        private System.Windows.Forms.DataGridViewTextBoxColumn Keyboard;
+        private System.Windows.Forms.DataGridViewTextBoxColumn Monitor;
+        private System.Windows.Forms.DataGridViewTextBoxColumn ComputerID;
+        private System.Windows.Forms.DataGridViewTextBoxColumn MismathInfo;
+        private System.Windows.Forms.DataGridViewTextBoxColumn MSSV;
+        private System.Windows.Forms.DataGridViewTextBoxColumn FirstName;
+        private System.Windows.Forms.DataGridViewTextBoxColumn LastName;
     }
 }
 

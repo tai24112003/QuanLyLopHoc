@@ -1,4 +1,6 @@
-﻿public class SessionComputer
+﻿using System.Collections.Generic;
+
+public class SessionComputer
 {
     public int SessionID { get; set; }
     public int ComputerID { get; set; }
@@ -13,4 +15,11 @@
     public string MismatchInfo { get; set; }
     public string RepairNote { get; set; }
     public string StudentID { get; set; }
+}
+
+
+public class SessionComputerResponse
+{
+    public List<SessionComputer> data { get; set; }
+
 }

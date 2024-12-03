@@ -57,7 +57,7 @@ namespace testUdpTcp
             CenterLabel(label1);
             GetMSSV?.Invoke(txtMSSV.Text.Trim());
 
-            this.Close();
+            this.Dispose();
         }
     }
 }

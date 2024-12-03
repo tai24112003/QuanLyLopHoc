@@ -1,0 +1,434 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+ 
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="lblName" xml:space="preserve">
+    <value>Họ và tên</value>
+  </data>
+  <data name="lblClass" xml:space="preserve">
+    <value>Lớp</value>
+  </data>
+  <data name="lblStart" xml:space="preserve">
+    <value>Bắt đầu</value>
+  </data>
+  <data name="lblEnd" xml:space="preserve">
+    <value>Kết thúc</value>
+  </data>
+  <data name="lblSession" xml:space="preserve">
+    <value>Ca</value>
+  </data>
+  <data name="btnExit" xml:space="preserve">
+    <value>Thoát</value>
+  </data>
+  <data name="btnSubmit" xml:space="preserve">
+    <value>Xác nhận</value>
+  </data>
+  <data name="btnBrowse" xml:space="preserve">
+    <value>Chọn</value>
+  </data>
+  <data name="lblWarning" xml:space="preserve">
+    <value>*Lưu ý: nếu họ tên không có hãy nhấn reload. Nếu lớp không có hãy nhấn chọn và import file excel theo dạng chuẩn vào</value>
+  </data>
+  <data name="btnCancel" xml:space="preserve">
+    <value>Hủy</value>
+  </data>
+  <data name="btnCollect" xml:space="preserve">
+    <value>Thu</value>
+  </data>
+  <data name="btnCreate" xml:space="preserve">
+    <value>Tạo</value>
+  </data>
+  <data name="btnSave" xml:space="preserve">
+    <value>Lưu</value>
+  </data>
+  <data name="btnSend" xml:space="preserve">
+    <value>Gửi</value>
+  </data>
+  <data name="cbDelete" xml:space="preserve">
+    <value>Xóa file ở máy học sinh sau khi thu</value>
+  </data>
+  <data name="CPU" xml:space="preserve">
+    <value>CPU</value>
+  </data>
+  <data name="Disk" xml:space="preserve">
+    <value>Ổ cứng</value>
+  </data>
+  <data name="FirstName" xml:space="preserve">
+    <value>Họ</value>
+  </data>
+  <data name="gbSendImage" xml:space="preserve">
+    <value>Phương Thức Gửi Ảnh</value>
+  </data>
+  <data name="gbSettingQuestion" xml:space="preserve">
+    <value>Điều chỉnh bài kiểm tra</value>
+  </data>
+  <data name="Keyboard" xml:space="preserve">
+    <value>Bàn phím</value>
+  </data>
+  <data name="LastName" xml:space="preserve">
+    <value>Tên</value>
+  </data>
+  <data name="lblFileCollect" xml:space="preserve">
+    <value>Tệp cần thu</value>
+  </data>
+  <data name="lblFileSend" xml:space="preserve">
+    <value>File gửi</value>
+  </data>
+  <data name="lblFolderCollect" xml:space="preserve">
+    <value>Thư mục chứa</value>
+  </data>
+  <data name="lblFolderRecive" xml:space="preserve">
+    <value>Nhận về</value>
+  </data>
+  <data name="lblFolderSend" xml:space="preserve">
+    <value>Gửi đến</value>
+  </data>
+  <data name="lblListSoft" xml:space="preserve">
+    <value>Danh sách phần mềm</value>
+  </data>
+  <data name="lblMaxScore" xml:space="preserve">
+    <value>Điểm tối đa</value>
+  </data>
+  <data name="lblNameExam" xml:space="preserve">
+    <value>Tên bài kiểm tra</value>
+  </data>
+  <data name="lblNameGroup" xml:space="preserve">
+    <value>Tên nhóm</value>
+  </data>
+  <data name="lblQuality" xml:space="preserve">
+    <value>Chất Lượng Ảnh</value>
+  </data>
+  <data name="lblQuestion" xml:space="preserve">
+    <value>Câu hỏi</value>
+  </data>
+  <data name="lblSettingThisQuestion" xml:space="preserve">
+    <value>Cài đặt câu hỏi hiện tại</value>
+  </data>
+  <data name="lblTimeanswer" xml:space="preserve">
+    <value>Thời gian trả lời</value>
+  </data>
+  <data name="lblTimeToChangeQuestion" xml:space="preserve">
+    <value>Thời gian nghỉ giữa các câu</value>
+  </data>
+  <data name="lblTypeQuestion" xml:space="preserve">
+    <value>Loại câu hỏi</value>
+  </data>
+  <data name="MismathInfo" xml:space="preserve">
+    <value>Thông tin sai lệch</value>
+  </data>
+  <data name="Monitor" xml:space="preserve">
+    <value>Màn hình</value>
+  </data>
+  <data name="Mouse" xml:space="preserve">
+    <value>Chuột</value>
+  </data>
+  <data name="NameComputer" xml:space="preserve">
+    <value>Tên máy</value>
+  </data>
+  <data name="radTCP" xml:space="preserve">
+    <value>Gửi đến từng máy (ảnh nhận đủ nhưng tốc độ chậm)</value>
+  </data>
+  <data name="radUDP" xml:space="preserve">
+    <value>Gửi đến nhìu máy (dễ mất ảnh nếu mạng yếu)</value>
+  </data>
+  <data name="Ram" xml:space="preserve">
+    <value>Ram</value>
+  </data>
+  <data name="StudentID" xml:space="preserve">
+    <value>MSSV</value>
+  </data>
+  <data name="tsAttendance" xml:space="preserve">
+    <value>Điểm danh</value>
+  </data>
+  <data name="tsCollect" xml:space="preserve">
+    <value>Thu tệp</value>
+  </data>
+  <data name="tsCreateGroup" xml:space="preserve">
+    <value>Tạo nhóm</value>
+  </data>
+  <data name="tsExam" xml:space="preserve">
+    <value>Thi</value>
+  </data>
+  <data name="tsExport" xml:space="preserve">
+    <value>Xuất file Excel</value>
+  </data>
+  <data name="tsExportAttendance" xml:space="preserve">
+    <value>Xuất file điểm danh</value>
+  </data>
+  <data name="tsExportSession" xml:space="preserve">
+    <value>Xuất file phiên</value>
+  </data>
+  <data name="tsHome" xml:space="preserve">
+    <value>Trang chủ</value>
+  </data>
+  <data name="tsLock" xml:space="preserve">
+    <value>Khóa</value>
+  </data>
+  <data name="tsManageClass" xml:space="preserve">
+    <value>Quản lí lớp học</value>
+  </data>
+  <data name="tsQuickLaunch" xml:space="preserve">
+    <value>Mở phần mềm</value>
+  </data>
+  <data name="tsRandom" xml:space="preserve">
+    <value>Chọn ngẫu nhiên</value>
+  </data>
+  <data name="tsScreen" xml:space="preserve">
+    <value>Danh sách màn hình</value>
+  </data>
+  <data name="tsSend" xml:space="preserve">
+    <value>Gửi tệp</value>
+  </data>
+  <data name="tsSendAndCollect" xml:space="preserve">
+    <value>Gửi/thu tệp</value>
+  </data>
+  <data name="tsSlideShow" xml:space="preserve">
+    <value>Trình chiếu</value>
+  </data>
+  <data name="tsStartSlideShow" xml:space="preserve">
+    <value>Bắt đầu trình chiếu</value>
+  </data>
+  <data name="tsStopSlideShow" xml:space="preserve">
+    <value>Dừng trình chiếu</value>
+  </data>
+  <data name="tsUnlock" xml:space="preserve">
+    <value>Mở Khóa</value>
+  </data>
+  <data name="tsUpdate" xml:space="preserve">
+    <value>Cập nhật</value>
+  </data>
+  <data name="tsUpdateAttendance" xml:space="preserve">
+    <value>Cập nhật điểm danh</value>
+  </data>
+  <data name="tsUpdateBoth" xml:space="preserve">
+    <value>Cập nhật phiên và điểm dânh</value>
+  </data>
+  <data name="tsUpdateInfoSession" xml:space="preserve">
+    <value>Cập nhật phiên</value>
+  </data>
+  <data name="Caption_Delete" xml:space="preserve">
+    <value>Xác nhận xóa</value>
+  </data>
+  <data name="Caption_Error" xml:space="preserve">
+    <value>Lỗi</value>
+  </data>
+  <data name="Caption_Info" xml:space="preserve">
+    <value>Thông tin</value>
+  </data>
+  <data name="Caption_Noti" xml:space="preserve">
+    <value>Thông báo</value>
+  </data>
+  <data name="Caption_Warning" xml:space="preserve">
+    <value>Cảnh báo</value>
+  </data>
+  <data name="lblProcessing" xml:space="preserve">
+    <value>Đang Xử Lí</value>
+  </data>
+  <data name="Message_AddDataSuccess" xml:space="preserve">
+    <value>Dữ liệu đã được thêm thành công.</value>
+  </data>
+  <data name="Message_AlreadyPassExam" xml:space="preserve">
+    <value>Đã phát đề</value>
+  </data>
+  <data name="Message_AnExamGoingOn" xml:space="preserve">
+    <value>Đang có bài thi diễn ra</value>
+  </data>
+  <data name="Message_CancelTime" xml:space="preserve">
+    <value>Bạn đã hủy nhập thời gian.</value>
+  </data>
+  <data name="Message_CantDeleteLastQuestion" xml:space="preserve">
+    <value>Không thể xóa câu hỏi cuối cùng.</value>
+  </data>
+  <data name="Message_CantEditQuestion" xml:space="preserve">
+    <value>Không thể chỉnh sữa câu hỏi của bài kiểm tra đang thi!</value>
+  </data>
+  <data name="Message_ChangeSuccess" xml:space="preserve">
+    <value>Thay đổi thành công</value>
+  </data>
+  <data name="Message_ChangeTimeQuestionSuccess" xml:space="preserve">
+    <value>Đổi thời gian làm cho câu hỏi thành công</value>
+  </data>
+  <data name="Message_ChangeTypeQuestionSuccess" xml:space="preserve">
+    <value>Đổi loại câu hỏi thành công</value>
+  </data>
+  <data name="Message_ConfirmDeleteQuestion" xml:space="preserve">
+    <value>Bạn có chắc chắn muốn xóa câu hỏi này không?</value>
+  </data>
+  <data name="Message_DeleteGroup" xml:space="preserve">
+    <value>Nhóm đã được xóa.</value>
+  </data>
+  <data name="Message_EnterFileToCollect" xml:space="preserve">
+    <value>Vui lòng nhập tên tệp cần thu thập.</value>
+  </data>
+  <data name="Message_EnterFolderCollect" xml:space="preserve">
+    <value>Vui lòng nhập đường dẫn thư mục nguồn của tệp.</value>
+  </data>
+  <data name="Message_EnterFolderSave" xml:space="preserve">
+    <value>Vui lòng chọn thư mục đích để lưu trữ.</value>
+  </data>
+  <data name="Message_EnterNameGroup" xml:space="preserve">
+    <value>"Vui lòng nhập tên nhóm.</value>
+  </data>
+  <data name="Message_ErrorTime" xml:space="preserve">
+    <value>Thời gian kết thúc phải lớn hơn thời gian bắt đầu.</value>
+  </data>
+  <data name="Message_ExamNotHaveAnswer" xml:space="preserve">
+    <value>Bài kiểm tra này có câu hỏi chưa cài đặt đáp án đúng</value>
+  </data>
+  <data name="Message_ExitGroup" xml:space="preserve">
+    <value>Tên nhóm này đã tồn tại. Vui lòng chọn tên khác.</value>
+  </data>
+  <data name="Message_ExitingFile" xml:space="preserve">
+    <value>File đã tồn tại trong danh sách.</value>
+  </data>
+  <data name="Message_ExportSuccess" xml:space="preserve">
+    <value>Xuất file Excel thành công!</value>
+  </data>
+  <data name="Message_FileNotExit" xml:space="preserve">
+    <value>Tệp không tồn tại:</value>
+  </data>
+  <data name="Message_HaventReadyStudent" xml:space="preserve">
+    <value>Chưa có sinh viên nào sẵn sàng!</value>
+  </data>
+  <data name="Message_InfoStudenIssue" xml:space="preserve">
+    <value>Thông tin sinh viên không hợp lệ, vui lòng kiểm tra lại.</value>
+  </data>
+  <data name="Message_IssuePassExam" xml:space="preserve">
+    <value>Chưa có đề nào được phát</value>
+  </data>
+  <data name="Message_LostConnect" xml:space="preserve">
+    <value>Mất kết nối với:</value>
+  </data>
+  <data name="Message_NoHaveStudent" xml:space="preserve">
+    <value>Không có thông tin học sinh.</value>
+  </data>
+  <data name="Message_NoHaveTypeQuestion" xml:space="preserve">
+    <value>Chưa có câu hỏi cho loại này</value>
+  </data>
+  <data name="Message_NotTrueTime" xml:space="preserve">
+    <value>Thời gian không đúng định dạng HH:mm. Vui lòng thử lại.</value>
+  </data>
+  <data name="Message_NullRoom" xml:space="preserve">
+    <value>chưa tồn tại vui lòng liên hệ khoa để biết thêm thông tin</value>
+  </data>
+  <data name="Message_QuestionNoHaveAnswer" xml:space="preserve">
+    <value>Câu hỏi chưa xác định đáp án đúng!</value>
+  </data>
+  <data name="Message_ReciveSuccess" xml:space="preserve">
+    <value>Các tệp đã được nhận và lưu thành công tại:</value>
+  </data>
+  <data name="Message_SelectClass" xml:space="preserve">
+    <value>Vui lòng chọn lớp học.</value>
+  </data>
+  <data name="Message_SelectCom" xml:space="preserve">
+    <value>Vui lòng chọn ít nhất một máy tính để tạo nhóm.</value>
+  </data>
+  <data name="Message_SelectEndTime" xml:space="preserve">
+    <value>Vui lòng chọn thời gian kết thúc.</value>
+  </data>
+  <data name="Message_SelectFileToDelete" xml:space="preserve">
+    <value>Vui lòng chọn mục cần xóa.</value>
+  </data>
+  <data name="Message_SelectFileToOpen" xml:space="preserve">
+    <value>Vui lòng chọn tệp trước khi khởi động.</value>
+  </data>
+  <data name="Message_SelectFileToSend" xml:space="preserve">
+    <value>Vui lòng chọn ít nhất một tệp để gửi.</value>
+  </data>
+  <data name="Message_SelectOneComSlideShow" xml:space="preserve">
+    <value>Chỉ được chọn 1 máy để trình chiếu!!</value>
+  </data>
+  <data name="Message_SelectOneStudent" xml:space="preserve">
+    <value>Vui lòng chọn ít nhất một sinh viên.</value>
+  </data>
+  <data name="Message_SelectSession" xml:space="preserve">
+    <value>Vui lòng chọn buổi học.</value>
+  </data>
+  <data name="Message_SelectStartTime" xml:space="preserve">
+    <value>Vui lòng chọn thời gian bắt đầu.</value>
+  </data>
+  <data name="Message_SelectStudentCheck" xml:space="preserve">
+    <value>Chọn một sinh viên từ bảng điểm danh để kiểm tra máy!!</value>
+  </data>
+  <data name="Message_SelectStudentToAdd" xml:space="preserve">
+    <value>Vui lòng chọn ít nhất một sinh viên để thêm.</value>
+  </data>
+  <data name="Message_SelectToSendSignal" xml:space="preserve">
+    <value>Vui lòng chọn một dòng để gửi tín hiệu.</value>
+  </data>
+  <data name="Message_SelectUser" xml:space="preserve">
+    <value>Vui lòng chọn người dùng.</value>
+  </data>
+  <data name="Message_StartExam" xml:space="preserve">
+    <value>Bắt đầu thi đề:</value>
+  </data>
+  <data name="Message_SureAboutThisSetting" xml:space="preserve">
+    <value>Bạn có chắc áp dụng cài đặt trên cho toàn bộ câu hỏi?</value>
+  </data>
+  <data name="Message_SureToCancelExam" xml:space="preserve">
+    <value>Bạn muốn hủy thi?. Mọi thông tin lựa chọn của sinh viên sẽ không được lưu lại!</value>
+  </data>
+  <data name="Messave_SaveSuccess" xml:space="preserve">
+    <value>Lưu thành công</value>
+  </data>
+  <data name="Messsage_PositionQuestion" xml:space="preserve">
+    <value>Định dạng thiếu vị trí câu hỏi</value>
+  </data>
+</root>

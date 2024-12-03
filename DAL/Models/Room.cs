@@ -10,7 +10,6 @@ public class Room
     public string StandardHDD { get; set; }
     public string StandardCPU { get; set; }
     public string Status { get; set; }
-    public string lastTimeUpdateRoom { get; set; }
 
 
 }

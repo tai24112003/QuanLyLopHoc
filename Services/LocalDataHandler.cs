@@ -16,7 +16,7 @@ public class LocalDataHandler
     private readonly AttendanceBLL _attendanceBLL;
     private readonly RoomBLL _roomBLL;
 
-    public LocalDataHandler(RoomBLL roomBLL,ComputerBLL computerBLL, SettingBLL settingBLL, AttendanceBLL attendanceBLL,
+    public LocalDataHandler(RoomBLL roomBLL, ComputerBLL computerBLL, SettingBLL settingBLL, AttendanceBLL attendanceBLL,
                             ClassSessionBLL classSessionBLL, SessionComputerBLL sessionComputerBLL,
                             ClassBLL classBLL, StudentBLL studentBLL, ClassStudentBLL classStudentBLL)
     {
@@ -108,16 +108,16 @@ public class LocalDataHandler
         try
         {
             var negativeClassSessions = await _classSessionBLL.LoadNegativeIDClasseSessionAsync();
-            if (negativeClassSessions != null) 
+            if (negativeClassSessions != null)
 
-            foreach (var classSession in negativeClassSessions)
-            {
-                await MigrateClassSessionData(classSession);
-            }
+                foreach (var classSession in negativeClassSessions)
+                {
+                    await MigrateClassSessionData(classSession);
+                }
 
             var attendanceRecords = await _attendanceBLL.GetAttendanceBySessionIDNegative();
             var sessionComputers = await _sessionComputerBLL.GetSessionComputersBySessionIDNegative();
-
+            if (attendanceRecords == null && sessionComputers == null) return;
             await _attendanceBLL.DeleteAttendanceBySessionID(attendanceRecords[0].SessionID);
             await _sessionComputerBLL.DeleteSessionComputersBySessionID(sessionComputers[0].SessionID);
 
@@ -183,18 +183,28 @@ public class LocalDataHandler
             if (settingServer != null && settingLocal != null)
             {
                 DateTime lastTimeUpdateStudentLocal = DateTime.Parse(settingLocal.lastTimeUpdateStudent);
-                DateTime lastTimeUpdateStudentServer = DateTime.Parse(settingServer.lastTimeUpdateStudent).AddYears(1);
+                DateTime lastTimeUpdateStudentServer = DateTime.Parse(settingServer.lastTimeUpdateStudent);
 
                 DateTime lastTimeUpdateComputerLocal = DateTime.Parse(settingLocal.lastTimeUpdateComputer);
-                DateTime lastTimeUpdateComputerServer = DateTime.Parse(settingServer.lastTimeUpdateComputer).AddYears(1);
+                DateTime lastTimeUpdateComputerServer = DateTime.Parse(settingServer.lastTimeUpdateComputer);
 
                 DateTime lastTimeUpdateClassLocal = DateTime.Parse(settingLocal.lastTimeUpdateComputer);
-                DateTime lastTimeUpdateClassServer = DateTime.Parse(settingServer.lastTimeUpdateComputer).AddYears(1);
+                DateTime lastTimeUpdateClassServer = DateTime.Parse(settingServer.lastTimeUpdateComputer);
 
                 await _roomBLL.GetRoomsByName("F72");
-                await SyncStudentData(lastTimeUpdateStudentLocal, lastTimeUpdateStudentServer, settingServer);
-                await SyncComputerData(lastTimeUpdateComputerLocal, lastTimeUpdateComputerServer, settingServer);
-                await SyncClassData(lastTimeUpdateClassLocal, lastTimeUpdateClassServer, settingServer);
+                if (lastTimeUpdateStudentLocal != lastTimeUpdateStudentServer)
+                {
+                    await SyncStudentData(lastTimeUpdateStudentLocal, lastTimeUpdateStudentServer.AddDays(1), settingServer);
+                }
+                if (lastTimeUpdateComputerLocal != lastTimeUpdateComputerServer)
+                {
+                    await SyncComputerData(lastTimeUpdateComputerLocal, lastTimeUpdateComputerServer.AddDays(1), settingServer);
+                }
+                if (lastTimeUpdateClassLocal != lastTimeUpdateClassServer)
+                {
+                    await SyncClassData(lastTimeUpdateClassLocal, lastTimeUpdateClassServer.AddDays(1), settingServer);
+                }
+
                 return true;
             }
             return false;
@@ -210,7 +220,7 @@ public class LocalDataHandler
     private async Task SyncStudentData(DateTime lastTimeUpdateStudentLocal, DateTime lastTimeUpdateStudentServer, Setting settingServer)
     {
         var studentsToSync = await _studentBLL.GetStudentsByDateRange(lastTimeUpdateStudentLocal, lastTimeUpdateStudentServer);
-        if (studentsToSync.Count > 0)
+        if (studentsToSync != null)
         {
             await _studentBLL.InsertStudentLocal(studentsToSync);
             await _settingBLL.UpdateLastTimeUpdateStudent(settingServer.lastTimeUpdateStudent);
@@ -220,7 +230,7 @@ public class LocalDataHandler
     private async Task SyncComputerData(DateTime lastTimeUpdateComputerLocal, DateTime lastTimeUpdateComputerServer, Setting settingServer)
     {
         var computersToSync = await _computerBLL.GetComputerByDateRange(lastTimeUpdateComputerLocal, lastTimeUpdateComputerServer);
-        if (computersToSync.Count > 0)
+        if (computersToSync != null)
         {
             await _computerBLL.InsertOrUpdateComputers(computersToSync);
             await _settingBLL.UpdateLastTimeUpdateComputer(settingServer.lastTimeUpdateComputer);
@@ -230,10 +240,13 @@ public class LocalDataHandler
     private async Task SyncClassData(DateTime lastTimeUpdateClassLocal, DateTime lastTimeUpdateClassServer, Setting settingServer)
     {
         var ClasssToSync = await _classBLL.GetClassByDateRange(lastTimeUpdateClassLocal, lastTimeUpdateClassServer);
-        if (ClasssToSync.Count > 0)
+        if (ClasssToSync != null)
         {
             foreach (var classe in ClasssToSync)
-                await _classBLL.InsertClass(classe);
+            {
+                await _classBLL.SaveLocalData(classe);
+                await _classStudentBLL.GetClassStudentsByIDAPI(classe.ClassID);
+            }
             await _settingBLL.UpdateLastTimeUpdateClass(settingServer.lastTimeUpdateClass);
         }
     }

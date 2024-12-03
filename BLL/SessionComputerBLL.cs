@@ -14,17 +14,24 @@ public class SessionComputerBLL
         _sessionComputerDAL = sessionComputerDAL ?? throw new ArgumentNullException(nameof(sessionComputerDAL));
     }
 
-    public async Task InsertSessionComputer(int sessionId, List<SessionComputer> sessionComputers)
+    public async Task<List<SessionComputer>> InsertSessionComputer(int sessionId, List<SessionComputer> sessionComputers)
     {
         try
         {
-            await _sessionComputerDAL.InsertSessionComputer(sessionComputers);
+           string jsonSessionComputer= await _sessionComputerDAL.InsertSessionComputer(sessionComputers);
+            SessionComputerResponse ClassResponse = JsonConvert.DeserializeObject<SessionComputerResponse>(jsonSessionComputer);
+            return ClassResponse.data;
+
+
         }
         catch (Exception ex)
         {
 
-            await _sessionComputerDAL.InsertSessionComputerLocal(sessionId,sessionComputers);
-            Console.WriteLine("Error inserting session computer in BLL: " + ex.Message);
+            Console.WriteLine("Error inserting session computer on server: " + ex.Message);
+
+            List<SessionComputer> missingSessionComputers = await _sessionComputerDAL.InsertSessionComputerLocal(sessionId, sessionComputers);
+
+            return missingSessionComputers;
         }
     }
     

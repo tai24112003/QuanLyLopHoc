@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -17,23 +18,24 @@ namespace Server
         private int IndexTestSelected { get; set; }
         private int IndexTestSended { get; set; }
         private List<Test> Tests { get; set; }
-        private Action<string, string, int> SendTest { get; set; }
+        private Func<string, string, int, bool> SendTest { get; set; }
+        private Action<string> ReSendSigal { get; set; }
         private List<int> DidExams { get; set; }
-        private List<string> Students { get; set; }
         private TrackExam TrackExamForm {  get; set; }
         private bool IsOpen = true;
         private bool IsEdit = false;
-
-        public SvExamForm(List<Test> tests, Action<string, string, int> sendTest, List<string> students, List<int> didExam)
+        private bool IsExamining = false;
+        private CancellationTokenSource CancellationTokenSource { get; set; }
+        public SvExamForm(List<Test> tests, Func<string, string, int, bool> sendTest,int indexSendedTest,  List<int> didExam, Action<string> reSendSignal)
         {
             InitializeComponent();
             Tests = tests;
             SendTest = sendTest;
             IndexQuestionSelected = 0;
             IndexTestSelected = 0;
-            IndexTestSended = -1;
+            IndexTestSended = indexSendedTest;
             DidExams = didExam;
-            Students = students;
+            ReSendSigal = reSendSignal;
 
             this.FormBorderStyle = FormBorderStyle.FixedSingle;
             this.MaximizeBox = false;
@@ -62,7 +64,7 @@ namespace Server
             txt_testTitle.Text = Tests.First().Title;
             txt_maxPoint.Text = Tests.First().MaxPoint.ToString();
 
-            List<QuestType> questTypeDefault = new List<QuestType> { QuestType.SingleSeclect, QuestType.MultipleSelect, QuestType.TrueFalse };
+            List<QuestType> questTypeDefault = new List<QuestType> { QuestType.SingleSeclect, QuestType.MultipleSelect };
             List<int> doTimeDefault = new List<int> { 20, 30, 40, 50, 60, 90, 120, 150, 180 };
 
             cbb_questType.DataSource = new List<QuestType>(questTypeDefault);
@@ -86,50 +88,64 @@ namespace Server
             cbb_restEachTime_exam.SelectedIndex = -1;
         }
         public void NotiHaveNewAnswer(int index){
-                this.TrackExamForm?.RenderAnswer(index);
+                this.TrackExamForm?.UpdateUI(index);
         }
         private void ChangeStateExam()
         {
+            grb_setting_quest.Enabled = !(IndexTestSelected == IndexTestSended && IsExamining);
+            grb_setting_exam.Enabled = !(IndexTestSelected == IndexTestSended && IsExamining);
+            pnl_body.Enabled = !(IndexTestSelected == IndexTestSended && IsExamining);
+
             Test temp = Tests[IndexTestSelected];
             txt_testTitle.Text = temp.Title;
             txt_maxPoint.Text = temp.MaxPoint.ToString();
             lbl_time_remaining.Text = $"Thời gian: {temp.GetTimeOfTest()}s";
 
-            
-            lbl_state_exam.Text = Tests[IndexTestSelected].IsExamining ? $"Trạng thái: Đang thi" : "";
+            bool isTested = temp.Quests.Any(q => q.StudentAnswers.Any());
+           
+
+            lbl_state_exam.Text = temp.IsExamining ? $"Trạng thái: Đang thi" : isTested?"*Lưu ý: Thầy cô nhớ xuất file excel trước khi thi lại bài kiểm tra này để lưu trữ kết quả thi trước đó": "";
+
+            btn_stop_exam.Visible = temp.IsExamining;
 
             btn_trackTheExam.Visible = temp.IsExamining;
             if (DidExams.Contains(temp.Index))
             {
-                btn_trackTheExam.Visible = true;
                 btn_trackTheExam.Text = "Xem thông kê";
+                if (temp.IsExamining)
+                {
+                    btn_trackTheExam.Text = "Theo dõi bài kiểm tra";
+                }
+                btn_trackTheExam.Visible = true;
             }
-            else
-            {
-                btn_trackTheExam.Text = "Theo dõi bài kiểm tra";
-            }
-
+          
         }
         private void ImportExcel(string filePath)
         {
             try {
                 FileInfo fileInfo = new FileInfo(filePath);
                 OfficeOpenXml.ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
-                Test newTest = new Test(Tests.Count);
+                int newId = 0;
+                foreach (Test item in Tests)
+                {
+                    if (item.Index == newId)
+                    {
+                        newId++;
+                        continue;
+                    }
+                    break;
+                }
+                Test newTest = new Test(newId);
                 using (var package = new ExcelPackage(fileInfo))
                 {
                     ExcelWorksheet worksheet = package.Workbook.Worksheets[0];
 
                     newTest.Title = worksheet.Cells["B1"].Value?.ToString()??"";
 
-                    if (double.TryParse(worksheet.Cells["B2"].Value?.ToString() ?? "0", out double result))
-                    {
-                        newTest.MaxPoint = result;
-                    }
-                    else
-                    {
-                        newTest.MaxPoint = 0; 
-                    }
+                    newTest.MaxPoint = double.TryParse(worksheet.Cells["B2"].Value?.ToString() ?? "0", out double mPO) ? mPO : 0.0;
+                    
+                    newTest.RestTimeBetweenQuests = int.TryParse(worksheet.Cells["B3"].Value?.ToString() ?? "0", out int rTO) ? rTO : 0;
+
 
                     int row = 6;
                     int coutingQuestion = 0;
@@ -194,7 +210,8 @@ namespace Server
         }
         private void ExportExcel(string filePath)
         {
-            try {
+            try
+            {
                 OfficeOpenXml.ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
 
                 FileInfo newFile = new FileInfo(filePath);
@@ -206,72 +223,182 @@ namespace Server
 
                 using (ExcelPackage package = new ExcelPackage(newFile))
                 {
-                    ExcelWorksheet worksheet = package.Workbook.Worksheets.Add("sheet1");
-
+                    // Sheet 1: Đề bài kiểm tra
+                    ExcelWorksheet worksheetTest = package.Workbook.Worksheets.Add("Đề kiểm tra");
                     Test test = Tests[IndexTestSelected];
-                    // Đặt tiêu đề cho các cột
-                    worksheet.Cells[1,1].Value = test.Title;
-                    worksheet.Cells[2, 1].Value = "Thống kê";
-                    //số sinh viên làm bài KT
-                    //3.1 Sinh viên làm kiểm tra 3.2 num
-                    worksheet.Cells[3, 1].Value = "Số sinh viên thực hiện";
-                    worksheet.Cells[3, 2].Value = $"{test.GetNumStudentDo()}";
 
-                    //tổng quan các câu hỏi: tổng sv làm câu hỏi, sl đúng/sai, sv nhanh nhất
-                    worksheet.Cells[4, 1].Value = "Chi tiết từng câu hỏi";
+                    worksheetTest.Cells[1, 1].Value = "Tiêu đề";
+                    worksheetTest.Cells[1, 2].Value = test.Title;
 
-                    int countIndex = 1;
-                    int row = 5;
+                    worksheetTest.Cells[2, 1].Value = "Điểm tối đa";
+                    worksheetTest.Cells[2, 2].Value = test.MaxPoint;
 
-                    worksheet.Cells[row, 1].Value = "STT";
-                    worksheet.Cells[row, 2].Value = "Nội dung câu hỏi";
-                    worksheet.Cells[row, 3].Value = "Loại câu hỏi";
-                    worksheet.Cells[row, 4].Value = "Đáp án đúng";
-                    worksheet.Cells[row, 5].Value = "Số sinh viên trả lời";
-                    worksheet.Cells[row, 6].Value = "Trả lời đúng";
-                    worksheet.Cells[row, 7].Value = "Trả lời sai";
-                    worksheet.Cells[row, 8].Value = "MSSV nhanh nhất";
-                    worksheet.Cells[row, 9].Value = "Thời gian làm";
+                    worksheetTest.Cells[3, 1].Value = "Thời gian nghỉ giữa các câu hỏi";
+                    worksheetTest.Cells[3, 2].Value = test.RestTimeBetweenQuests;
+
+                    worksheetTest.Cells[5, 1].Value = "Nội dung câu hỏi";
+                    worksheetTest.Cells[5, 2].Value = "Loại câu hỏi";
+                    worksheetTest.Cells[5, 3].Value = "Thời gian làm (giây)";
+                    worksheetTest.Cells[5, 4].Value = "Kết quả 0";
+                    worksheetTest.Cells[5, 5].Value = "Kết quả 1";
+                    worksheetTest.Cells[5, 6].Value = "Kết quả 2";
+                    worksheetTest.Cells[5, 7].Value = "Kết quả 3";
+                    worksheetTest.Cells[5, 8].Value = "Kết quả 4";
+                    worksheetTest.Cells[5,9].Value = "Kết quả 5";
+
+                    worksheetTest.Cells[5, 10].Value = "Đáp án đúng";
+
+                    //note for test
+                    worksheetTest.Cells["M5"].Value = "LƯU Ý:";
+                    worksheetTest.Cells["N5"].Value = "LOẠI CÂU HỎI";
+                    worksheetTest.Cells["O5"].Value = 0;
+                    worksheetTest.Cells["O6"].Value = 1;
+                    worksheetTest.Cells["P5"].Value = "Trắc nghiệm 1 đáp án";
+                    worksheetTest.Cells["P6"].Value = "Trắc nghiệm nhiều đáp án";
+
+
+
+
+                    int row = 6;
+                    int questionIndex = 1;
 
                     foreach (Quest quest in test.Quests)
                     {
-                        row++;
+                       // worksheetTest.Cells[row, 1].Value = questionIndex;
+                        worksheetTest.Cells[row, 1].Value = quest.Content;
+                        worksheetTest.Cells[row, 2].Value = quest.Type.Id;
+                        worksheetTest.Cells[row, 3].Value = quest.CountDownTime;
 
-                        worksheet.Cells[row, 1].Value = $"Câu {countIndex}";
-                        worksheet.Cells[row, 2].Value = $"{quest.Content}";
-                        worksheet.Cells[row, 3].Value = $"{quest.Type.Name}";
+                        int col = 4;
+                        foreach (var result in quest.Results)
+                        {
+                            worksheetTest.Cells[row, col].Value = result.Content;
+                            col++;
+                        }
+
+                        string correctAnswers = string.Join(",", quest.Results
+                            .Select((r, idx) => r.IsCorrect ? idx + 1 : (int?)null)
+                            .Where(idx => idx != null));
+                        worksheetTest.Cells[row, 10].Value = correctAnswers;
+
+                        row++;
+                        questionIndex++;
+                    }
+
+                    ExcelWorksheet worksheet1 = package.Workbook.Worksheets.Add("Thống kê bài làm");
+                    ExcelWorksheet worksheet2 = package.Workbook.Worksheets.Add("Điểm sinh viên");
+
+                    int numStudentsDo = test.GetNumStudentDo();
+                    bool isTested = numStudentsDo>0;
+                    // Đặt tiêu đề cho các cột
+                    worksheet1.Cells[1, 1].Value = test.Title;
+                    worksheet1.Cells[2, 1].Value = "Thống kê";
+                    worksheet1.Cells[2, 5].Value = "MSSV";
+                    worksheet1.Cells[2, 6].Value = "Điểm";
+                    worksheet1.Cells[2, 7].Value = "Câu đúng";
+
+                    //số sinh viên làm bài KT
+                    //3.1 Sinh viên làm kiểm tra 3.2 num
+                    worksheet1.Cells[3, 1].Value = "Số sinh viên thực hiện";
+                    worksheet1.Cells[3, 2].Value = $"{numStudentsDo}";
+
+                    List<StudentScore> studentScores = test.ScoringForClass();
+                    worksheet1.Cells[3, 3].Value = "Top 3 sinh viên điểm cao nhất";
+                    worksheet1.Cells[3, 4].Value = "Top 1";
+                    if (studentScores.Count > 0)
+                    {
+                        worksheet1.Cells[3, 5].Value = studentScores[0].StudentId;
+                        worksheet1.Cells[3, 6].Value = studentScores[0].Score.ToString();
+                        worksheet1.Cells[3, 7].Value = studentScores[0].NumCorrect.ToString();
+                    }
+
+                    worksheet1.Cells[4, 4].Value = "Top 2";
+                    if (studentScores.Count > 1)
+                    {
+                        worksheet1.Cells[4, 5].Value = studentScores[1].StudentId;
+                        worksheet1.Cells[4, 6].Value = studentScores[1].Score.ToString();
+                        worksheet1.Cells[4, 7].Value = studentScores[1].NumCorrect.ToString();
+                    }
+
+
+                    worksheet1.Cells[5, 4].Value = "Top 3";
+                    if (studentScores.Count > 2)
+                    {
+                        worksheet1.Cells[5, 5].Value = studentScores[2].StudentId;
+                        worksheet1.Cells[5, 6].Value = studentScores[2].Score.ToString();
+                        worksheet1.Cells[5, 7].Value = studentScores[2].NumCorrect.ToString();
+                    }
+                    //tổng quan các câu hỏi: tổng sv làm câu hỏi, sl đúng/sai, sv nhanh nhất
+                    worksheet1.Cells[6, 1].Value = "Chi tiết từng câu hỏi";
+                    int countIndex = 1;
+                    int row1 = 7;
+
+                    worksheet1.Cells[row1, 1].Value = "STT";
+                    worksheet1.Cells[row1, 2].Value = "Nội dung câu hỏi";
+                    worksheet1.Cells[row1, 3].Value = "Loại câu hỏi";
+                    worksheet1.Cells[row1, 4].Value = "Đáp án đúng";
+                    worksheet1.Cells[row1, 5].Value = "Số sinh viên trả lời";
+                    worksheet1.Cells[row1, 6].Value = "Trả lời đúng";
+                    worksheet1.Cells[row1, 7].Value = "Trả lời sai";
+                    worksheet1.Cells[row1, 8].Value = "MSSV nhanh nhất";
+                    worksheet1.Cells[row1, 9].Value = "Thời gian làm";
+
+                    foreach (Quest quest in test.Quests)
+                    {
+                        row1++;
+
+                        worksheet1.Cells[row1, 1].Value = $"Câu {countIndex}";
+                        worksheet1.Cells[row1, 2].Value = $"{quest.Content}";
+                        worksheet1.Cells[row1, 3].Value = $"{quest.Type.Id}";
 
                         string v = string.Join(", ", quest.GetResultsCorrect()
                                                     .Select(item => item.Content).ToList());
-                        worksheet.Cells[row, 4].Value = $"{v}";
+                        worksheet1.Cells[row1, 4].Value = $"{v}";
 
                         int sum = quest.StudentAnswers.Count;
-                        worksheet.Cells[row, 5].Value = $"{sum}";
+                        worksheet1.Cells[row1, 5].Value = $"{sum}";
 
                         int correctly = quest.GetStudentsAnsweredCorrectly().Count;
-                        worksheet.Cells[row, 6].Value = $"{correctly}";
+                        worksheet1.Cells[row1, 6].Value = $"{correctly}";
 
-                        worksheet.Cells[row, 7].Value = $"{sum-correctly}";
+                        worksheet1.Cells[row1, 7].Value = $"{sum - correctly}";
 
                         StudentAnswer fastestStudent = quest.GetFastestStudent();
                         if (fastestStudent != null)
                         {
-                            worksheet.Cells[row, 8].Value = $"{fastestStudent.StudentID}";
-                            worksheet.Cells[row, 9].Value = $"{fastestStudent.TimeDoQuest}";
+                            worksheet1.Cells[row1, 8].Value = $"{fastestStudent.StudentID}";
+                            worksheet1.Cells[row1, 9].Value = $"{fastestStudent.TimeDoQuest}";
                         }
 
                         countIndex++;
                     }
+                    int row2 = 1;
+                    worksheet2.Cells[row2, 1].Value = "STT";
+                    worksheet2.Cells[row2, 2].Value = "MSSV";
+                    worksheet2.Cells[row2, 3].Value = "Điểm";
+                    worksheet2.Cells[row2, 4].Value = "Câu đúng";
+
+                    foreach (StudentScore st in studentScores)
+                    {
+                        row2++;
+                        worksheet2.Cells[row2, 1].Value = st.Top.ToString();
+                        worksheet2.Cells[row2, 2].Value = st.StudentId;
+                        worksheet2.Cells[row2, 3].Value = st.Score.ToString();
+                        worksheet2.Cells[row2, 4].Value = st.NumCorrect.ToString();
+                    }
+
+
 
                     package.Save();
                 }
-                MessageBox.Show($"Xuất file excel thành công");
 
+                MessageBox.Show("Xuất file Excel thành công!");
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Lỗi xuất file excel: {ex}");
+                MessageBox.Show($"Lỗi xuất file Excel: {ex.Message}");
             }
+
         }
         private void ChangeQuestInTest()
         {
@@ -288,7 +415,7 @@ namespace Server
         }
         private void ChangeTest()
         {
-            
+            btn_doExam.Visible=IndexTestSended!=-1?true:false;
             if (pnl_test_list.Controls.Count < 1)
             {
                 for (int i = 0; i < Tests.Count; i++)
@@ -300,6 +427,7 @@ namespace Server
             pnl_slide_question.Controls.Clear();
 
             
+
             ChangeStateExam();
 
             
@@ -310,6 +438,15 @@ namespace Server
         //
         private void DeleteQues(ThumbnailQuestion item)
         {
+            if (IndexTestSended != -1)
+            {
+                Test test = Tests[IndexTestSended];
+                if (test.Quests.Contains(item.Quest) && test.IsExamining)
+                {
+                    MessageBox.Show("Không thể chỉnh sữa câu hỏi của bài kiểm tra đang thi!", "Thông tin", MessageBoxButtons.OK, MessageBoxIcon.Stop); ;
+                    return;
+                }
+            }
             DialogResult confirmResult = MessageBox.Show(
                             "Bạn có chắc chắn muốn xóa câu hỏi này không?",
                             "Xác nhận xóa",
@@ -333,8 +470,8 @@ namespace Server
 
             if (index == IndexQuestionSelected)
             {
-                IndexQuestionSelected = pnl_slide_question.Controls.Count - 2;
-                if (IndexQuestionSelected > 0)
+                IndexQuestionSelected = pnl_slide_question.Controls.Count - 1;
+                if (IndexQuestionSelected > -1)
                 {
                     (pnl_slide_question.Controls[IndexQuestionSelected] as ThumbnailQuestion).ChangeSelectState();
                 }
@@ -356,12 +493,22 @@ namespace Server
         }
         private void DuplicateQues(ThumbnailQuestion item)
         {
-          int index=  pnl_slide_question.Controls.IndexOf(item);
+            if (IndexTestSended != -1)
+            {
+                Test test = Tests[IndexTestSended];
+                if (test.Quests.Contains(item.Quest) && test.IsExamining)
+                {
+                    MessageBox.Show("Không thể chỉnh sữa câu hỏi của bài kiểm tra đang thi!", "Thông tin", MessageBoxButtons.OK, MessageBoxIcon.Stop); ;
+                    return;
+                }
+            }
+            int index=  pnl_slide_question.Controls.IndexOf(item);
 
             if (index != -1) // Kiểm tra xem item có trong panel hay không
             {
+                int newId = Tests[IndexTestSelected].CreateIndexQuestInTest();
                 // Tạo một câu hỏi mới dựa trên câu hỏi hiện tại
-                ThumbnailQuestion duplicatedQuestion = new ThumbnailQuestion(DeleteQues, DuplicateQues, SelectQuest,new Quest(item.Quest, Tests[IndexTestSelected].Quests.Count), true);
+                ThumbnailQuestion duplicatedQuestion = new ThumbnailQuestion(DeleteQues, DuplicateQues, SelectQuest,new Quest(item.Quest,newId), true);
                 Tests[IndexTestSelected].Quests.Add(duplicatedQuestion.Quest);
 
                 (pnl_slide_question.Controls[IndexQuestionSelected] as ThumbnailQuestion).ChangeSelectState();
@@ -376,6 +523,7 @@ namespace Server
                 ChangeQuestInTest();
 
                 lbl_num_of_quest.Text = pnl_slide_question.Controls.Count.ToString();
+                lbl_time_remaining.Text = $"Thời gian: {Tests[IndexTestSelected].GetTimeOfTest()}s";
 
                 // Cập nhật chiều cao của panel
                 UpdatePaneQuestListlHeight();
@@ -408,6 +556,11 @@ namespace Server
         }
         private void DeleteTest(ThumbnailTest item)
         {
+            if (item.Test.IsExamining)
+            {
+                MessageBox.Show("Không thể bài kiểm tra đang thi!", "Thông tin", MessageBoxButtons.OK, MessageBoxIcon.Stop); ;
+                return;
+            }
             DialogResult confirmResult = MessageBox.Show(
                             "Bạn có chắc chắn muốn xóa đề này không?",
                             "Xác nhận xóa",
@@ -442,43 +595,49 @@ namespace Server
             Tests.Remove(item.Test);
             item.Dispose();
         }
-
-        private async void SendQuest()
+        private async Task SendQuest()
         {
-            await Task.Delay(5200);
-
-            Test doingTest =Tests[IndexTestSended];
-            foreach (Quest item in doingTest.Quests)
+            try
             {
-                SendTest(item.GetQuestString(),"QuestCome",-1);
-                doingTest.Progress++;
-                await Task.Delay(item.CountDownTime * 1000+1000);
+                await Task.Delay(5200, CancellationTokenSource.Token); //thời gian chuẩn bị khi bắt đầu 5s + 0.2s cho trường hợp mạng chậm
 
-                List<StudentScore> top3 = doingTest.ScoringForClass(Students,3);
-                string mess = "";
-                int cout=top3.Count;
-                switch (cout)
+                Test doingTest = Tests[IndexTestSended];
+                foreach (Quest item in doingTest.Quests)
                 {
-                    case 0:
-                        top3 = new List<StudentScore> {new StudentScore(), new StudentScore(), new StudentScore() };
-                        break;
-                    case 1:
-                        top3 = new List<StudentScore>() { top3[0], new StudentScore(),  new StudentScore() };
-                        break;
-                    case 2:
-                        top3 = new List<StudentScore>() { top3[0], top3[1], new StudentScore() };
-                        break;
-                }
-                for (int i = 0; i < 3; i++)
-                {
-                    mess +=$"sts@{top3[i].GetTopString(i+1)}";
+                    string messQ=item.GetQuestString();
+                    messQ = Tests[IndexTestSended].GetTestStringOutOfQuest()+"test@@"+messQ;
+
+                    SendTest(messQ, "QuestCome", -1);
+                    doingTest.Progress++;
+                    await Task.Delay(item.CountDownTime * 1000 + 2000, CancellationTokenSource.Token); //thời gian làm bài + 2s cho trường hợp mạng chậm
+
+                    List<StudentScore> top3 = doingTest.ScoringForClass(3);
+                    string mess = "";
+                    int cout = top3.Count;
+                    while (top3.Count < 3)
+                    {
+                        top3.Add(new StudentScore());
+                    }
+                    for (int i = 0; i < 3; i++)
+                    {
+                        mess += $"sts@{top3[i].GetTopNumCorrectString()}";
+                    }
+
+                    SendTest(mess, "TopStudent", -1);
+                    await Task.Delay(doingTest.RestTimeBetweenQuests * 1000 + 1000, CancellationTokenSource.Token); //thêm 1s cho quá trình theo dõi top
                 }
 
-                SendTest(mess, "TopStudent", -1);
-                await Task.Delay(doingTest.RestTimeBetweenQuests * 1000+1000); //thêm 0.5s
+                SendTest("", "TestDone", -1);
+                doingTest.IsExamining = false;
+                doingTest.ResetProgress();
+                DidExams.Add(doingTest.Index);
+                IsExamining = false;
+                ChangeTest();
+                TrackExamForm?.UpdateUI(0);
             }
-            SendTest("", "TestDone", -1);
-            doingTest.IsExamining = false;
+            catch (OperationCanceledException ex) {
+                Console.WriteLine("SendQuest has been canceled."+ex.Message);
+            }
         }
 
         //update ui
@@ -546,15 +705,20 @@ namespace Server
         //action on form
         private void add_question_btn_Click(object sender, EventArgs e)
         {
-            int numBefore = Tests[IndexTestSelected].Quests.Count;
+            if (IndexTestSended == IndexTestSelected&&IsExamining)
+            {
+                MessageBox.Show("Không thể chỉnh sữa câu hỏi của bài kiểm tra đang thi!", "Thông tin", MessageBoxButtons.OK, MessageBoxIcon.Stop); ;
+                return;
+            }
+            int newId = Tests[IndexTestSelected].CreateIndexQuestInTest();
             int indexShowCurrent = pnl_slide_question.Controls.Count;
             if((cbb_questTypeFilter.SelectedItem as QuestType).Name == "Tất cả")
             {
-                Tests[IndexTestSelected].Quests.Add(new Quest(numBefore));
+                Tests[IndexTestSelected].Quests.Add(new Quest(newId));
             }
             else
             {
-                Quest newQ = new Quest(numBefore)
+                Quest newQ = new Quest(newId)
                 {
                     Type = (cbb_questTypeFilter.SelectedItem as QuestType)
                 };
@@ -568,6 +732,7 @@ namespace Server
             }
             this.pnl_slide_question.Controls.Add(thumbnailQuestion); // Thêm điều khiển vào FlowLayoutPanel
             IndexQuestionSelected =pnl_slide_question.Controls.IndexOf( thumbnailQuestion);
+            lbl_time_remaining.Text = $"Thời gian: {Tests[IndexTestSelected].GetTimeOfTest()}s";
             ChangeQuestInTest();
 
 
@@ -589,13 +754,13 @@ namespace Server
             
             ChangeTest();
         }
-        private void btn_del_ques_Click(object sender, EventArgs e)
-        {
-            ThumbnailQuestion temp=this.pnl_slide_question.Controls[IndexQuestionSelected] as ThumbnailQuestion;
-            DeleteQues(temp);
-        }
         private void btn_save_Click(object sender, EventArgs e)
         {
+            if (IndexTestSended == IndexTestSelected && IsExamining)
+            {
+                MessageBox.Show("Không thể chỉnh sữa câu hỏi của bài kiểm tra đang thi!", "Thông tin", MessageBoxButtons.OK, MessageBoxIcon.Stop); ;
+                return;
+            }
             Test tempTest = Tests[IndexTestSelected];
             tempTest.Title=txt_testTitle.Text.Trim();
             tempTest.MaxPoint =int.TryParse(txt_maxPoint.Text.Trim(), out int value)?value:0;
@@ -645,37 +810,87 @@ namespace Server
                     string folderPath = folderBrowserDialog.SelectedPath;
                     Console.WriteLine($"{folderPath}");
                     // Hiển thị đường dẫn thư mục đã chọn, ví dụ trên một label
-                    ExportExcel(folderPath + @"\F711-Info.xlsx");
+                    ExportExcel(folderPath + @"\exam-result.xlsx");
                 }
             }
         }
         private void btn_sendExam_Click(object sender, EventArgs e)
         {
+            Test test = Tests[IndexTestSelected];
+            Quest qInValid=test.GetFirstInvalidQuestion();
+            if (qInValid!=null)
+            {
+                if(qInValid.Type!=cbb_questTypeFilter.SelectedItem as QuestType)
+                {
+                    cbb_questTypeFilter.SelectedItem = qInValid.Type;
+                    FilterQuestByType(qInValid.Type);
+                }
+                int i = 0;
+                foreach (ThumbnailQuestion item in pnl_slide_question.Controls)
+                {
+                    if (item.Quest.Index != qInValid.Index)
+                    {
+                        i++;
+                        continue;
+                    }
+                    (pnl_slide_question.Controls[IndexQuestionSelected] as ThumbnailQuestion).ChangeSelectState();
+                    IndexQuestionSelected = i;
+                    (pnl_slide_question.Controls[IndexQuestionSelected] as ThumbnailQuestion).ChangeSelectState();
+                    ChangeQuestInTest();
+                    break;
+                }
+                MessageBox.Show("Bài kiểm tra này có câu hỏi chưa cài đặt đáp án đúng");
+                return;
+            }
+            if (IsExamining)
+            {
+                MessageBox.Show("Đang có bài thi diễn ra");
+                return;
+            }
             SendTest(Tests[IndexTestSelected].GetTestStringOutOfQuest(),"Key-Exam",IndexTestSelected);
             IndexTestSended = IndexTestSelected;
+            btn_doExam.Visible = IndexTestSended != -1;
         }
         private void btn_doExam_Click(object sender, EventArgs e)
         {
+            if (IsExamining)
+            {
+                MessageBox.Show("Đang có bài thi diễn ra");
+                return;
+            }
             if (IndexTestSended == -1)
             {
                 MessageBox.Show("Chưa có đề nào được phát");
                 return;
             }
             Test testReady = Tests[IndexTestSended];
+            bool isAgain = testReady.Quests.Any(q => q.StudentAnswers.Any());
+            if (isAgain)
+            {
+                foreach (Quest item in testReady.Quests)
+                {
+                    item.StudentAnswers.Clear();
+                }
+            }
             
-            DialogResult result=MessageBox.Show($"Bắt đầu thi đề: {testReady.Title}?","Xác nhận",MessageBoxButtons.OKCancel);
-            if (result == DialogResult.Cancel) return;
-            
+            bool process= SendTest("","DoExam",-1);
+            if (!process)
+            {
+                return;
+            }
+            IsExamining = true;
+
             testReady.IsExamining = true;
             ChangeStateExam();
-            SendTest("","DoExam",-1);
 
-            SendQuest();
+            CancellationTokenSource = new CancellationTokenSource();
+            _ = SendQuest();
         }
         private void cbb_quest_type_SelectedIndexChanged(object sender, EventArgs e)
         {
             if (IsOpen||!IsEdit||IndexQuestionSelected<0)
                 return;
+
             IsEdit = false;
             ThumbnailQuestion item= pnl_slide_question.Controls[IndexQuestionSelected] as ThumbnailQuestion;
             QuestType newType = cbb_questType.SelectedItem as QuestType;
@@ -722,11 +937,6 @@ namespace Server
         {
             FilterQuestByType(cbb_questTypeFilter.SelectedItem as QuestType);
         }
-        private void pnl_body_ControlChanged(object sender, ControlEventArgs e)
-        {
-            bool isShow = pnl_body.Controls.Count > 0;
-            btn_del_ques.Enabled = isShow;
-        }
         private void btn_confirmSetExam_Click(object sender, EventArgs e)
         {
             if (cbb_doQuestTime_exam.SelectedIndex == -1 && cbb_questType_exam.SelectedIndex == -1 && cbb_restEachTime_exam.SelectedIndex == -1)
@@ -772,8 +982,50 @@ namespace Server
         }
         private void btn_trackTheExam_Click(object sender, EventArgs e)
         {
-          TrackExamForm=  new TrackExam(Tests[IndexTestSelected]);
-          TrackExamForm.ShowDialog();
+            TrackExamForm = new TrackExam(Tests[IndexTestSelected]);
+            this.Hide();
+            TrackExamForm.ShowDialog();
+            this.Show();
+            this.Focus();
+        }
+        private void SvExamForm_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if (e.KeyChar == (char)Keys.Enter) // Kiểm tra nếu ký tự là Enter
+            {
+                e.Handled = true; // Ngăn sự kiện này tiếp tục lan ra các điều khiển khác
+                btn_save_Click(sender, e);
+            }
+        }
+        private void SvExamForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            e.Cancel=IsExamining;
+        }
+        private void btn_stop_exam_Click(object sender, EventArgs e)
+        {
+            DialogResult r = MessageBox.Show("Bạn muốn hủy thi?. Mọi thông tin lựa chọn của sinh viên sẽ không được lưu lại!", "Cảnh báo", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning);
+            if (r == DialogResult.Cancel)
+            {
+                return;
+            }
+
+            CancellationTokenSource.Cancel();
+
+            SendTest("", "CancelTest", -1);
+            Test doingTest = Tests[IndexTestSended];
+
+            doingTest.IsExamining = false;
+            doingTest.ResetProgress();
+            IsExamining = false;
+
+            foreach (Quest q in doingTest.Quests) {
+                q.StudentAnswers.Clear();
+            }
+            ChangeTest();
+        }
+
+        private void btn_sendSignal_Click(object sender, EventArgs e)
+        {
+            ReSendSigal?.Invoke("");
         }
     }
 }

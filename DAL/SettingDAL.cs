@@ -53,6 +53,7 @@ public class SettingDAL
             Setting setting = new Setting
             {
                 lastTimeUpdateStudent = row["lastTimeUpdateStudent"].ToString(),
+                lastTimeUpdateClass = row["lastTimeUpdateClass"].ToString(),
                 lastTimeUpdateComputer = row["lastTimeUpdateComputer"].ToString()
             };
 

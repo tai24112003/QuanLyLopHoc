@@ -1,6 +1,7 @@
 ﻿using Autofac;
 using Microsoft.Extensions.DependencyInjection;
 using OfficeOpenXml;
+using OfficeOpenXml.ConditionalFormatting.Contracts;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -58,7 +59,6 @@ namespace Server
                 // Chạy các tác vụ bất đồng bộ
                 await _localDataHandler.MigrateData();
                 await SetupUserAutoComplete();
-                await SetupClassAutoComplete();
                 await SetupSesisionAutoComplete();
             }
             catch (Exception ex)
@@ -76,6 +76,16 @@ namespace Server
         private async Task SetupSesisionAutoComplete()
         {
             var sessions = await _sessionBLL.GetAllSessions();
+            var diffsession = new Session();
+            diffsession.ID = (int.Parse(sessions.Count.ToString()) + 1).ToString();
+            diffsession.StartTime = "";
+            diffsession.Display = "Khác";
+            diffsession.EndTime = "";
+            foreach(var ses in sessions)
+            {
+                ses.Display="Ca "+ ses.ID;
+            }
+            sessions.Add(diffsession);
 
             AutoCompleteStringCollection sessionCollection = new AutoCompleteStringCollection();
             AutoCompleteStringCollection startCollection = new AutoCompleteStringCollection();
@@ -95,7 +105,7 @@ namespace Server
                 cbbSession.AutoCompleteCustomSource = sessionCollection;
                 cbbSession.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
                 cbbSession.AutoCompleteSource = AutoCompleteSource.CustomSource;
-                cbbSession.DisplayMember = "ID";  // Assuming "ID" is the property name
+                cbbSession.DisplayMember = "Display";  // Assuming "ID" is the property name
                 cbbSession.ValueMember = "ID";
 
                 // Set up cbbStart with start time data
@@ -124,18 +134,22 @@ namespace Server
             {
                 List<User> users = await _userBLL.GetUserLocal();
                 AutoCompleteStringCollection userCollection = new AutoCompleteStringCollection();
-                foreach (var user in users)
+                if (users != null)
                 {
-                    userCollection.Add(user.name);
+                    foreach (var user in users)
+                    {
+                        userCollection.Add(user.name);
 
+                    }
+
+
+                    cbbName.DataSource = users;
+                    cbbName.AutoCompleteCustomSource = userCollection;
+                    cbbName.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
+                    cbbName.AutoCompleteSource = AutoCompleteSource.CustomSource;
+                    cbbName.DisplayMember = "name";
+                    cbbName.ValueMember = "id";
                 }
-
-                cbbName.DataSource = users;
-                cbbName.AutoCompleteCustomSource = userCollection;
-                cbbName.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
-                cbbName.AutoCompleteSource = AutoCompleteSource.CustomSource;
-                cbbName.DisplayMember = "name";
-                cbbName.ValueMember = "id";
             }
             catch (Exception ex)
             {
@@ -143,36 +157,124 @@ namespace Server
             }
         }
 
-        private async Task SetupClassAutoComplete()
-        {
-            try
-            {
-                classes = await _classBLL.GetAllClass();
-                cbbName.SelectedValue = cbbClass.SelectedValue;
-
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("Error: " + ex.Message);
-            }
-        }
+      
         private void cbbSession_SelectedIndexChanged(object sender, EventArgs e)
         {
             int selectedIndex = cbbSession.SelectedIndex;
 
-            // Set cbbStart and cbbEnd to the same index as cbbSession if it's a valid index
-            if (selectedIndex >= 0 && selectedIndex < cbbStart.Items.Count && selectedIndex < cbbEnd.Items.Count)
+            if (selectedIndex >= 0 && selectedIndex < cbbSession.Items.Count)
             {
-                cbbStart.SelectedIndex = selectedIndex;
-                cbbEnd.SelectedIndex = selectedIndex;
+                // Lấy session đã chọn
+                var selectedSession = (Session)cbbSession.SelectedItem;
+
+                if (selectedSession.Display == "Khác")
+                {
+                    // Luôn đặt lại giá trị thời gian khi chọn "Khác"
+                    selectedSession.StartTime = null;
+                    selectedSession.EndTime = null;
+
+                    var times = PromptUserForTime("Nhập thời gian bắt đầu và kết thúc:");
+                    if (times == null)
+                    {
+                        MessageBox.Show("Bạn đã hủy nhập thời gian.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        return;
+                    }
+
+                    string startTime = times.Value.startTime;
+                    string endTime = times.Value.endTime;
+
+                    if (!IsValidTimeFormat(startTime) || !IsValidTimeFormat(endTime))
+                    {
+                        MessageBox.Show("Thời gian không đúng định dạng HH:mm. Vui lòng thử lại.", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        return; // Không đặt SelectedIndex nếu dữ liệu không hợp lệ
+                    }
+
+                    // Chuyển đổi startTime và endTime sang kiểu DateTime để so sánh
+                    if (DateTime.TryParseExact(startTime, "HH:mm", null, System.Globalization.DateTimeStyles.None, out DateTime startDateTime) &&
+                        DateTime.TryParseExact(endTime, "HH:mm", null, System.Globalization.DateTimeStyles.None, out DateTime endDateTime))
+                    {
+                        if (endDateTime <= startDateTime)
+                        {
+                            MessageBox.Show("Thời gian kết thúc phải lớn hơn thời gian bắt đầu.", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                            return; // Không đặt SelectedIndex nếu dữ liệu không hợp lệ
+                        }
+
+                        // Cập nhật thời gian cho mục "Khác"
+                        selectedSession.StartTime = startTime;
+                        selectedSession.EndTime = endTime;
+                    }
+                    else
+                    {
+                        MessageBox.Show("Đã xảy ra lỗi khi phân tích thời gian. Vui lòng thử lại.", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                }
+
+                // Đồng bộ cbbStart và cbbEnd
+                if (cbbStart.Items.Count > selectedIndex)
+                    cbbStart.SelectedIndex = selectedIndex;
+
+                if (cbbEnd.Items.Count > selectedIndex)
+                    cbbEnd.SelectedIndex = selectedIndex;
             }
             else
             {
-                // Reset to no selection if index is out of bounds
-                cbbStart.SelectedIndex = -1;
-                cbbEnd.SelectedIndex = -1;
+                // Đặt lại chỉ mục nếu không hợp lệ
+                if (cbbStart.Items.Count > 0)
+                    cbbStart.SelectedIndex = -1;
+
+                if (cbbEnd.Items.Count > 0)
+                    cbbEnd.SelectedIndex = -1;
             }
         }
+
+
+
+
+        // Hàm kiểm tra định dạng thời gian
+        private bool IsValidTimeFormat(string time)
+        {
+            return TimeSpan.TryParseExact(time, "hh\\:mm", null, out _);
+        }
+
+        private (string startTime, string endTime)? PromptUserForTime(string message)
+        {
+            using (var inputForm = new Form())
+            {
+                inputForm.Text = "Nhập thời gian";
+                inputForm.Width = 350;
+                inputForm.Height = 200;
+
+                Label lblMessage = new Label() { Text = message, Left = 10, Top = 10, Width = 320 };
+                Label lblStartTime = new Label() { Text = "Thời gian bắt đầu (HH:mm):", Left = 10, Top = 40, Width = 150 };
+                TextBox txtStartTime = new TextBox() { Left = 170, Top = 40, Width = 150 };
+
+                Label lblEndTime = new Label() { Text = "Thời gian kết thúc (HH:mm):", Left = 10, Top = 80, Width = 150 };
+                TextBox txtEndTime = new TextBox() { Left = 170, Top = 80, Width = 150 };
+
+                Button btnOk = new Button() { Text = "OK", Left = 10, Top = 120, Width = 80 };
+                Button btnCancel = new Button() { Text = "Hủy", Left = 100, Top = 120, Width = 80 };
+
+                btnOk.Click += (s, e) => inputForm.DialogResult = DialogResult.OK;
+                btnCancel.Click += (s, e) => inputForm.DialogResult = DialogResult.Cancel;
+
+                inputForm.Controls.Add(lblMessage);
+                inputForm.Controls.Add(lblStartTime);
+                inputForm.Controls.Add(txtStartTime);
+                inputForm.Controls.Add(lblEndTime);
+                inputForm.Controls.Add(txtEndTime);
+                inputForm.Controls.Add(btnOk);
+                inputForm.Controls.Add(btnCancel);
+
+                if (inputForm.ShowDialog() == DialogResult.OK)
+                {
+                    return (txtStartTime.Text, txtEndTime.Text);
+                }
+
+                return null;
+            }
+        }
+
+
 
 
         private void btnExit_Click(object sender, EventArgs e)
@@ -200,14 +302,17 @@ namespace Server
                 MessageBox.Show("Vui lòng chọn buổi học.", "Lỗi xác thực", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
-
-            if (cbbStart.SelectedItem == null)
+            // Lấy đối tượng session đã chọn từ ComboBox
+            var selectedSession = (Session)cbbSession.SelectedItem;
+            var selectedStart = (Session)cbbStart.SelectedItem;
+            var selectedEnd = (Session)cbbEnd.SelectedItem;
+            if (selectedStart == null )
             {
                 MessageBox.Show("Vui lòng chọn thời gian bắt đầu.", "Lỗi xác thực", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
-            if (cbbEnd.SelectedItem == null)
+            if (selectedEnd == null )
             {
                 MessageBox.Show("Vui lòng chọn thời gian kết thúc.", "Lỗi xác thực", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
@@ -216,10 +321,7 @@ namespace Server
             // Lấy ngày giờ hiện tại cho thời gian bắt đầu và kết thúc
             DateTime now = DateTime.Now;
 
-            // Lấy đối tượng session đã chọn từ ComboBox
-            var selectedSession = (Session)cbbSession.SelectedItem;
-            var selectedStart = (Session)cbbStart.SelectedItem;
-            var selectedEnd = (Session)cbbEnd.SelectedItem;
+         
 
             // Phân tích thời gian bắt đầu và kết thúc từ các đối tượng Session
             string[] startParts = selectedStart.StartTime.Split(':');
@@ -249,17 +351,21 @@ namespace Server
             string formattedStartTime = startTime.ToString("dd/MM/yyyy HH:mm:ss");
             string formattedEndTime = endTime.ToString("dd/MM/yyyy HH:mm:ss");
 
-            // Ẩn form hiện tại
-            this.Hide();
 
             int classID = int.Parse(cbbClass.SelectedValue.ToString());
             int userID = int.Parse(cbbName.SelectedValue.ToString());
             Console.WriteLine(userID);
-            string roomID = (Environment.MachineName.Split('-'))[0];
-            //string roomID="F71";
+            //string roomID = (Environment.MachineName.Split('-'))[0];
+             string roomID = "F710";
 
             // Lấy thông tin phòng
             var room = await _roomBLL.GetRoomsByName(roomID);
+            if (room == null)
+            {
+                MessageBox.Show( roomID + " chưa tồn tại vui lòng liên hệ khoa để biết thêm thông tin","Lỗi",MessageBoxButtons.OK,MessageBoxIcon.Error);
+                return;
+            }
+            this.Hide();
 
             try
             {
@@ -280,8 +386,14 @@ namespace Server
 
                 // Mở form buổi học
                 var svFormFactory = _serviceProvider.GetRequiredService<svFormFactory>();
-                var svForms = svFormFactory.Create(userID, roomID, sessionID, classID);
+                var svForms = svFormFactory.Create(userID, roomID, classSession, classID);
                 svForms.Show();
+
+                svForms.FormClosed += (s, args) =>
+                {
+                    this.Show(); // Hiển thị lại form hiện tại
+                };
+
                 Console.WriteLine("Buổi học đã được bắt đầu thành công!");
             }
             catch (Exception ex)
@@ -290,6 +402,8 @@ namespace Server
                 Console.WriteLine("Lỗi khi bắt đầu buổi học: " + ex);
             }
         }
+
+
 
 
 
@@ -418,8 +532,8 @@ namespace Server
         {
             OpenFileDialog openFileDialog = new OpenFileDialog
             {
-                Filter = "Excel Files|*.xlsx;*.xls;*.xlsm",
-                Title = "Select an Excel File"
+                Filter = "Tệp Excel|*.xlsx;*.xls;*.xlsm",
+                Title = "Chọn một tệp Excel"
             };
 
             if (openFileDialog.ShowDialog() == DialogResult.OK)
@@ -432,31 +546,24 @@ namespace Server
                     string filePath = openFileDialog.FileName;
                     var excelData = ReadExcelFile(filePath);
 
-
-
                     var success = await _excelController.AddDataFromExcel(excelData);
 
                     if (success != null)
                     {
-                        MessageBox.Show("Data added successfully.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
+                        MessageBox.Show("Dữ liệu đã được thêm thành công.", "Thành công", MessageBoxButtons.OK, MessageBoxIcon.Information, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
                     }
-                    else
-                    {
-                        MessageBox.Show("Failed to add data. Data has been saved locally.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
-                    }
-
+                  
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Error migrating computer and student data: {ex.Message}");
+                    Console.WriteLine($"Lỗi khi nhập dữ liệu máy tính và sinh viên: {ex.Message}");
                     Console.WriteLine($"Stack Trace: {ex.StackTrace}");
 
                     if (ex.InnerException != null)
                     {
-                        Console.WriteLine($"Inner Exception: {ex.InnerException.Message}");
-                        Console.WriteLine($"Inner Stack Trace: {ex.InnerException.StackTrace}");
+                        Console.WriteLine($"Lỗi bên trong: {ex.InnerException.Message}");
+                        Console.WriteLine($"Stack Trace bên trong: {ex.InnerException.StackTrace}");
                     }
-
                 }
                 finally
                 {

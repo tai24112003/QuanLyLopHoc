@@ -18,6 +18,7 @@ namespace Server
 
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
+            //Application.Run(serviceProvider.GetRequiredService<svForm>());
             Application.Run(serviceProvider.GetRequiredService<StartClassForm>());
         }
 

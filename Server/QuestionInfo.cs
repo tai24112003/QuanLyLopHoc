@@ -45,6 +45,8 @@ namespace Server
 
             foreach (ResultInfo item in pnl_answers.Controls) { 
                 item.GetNewResultInfo();
+                int newId = Quest.CreateIndexResultInQuest();
+                item.Result.Id = newId;
                 Quest.Results.Add(item.Result);
             }
             

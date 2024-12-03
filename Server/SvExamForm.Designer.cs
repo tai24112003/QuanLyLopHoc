@@ -42,11 +42,11 @@
             this.panel1 = new System.Windows.Forms.Panel();
             this.pnl_slide_question = new System.Windows.Forms.FlowLayoutPanel();
             this.pnl_body = new System.Windows.Forms.Panel();
-            this.btn_del_ques = new System.Windows.Forms.Button();
             this.btn_save = new System.Windows.Forms.Button();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.btn_refesh_filter = new System.Windows.Forms.Button();
             this.btn_confirmSetExam = new System.Windows.Forms.Button();
+            this.btn_stop_exam = new System.Windows.Forms.Button();
             this.panel2 = new System.Windows.Forms.Panel();
             this.panel3 = new System.Windows.Forms.Panel();
             this.label3 = new System.Windows.Forms.Label();
@@ -70,6 +70,7 @@
             this.label5 = new System.Windows.Forms.Label();
             this.cbb_questType_exam = new System.Windows.Forms.ComboBox();
             this.btn_trackTheExam = new System.Windows.Forms.Button();
+            this.btn_sendSignal = new System.Windows.Forms.Button();
             this.pnl_header.SuspendLayout();
             this.pnl_exam_info.SuspendLayout();
             this.grb_setting_quest.SuspendLayout();
@@ -132,7 +133,7 @@
             // 
             this.pnl_test_list.Location = new System.Drawing.Point(3, 3);
             this.pnl_test_list.Name = "pnl_test_list";
-            this.pnl_test_list.Size = new System.Drawing.Size(564, 84);
+            this.pnl_test_list.Size = new System.Drawing.Size(569, 84);
             this.pnl_test_list.TabIndex = 1;
             // 
             // btn_import
@@ -183,7 +184,7 @@
             // 
             // btn_add_question
             // 
-            this.btn_add_question.Location = new System.Drawing.Point(44, 696);
+            this.btn_add_question.Location = new System.Drawing.Point(34, 696);
             this.btn_add_question.Name = "btn_add_question";
             this.btn_add_question.Size = new System.Drawing.Size(142, 56);
             this.btn_add_question.TabIndex = 4;
@@ -212,27 +213,12 @@
             this.pnl_body.Name = "pnl_body";
             this.pnl_body.Size = new System.Drawing.Size(760, 580);
             this.pnl_body.TabIndex = 2;
-            this.pnl_body.ControlAdded += new System.Windows.Forms.ControlEventHandler(this.pnl_body_ControlChanged);
-            this.pnl_body.ControlRemoved += new System.Windows.Forms.ControlEventHandler(this.pnl_body_ControlChanged);
-            // 
-            // btn_del_ques
-            // 
-            this.btn_del_ques.BackgroundImage = global::Server.Properties.Resources.close;
-            this.btn_del_ques.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.btn_del_ques.Location = new System.Drawing.Point(1128, 702);
-            this.btn_del_ques.Name = "btn_del_ques";
-            this.btn_del_ques.Size = new System.Drawing.Size(50, 50);
-            this.btn_del_ques.TabIndex = 6;
-            this.btn_del_ques.TextAlign = System.Drawing.ContentAlignment.BottomCenter;
-            this.toolTip1.SetToolTip(this.btn_del_ques, "Xóa câu hỏi");
-            this.btn_del_ques.UseVisualStyleBackColor = true;
-            this.btn_del_ques.Click += new System.EventHandler(this.btn_del_ques_Click);
             // 
             // btn_save
             // 
             this.btn_save.BackgroundImage = global::Server.Properties.Resources.save;
             this.btn_save.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.btn_save.Location = new System.Drawing.Point(1045, 701);
+            this.btn_save.Location = new System.Drawing.Point(1017, 692);
             this.btn_save.Name = "btn_save";
             this.btn_save.Size = new System.Drawing.Size(50, 50);
             this.btn_save.TabIndex = 5;
@@ -264,6 +250,19 @@
             this.toolTip1.SetToolTip(this.btn_confirmSetExam, "Xác nhận cài đặt bài kiểm tra");
             this.btn_confirmSetExam.UseVisualStyleBackColor = true;
             this.btn_confirmSetExam.Click += new System.EventHandler(this.btn_confirmSetExam_Click);
+            // 
+            // btn_stop_exam
+            // 
+            this.btn_stop_exam.BackgroundImage = global::Server.Properties.Resources.close;
+            this.btn_stop_exam.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+            this.btn_stop_exam.Location = new System.Drawing.Point(1100, 585);
+            this.btn_stop_exam.Name = "btn_stop_exam";
+            this.btn_stop_exam.Size = new System.Drawing.Size(50, 50);
+            this.btn_stop_exam.TabIndex = 17;
+            this.btn_stop_exam.TextAlign = System.Drawing.ContentAlignment.BottomCenter;
+            this.toolTip1.SetToolTip(this.btn_stop_exam, "Hủy thi");
+            this.btn_stop_exam.UseVisualStyleBackColor = true;
+            this.btn_stop_exam.Click += new System.EventHandler(this.btn_stop_exam_Click);
             // 
             // panel2
             // 
@@ -353,7 +352,7 @@
             // 
             this.lbl_state_exam.AutoSize = true;
             this.lbl_state_exam.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lbl_state_exam.Location = new System.Drawing.Point(520, 132);
+            this.lbl_state_exam.Location = new System.Drawing.Point(263, 132);
             this.lbl_state_exam.Name = "lbl_state_exam";
             this.lbl_state_exam.Size = new System.Drawing.Size(50, 16);
             this.lbl_state_exam.TabIndex = 12;
@@ -517,18 +516,33 @@
             this.btn_trackTheExam.UseVisualStyleBackColor = true;
             this.btn_trackTheExam.Click += new System.EventHandler(this.btn_trackTheExam_Click);
             // 
+            // btn_sendSignal
+            // 
+            this.btn_sendSignal.BackColor = System.Drawing.SystemColors.Highlight;
+            this.btn_sendSignal.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btn_sendSignal.ForeColor = System.Drawing.Color.White;
+            this.btn_sendSignal.Location = new System.Drawing.Point(1100, 119);
+            this.btn_sendSignal.Margin = new System.Windows.Forms.Padding(0);
+            this.btn_sendSignal.Name = "btn_sendSignal";
+            this.btn_sendSignal.Size = new System.Drawing.Size(120, 30);
+            this.btn_sendSignal.TabIndex = 18;
+            this.btn_sendSignal.Text = "Gửi lại tín hiệu";
+            this.btn_sendSignal.UseVisualStyleBackColor = false;
+            this.btn_sendSignal.Click += new System.EventHandler(this.btn_sendSignal_Click);
+            // 
             // SvExamForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1231, 761);
+            this.Controls.Add(this.btn_sendSignal);
+            this.Controls.Add(this.btn_stop_exam);
             this.Controls.Add(this.btn_trackTheExam);
             this.Controls.Add(this.grb_setting_exam);
             this.Controls.Add(this.grb_setting_quest);
             this.Controls.Add(this.btn_refesh_filter);
             this.Controls.Add(this.lbl_state_exam);
             this.Controls.Add(this.cbb_questTypeFilter);
-            this.Controls.Add(this.btn_del_ques);
             this.Controls.Add(this.pnl_exam_info);
             this.Controls.Add(this.btn_save);
             this.Controls.Add(this.panel3);
@@ -540,9 +554,12 @@
             this.Controls.Add(this.label1);
             this.Controls.Add(this.pnl_body);
             this.Controls.Add(this.pnl_header);
+            this.KeyPreview = true;
             this.Name = "SvExamForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "ExamForm";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.SvExamForm_FormClosing);
+            this.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.SvExamForm_KeyPress);
             this.pnl_header.ResumeLayout(false);
             this.pnl_exam_info.ResumeLayout(false);
             this.pnl_exam_info.PerformLayout();
@@ -570,7 +587,6 @@
         private System.Windows.Forms.ToolTip toolTip1;
         private System.Windows.Forms.Panel panel2;
         private System.Windows.Forms.Panel panel3;
-        private System.Windows.Forms.Button btn_del_ques;
         private System.Windows.Forms.Button btn_save;
         private System.Windows.Forms.Button btn_send_test;
         private System.Windows.Forms.Button btn_doExam;
@@ -597,5 +613,7 @@
         private System.Windows.Forms.ComboBox cbb_questType_exam;
         private System.Windows.Forms.Button btn_confirmSetExam;
         private System.Windows.Forms.Button btn_trackTheExam;
+        private System.Windows.Forms.Button btn_stop_exam;
+        private System.Windows.Forms.Button btn_sendSignal;
     }
 }

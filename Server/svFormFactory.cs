@@ -14,7 +14,7 @@ namespace Server
             _serviceProvider = serviceProvider;
         }
 
-        public svForm Create(int userID, string roomID, int sessionID,int classID)
+        public svForm Create(int userID, string roomID, ClassSession sessionID,int classID)
         {
             var roomBLL = _serviceProvider.GetService<RoomBLL>();
             var sessionComputerBLL = _serviceProvider.GetService<SessionComputerBLL>();

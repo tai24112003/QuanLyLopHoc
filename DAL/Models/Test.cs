@@ -42,6 +42,7 @@ namespace DAL.Models
         public Test(string testString)
         {
             IsExamining = false;
+            Quests = new List<Quest>();
 
             string[] parts = testString.Split(new string[] { "t-" }, StringSplitOptions.RemoveEmptyEntries);
             foreach (var item in parts)
@@ -70,15 +71,11 @@ namespace DAL.Models
                         break;
                 }
             }
-            if (Quests == null)
-            {
-                Quests = new List<Quest>();
-            }
         }
         public void ResetProgress()=>Progress = 0; 
         public int GetTimeOfTest()
         {
-            int restTime = (Quests.Count - 1) * RestTimeBetweenQuests;
+            int restTime = (Quests.Count - 1) * (RestTimeBetweenQuests+3);
             return Quests.Sum(quest => quest.CountDownTime)+restTime;
         }
         public string GetTestString()
@@ -111,14 +108,30 @@ namespace DAL.Models
             }
             return rs;
         }
-        public List<StudentScore> ScoringForClass(List<string> studentIds, int top=0) {
+        public List<StudentScore> ScoringForClass( int top=0) {
             List<StudentScore> studentScores = new List<StudentScore>();
+            HashSet<string> stds = new HashSet<string>();
 
-            foreach (string studentId in studentIds) {
-                studentScores.Add(new StudentScore { StudentId = studentId, Score=ScoringForStudent(studentId) });   
+            foreach (Quest q in Quests)
+            {
+                foreach (StudentAnswer sa in q.StudentAnswers)
+                {
+                    stds.Add(sa.StudentID);
+                }
             }
-            studentScores = studentScores.OrderByDescending(s => s.Score).ToList();
 
+            int numQ=Quests.Count;
+            double oneScore= (double)MaxPoint /numQ;
+            foreach (string studentId in stds) {
+                int numC = ScoringForStudent(studentId);
+                studentScores.Add(new StudentScore { StudentId = studentId, NumCorrect= numC, Score= oneScore*numC });   
+            }
+            studentScores = studentScores.OrderByDescending(s => s.NumCorrect)
+                .Select((s, index) => {
+                    s.Top = index + 1;  
+                    return s;
+                }).ToList();
+          
             // Nếu top > 0, chỉ lấy số lượng phần tử tương ứng
             if (top > 0)
             {
@@ -126,7 +139,27 @@ namespace DAL.Models
             }
             return studentScores;
         }
+        public int CreateIndexQuestInTest()
+        {
+            int rs = 0;
+            var sortedQuests = Quests.OrderBy(q => q.Index).ToList();
+            foreach (Quest q in sortedQuests)
+            {
+                if (q.Index == rs)
+                {
+                    rs++; // Tăng rs nếu giá trị Index hiện tại đã được sử dụng
+                    continue;
+                }
 
+                break; // Thoát khỏi vòng lặp nếu rs chưa được sử dụng
+            }
+            return rs; // Trả về giá trị rs nhỏ nhất chưa được sử dụng
+        }
+        public Quest GetFirstInvalidQuestion()
+        {
+            // Trả về câu hỏi đầu tiên không có ít nhất một câu trả lời đúng
+            return Quests?.FirstOrDefault(q => q.Results == null || !q.Results.Any(r => r.IsCorrect));
+        }
 
     }
 }

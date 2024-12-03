@@ -118,23 +118,47 @@ public class LocalDataHandler
 
             var attendanceRecords = await _attendanceBLL.GetAttendanceBySessionIDNegative();
             var sessionComputers = await _sessionComputerBLL.GetSessionComputersBySessionIDNegative();
-            if (attendanceRecords == null && sessionComputers == null) return;
-            await _attendanceBLL.DeleteAttendanceBySessionID(attendanceRecords[0].SessionID);
-            await _sessionComputerBLL.DeleteSessionComputersBySessionID(sessionComputers[0].SessionID);
 
-            int sessionID_B = int.Parse(GeneratePositiveID(attendanceRecords[0].SessionID.ToString()));
-            foreach (var attendance in attendanceRecords)
+            // Kiểm tra null hoặc không có phần tử
+            if ((attendanceRecords == null || attendanceRecords.Count == 0) &&
+                (sessionComputers == null || sessionComputers.Count == 0))
             {
-                attendance.SessionID = sessionID_B;
-                attendance.StudentID = GeneratePositiveID(attendance.StudentID);
+                return;
             }
-            await _attendanceBLL.InsertAttendance(sessionID_B, attendanceRecords);
 
-            foreach (var sessionComputer in sessionComputers)
+            // Chỉ thực hiện xóa khi có dữ liệu
+            if (attendanceRecords != null && attendanceRecords.Count > 0)
             {
-                sessionComputer.SessionID = sessionID_B;
+                await _attendanceBLL.DeleteAttendanceBySessionID(attendanceRecords[0].SessionID);
             }
-            await _sessionComputerBLL.InsertSessionComputer(sessionID_B, sessionComputers);
+            if (sessionComputers != null && sessionComputers.Count > 0)
+            {
+                await _sessionComputerBLL.DeleteSessionComputersBySessionID(sessionComputers[0].SessionID);
+            }
+
+            // Chỉ tiếp tục xử lý khi có dữ liệu trong attendanceRecords
+            if (attendanceRecords != null && attendanceRecords.Count > 0)
+            {
+                int sessionID_B = int.Parse(GeneratePositiveID(attendanceRecords[0].SessionID.ToString()));
+
+                foreach (var attendance in attendanceRecords)
+                {
+                    attendance.SessionID = sessionID_B;
+                    attendance.StudentID = GeneratePositiveID(attendance.StudentID);
+                }
+                await _attendanceBLL.InsertAttendance(sessionID_B, attendanceRecords);
+
+                // Chỉ xử lý sessionComputers nếu nó không null hoặc rỗng
+                if (sessionComputers != null && sessionComputers.Count > 0)
+                {
+                    foreach (var sessionComputer in sessionComputers)
+                    {
+                        sessionComputer.SessionID = sessionID_B;
+                    }
+                    await _sessionComputerBLL.InsertSessionComputer(sessionID_B, sessionComputers);
+                }
+            }
+
         }
         catch (Exception ex)
         {

@@ -120,7 +120,7 @@ namespace Server
             _serviceProvider = serviceProvider;
 
             //Ip = ;
-            Ip = getIPServer();
+            //Ip = getIPServer();
 
             // Thực hiện các logic khởi tạo khác nếu cần thiết
         }
@@ -1011,7 +1011,7 @@ namespace Server
                 if (IsValidIPAddress(ipAddress))
                 {
                     // Gửi thông điệp SlideShowToClient
-                    string message = "SlideShowToClient";
+                    string message = "SlideShowToClient" + widthScreen + "-" + heighScreen ;
                     byte[] data = Encoding.UTF8.GetBytes(message);
 
                     // Tạo một luồng để gửi thông điệp đến client
@@ -2274,7 +2274,7 @@ namespace Server
                         if (IsValidIPAddress(clientIP))
                         {
                             // Kiểm tra nếu dòng này đang được chọn
-                            string message = row.Selected ? "SlideShowToClient" : "SlideShow-" + widthScreen + "-" + heighScreen +"-"+Protocal;
+                            string message = row.Selected ? "SlideShowToClient-" + widthScreen + "-" + heighScreen : "SlideShow-" + widthScreen + "-" + heighScreen +"-"+Protocal;
                             byte[] data = Encoding.UTF8.GetBytes(message);
 
                             // Tạo một luồng riêng biệt cho mỗi client

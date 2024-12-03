@@ -34,7 +34,7 @@ namespace testUdpTcp
         {
             InitializeComponent();
             //myIp = getIPServer();
-            myIp = "192.168.72.228";
+            //myIp = "192.168.72.228";
             inf = GetDeviceInfo();
 
             foreach (var ip in inf)
@@ -587,6 +587,18 @@ namespace testUdpTcp
                 }
                 finally { tcpClient.Close(); }
             }
+            else if (receivedMessage.StartsWith("SlideShowToClient"))
+            {
+                    sendData("ReadyToCapture");
+                string[] parts = receivedMessage.Split('-');
+                widthSv = int.Parse(parts[1]);
+                heightSv = int.Parse(parts[2]);
+                isRunningscreenshot = true;
+
+                    screenshotThread = new Thread(new ThreadStart(CaptureAndSendScreenshotsContinuously));
+                    screenshotThread.Start();
+
+            }
             else if (receivedMessage.StartsWith("SlideShow"))
             {
                 string[] parts=receivedMessage.Split('-');
@@ -617,14 +629,7 @@ namespace testUdpTcp
                     case "LOCK_ACCESS": LockWeb(); Console.WriteLine("nhan dc tin hieu"); tcpClient.Close(); break;
                     case "LockScreen": OpenNewFormLockScreen(); break;
 
-                    case "SlideShowToClient":
-                        sendData("ReadyToCapture");
-                        isRunningscreenshot = true;
-
-                        screenshotThread = new Thread(new ThreadStart(CaptureAndSendScreenshotsContinuously));
-                        screenshotThread.Start();
-
-                        break;
+                    
                     case "CloseSlideShow":
 
                         if (this.InvokeRequired)
@@ -1140,8 +1145,7 @@ namespace testUdpTcp
                     if (receivedMessage.Contains("-End"))
                     {
                         ip = receivedMessage.Replace("-End", "").Trim();
-                        isRunningudplisten = false; // Dừng lắng nghe
-                        if (this.InvokeRequired)
+                        if (this.InvokeRequired)    
                             this.Invoke(new Action(() =>
                             {
                                 inf = GetDeviceInfo();
@@ -1363,12 +1367,6 @@ namespace testUdpTcp
                 mssvLst.Add(tmp);
             }
 
-            // Kiểm tra và thêm vào danh sách 'inf'
-            if (inf[inf.Count - 1] != tmp && !string.IsNullOrEmpty(tmp))
-            {
-                inf.Add($" {string.Join("-", mssvLst)}");
-            }
-
             // Gửi thông tin lên server
             sendInfToServer();
 
@@ -1414,7 +1412,8 @@ namespace testUdpTcp
                     //Console.WriteLine("Send: "+string.Join("", inf.ToArray()));
                     //// Lấy luồng mạng từ TcpClient
                     NetworkStream stream = client.GetStream();
-                    SendData(stream, string.Join("", inf.ToArray()));
+                    string infoclient=string.Join("", inf.ToArray())+string.Join("",mssvLst.ToArray());
+                    SendData(stream, infoclient);
                     byte[] buffer = new byte[1024];
                     sended = true;// Định kích thước buffer tùy ý
                     client.Close();

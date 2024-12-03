@@ -245,7 +245,7 @@ namespace testUdpTcp
                 catch (Exception ex)
                 {
                     Console.WriteLine($"Lỗi khi lắng nghe TCP: {ex.Message}");
-                    break;
+                    
                 }
             }
 
@@ -342,7 +342,26 @@ namespace testUdpTcp
                 if (parts.Length >= 2)
                 {
                     string fileName = parts[1];
-                    Process.Start(fileName);
+                    try
+                    {
+                        if (File.Exists(fileName))
+                        {
+                            Process.Start(new ProcessStartInfo
+                            {
+                                FileName = fileName,
+                                UseShellExecute = true
+                            });
+                        }
+                        else
+                        {
+                            Console.WriteLine("File không tồn tại.");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Lỗi khi mở file: {ex.Message}");
+                    }
+
                 }
                 tcpClient.Close();
 
@@ -844,7 +863,7 @@ namespace testUdpTcp
                     byte[] imageBytes = ms.ToArray();
 
                     // Tạo key với format Picture5s-Tên máy
-                    string key = $"Picture5s-{machineName}Anh-";
+                    string key = $"Picture5s-{machineName}IP-{myIp}Anh-";
                     byte[] keyBytes = Encoding.UTF8.GetBytes(key);
 
                     // Gửi key trước

@@ -306,6 +306,7 @@ namespace Server
             var selectedSession = (Session)cbbSession.SelectedItem;
             var selectedStart = (Session)cbbStart.SelectedItem;
             var selectedEnd = (Session)cbbEnd.SelectedItem;
+            var classes = (Class)cbbClass.SelectedItem;
             if (selectedStart == null )
             {
                 MessageBox.Show("Vui lòng chọn thời gian bắt đầu.", "Lỗi xác thực", MessageBoxButtons.OK, MessageBoxIcon.Warning);
@@ -377,7 +378,8 @@ namespace Server
                     StartTime = formattedStartTime,
                     EndTime = formattedEndTime,
                     user_id = userID,
-                    RoomID = room.RoomID.ToString()
+                    RoomID = room.RoomID.ToString(),
+                    ClassName = classes.ClassName,
                 };
 
                 // Chèn thông tin buổi học và lấy SessionID mới

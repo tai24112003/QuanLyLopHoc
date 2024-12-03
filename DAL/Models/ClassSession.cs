@@ -6,6 +6,7 @@ public class ClassSession
     public int SessionID { get; set; }
 
     public int ClassID { get; set; }
+    public string ClassName { get; set; }
     public int Session { get; set; }
     public string StartTime { get; set; }
     public string EndTime { get; set; }

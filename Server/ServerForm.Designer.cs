@@ -451,6 +451,7 @@
             this.lst_client.Size = new System.Drawing.Size(688, 480);
             this.lst_client.TabIndex = 11;
             this.lst_client.UseCompatibleStateImageBehavior = false;
+            this.lst_client.DoubleClick += new System.EventHandler(this.Lst_client_DoubleClick);
             // 
             // tsManageClass
             // 

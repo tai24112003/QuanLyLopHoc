@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System;
 using System.Threading.Tasks;
+using System.Globalization;
 
 public class LocalDataHandler
 {
@@ -182,14 +183,18 @@ public class LocalDataHandler
             var settingServer = await _settingBLL.GetSettingServer();
             if (settingServer != null && settingLocal != null)
             {
-                DateTime lastTimeUpdateStudentLocal = DateTime.Parse(settingLocal.lastTimeUpdateStudent);
-                DateTime lastTimeUpdateStudentServer = DateTime.Parse(settingServer.lastTimeUpdateStudent);
+                string dateFormat = "dd/MM/yyyy HH:mm:ss"; // Định dạng cụ thể của chuỗi ngày tháng
+                CultureInfo provider = CultureInfo.InvariantCulture;
 
-                DateTime lastTimeUpdateComputerLocal = DateTime.Parse(settingLocal.lastTimeUpdateComputer);
-                DateTime lastTimeUpdateComputerServer = DateTime.Parse(settingServer.lastTimeUpdateComputer);
+                    DateTime lastTimeUpdateStudentLocal = DateTime.ParseExact(settingLocal.lastTimeUpdateStudent, dateFormat, provider);
+                    DateTime lastTimeUpdateStudentServer = DateTime.ParseExact(settingServer.lastTimeUpdateStudent, dateFormat, provider);
 
-                DateTime lastTimeUpdateClassLocal = DateTime.Parse(settingLocal.lastTimeUpdateComputer);
-                DateTime lastTimeUpdateClassServer = DateTime.Parse(settingServer.lastTimeUpdateComputer);
+                    DateTime lastTimeUpdateComputerLocal = DateTime.ParseExact(settingLocal.lastTimeUpdateComputer, dateFormat, provider);
+                    DateTime lastTimeUpdateComputerServer = DateTime.ParseExact(settingServer.lastTimeUpdateComputer, dateFormat, provider);
+
+                    DateTime lastTimeUpdateClassLocal = DateTime.ParseExact(settingLocal.lastTimeUpdateComputer, dateFormat, provider);
+                    DateTime lastTimeUpdateClassServer = DateTime.ParseExact(settingServer.lastTimeUpdateComputer, dateFormat, provider);
+;
 
                 await _roomBLL.GetRoomsByName("F72");
                 if (lastTimeUpdateStudentLocal != lastTimeUpdateStudentServer)

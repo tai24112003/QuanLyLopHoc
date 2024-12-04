@@ -2201,7 +2201,7 @@ namespace Server
             }
         }
 
-        private async Task updateAttendanceToDB()
+        private async Task updateAttanceToDB()
         {
             await checkUpdateClassSession();
             List<Attendance> lstAttendances = new List<Attendance>();

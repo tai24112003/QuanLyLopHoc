@@ -6,6 +6,8 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
+using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 namespace Server
@@ -547,7 +549,7 @@ namespace Server
                 {
                     string filePath = openFileDialog.FileName;
                     var excelData = ReadExcelFile(filePath);
-
+                    if (excelData == null) return;
                     var success = await _excelController.AddDataFromExcel(excelData);
 
                     if (success != null)
@@ -589,15 +591,18 @@ namespace Server
                 ExcelWorksheet worksheet = package.Workbook.Worksheets[0];
                 excelData.ClassName = worksheet.Cells["D2"].Value?.ToString();
                 excelData.TeacherName = worksheet.Cells["D3"].Value?.ToString();
-
-                // Kiểm tra tên lớp và giáo viên
-                if (string.IsNullOrEmpty(excelData.ClassName) || excelData.ClassName.Length > 30)
+                if (!CheckClassName(excelData.ClassName))
                 {
-                    errorMessages.Add("Tên lớp không được để trống và không quá 30 ký tự.");
+                    errorMessages.Add("Tên lớp không hợp lệ. Vui lòng kiểm tra lại.");
                 }
-                if (string.IsNullOrEmpty(excelData.TeacherName) || excelData.TeacherName.Length > 30)
+                // Kiểm tra tên lớp và giáo viên
+                if (string.IsNullOrEmpty(excelData.ClassName) || excelData.ClassName.Length > 150)
                 {
-                    errorMessages.Add("Tên giáo viên không được để trống và không quá 30 ký tự.");
+                    errorMessages.Add("Tên lớp không được để trống và không quá 150 ký tự.");
+                }
+                if (string.IsNullOrEmpty(excelData.TeacherName) || excelData.TeacherName.Length > 40)
+                {
+                    errorMessages.Add("Tên giáo viên không được để trống và không quá 40 ký tự.");
                 }
 
                 int row = 6;
@@ -690,15 +695,71 @@ namespace Server
 
         }
 
+        private bool CheckClassName(string className)
+        {
+            StringBuilder errorMessages = new StringBuilder();
+
+            // Kiểm tra tên lớp không quá 100 ký tự
+            if (className.Length > 100)
+            {
+                errorMessages.AppendLine("Tên lớp không được dài quá 100 ký tự.");
+            }
+
+            // Kiểm tra tên lớp phải bắt đầu với "CD" hoặc "CDN"
+            if (!className.StartsWith("CD") && !className.StartsWith("CDN"))
+            {
+                errorMessages.AppendLine("Tên lớp phải bắt đầu với 'CD' (Cao đẳng) hoặc 'CDN' (Cao đẳng nghề).");
+            }
+
+            // Tách tên lớp thành các phần tử bằng cách sử dụng dấu cách
+            string[] parts = className.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+
+            // Kiểm tra Khoa (tối đa 5 ký tự)
+            if (parts.Length < 2 || parts[1].Length > 5)
+            {
+                errorMessages.AppendLine("Khoa không được dài quá 5 ký tự.");
+            }
+
+            // Kiểm tra Khóa học (3 chữ số)
+            if (parts[2].Length > 3 || !parts[2].All(char.IsDigit))
+            {
+                errorMessages.AppendLine("Khóa học không được có quá 3 chữ số.");
+            }
+
+            // Kiểm tra Chuyên ngành/phân lớp (tối đa 10 ký tự)
+            if (parts.Length < 4 || parts[3].Length > 10)
+            {
+                errorMessages.AppendLine("Chuyên ngành hoặc phân lớp không được dài quá 10 ký tự.");
+            }
+
+            // Kiểm tra Tên môn học (tối đa 100 ký tự)
+            string subjectName = string.Join(" ", parts.Skip(4));
+            if (subjectName.Length > 100)
+            {
+                errorMessages.AppendLine("Tên môn học không được dài quá 100 ký tự.");
+            }
+
+            // Nếu có lỗi, hiển thị toàn bộ thông báo lỗi trong một MessageBox
+            if (errorMessages.Length > 0)
+            {
+                errorMessages.AppendLine("Tên VD: CD TH 21 DĐ - Lập trình di động.(nhớ có khoảng cách đúng");
+
+                MessageBox.Show(errorMessages.ToString(), "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return false;
+            }
+
+            return true;
+        }
+
+
         private async void btnAddClass_Click(object sender, EventArgs e)
         {
             FormLoading loadingForm = new FormLoading();
 
             // Kiểm tra ràng buộc tên lớp
-            if (cbbClass.Text.Length > 30)
+            if (!CheckClassName(cbbClass.Text))
             {
-                MessageBox.Show("Tên lớp không được dài quá 30 ký tự.", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
+                return; // Nếu tên lớp không hợp lệ, không tiếp tục
             }
 
             loadingForm.Show();
@@ -720,6 +781,7 @@ namespace Server
                 loadingForm.Close();
             }
         }
+
 
 
 

@@ -120,7 +120,7 @@ namespace Server
             _serviceProvider = serviceProvider;
 
             //Ip = ;
-            //Ip = getIPServer();
+            Ip = getIPServer();
 
             // Thực hiện các logic khởi tạo khác nếu cần thiết
         }
@@ -175,9 +175,9 @@ namespace Server
                 foreach (DataGridViewRow selectedRow in dgv_attendance.SelectedRows)
                 {
                     // Lấy thông tin từ dòng
-                    string studentID = selectedRow.Cells["MSSV"]?.Value?.ToString();
-                    string firstName = selectedRow.Cells["FirstName"]?.Value?.ToString();
-                    string lastName = selectedRow.Cells["LastName"]?.Value?.ToString();
+                    string studentID = selectedRow.Cells["MSSV"]?.Value?.ToString()?.Trim();
+                    string firstName = selectedRow.Cells["FirstName"]?.Value?.ToString()?.Trim();
+                    string lastName = selectedRow.Cells["LastName"]?.Value?.ToString()?.Trim();
 
                     // Kiểm tra dữ liệu hợp lệ
                     if (string.IsNullOrWhiteSpace(studentID) || string.IsNullOrWhiteSpace(firstName) || string.IsNullOrWhiteSpace(lastName))
@@ -186,7 +186,27 @@ namespace Server
                         return;
                     }
 
-                    // Xử lý thêm sinh viên (ví dụ thêm vào danh sách, lưu vào cơ sở dữ liệu, v.v.)
+                    // Ràng buộc MSSV
+                    if (studentID.Length != 10 || !studentID.StartsWith("0"))
+                    {
+                        MessageBox.Show($"MSSV '{studentID}' không hợp lệ. MSSV phải bắt đầu bằng '0' và có đúng 10 ký tự.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        return;
+                    }
+
+                    // Ràng buộc FirstName và LastName
+                    if (firstName.Length > 10)
+                    {
+                        MessageBox.Show($"Tên '{firstName}' không hợp lệ. Tên không được vượt quá 10 ký tự.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        return;
+                    }
+
+                    if (lastName.Length > 30)
+                    {
+                        MessageBox.Show($"Họ '{lastName}' không hợp lệ. Họ không được vượt quá 30 ký tự.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        return;
+                    }
+
+                    // Tạo đối tượng Student và ClassStudent
                     var newStudent = new Student
                     {
                         StudentID = studentID,
@@ -216,13 +236,14 @@ namespace Server
                 }
 
                 // Thông báo sau khi thêm xong
-                MessageBox.Show($"Đã cập nhật {dgv_attendance.SelectedRows.Count} sinh viên vào thành công.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show($"Đã cập nhật {dgv_attendance.SelectedRows.Count} sinh viên thành công.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             catch (Exception ex)
             {
                 MessageBox.Show($"Lỗi khi thêm sinh viên: {ex.Message}", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
+
 
 
         private async Task DeleteSelectedStudentsAsync()
@@ -2063,7 +2084,6 @@ namespace Server
             }
 
         }
-
         private async Task<bool> updateSessionComputer()
         {
             await checkUpdateClassSession();
@@ -2073,7 +2093,9 @@ namespace Server
             foreach (DataGridViewRow row in dgv_client.Rows)
             {
                 // Lấy giá trị StudentID từ cột
-                string studentIDValue = row.Cells[GetIndexForKey("MSSV")].Value?.ToString().Trim() == "" ? selectedStudent : row.Cells[GetIndexForKey("MSSV")].Value?.ToString();
+                string studentIDValue = row.Cells[GetIndexForKey("MSSV")].Value?.ToString().Trim() == ""
+                    ? selectedStudent
+                    : row.Cells[GetIndexForKey("MSSV")].Value?.ToString();
 
                 // Tách StudentID nếu có dấu xuống dòng
                 var studentIDs = studentIDValue.Split(new[] { '\n' }, StringSplitOptions.RemoveEmptyEntries);
@@ -2081,13 +2103,23 @@ namespace Server
                 {
                     foreach (var studentID in studentIDs)
                     {
+                        string trimmedStudentID = studentID.Trim();
+
+                        // Kiểm tra ràng buộc StudentID
+                        if (trimmedStudentID.Length != 10 || !trimmedStudentID.StartsWith("0"))
+                        {
+                            MessageBox.Show($"StudentID '{trimmedStudentID}' không hợp lệ. Phải bắt đầu bằng '0' và không quá 10 ký tự.",
+                                "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            return false;
+                        }
+
                         SessionComputer sessionComputer = new SessionComputer
                         {
                             ComputerName = row.Cells[GetIndexForKey("Tên máy")].Value?.ToString(),
                             HDD = row.Cells[GetIndexForKey("Ổ cứng")].Value?.ToString(),
                             CPU = row.Cells[GetIndexForKey("CPU")].Value?.ToString(),
                             RAM = row.Cells[GetIndexForKey("RAM")].Value?.ToString(),
-                            StudentID = studentID.Trim(),
+                            StudentID = trimmedStudentID,
                             MouseConnected = row.Cells[GetIndexForKey("Chuột")].Value?.ToString().ToLower() == "đã kết nối",
                             KeyboardConnected = row.Cells[GetIndexForKey("Bàn phím")].Value?.ToString().ToLower() == "đã kết nối",
                             MonitorConnected = row.Cells[GetIndexForKey("Màn hình")].Value?.ToString().ToLower() == "đã kết nối",
@@ -2098,24 +2130,23 @@ namespace Server
 
                         if (selectedStudent != "")
                         {
-
                             if (sessionComputer.StudentID == "")
                             {
                                 sessionComputer.StudentID = selectedStudent;
                             }
                             sessionComputers.Add(sessionComputer);
-
                         }
                         else
                         {
-                            MessageBox.Show("Chọn một sinh viên từ bảng điểm danh để kiểm tra máy!!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                            MessageBox.Show("Chọn một sinh viên từ bảng điểm danh để kiểm tra máy!!",
+                                "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
                             return false;
-
                         }
                     }
                 }
                 else
                 {
+                    // Xử lý trường hợp không có StudentID
                     SessionComputer sessionComputer = new SessionComputer
                     {
                         ComputerName = row.Cells[0].Value?.ToString(),
@@ -2127,24 +2158,20 @@ namespace Server
                         KeyboardConnected = row.Cells[7].Value?.ToString().ToLower() == "đã kết nối",
                         MonitorConnected = row.Cells[8].Value?.ToString().ToLower() == "đã kết nối",
                         ComputerID = int.Parse(row.Cells[9].Value?.ToString()),
-                        SessionID = sessionID < 0 ? newSession < 0 ? sessionID : newSession : sessionID,
+                        SessionID = sessionID < 0 ? (newSession < 0 ? sessionID : newSession) : sessionID,
                         MismatchInfo = row.Cells[10].Value?.ToString()
                     };
                     if (selectedStudent != "")
                     {
-
                         sessionComputer.StudentID = selectedStudent;
                         sessionComputers.Add(sessionComputer);
-
                     }
                     else
                     {
-                        MessageBox.Show("Chọn một sinh viên từ bảng điểm danh để kiểm tra máy!!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        MessageBox.Show("Chọn một sinh viên từ bảng điểm danh để kiểm tra máy!!",
+                            "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
                         return false;
-
                     }
-
-
                 }
             }
 
@@ -2158,16 +2185,13 @@ namespace Server
                     {
                         lstStudentNotExit += sessionComputer.StudentID.ToString() + "\n";
                     }
-                    MessageBox.Show("Danh sách sinh viên không tồn tại: " + lstStudentNotExit + " Vui lòng xóa hoặc vào điểm danh để thêm sinh viên", "Thông Báo");
-
+                    MessageBox.Show("Danh sách sinh viên không tồn tại: " + lstStudentNotExit +
+                        " Vui lòng xóa hoặc vào điểm danh để thêm sinh viên", "Thông Báo");
                 }
                 return true;
             }
             return false;
-
         }
-
-
 
         private async Task checkUpdateClassSession()
         {
@@ -2177,23 +2201,39 @@ namespace Server
             }
         }
 
-        private async Task updateAttanceToDB()
+        private async Task updateAttendanceToDB()
         {
             await checkUpdateClassSession();
             List<Attendance> lstAttendances = new List<Attendance>();
 
             foreach (DataGridViewRow row in dgv_attendance.Rows)
             {
-                string studentID = row.Cells["MSSV"].Value?.ToString();
-                string present = row.Cells[3].Value?.ToString().ToLower();
+                string studentID = row.Cells["MSSV"].Value?.ToString()?.Trim();
+                string present = row.Cells[3].Value?.ToString()?.ToLower().Trim();
+
+                // Kiểm tra StudentID
+                if (string.IsNullOrEmpty(studentID) || studentID.Length != 10 || !studentID.StartsWith("0"))
+                {
+                    MessageBox.Show($"MSSV '{studentID}' không hợp lệ. Phải bắt đầu bằng '0' và có đủ 10 ký tự.",
+                        "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return; // Dừng quá trình nếu gặp lỗi
+                }
+
+                // Kiểm tra trạng thái Present
+                if (present != "v" && present != "cm" && present != "cp")
+                {
+                    MessageBox.Show($"Trạng thái '{present}' không hợp lệ. Chỉ được phép nhập: 'v' (vắng), 'cm' (có mặt), 'cp' (có phép).",
+                        "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return; // Dừng quá trình nếu gặp lỗi
+                }
 
                 // Kiểm tra màu sắc của ô (nếu màu nền là đỏ thì không thêm vào danh sách)
-                if (row.Cells[0].Style.ForeColor != Color.Red) // Kiểm tra nếu màu nền không phải màu đỏ
+                if (row.Cells[0].Style.ForeColor != Color.Red)
                 {
                     Attendance attendance = new Attendance
                     {
                         StudentID = studentID,
-                        SessionID = sessionID < 0 ? newSession < 0 ? sessionID : newSession : sessionID,
+                        SessionID = sessionID < 0 ? (newSession < 0 ? sessionID : newSession) : sessionID,
                         Present = present,
                     };
 
@@ -2201,9 +2241,18 @@ namespace Server
                 }
             }
 
-            // Gọi BLL để thực hiện lưu danh sách Attendance vào cơ sở dữ liệu
-            await _attendanceBLL.InsertAttendance(sessionID, lstAttendances);
+            if (lstAttendances.Count > 0)
+            {
+                // Gọi BLL để thực hiện lưu danh sách Attendance vào cơ sở dữ liệu
+                await _attendanceBLL.InsertAttendance(sessionID, lstAttendances);
+                MessageBox.Show("Cập nhật điểm danh thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            else
+            {
+                MessageBox.Show("Không có dữ liệu điểm danh hợp lệ để cập nhật.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
         }
+
 
 
         private void toolStripButton6_Click(object sender, EventArgs e)
@@ -2566,7 +2615,7 @@ namespace Server
                                                 // Lấy tên từ cột 0
                                                 string folderName = row.Cells[0].Value.ToString();
                                                 // Tạo đường dẫn thư mục mới
-                                                customFolderPath = Path.Combine(folderToSavePath, folderName);
+                                                customFolderPath = System.IO.Path.Combine(folderToSavePath, folderName);
 
                                                 // Tạo thư mục nếu chưa tồn tại
                                                 if (!Directory.Exists(customFolderPath))
@@ -2576,7 +2625,7 @@ namespace Server
                                             }
 
                                             // Lưu file zip vào đường dẫn tạm thời
-                                            string tempZipPath = Path.Combine(Path.GetTempPath(), receivedFileName);
+                                            string tempZipPath = System.IO.Path.Combine(System.IO.Path.GetTempPath(), receivedFileName);
                                             File.WriteAllBytes(tempZipPath, fileBytes);
 
                                             // Giải nén file zip
@@ -2688,8 +2737,8 @@ namespace Server
 
         private void btnUnlock_Click(object sender, EventArgs e)
         {
-            string thongTinMayTinh = "InfoClient-IPC: 192.168.1.40Tenmay: F710-01Chuot: Ðã k?t n?iBanphim: Ðã k?t n?iManhinh: Ðã k?t n?iOcung: Model: INTEL SSDPEKNU512GZInterface: SCSISize: 476 GBCPU: AMD Ryzen 71 4800H with Radeon Graphics         RAM: Capacity: 8 GB, Manufacturer: Micron Technology|MSSV: nguyen tan tai - 0306211189 + truong tang chi vinh - 0306211215 +";
-            receiveInfo(thongTinMayTinh);
+            //string thongTinMayTinh = "InfoClient-IPC: 192.168.1.40Tenmay: F710-01Chuot: Ðã k?t n?iBanphim: Ðã k?t n?iManhinh: Ðã k?t n?iOcung: Model: INTEL SSDPEKNU512GZInterface: SCSISize: 476 GBCPU: AMD Ryzen 71 4800H with Radeon Graphics         RAM: Capacity: 8 GB, Manufacturer: Micron Technology|MSSV: nguyen tan tai - 0306211189 + truong tang chi vinh - 0306211215 +";
+            //receiveInfo(thongTinMayTinh);
             List<Thread> clientThreads = new List<Thread>();
 
             foreach (DataGridViewRow row in dgv_client.Rows)

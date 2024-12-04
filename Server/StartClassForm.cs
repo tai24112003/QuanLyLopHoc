@@ -356,8 +356,8 @@ namespace Server
             int classID = int.Parse(cbbClass.SelectedValue.ToString());
             int userID = int.Parse(cbbName.SelectedValue.ToString());
             Console.WriteLine(userID);
-            //string roomID = (Environment.MachineName.Split('-'))[0];
-             string roomID = "F710";
+            string roomID = (Environment.MachineName.Split('-'))[0];
+            //string roomID = "F710";
 
             // Lấy thông tin phòng
             var room = await _roomBLL.GetRoomsByName(roomID);
@@ -580,8 +580,9 @@ namespace Server
             ExcelData excelData = new ExcelData();
             FileInfo fileInfo = new FileInfo(filePath);
 
-
             OfficeOpenXml.ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
+
+            List<string> errorMessages = new List<string>(); // Danh sách lưu các lỗi
 
             using (ExcelPackage package = new ExcelPackage(fileInfo))
             {
@@ -589,24 +590,69 @@ namespace Server
                 excelData.ClassName = worksheet.Cells["D2"].Value?.ToString();
                 excelData.TeacherName = worksheet.Cells["D3"].Value?.ToString();
 
+                // Kiểm tra tên lớp và giáo viên
+                if (string.IsNullOrEmpty(excelData.ClassName) || excelData.ClassName.Length > 30)
+                {
+                    errorMessages.Add("Tên lớp không được để trống và không quá 30 ký tự.");
+                }
+                if (string.IsNullOrEmpty(excelData.TeacherName) || excelData.TeacherName.Length > 30)
+                {
+                    errorMessages.Add("Tên giáo viên không được để trống và không quá 30 ký tự.");
+                }
+
                 int row = 6;
                 string date = DateTime.Now.ToString();
                 while (worksheet.Cells[row, 2].Value != null)
                 {
-                    Student student = new Student
+                    string studentID = worksheet.Cells[row, 2].Value.ToString();
+                    string lastName = worksheet.Cells[row, 4].Value.ToString();
+                    string firstName = worksheet.Cells[row, 3].Value.ToString();
+
+                    // Ràng buộc StudentID
+                    if (!studentID.StartsWith("0") || studentID.Length != 10)
                     {
-                        StudentID = worksheet.Cells[row, 2].Value.ToString(),
-                        LastName = worksheet.Cells[row, 4].Value.ToString(),
-                        FirstName = worksheet.Cells[row, 3].Value.ToString(),
-                        LastTime = date,
-                    };
-                    excelData.Students.Add(student);
+                        errorMessages.Add($"StudentID tại dòng {row} phải bắt đầu bằng '0' và có đủ 10 ký tự.");
+                    }
+
+                    // Ràng buộc LastName
+                    if (lastName.Length > 10)
+                    {
+                        errorMessages.Add($"LastName tại dòng {row} không được quá 10 ký tự.");
+                    }
+
+                    // Ràng buộc FirstName
+                    if (firstName.Length > 30)
+                    {
+                        errorMessages.Add($"FirstName tại dòng {row} không được quá 30 ký tự.");
+                    }
+
+                    // Nếu không có lỗi thì thêm sinh viên vào danh sách
+                    if (errorMessages.Count == 0)
+                    {
+                        Student student = new Student
+                        {
+                            StudentID = studentID,
+                            LastName = lastName,
+                            FirstName = firstName,
+                            LastTime = date,
+                        };
+                        excelData.Students.Add(student);
+                    }
+
                     row++;
                 }
             }
 
+            // Nếu có lỗi thì hiển thị toàn bộ lỗi
+            if (errorMessages.Count > 0)
+            {
+                MessageBox.Show(string.Join(Environment.NewLine, errorMessages), "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return null; // Trả về null nếu có lỗi
+            }
+
             return excelData;
         }
+
 
 
 
@@ -648,16 +694,25 @@ namespace Server
         {
             FormLoading loadingForm = new FormLoading();
 
+            // Kiểm tra ràng buộc tên lớp
+            if (cbbClass.Text.Length > 30)
+            {
+                MessageBox.Show("Tên lớp không được dài quá 30 ký tự.", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
             loadingForm.Show();
             try
             {
-                Class classSession = new Class();
-                classSession.ClassName = cbbClass.Text;
-                classSession.UserID = int.Parse(cbbName.SelectedValue.ToString());
-                DateTime currentDate = DateTime.Now;
-                string formattedDateTime = currentDate.ToString("dd/MM/yyyy HH:mm:ss");
+                // Tạo một đối tượng Class và gán dữ liệu
+                Class classSession = new Class
+                {
+                    ClassName = cbbClass.Text,
+                    UserID = int.Parse(cbbName.SelectedValue.ToString()),
+                    LastTime = DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss")
+                };
 
-                classSession.LastTime = formattedDateTime;
+                // Thêm lớp vào cơ sở dữ liệu
                 await _classBLL.InsertClass(classSession);
             }
             finally
@@ -666,6 +721,7 @@ namespace Server
             }
         }
 
-        
+
+
     }
 }

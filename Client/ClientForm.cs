@@ -1326,13 +1326,29 @@ namespace testUdpTcp
 
         private void button1_Click_1(object sender, EventArgs e)
         {
-            // Kiểm tra MSSV có phải là 10 ký tự số
-            string mssvPattern = @"^\d{10}$"; // MSSV phải có đúng 10 ký tự số
+            // Kiểm tra MSSV có phải là 10 ký tự số và bắt đầu bằng 0
+            string mssvPattern = @"^0\d{9}$"; // MSSV phải bắt đầu bằng '0' và có đúng 10 ký tự số
             Regex mssvRegex = new Regex(mssvPattern);
 
-            // Kiểm tra Họ và Tên theo Regex tiếng Việt
-            string namePattern = @"^[\p{L}\s]+$"; // Chỉ cho phép chữ cái và khoảng trắng
+            // Kiểm tra Họ và Tên không được trống và chỉ cho phép chữ cái và khoảng trắng
+            string namePattern = @"^[\p{L}]+(\s[\p{L}]+)+$"; // Họ tên phải có ít nhất 1 từ ở phần họ và ít nhất 1 từ ở phần tên
             Regex nameRegex = new Regex(namePattern);
+
+            // Kiểm tra độ dài họ và tên
+            string firstName = txtFullName.Text.Trim().Split(' ')[0]; // Lấy phần họ (từ đầu đến khoảng trắng đầu tiên)
+            string lastName = txtFullName.Text.Trim().Split(' ')[1]; // Lấy phần tên (từ khoảng trắng thứ 2 trở đi)
+
+            if (firstName.Length > 30)
+            {
+                MessageBox.Show("Họ không được quá 30 ký tự", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            if (lastName.Length > 10)
+            {
+                MessageBox.Show("Tên không được quá 10 ký tự", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
 
             // MSSV đã tồn tại trong danh sách không cho phép nhập lại
             if (mssvList.Contains(txtMSSV.Text))
@@ -1342,8 +1358,7 @@ namespace testUdpTcp
             }
 
             // Kiểm tra điều kiện nhập MSSV và họ tên
-            if (!mssvRegex.IsMatch(txtMSSV.Text) ||
-                !nameRegex.IsMatch(txtFullName.Text.Trim()))
+            if (!mssvRegex.IsMatch(txtMSSV.Text) || !nameRegex.IsMatch(txtFullName.Text.Trim()))
             {
                 MessageBox.Show("Nhập thiếu thông tin hoặc sai MSSV, họ và tên", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
@@ -1374,7 +1389,6 @@ namespace testUdpTcp
                 Console.Write(i);
             }
 
-
             if (sended)
             {
                 InfoUC infoUC = new InfoUC();
@@ -1391,9 +1405,9 @@ namespace testUdpTcp
             else
             {
                 MessageBox.Show("Gửi thất bại", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
-
             }
         }
+
 
 
 

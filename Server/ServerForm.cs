@@ -2565,7 +2565,25 @@ namespace Server
                                                 // Lấy tên từ cột 0
                                                 string folderName = row.Cells[0].Value.ToString();
                                                 // Tạo đường dẫn thư mục mới
-                                                string customFolderPath = Path.Combine(folderToSavePath, folderName);
+                                                string customFolderPath = System.IO.Path.Combine(folderToSavePath, folderName);
+
+                                                // Tạo thư mục nếu chưa tồn tại
+                                                if (!Directory.Exists(customFolderPath))
+                                                {
+                                                    Directory.CreateDirectory(customFolderPath);
+                                                }
+
+                                                // Cập nhật đường dẫn lưu tệp
+                                                folderToSavePath = customFolderPath;
+                                            }
+
+                                            // Kiểm tra nếu tên file không chứa dấu *
+                                            if (!receivedFileName.Contains("*"))
+                                            {
+                                                // Lấy tên từ cột 0
+                                                string folderName = row.Cells[0].Value.ToString();
+                                                // Tạo đường dẫn thư mục mới
+                                                string customFolderPath = System.IO.Path.Combine(folderToSavePath, folderName);
 
                                                 // Tạo thư mục nếu chưa tồn tại
                                                 if (!Directory.Exists(customFolderPath))
@@ -2578,7 +2596,7 @@ namespace Server
                                             }
 
                                             // Lưu file zip vào đường dẫn tạm thời
-                                            string tempZipPath = Path.Combine(Path.GetTempPath(), receivedFileName);
+                                            string tempZipPath = System.IO.Path.Combine(System.IO.Path.GetTempPath(), receivedFileName);
                                             File.WriteAllBytes(tempZipPath, fileBytes);
 
                                             // Giải nén file zip

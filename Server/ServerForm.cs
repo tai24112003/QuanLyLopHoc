@@ -1328,6 +1328,7 @@ namespace Server
         infC[3],  // Chuột
         infC[4],  // Bàn phím
         infC[5],   // Màn hình
+        "",
         ""
     };
             // Tạo dictionary mới từ danh sách thông tin nhận được
@@ -1506,12 +1507,7 @@ namespace Server
                     // Cập nhật thông tin cho danh sách đầy đủ, bỏ qua chỉ mục 9
                     for (int j = 0; j < newEntry.Count; j++)
                     {
-                        if (j == 12) // Bỏ qua phần tử ở chỉ mục 9
-                        {
-                            fullInfoList[i][j + 1] = newEntry[j];
-                            break;
-                        }
-                        else if(j == 2 || j ==4 ||j == 7)
+                        if(j == 2 || j ==4 ||j == 7 ||j==12)
                         {
                             continue;
                         }
@@ -1560,7 +1556,7 @@ namespace Server
                 case "Chuột": return 9;
                 case "Bàn phím": return 10;
                 case "Màn hình": return 11;
-                case "MismatchInfo": return 12;
+                case "MismatchInfo": return 13;
                 default: return -1;
             }
         }

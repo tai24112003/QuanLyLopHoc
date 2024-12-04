@@ -631,7 +631,7 @@ namespace testUdpTcp
 
                     
                     case "CloseSlideShow":
-
+                        isRunningscreenshot = false;
                         if (this.InvokeRequired)
                         {
                             this.BeginInvoke((MethodInvoker)delegate
@@ -1151,7 +1151,6 @@ namespace testUdpTcp
                                 inf = GetDeviceInfo();
                             }));
                         else inf = GetDeviceInfo();
-                        inf.Add($" {string.Join("-", mssvLst)}");
                     }
                     else
                     {

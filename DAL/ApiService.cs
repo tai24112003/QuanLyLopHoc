@@ -10,7 +10,7 @@ public class ApiService : IDataService
     public ApiService()
     {
         _client = new HttpClient();
-        _client.BaseAddress = new Uri($"http://localhost:9999/api/"); 
+        _client.BaseAddress = new Uri($"https://0b78-125-235-123-36.ngrok-free.app/api/"); 
         _client.DefaultRequestHeaders.Accept.Clear();
         _client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
     }

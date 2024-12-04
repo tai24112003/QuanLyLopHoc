@@ -17,6 +17,7 @@ namespace Server
         public bool AllowClose { get; set; } = false;
         private UdpClient udpClient;
         private Thread udpListenerThread;
+        private bool isRunning;
         private string ClientIP;
         public string clientIP
         {
@@ -39,6 +40,7 @@ namespace Server
         public SlideShowForm()
         {
             InitializeComponent();
+            isRunning = true;
 
             this.FormBorderStyle = FormBorderStyle.None; // Loại bỏ viền của form
             this.WindowState = FormWindowState.Maximized; // Phóng to form ra toàn màn hình
@@ -86,7 +88,7 @@ namespace Server
         {
             Dictionary<int, List<byte[]>> imagesData = new Dictionary<int, List<byte[]>>();
 
-            while (true)
+            while (isRunning)
             {
                 try
                 {
@@ -142,7 +144,10 @@ namespace Server
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine("Lỗi khi nhận dữ liệu UDP: " + ex.Message);
+                    if (isRunning) // Nếu luồng vẫn chạy, in ra lỗi
+                    {
+                        Console.WriteLine("Lỗi khi nhận dữ liệu UDP: " + ex.Message);
+                    }
                 }
             }
         }
@@ -161,12 +166,14 @@ namespace Server
 
         private void SlideShowForm_FormClosing(object sender, FormClosingEventArgs e)
         {
-            if (udpClient != null)
-            {
-                udpClient.Close();
-                udpClient.Dispose();
+            isRunning = false;
 
+            if (udpListenerThread != null && udpListenerThread.IsAlive)
+            {
+                udpClient?.Close(); // Đóng UdpClient
+                udpListenerThread.Join(); // Chờ luồng hoàn tất
             }
+
 
             // Hiển thị lại con trỏ chuột khi form bị đóng
             Cursor.Show();

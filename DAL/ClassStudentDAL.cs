@@ -128,18 +128,33 @@ public class ClassStudentDAL
 
         foreach (var classStudent in classStudentResponse.data)
         {
-            string query = "INSERT INTO `classes_student` (`ClassID`, `StudentID`) VALUES (@ClassID, @StudentID)";
+            // Kiểm tra xem dữ liệu đã tồn tại chưa
+            string checkQuery = "SELECT COUNT(*) FROM `classes_student` WHERE `ClassID` = @ClassID AND `StudentID` = @StudentID";
 
-            OleDbParameter[] parameters = new OleDbParameter[]
+            OleDbParameter[] checkParameters = new OleDbParameter[]
             {
-                new OleDbParameter("@ClassID", classStudent.ClassID),
-                new OleDbParameter("@StudentID", classStudent.StudentID),
-                // Add other parameters as needed
+            new OleDbParameter("@ClassID", classStudent.ClassID),
+            new OleDbParameter("@StudentID", classStudent.StudentID)
             };
 
-            DataProvider.RunNonQuery(query, parameters);
+            int exists = (int)DataProvider.RunScalar(checkQuery, checkParameters);
+
+            if (exists == 0)
+            {
+                // Nếu không tồn tại, thực hiện thêm mới
+                string insertQuery = "INSERT INTO `classes_student` (`ClassID`, `StudentID`) VALUES (@ClassID, @StudentID)";
+
+                OleDbParameter[] insertParameters = new OleDbParameter[]
+                {
+                new OleDbParameter("@ClassID", classStudent.ClassID),
+                new OleDbParameter("@StudentID", classStudent.StudentID)
+                };
+
+                DataProvider.RunNonQuery(insertQuery, insertParameters);
+            }
         }
     }
+
 
     public string LoadLocalData()
     {

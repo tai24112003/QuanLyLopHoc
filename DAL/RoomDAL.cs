@@ -42,23 +42,66 @@ public class RoomDAL
     }
     public void SaveLocalData(string RoomsJson)
     {
-        var roomResponse = JsonConvert.DeserializeObject<RoomResponse>(RoomsJson);
-
-        foreach (var room in roomResponse.data)
+        try
         {
-            string query = "INSERT INTO `Rooms` (`RoomID`, `NumberOfComputers`, `StandardRAM`, `StandardHDD`, `StandardCPU`, `Status`) VALUES (@RoomID, @NumberOfComputers, @StandardRAM, @StandardHDD, @StandardCPU, @Status)";
+            var roomResponse = JsonConvert.DeserializeObject<RoomResponse>(RoomsJson);
 
-            OleDbParameter[] parameters = new OleDbParameter[]
+            foreach (var room in roomResponse.data)
             {
-                new OleDbParameter("@RoomID", room.RoomID),
-                new OleDbParameter("@NumberOfComputers", room.NumberOfComputers),
-                new OleDbParameter("@StandardRAM", room.StandardRAM),
-                new OleDbParameter("@StandardHDD", room.StandardHDD),
-                new OleDbParameter("@StandardCPU", room.StandardCPU),
-                new OleDbParameter("@Status", room.Status),
-            };
+                // Step 1: Check if the room already exists
+                string checkQuery = "SELECT COUNT(*) FROM `Rooms` WHERE `RoomID` = @RoomID";
+                OleDbParameter[] checkParameters = new OleDbParameter[]
+                {
+                new OleDbParameter("@RoomID", room.RoomID)
+                };
 
-            DataProvider.RunNonQuery(query, parameters);
+                int existingRoomCount = Convert.ToInt32(DataProvider.RunScalar(checkQuery, checkParameters));
+
+                if (existingRoomCount > 0)
+                {
+                    // Step 2: If the room exists, update it
+                    string updateQuery = "UPDATE `Rooms` SET `RoomName` = @RoomName, `NumberOfComputers` = @NumberOfComputers, " +
+                                         "`StandardRAM` = @StandardRAM, `StandardHDD` = @StandardHDD, " +
+                                         "`StandardCPU` = @StandardCPU, `Status` = @Status " +
+                                         "WHERE `RoomID` = @RoomID";
+
+                    OleDbParameter[] updateParameters = new OleDbParameter[]
+                    {
+                    new OleDbParameter("@RoomID", room.RoomID),
+                    new OleDbParameter("@RoomName", room.RoomName),  // Add RoomName parameter
+                    new OleDbParameter("@NumberOfComputers", room.NumberOfComputers),
+                    new OleDbParameter("@StandardRAM", room.StandardRAM),
+                    new OleDbParameter("@StandardHDD", room.StandardHDD),
+                    new OleDbParameter("@StandardCPU", room.StandardCPU),
+                    new OleDbParameter("@Status", room.Status)
+                    };
+
+                    DataProvider.RunNonQuery(updateQuery, updateParameters);
+                }
+                else
+                {
+                    // Step 3: If the room does not exist, insert the new data
+                    string insertQuery = "INSERT INTO `Rooms` (`RoomID`, `RoomName`, `NumberOfComputers`, `StandardRAM`, `StandardHDD`, `StandardCPU`, `Status`) " +
+                                         "VALUES (@RoomID, @RoomName, @NumberOfComputers, @StandardRAM, @StandardHDD, @StandardCPU, @Status)";
+
+                    OleDbParameter[] insertParameters = new OleDbParameter[]
+                    {
+                    new OleDbParameter("@RoomID", room.RoomID),
+                    new OleDbParameter("@RoomName", room.RoomName),  // Add RoomName parameter
+                    new OleDbParameter("@NumberOfComputers", room.NumberOfComputers),
+                    new OleDbParameter("@StandardRAM", room.StandardRAM),
+                    new OleDbParameter("@StandardHDD", room.StandardHDD),
+                    new OleDbParameter("@StandardCPU", room.StandardCPU),
+                    new OleDbParameter("@Status", room.Status),
+                    };
+
+                    DataProvider.RunNonQuery(insertQuery, insertParameters);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Error saving room data: " + ex.Message);
         }
     }
 

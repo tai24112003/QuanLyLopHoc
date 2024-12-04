@@ -70,20 +70,35 @@ public class ClassSessionDAL
         {
             foreach (var classSession in classSessions)
             {
-                string query = "INSERT INTO `Class_Sessions` (`SessionID`, `ClassID`, `RoomID`, `StartTime`, `EndTime`, `UserID`, `Session`) VALUES (@SessionID, @ClassID, @RoomID, @StartTime, @EndTime, @UserID, @Session)";
-
-                OleDbParameter[] parameters =
+                // Kiểm tra xem StartTime đã tồn tại chưa
+                string checkQuery = "SELECT COUNT(*) FROM `Class_Sessions` WHERE `StartTime` = @StartTime";
+                OleDbParameter[] checkParameters =
                 {
-                    new OleDbParameter("@SessionID", classSession.SessionID),
-                    new OleDbParameter("@ClassID", classSession.ClassID),
-                    new OleDbParameter("@RoomID", classSession.RoomID),
-                    new OleDbParameter("@StartTime", classSession.StartTime),
-                    new OleDbParameter("@EndTime", classSession.EndTime),
-                    new OleDbParameter("@UserID", classSession.user_id),
-                    new OleDbParameter("@Session", classSession.Session)
-                };
+                new OleDbParameter("@StartTime", classSession.StartTime)
+            };
 
-                bool success = await Task.Run(() => DataProvider.RunNonQuery(query, parameters));
+                int count = await Task.Run(() => Convert.ToInt32(DataProvider.RunScalar(checkQuery, checkParameters)));
+                if (count > 0)
+                {
+                    Console.WriteLine($"Class session with StartTime {classSession.StartTime} already exists. Skipping insert.");
+                    continue; // Bỏ qua nếu đã tồn tại
+                }
+
+                // Chèn mới nếu không tồn tại
+                string insertQuery = "INSERT INTO `Class_Sessions` (`SessionID`, `ClassID`, `RoomID`, `StartTime`, `EndTime`, `UserID`, `Session`) VALUES (@SessionID, @ClassID, @RoomID, @StartTime, @EndTime, @UserID, @Session)";
+
+                OleDbParameter[] insertParameters =
+                {
+                new OleDbParameter("@SessionID", classSession.SessionID),
+                new OleDbParameter("@ClassID", classSession.ClassID),
+                new OleDbParameter("@RoomID", classSession.RoomID),
+                new OleDbParameter("@StartTime", classSession.StartTime),
+                new OleDbParameter("@EndTime", classSession.EndTime),
+                new OleDbParameter("@UserID", classSession.user_id),
+                new OleDbParameter("@Session", classSession.Session)
+            };
+
+                bool success = await Task.Run(() => DataProvider.RunNonQuery(insertQuery, insertParameters));
                 if (!success)
                 {
                     Console.WriteLine("Failed to save class session locally.");
@@ -92,9 +107,10 @@ public class ClassSessionDAL
         }
         catch (Exception ex)
         {
-            Console.WriteLine("Error saving local class session data", ex);
+            Console.WriteLine("Error saving local class session data: " + ex.Message);
         }
     }
+
 
     public async Task<string> LoadLocalDataAsync()
     {

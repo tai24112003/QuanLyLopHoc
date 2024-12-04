@@ -62,26 +62,63 @@ public class StudentDAL
         {
             var studentResponse = JsonConvert.DeserializeObject<StudentResponse>(studentsJson);
 
+            if (studentResponse == null || studentResponse.data == null)
+            {
+                return;
+            }
+
             foreach (var student in studentResponse.data)
             {
-                string query = "INSERT INTO `students` (`StudentID`, `FirstName`, `LastName`, `LastTime`) VALUES (@StudentID, @FirstName, @LastName, @LastTime)";
-
-                OleDbParameter[] parameters = new OleDbParameter[]
+                // Step 1: Check if the student already exists
+                string checkQuery = "SELECT COUNT(*) FROM students WHERE StudentID = @StudentID";
+                OleDbParameter[] checkParameters = new OleDbParameter[]
                 {
+                new OleDbParameter("@StudentID", student.StudentID)
+                };
+
+                int existingStudentCount = await Task.Run(() => Convert.ToInt32(DataProvider.RunScalar(checkQuery, checkParameters)));
+
+                if (existingStudentCount > 0)
+                {
+                    // Step 2: If the student exists, update their details
+                    string updateQuery = "UPDATE students SET " +
+                                         "FirstName = @FirstName, LastName = @LastName, LastTime = @LastTime " +
+                                         "WHERE StudentID = @StudentID";
+
+                    OleDbParameter[] updateParameters = new OleDbParameter[]
+                    {
                     new OleDbParameter("@StudentID", student.StudentID),
                     new OleDbParameter("@FirstName", student.FirstName),
                     new OleDbParameter("@LastName", student.LastName),
                     new OleDbParameter("@LastTime", student.LastTime),
-                };
+                    };
 
-                await Task.Run(() => DataProvider.RunNonQuery(query, parameters));
+                    await Task.Run(() => DataProvider.RunNonQuery(updateQuery, updateParameters));
+                }
+                else
+                {
+                    // Step 3: If the student does not exist, insert a new record
+                    string insertQuery = "INSERT INTO students (StudentID, FirstName, LastName, LastTime) " +
+                                         "VALUES (@StudentID, @FirstName, @LastName, @LastTime)";
+
+                    OleDbParameter[] insertParameters = new OleDbParameter[]
+                    {
+                    new OleDbParameter("@StudentID", student.StudentID),
+                    new OleDbParameter("@FirstName", student.FirstName),
+                    new OleDbParameter("@LastName", student.LastName),
+                    new OleDbParameter("@LastTime", student.LastTime),
+                    };
+
+                    await Task.Run(() => DataProvider.RunNonQuery(insertQuery, insertParameters));
+                }
             }
         }
         catch (Exception ex)
         {
-            Console.WriteLine("Error saving local data in DAL.", ex);
+            Console.WriteLine("Error saving local data in DAL: " + ex.Message);
         }
     }
+
 
     public async Task<string> LoadLocalData()
     {

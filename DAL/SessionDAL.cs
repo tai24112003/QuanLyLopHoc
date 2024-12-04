@@ -42,27 +42,54 @@ public class SessionDAL
 
             foreach (var session in sessionResponse.data)
             {
-                string query = "INSERT INTO `sessions` (`ID`, `StartTime`, `EndTime`) VALUES (@ID, @StartTime, @EndTime)";
-
-                OleDbParameter[] parameters = new OleDbParameter[]
+                // Step 1: Check if the session already exists
+                string checkQuery = "SELECT COUNT(*) FROM `sessions` WHERE `ID` = @ID";
+                OleDbParameter[] checkParameters = new OleDbParameter[]
                 {
-                    new OleDbParameter("@ID", session.ID),
-                    new OleDbParameter("@StartTime", session.StartTime),
-                    new OleDbParameter("@EndTime", session.EndTime)
+                new OleDbParameter("@ID", session.ID)
                 };
 
-                bool success = await Task.Run(() => DataProvider.RunNonQuery(query, parameters));
-                if (!success)
+                int existingSessionCount = await Task.Run(() =>
+                    Convert.ToInt32(DataProvider.RunScalar(checkQuery, checkParameters)));
+
+                // Step 2: Delete the existing session if it exists
+                if (existingSessionCount > 0)
                 {
-                    Console.WriteLine("Failed to insert session locally");
+                    string deleteQuery = "DELETE FROM `sessions` WHERE `ID` = @ID";
+                    bool deleteSuccess = await Task.Run(() =>
+                        DataProvider.RunNonQuery(deleteQuery, checkParameters));
+
+                    if (!deleteSuccess)
+                    {
+                        Console.WriteLine($"Failed to delete existing session with ID {session.ID}");
+                        continue;  // Skip to the next session if deletion fails
+                    }
+                }
+
+                // Step 3: Insert the new session
+                string insertQuery = "INSERT INTO `sessions` (`ID`, `StartTime`, `EndTime`) VALUES (@ID, @StartTime, @EndTime)";
+                OleDbParameter[] insertParameters = new OleDbParameter[]
+                {
+                new OleDbParameter("@ID", session.ID),
+                new OleDbParameter("@StartTime", session.StartTime),
+                new OleDbParameter("@EndTime", session.EndTime)
+                };
+
+                bool insertSuccess = await Task.Run(() =>
+                    DataProvider.RunNonQuery(insertQuery, insertParameters));
+
+                if (!insertSuccess)
+                {
+                    Console.WriteLine($"Failed to insert session with ID {session.ID} locally");
                 }
             }
         }
         catch (Exception ex)
         {
-            Console.WriteLine("Error saving session data locally", ex);
+            Console.WriteLine("Error saving session data locally: " + ex.Message);
         }
     }
+
 
     public async Task<string> LoadLocal()
     {

@@ -610,8 +610,8 @@ namespace Server
                 while (worksheet.Cells[row, 2].Value != null)
                 {
                     string studentID = worksheet.Cells[row, 2].Value.ToString();
-                    string lastName = worksheet.Cells[row, 4].Value.ToString();
                     string firstName = worksheet.Cells[row, 3].Value.ToString();
+                    string lastName = worksheet.Cells[row, 4].Value.ToString();
 
                     // Ràng buộc StudentID
                     if (!studentID.StartsWith("0") || studentID.Length != 10)
@@ -705,8 +705,8 @@ namespace Server
                 errorMessages.AppendLine("Tên lớp không được dài quá 100 ký tự.");
             }
 
-            // Kiểm tra tên lớp phải bắt đầu với "CD" hoặc "CDN"
-            if (!className.StartsWith("CD") && !className.StartsWith("CDN"))
+            // Kiểm tra tên lớp phải bắt đầu với "CĐ" hoặc "CĐN"
+            if (!className.StartsWith("CĐ") && !className.StartsWith("CÐN"))
             {
                 errorMessages.AppendLine("Tên lớp phải bắt đầu với 'CD' (Cao đẳng) hoặc 'CDN' (Cao đẳng nghề).");
             }
@@ -714,36 +714,39 @@ namespace Server
             // Tách tên lớp thành các phần tử bằng cách sử dụng dấu cách
             string[] parts = className.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
 
-            // Kiểm tra Khoa (tối đa 5 ký tự)
-            if (parts.Length < 2 || parts[1].Length > 5)
+            // Kiểm tra Khoa (tối đa 5 ký tự) - Từ phần thứ 2 trở đi
+            if (parts.Length < 3 || parts[1].Length > 5)
             {
                 errorMessages.AppendLine("Khoa không được dài quá 5 ký tự.");
             }
 
-            // Kiểm tra Khóa học (3 chữ số)
-            if (parts[2].Length > 3 || !parts[2].All(char.IsDigit))
+            // Kiểm tra Khóa học (phải có ít nhất một chữ số và một chữ cái, ví dụ 21A, 21B)
+            string courseCode = parts[2];
+            if (courseCode.Length < 3 || !courseCode.Any(char.IsDigit) || !courseCode.Any(char.IsLetter))
             {
-                errorMessages.AppendLine("Khóa học không được có quá 3 chữ số.");
+                errorMessages.AppendLine("Khóa học phải bao gồm ít nhất một số và một chữ cái, ví dụ: '21A', '22B'.");
             }
 
             // Kiểm tra Chuyên ngành/phân lớp (tối đa 10 ký tự)
-            if (parts.Length < 4 || parts[3].Length > 10)
+            if (parts.Length > 3 && parts[3].Length > 10)
             {
                 errorMessages.AppendLine("Chuyên ngành hoặc phân lớp không được dài quá 10 ký tự.");
             }
 
             // Kiểm tra Tên môn học (tối đa 100 ký tự)
-            string subjectName = string.Join(" ", parts.Skip(4));
-            if (subjectName.Length > 100)
+            if (parts.Length > 4)
             {
-                errorMessages.AppendLine("Tên môn học không được dài quá 100 ký tự.");
+                string subjectName = string.Join(" ", parts.Skip(4));
+                if (subjectName.Length > 100)
+                {
+                    errorMessages.AppendLine("Tên môn học không được dài quá 100 ký tự.");
+                }
             }
 
             // Nếu có lỗi, hiển thị toàn bộ thông báo lỗi trong một MessageBox
             if (errorMessages.Length > 0)
             {
-                errorMessages.AppendLine("Tên VD: CD TH 21 DĐ - Lập trình di động.(nhớ có khoảng cách đúng");
-
+                errorMessages.AppendLine("Tên VD: CĐ TH 21A - Lập trình di động.(nhớ có khoảng cách đúng)");
                 MessageBox.Show(errorMessages.ToString(), "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return false;
             }
@@ -782,8 +785,6 @@ namespace Server
             }
         }
 
-
-
-
+       
     }
 }

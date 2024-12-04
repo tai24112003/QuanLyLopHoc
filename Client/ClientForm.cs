@@ -33,7 +33,7 @@ namespace testUdpTcp
         public ClientForm()
         {
             InitializeComponent();
-            //myIp = getIPServer();
+            myIp = getIPServer();
             //myIp = "192.168.72.228";
             inf = GetDeviceInfo();
 
@@ -89,9 +89,9 @@ namespace testUdpTcp
             isRunningudplisten = true;
             udpReceiverThread = new Thread(ReceiveDataOnce);
             udpReceiverThread.Start();
-            
 
-            
+
+
 
             // Bắt đầu lắng nghe kết nối TCP
             isRunningtcplisten = true;
@@ -105,13 +105,13 @@ namespace testUdpTcp
         {
             this.mssvDoTest = mssv;
             sendData($"Ready-{mssvDoTest}");
-            WaitingFrom = null; 
+            WaitingFrom = null;
             examFrm = new ExamForm(mssvDoTest, Test, sendData, UpdateMSSV);
             examFrm.Show();
         }
         private void UpdateMSSV(string newMSSV)
         {
-            this.mssvDoTest= newMSSV;
+            this.mssvDoTest = newMSSV;
             WaitingFrom = null;
         }
         private void ShowWaitingForm(Action<string> bindingMssv)
@@ -142,7 +142,8 @@ namespace testUdpTcp
 
             if (this.InvokeRequired)
             {
-                this.Invoke(new Action(() => {
+                this.Invoke(new Action(() =>
+                {
                     WaitingFrom?.Dispose();
                     WaitingFrom = null;
                     this.Show();
@@ -168,7 +169,8 @@ namespace testUdpTcp
             int retryDelay = 1000;
             bool isConnected = true;
 
-            try {
+            try
+            {
                 Console.WriteLine("Start connection checking");
 
                 while (Test.IsExamining)
@@ -245,7 +247,7 @@ namespace testUdpTcp
                 catch (Exception ex)
                 {
                     Console.WriteLine($"Lỗi khi lắng nghe TCP: {ex.Message}");
-                    
+
                 }
             }
 
@@ -266,7 +268,7 @@ namespace testUdpTcp
 
             return regexPattern;
         }
-        
+
         private void HandleClient(TcpClient tcpClient)
         {
             NetworkStream clientStream = tcpClient.GetStream();
@@ -589,19 +591,19 @@ namespace testUdpTcp
             }
             else if (receivedMessage.StartsWith("SlideShowToClient"))
             {
-                    sendData("ReadyToCapture");
+                sendData("ReadyToCapture");
                 string[] parts = receivedMessage.Split('-');
                 widthSv = int.Parse(parts[1]);
                 heightSv = int.Parse(parts[2]);
                 isRunningscreenshot = true;
 
-                    screenshotThread = new Thread(new ThreadStart(CaptureAndSendScreenshotsContinuously));
-                    screenshotThread.Start();
+                screenshotThread = new Thread(new ThreadStart(CaptureAndSendScreenshotsContinuously));
+                screenshotThread.Start();
 
             }
             else if (receivedMessage.StartsWith("SlideShow"))
             {
-                string[] parts=receivedMessage.Split('-');
+                string[] parts = receivedMessage.Split('-');
                 widthSv = int.Parse(parts[1]);
                 heightSv = int.Parse(parts[2]);
                 OpenNewForm(parts[3]);
@@ -629,7 +631,7 @@ namespace testUdpTcp
                     case "LOCK_ACCESS": LockWeb(); Console.WriteLine("nhan dc tin hieu"); tcpClient.Close(); break;
                     case "LockScreen": OpenNewFormLockScreen(); break;
 
-                    
+
                     case "CloseSlideShow":
                         isRunningscreenshot = false;
                         if (this.InvokeRequired)
@@ -711,7 +713,7 @@ namespace testUdpTcp
                                 this.Hide();
                                 examFrm?.StartDoExam();
                                 Test.IsExamining = true;
-                                _=TestConnection();
+                                _ = TestConnection();
 
                             }));
                         }
@@ -737,7 +739,7 @@ namespace testUdpTcp
             }
         }
 
-        
+
         private void UpdateKeyboard(string key)
         {
             if (this.InvokeRequired)
@@ -763,7 +765,7 @@ namespace testUdpTcp
             }
             int screenWidth = SystemInformation.VirtualScreen.Width;
             int screenHeight = SystemInformation.VirtualScreen.Height;
-            int scaledX = (int)(x * screenWidth / widthSv); 
+            int scaledX = (int)(x * screenWidth / widthSv);
             int scaledY = (int)(y * screenHeight / heightSv);
 
             // Set the cursor position to the mapped coordinates
@@ -960,6 +962,7 @@ namespace testUdpTcp
 
                 // Gửi dữ liệu bao gồm tín hiệu
                 udpClient.Send(dataToSend, dataToSend.Length, new IPEndPoint(broadcastAddress, 8889)); // Gửi dữ liệu qua UDP
+                // udpClient.Send(dataToSend, dataToSend.Length, new IPEndPoint(IPAddress.Parse("127.0.0.1"), 8889)); // Gửi dữ liệu qua UDP
 
                 // Cập nhật số byte đã gửi và vị trí index
                 bytesSent += bytesToSend;
@@ -1042,7 +1045,7 @@ namespace testUdpTcp
             }
         }
 
-        
+
 
         private void LockWeb()
         {
@@ -1134,8 +1137,8 @@ namespace testUdpTcp
                 {
                     Console.WriteLine("Đang nghe UDP...");
                     IPEndPoint remoteEndPoint = new IPEndPoint(IPAddress.Any, 0);
-                   
-                      
+
+
                     byte[] receivedBytes = udpClient.Receive(ref remoteEndPoint);
                     string receivedMessage = Encoding.UTF8.GetString(receivedBytes);
 
@@ -1144,13 +1147,24 @@ namespace testUdpTcp
 
                     if (receivedMessage.Contains("-End"))
                     {
+                        stringList.Clear();
                         ip = receivedMessage.Replace("-End", "").Trim();
-                        if (this.InvokeRequired)    
+                        if (this.InvokeRequired)
                             this.Invoke(new Action(() =>
                             {
                                 inf = GetDeviceInfo();
                             }));
                         else inf = GetDeviceInfo();
+                        sendInfToServer();
+
+                        return;
+                    }
+                    else if (receivedMessage.Contains("-End"))
+                    {
+                        ip = receivedMessage.Trim();
+                        mssvList.Clear();
+                        mssvLst.Clear();
+                        return;
                     }
                     else
                     {
@@ -1333,10 +1347,19 @@ namespace testUdpTcp
             // Kiểm tra Họ và Tên không được trống và chỉ cho phép chữ cái và khoảng trắng
             string namePattern = @"^[\p{L}]+(\s[\p{L}]+)+$"; // Họ tên phải có ít nhất 1 từ ở phần họ và ít nhất 1 từ ở phần tên
             Regex nameRegex = new Regex(namePattern);
-
+            string fullname = txtFullName.Text;
+            while (txtFullName.Text.Contains("  "))
+                fullname = txtFullName.Text.Replace("  ", " ");
+            if (fullname == "") return;
             // Kiểm tra độ dài họ và tên
-            string firstName = txtFullName.Text.Trim().Split(' ')[0]; // Lấy phần họ (từ đầu đến khoảng trắng đầu tiên)
-            string lastName = txtFullName.Text.Trim().Split(' ')[1]; // Lấy phần tên (từ khoảng trắng thứ 2 trở đi)
+            string[] nameParts = fullname.Trim().Split(' ');
+            if (nameParts.Count() < 2)
+            {
+                MessageBox.Show("Phải có đủ họ tên VD: Nguyễn A", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+            string firstName = string.Join(" ", nameParts, 0, nameParts.Length - 1);
+            string lastName = nameParts[nameParts.Length - 1];
 
             if (firstName.Length > 30)
             {
@@ -1425,7 +1448,7 @@ namespace testUdpTcp
                     //Console.WriteLine("Send: "+string.Join("", inf.ToArray()));
                     //// Lấy luồng mạng từ TcpClient
                     NetworkStream stream = client.GetStream();
-                    string infoclient=string.Join("", inf.ToArray())+string.Join("",mssvLst.ToArray());
+                    string infoclient = string.Join("", inf.ToArray()) + string.Join("", mssvLst.ToArray());
                     SendData(stream, infoclient);
                     byte[] buffer = new byte[1024];
                     sended = true;// Định kích thước buffer tùy ý

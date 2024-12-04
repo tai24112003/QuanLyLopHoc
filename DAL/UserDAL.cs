@@ -49,28 +49,75 @@ public class UserDAL
 
     public async Task SaveLocalUserAccessDataAsync(string usersJson)
     {
-        var userResponse = JsonConvert.DeserializeObject<UserResponse>(usersJson);
-
-        await Task.Run(() =>
+        try
         {
-            foreach (var user in userResponse.Data)
+            var userResponse = JsonConvert.DeserializeObject<UserResponse>(usersJson);
+
+            if (userResponse == null || userResponse.Data == null)
             {
-                string query = "INSERT INTO `users` (`id`, `email`, `name`, `phone`, `password`, `role`) VALUES (@userId, @Email, @Name, @Phone, @Password, @Role)";
-
-                OleDbParameter[] parameters = new OleDbParameter[]
-                {
-                    new OleDbParameter("@userId", user.id),
-                    new OleDbParameter("@Email", user.email),
-                    new OleDbParameter("@Name", user.name),
-                    new OleDbParameter("@Phone", user.phone),
-                    new OleDbParameter("@Password", user.password),
-                    new OleDbParameter("@Role", user.role)
-                };
-
-                DataProvider.RunNonQuery(query, parameters);
+                return;
             }
-        });
+
+            await Task.Run(() =>
+            {
+                foreach (var user in userResponse.Data)
+                {
+                    // Step 1: Check if the user already exists in the database
+                    string checkQuery = "SELECT COUNT(*) FROM users WHERE id = @userId";
+                    OleDbParameter[] checkParameters = new OleDbParameter[]
+                    {
+                    new OleDbParameter("@userId", user.id)
+                    };
+
+                    // Use the RunScalar method to get the count of users with the same id
+                    int existingUserCount = Convert.ToInt32(DataProvider.RunScalar(checkQuery, checkParameters));
+
+                    if (existingUserCount > 0)
+                    {
+                        // Step 2: If the user exists, update their details
+                        string updateQuery = "UPDATE users SET " +
+                                             "email = @Email, name = @Name, phone = @Phone, password = @Password, role = @Role " +
+                                             "WHERE id = @userId";
+
+                        OleDbParameter[] updateParameters = new OleDbParameter[]
+                        {
+                        new OleDbParameter("@userId", user.id),
+                        new OleDbParameter("@Email", user.email),
+                        new OleDbParameter("@Name", user.name),
+                        new OleDbParameter("@Phone", user.phone),
+                        new OleDbParameter("@Password", user.password),
+                        new OleDbParameter("@Role", user.role)
+                        };
+
+                        DataProvider.RunNonQuery(updateQuery, updateParameters);
+                    }
+                    else
+                    {
+                        // Step 3: If the user does not exist, insert a new record
+                        string insertQuery = "INSERT INTO users (id, email, name, phone, password, role) " +
+                                             "VALUES (@userId, @Email, @Name, @Phone, @Password, @Role)";
+
+                        OleDbParameter[] insertParameters = new OleDbParameter[]
+                        {
+                        new OleDbParameter("@userId", user.id),
+                        new OleDbParameter("@Email", user.email),
+                        new OleDbParameter("@Name", user.name),
+                        new OleDbParameter("@Phone", user.phone),
+                        new OleDbParameter("@Password", user.password),
+                        new OleDbParameter("@Role", user.role)
+                        };
+
+                        DataProvider.RunNonQuery(insertQuery, insertParameters);
+                    }
+                }
+            });
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Error saving user access data: " + ex.Message);
+        }
     }
+
 
     public async Task<string> LoadLocalDataAsync()
     {

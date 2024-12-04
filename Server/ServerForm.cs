@@ -143,7 +143,7 @@ namespace Server
             contextMenuStrip.Items.Add(menuItem2);
             contextMenuStrip.Items.Add(menuItem3);
             contextMenuStrip1.Items.Add(menuItem4);
-            contextMenuStrip1.Items.Add(menuItem6);
+            //contextMenuStrip1.Items.Add(menuItem6);
             contextMenuStrip1.Items.Add(menuItem7);
 
             contextMenuStrip1.Items.Add(menuItem5);
@@ -194,15 +194,15 @@ namespace Server
                     }
 
                     // Ràng buộc FirstName và LastName
-                    if (firstName.Length > 10)
+                    if (firstName.Length > 30)
                     {
-                        MessageBox.Show($"Tên '{firstName}' không hợp lệ. Tên không được vượt quá 10 ký tự.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        MessageBox.Show($"Tên '{firstName}' không hợp lệ. Tên không được vượt quá 30 ký tự.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
                         return;
                     }
 
-                    if (lastName.Length > 30)
+                    if (lastName.Length > 10)
                     {
-                        MessageBox.Show($"Họ '{lastName}' không hợp lệ. Họ không được vượt quá 30 ký tự.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        MessageBox.Show($"Họ '{lastName}' không hợp lệ. Họ không được vượt quá 10 ký tự.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
                         return;
                     }
 
@@ -210,8 +210,8 @@ namespace Server
                     var newStudent = new Student
                     {
                         StudentID = studentID,
-                        FirstName = firstName,
-                        LastName = lastName,
+                        FirstName = lastName,
+                        LastName = firstName,
                         LastTime = DateTime.Now.ToString("dd/MM/yyyy hh:mm:ss")
                     };
                     students.Add(newStudent);
@@ -696,9 +696,9 @@ namespace Server
         {
 
             IPAddress broadcastAddress = GetBroadcastAddress() ?? null;
-            Console.WriteLine(broadcastAddress);
             //SendUDPMessage(IPAddress.Parse("192.168.1.2"), 11312, Ip);
             SendUDPMessage(broadcastAddress, 11312, Ip + mess);
+            //SendUDPMessage(IPAddress.Parse("127.0.0.1"), 11312, Ip + mess);
         }
         private void SendUDPMessage(IPAddress ipAddress, int port, string mes)
         {
@@ -954,14 +954,14 @@ namespace Server
             {
                 // Thực hiện cập nhật
                 bool check = await updateSessionComputer();
-                if (!check)
+                bool check1 = await updateAttanceToDB();
+                if (!check||!check1)
                 {
                     return;
                 }
-                await updateAttanceToDB();
                 room.Status = "Trống";
                 await _roomBLL.UpdateRoom(room.RoomID.ToString(), room);
-                Console.WriteLine("update ne");
+                sendAllIPInLan("-Finish");
             }
             catch (Exception ex)
             {
@@ -1036,11 +1036,11 @@ namespace Server
             {
                 ListViewItem selectedItem = lst_client.SelectedItems[0];
                 string ipAddress = selectedItem.Tag as string;
-
+                IPSlideToSV = ipAddress;
                 if (IsValidIPAddress(ipAddress))
                 {
                     // Gửi thông điệp SlideShowToClient
-                    string message = "SlideShowToClient" + widthScreen + "-" + heighScreen;
+                    string message = "SlideShowToClient -" + widthScreen + "-" + heighScreen;
                     byte[] data = Encoding.UTF8.GetBytes(message);
 
                     // Tạo một luồng để gửi thông điệp đến client
@@ -2148,17 +2148,17 @@ namespace Server
                     // Xử lý trường hợp không có StudentID
                     SessionComputer sessionComputer = new SessionComputer
                     {
-                        ComputerName = row.Cells[0].Value?.ToString(),
-                        HDD = row.Cells[1].Value?.ToString(),
-                        CPU = row.Cells[2].Value?.ToString(),
-                        RAM = row.Cells[3].Value?.ToString(),
-                        StudentID = selectedStudent.Trim(),
-                        MouseConnected = row.Cells[6].Value?.ToString().ToLower() == "đã kết nối",
-                        KeyboardConnected = row.Cells[7].Value?.ToString().ToLower() == "đã kết nối",
-                        MonitorConnected = row.Cells[8].Value?.ToString().ToLower() == "đã kết nối",
-                        ComputerID = int.Parse(row.Cells[9].Value?.ToString()),
+                        ComputerName = row.Cells[GetIndexForKey("Tên máy")].Value?.ToString(),
+                        HDD = row.Cells[GetIndexForKey("Ổ cứng")].Value?.ToString(),
+                        CPU = row.Cells[GetIndexForKey("CPU")].Value?.ToString(),
+                        RAM = row.Cells[GetIndexForKey("RAM")].Value?.ToString(),
+                        StudentID = selectedStudent,
+                        MouseConnected = row.Cells[GetIndexForKey("Chuột")].Value?.ToString().ToLower() == "đã kết nối",
+                        KeyboardConnected = row.Cells[GetIndexForKey("Bàn phím")].Value?.ToString().ToLower() == "đã kết nối",
+                        MonitorConnected = row.Cells[GetIndexForKey("Màn hình")].Value?.ToString().ToLower() == "đã kết nối",
+                        ComputerID = int.Parse(row.Cells[12].Value?.ToString()),
                         SessionID = sessionID < 0 ? (newSession < 0 ? sessionID : newSession) : sessionID,
-                        MismatchInfo = row.Cells[10].Value?.ToString()
+                        MismatchInfo = row.Cells[GetIndexForKey("MismatchInfo")].Value?.ToString()
                     };
 
                     if (selectedStudent != "")
@@ -2194,7 +2194,9 @@ namespace Server
                     }
                     MessageBox.Show("Danh sách sinh viên không tồn tại: " + lstStudentNotExit +
                         " Vui lòng xóa hoặc vào điểm danh để thêm sinh viên", "Thông Báo");
+                    return false;
                 }
+                MessageBox.Show("Cập nhật thành công", "Thông Báo");
                 return true;
             }
 
@@ -2203,13 +2205,13 @@ namespace Server
 
         private async Task checkUpdateClassSession()
         {
-            if (sessionID < 0 && newSession < 0)
+            if (sessionID < 0 && newSession < 0 )
             {
                 newSession = (await _classSessionBLL.InsertClassSession(classSession)).SessionID;
             }
         }
 
-        private async Task updateAttanceToDB()
+        private async Task<bool> updateAttanceToDB()
         {
             await checkUpdateClassSession();
             List<Attendance> lstAttendances = new List<Attendance>();
@@ -2224,7 +2226,7 @@ namespace Server
                 {
                     MessageBox.Show($"MSSV '{studentID}' không hợp lệ. Phải bắt đầu bằng '0' và có đủ 10 ký tự.",
                         "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    return; // Dừng quá trình nếu gặp lỗi
+                    return false; // Dừng quá trình nếu gặp lỗi
                 }
 
                 // Kiểm tra trạng thái Present
@@ -2232,7 +2234,7 @@ namespace Server
                 {
                     MessageBox.Show($"Trạng thái '{present}' không hợp lệ. Chỉ được phép nhập: 'v' (vắng), 'cm' (có mặt), 'cp' (có phép).",
                         "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    return; // Dừng quá trình nếu gặp lỗi
+                    return false; // Dừng quá trình nếu gặp lỗi
                 }
 
                 // Kiểm tra màu sắc của ô (nếu màu nền là đỏ thì không thêm vào danh sách)
@@ -2254,10 +2256,12 @@ namespace Server
                 // Gọi BLL để thực hiện lưu danh sách Attendance vào cơ sở dữ liệu
                 await _attendanceBLL.InsertAttendance(sessionID, lstAttendances);
                 MessageBox.Show("Cập nhật điểm danh thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return true;
             }
             else
             {
                 MessageBox.Show("Không có dữ liệu điểm danh hợp lệ để cập nhật.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return false;
             }
         }
 
@@ -2348,7 +2352,7 @@ namespace Server
                         if (IsValidIPAddress(clientIP))
                         {
                             // Kiểm tra nếu dòng này đang được chọn
-                            string message = row.Selected ? "SlideShowToClient-" + widthScreen + "-" + heighScreen : "SlideShow-" + widthScreen + "-" + heighScreen + "-" + Protocal;
+                            string message = row.Selected ? "SlideShowToClient -" + widthScreen + "-" + heighScreen : "SlideShow-" + widthScreen + "-" + heighScreen + "-" + Protocal;
                             byte[] data = Encoding.UTF8.GetBytes(message);
 
                             // Tạo một luồng riêng biệt cho mỗi client
@@ -2851,7 +2855,7 @@ namespace Server
         {
             if (ExamForm != null && !ExamForm.IsDisposed)
             {
-                if (!ExamForm.Visible) // Nếu form đã tồn tại nhưng đang bị ẩn
+                if (!ExamForm.Visible) // Nếu form đã tồn tại nhưng đang bị ide
                 {
                     ExamForm.Show();
                 }

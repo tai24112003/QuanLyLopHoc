@@ -70,7 +70,8 @@ public class SessionComputerDAL
                 continue;
             }
 
-            string checkQuery = "SELECT COUNT(*) FROM Students WHERE StudentID = @StudentID";
+            string checkQuery = "SELECT COUNT(*) FROM Students WHERE StudentID LIKE '%' + @StudentID + '%'";
+
             OleDbParameter[] checkParameters = new OleDbParameter[]
             {
             new OleDbParameter("@StudentID", sessionComputer.StudentID)
@@ -90,7 +91,6 @@ public class SessionComputerDAL
             {
             new OleDbParameter("@SessionID", sessionID),
             new OleDbParameter("@ComputerID", sessionComputer.ComputerID),
-            new OleDbParameter("@ComputerName", sessionComputer.ComputerName),
             new OleDbParameter("@RAM", sessionComputer.RAM),
             new OleDbParameter("@HDD", sessionComputer.HDD),
             new OleDbParameter("@CPU", sessionComputer.CPU),
@@ -98,14 +98,13 @@ public class SessionComputerDAL
             new OleDbParameter("@KeyboardConnected", sessionComputer.KeyboardConnected),
             new OleDbParameter("@MonitorConnected", sessionComputer.MonitorConnected),
             new OleDbParameter("@MismatchInfo", sessionComputer.MismatchInfo),
-            new OleDbParameter("@RepairNote", sessionComputer.RepairNote),
             new OleDbParameter("@StudentID", sessionComputer.StudentID)
             };
 
-            string insertQuery = "INSERT INTO `Session_Computer` (`SessionID`, `ComputerID`, `ComputerName`, `RAM`, `HDD`, `CPU`, " +
-                                 "`MouseConnected`, `KeyboardConnected`, `MonitorConnected`, `MismatchInfo`, `RepairNote`, `StudentID`) " +
-                                 "VALUES (@SessionID, @ComputerID, @ComputerName, @RAM, @HDD, @CPU, " +
-                                 "@MouseConnected, @KeyboardConnected, @MonitorConnected, @MismatchInfo, @RepairNote, @StudentID)";
+            string insertQuery = "INSERT INTO `Session_Computer` (`SessionID`, `ComputerID`, `RAM`, `HDD`, `CPU`, " +
+                                 "`MouseConnected`, `KeyboardConnected`, `MonitorConnected`, `MismatchInfo` , `StudentID`) " +
+                                 "VALUES (@SessionID, @ComputerID, @RAM, @HDD, @CPU, " +
+                                 "@MouseConnected, @KeyboardConnected, @MonitorConnected, @MismatchInfo, @StudentID)";
 
             bool insertSuccess = await Task.Run(() => DataProvider.RunNonQuery(insertQuery, parameters));
             if (!insertSuccess)

@@ -51,28 +51,63 @@ public class ClassDAL
 
             foreach (var classSession in classResponse.data)
             {
-                string query = "INSERT INTO `classes` (`ClassID`, `ClassName`, `UserID`,`LastTime`) VALUES (@ClassID, @ClassName, @UserID, @LastTime)";
-
-                OleDbParameter[] parameters = new OleDbParameter[]
+                // Kiểm tra nếu ClassID đã tồn tại
+                string checkQuery = "SELECT COUNT(*) FROM `classes` WHERE `ClassID` = @ClassID";
+                OleDbParameter[] checkParams = new OleDbParameter[]
                 {
+                new OleDbParameter("@ClassID", classSession.ClassID)
+                };
+
+                int count = (int)await Task.Run(() => Convert.ToInt32(DataProvider.RunScalar(checkQuery, checkParams)));
+
+                if (count > 0)
+                {
+                    // Nếu tồn tại, cập nhật
+                    string updateQuery = "UPDATE `classes` SET `ClassName` = @ClassName, `UserID` = @UserID, `LastTime` = @LastTime WHERE `ClassID` = @ClassID";
+
+                    OleDbParameter[] updateParams = new OleDbParameter[]
+                    {
+                    new OleDbParameter("@ClassName", classSession.ClassName),
+                    new OleDbParameter("@UserID", classSession.UserID),
+                    new OleDbParameter("@LastTime", classSession.LastTime),
+                    new OleDbParameter("@ClassID", classSession.ClassID)
+                    };
+
+                    bool updated = await Task.Run(() => DataProvider.RunNonQuery(updateQuery, updateParams));
+
+                    if (!updated)
+                    {
+                        Console.WriteLine($"Failed to update class session with ClassID: {classSession.ClassID}");
+                    }
+                }
+                else
+                {
+                    // Nếu không tồn tại, thêm mới
+                    string insertQuery = "INSERT INTO `classes` (`ClassID`, `ClassName`, `UserID`, `LastTime`) VALUES (@ClassID, @ClassName, @UserID, @LastTime)";
+
+                    OleDbParameter[] insertParams = new OleDbParameter[]
+                    {
                     new OleDbParameter("@ClassID", classSession.ClassID),
                     new OleDbParameter("@ClassName", classSession.ClassName),
                     new OleDbParameter("@UserID", classSession.UserID),
                     new OleDbParameter("@LastTime", classSession.LastTime)
-                };
+                    };
 
-                bool success = await Task.Run(() => DataProvider.RunNonQuery(query, parameters));
-                if (!success)
-                {
-                    Console.WriteLine("Failed to insert class session locally");
+                    bool inserted = await Task.Run(() => DataProvider.RunNonQuery(insertQuery, insertParams));
+
+                    if (!inserted)
+                    {
+                        Console.WriteLine($"Failed to insert class session with ClassID: {classSession.ClassID}");
+                    }
                 }
             }
         }
         catch (Exception ex)
         {
-            Console.WriteLine("Error saving local data", ex);
+            Console.WriteLine("Error saving local data: " + ex.Message);
         }
     }
+
 
     public async Task<List<Class>> LoadNegativeIDClasses()
     {

@@ -41,20 +41,14 @@ public class AttendanceBLL
     {
         try
         {
-            string response = await _AttendanceDAL.DeleteAttendanceBySessionID(sessionID);
-            Console.WriteLine("Delete response: " + response);
+            bool success = await _AttendanceDAL.DeleteAttendanceLocal(sessionID);
+
+            Console.WriteLine("Delete local: " );
         }
         catch (Exception ex)
         {
-            bool success = await _AttendanceDAL.DeleteAttendanceLocal(sessionID);
-            if (success)
-            {
-                Console.WriteLine("Deleted attendance locally for sessionID: " + sessionID);
-            }
-            else
-            {
+           
                 Console.WriteLine("Error deleting attendance in BLL: " + ex.Message);
-            }
         }
     }
 

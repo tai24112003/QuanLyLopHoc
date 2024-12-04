@@ -268,8 +268,8 @@ namespace Server
 
                     // Lấy thông tin từ dòng
                     string studentID = selectedRow.Cells["MSSV"]?.Value?.ToString()?.Trim();
-                    string firstName = selectedRow.Cells["FirstName"]?.Value?.ToString()?.Trim();
-                    string lastName = selectedRow.Cells["LastName"]?.Value?.ToString()?.Trim();
+                    string firstName = selectedRow.Cells["LastName"]?.Value?.ToString()?.Trim();
+                    string lastName = selectedRow.Cells["FirstName"]?.Value?.ToString()?.Trim();
 
                     // Kiểm tra dữ liệu hợp lệ
                     if (string.IsNullOrWhiteSpace(studentID) || string.IsNullOrWhiteSpace(firstName) || string.IsNullOrWhiteSpace(lastName))

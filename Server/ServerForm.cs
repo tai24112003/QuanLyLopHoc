@@ -2089,6 +2089,7 @@ namespace Server
             await checkUpdateClassSession();
 
             sessionComputers.Clear();
+            StringBuilder errorMessages = new StringBuilder(); // Chuỗi lỗi
 
             foreach (DataGridViewRow row in dgv_client.Rows)
             {
@@ -2108,9 +2109,7 @@ namespace Server
                         // Kiểm tra ràng buộc StudentID
                         if (trimmedStudentID.Length != 10 || !trimmedStudentID.StartsWith("0"))
                         {
-                            MessageBox.Show($"StudentID '{trimmedStudentID}' không hợp lệ. Phải bắt đầu bằng '0' và không quá 10 ký tự.",
-                                "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                            return false;
+                            errorMessages.AppendLine($"Tên máy: {row.Cells[0].Value?.ToString()} - StudentID '{trimmedStudentID}' không hợp lệ. Phải bắt đầu bằng '0' và không quá 10 ký tự.");
                         }
 
                         SessionComputer sessionComputer = new SessionComputer
@@ -2161,6 +2160,7 @@ namespace Server
                         SessionID = sessionID < 0 ? (newSession < 0 ? sessionID : newSession) : sessionID,
                         MismatchInfo = row.Cells[10].Value?.ToString()
                     };
+
                     if (selectedStudent != "")
                     {
                         sessionComputer.StudentID = selectedStudent;
@@ -2173,6 +2173,13 @@ namespace Server
                         return false;
                     }
                 }
+            }
+
+            // Kiểm tra và hiển thị thông báo lỗi sau khi duyệt qua tất cả
+            if (errorMessages.Length > 0)
+            {
+                MessageBox.Show(errorMessages.ToString(), "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return false;
             }
 
             if (sessionComputers.Count >= room.NumberOfComputers)
@@ -2190,6 +2197,7 @@ namespace Server
                 }
                 return true;
             }
+
             return false;
         }
 

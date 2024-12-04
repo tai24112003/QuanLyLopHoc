@@ -271,7 +271,7 @@ namespace Server
                     }
 
                     // Thông báo sau khi xóa thành công
-                    MessageBox.Show($"Đã xóa sinh viên thành công","Thông báo",MessageBoxButtons.OK,MessageBoxIcon.Information);
+                    MessageBox.Show($"Đã xóa sinh viên thành công", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
                 else
                 {
@@ -562,7 +562,7 @@ namespace Server
                 }
             }
 
-            
+
         }
 
 
@@ -927,7 +927,7 @@ namespace Server
 
         private async void OnIdleTimerElapsed(object sender, System.Timers.ElapsedEventArgs e)
         {
-         
+
 
             try
             {
@@ -946,10 +946,10 @@ namespace Server
             {
                 Console.WriteLine($"Lỗi khi cập nhật: {ex}");
             }
-            
-                if(tcpListener!=null)
-                    tcpListener.Stop();
-                tcpListener = null;
+
+            if (tcpListener != null)
+                tcpListener.Stop();
+            tcpListener = null;
             isUpdating = false;
 
             if (this.InvokeRequired)
@@ -1019,7 +1019,7 @@ namespace Server
                 if (IsValidIPAddress(ipAddress))
                 {
                     // Gửi thông điệp SlideShowToClient
-                    string message = "SlideShowToClient" + widthScreen + "-" + heighScreen ;
+                    string message = "SlideShowToClient" + widthScreen + "-" + heighScreen;
                     byte[] data = Encoding.UTF8.GetBytes(message);
 
                     // Tạo một luồng để gửi thông điệp đến client
@@ -1507,7 +1507,7 @@ namespace Server
                     // Cập nhật thông tin cho danh sách đầy đủ, bỏ qua chỉ mục 9
                     for (int j = 0; j < newEntry.Count; j++)
                     {
-                        if(j == 2 || j ==4 ||j == 7 ||j==12)
+                        if (j == 2 || j == 4 || j == 7 || j == 12)
                         {
                             continue;
                         }
@@ -1541,7 +1541,7 @@ namespace Server
 
         }
 
-       
+
 
         private int GetIndexForKey(string key)
         {
@@ -2166,14 +2166,14 @@ namespace Server
             return false;
 
         }
-        
+
 
 
         private async Task checkUpdateClassSession()
         {
-            if (sessionID < 0 && newSession<0)
-            { 
-                newSession= (await _classSessionBLL.InsertClassSession(classSession)).SessionID;
+            if (sessionID < 0 && newSession < 0)
+            {
+                newSession = (await _classSessionBLL.InsertClassSession(classSession)).SessionID;
             }
         }
 
@@ -2193,7 +2193,7 @@ namespace Server
                     Attendance attendance = new Attendance
                     {
                         StudentID = studentID,
-                        SessionID = sessionID<0?newSession<0? sessionID:newSession:sessionID,
+                        SessionID = sessionID < 0 ? newSession < 0 ? sessionID : newSession : sessionID,
                         Present = present,
                     };
 
@@ -2291,7 +2291,7 @@ namespace Server
                         if (IsValidIPAddress(clientIP))
                         {
                             // Kiểm tra nếu dòng này đang được chọn
-                            string message = row.Selected ? "SlideShowToClient-" + widthScreen + "-" + heighScreen : "SlideShow-" + widthScreen + "-" + heighScreen +"-"+Protocal;
+                            string message = row.Selected ? "SlideShowToClient-" + widthScreen + "-" + heighScreen : "SlideShow-" + widthScreen + "-" + heighScreen + "-" + Protocal;
                             byte[] data = Encoding.UTF8.GetBytes(message);
 
                             // Tạo một luồng riêng biệt cho mỗi client
@@ -2578,11 +2578,12 @@ namespace Server
                                             }
 
                                             // Kiểm tra nếu tên file không chứa dấu *
+                                            // Kiểm tra nếu tên file không chứa dấu *
                                             if (!receivedFileName.Contains("*"))
                                             {
                                                 // Lấy tên từ cột 0
                                                 string folderName = row.Cells[0].Value.ToString();
-                                                // Tạo đường dẫn thư mục mới
+                                                // Tạo đường dẫn thư mục riêng cho máy hiện tại
                                                 string customFolderPath = System.IO.Path.Combine(folderToSavePath, folderName);
 
                                                 // Tạo thư mục nếu chưa tồn tại
@@ -2591,43 +2592,33 @@ namespace Server
                                                     Directory.CreateDirectory(customFolderPath);
                                                 }
 
-                                                // Cập nhật đường dẫn lưu tệp
-                                                folderToSavePath = customFolderPath;
+                                                // Sử dụng customFolderPath để lưu tệp thay vì thay đổi folderToSavePath
+                                                string tempZipPath = System.IO.Path.Combine(System.IO.Path.GetTempPath(), receivedFileName);
+                                                File.WriteAllBytes(tempZipPath, fileBytes);
+
+                                                // Giải nén file zip
+                                                ZipFile.ExtractToDirectory(tempZipPath, customFolderPath);
+
+                                                // Xóa file zip tạm thời
+                                                File.Delete(tempZipPath);
+
+                                                MessageBox.Show("Các tệp đã được nhận và lưu thành công tại: " + customFolderPath, "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
                                             }
 
-                                            // Lưu file zip vào đường dẫn tạm thời
-                                            string tempZipPath = System.IO.Path.Combine(System.IO.Path.GetTempPath(), receivedFileName);
-                                            File.WriteAllBytes(tempZipPath, fileBytes);
 
-                                            // Giải nén file zip
-                                            ZipFile.ExtractToDirectory(tempZipPath, folderToSavePath);
 
-                                            // Xóa file zip tạm thời
-                                            File.Delete(tempZipPath);
-
-                                            MessageBox.Show("Các tệp đã được nhận và lưu thành công tại: " + folderToSavePath, "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                                        }
-                                        catch (EndOfStreamException eosEx)
-                                        {
-                                            Console.WriteLine("Lỗi khi nhận tệp: " + eosEx.Message);
                                         }
                                         catch (Exception ex)
                                         {
                                             Console.WriteLine("Lỗi khi nhận tệp: " + ex.Message);
                                         }
-                                    }
-                                }
-                                catch (Exception ex)
-                                {
-                                    Console.WriteLine("Lỗi khi nhận tệp: " + ex.Message);
-                                }
-                                finally
-                                {
-                                    // Đảm bảo rằng kết nối được đóng đúng cách
-                                    if (stream != null) stream.Close();
-                                    if (client != null) client.Close();
-                                }
-                            });
+                                        finally
+                                        {
+                                            // Đảm bảo rằng kết nối được đóng đúng cách
+                                            if (stream != null) stream.Close();
+                                            if (client != null) client.Close();
+                                        }
+                                    });
 
 
                             // Bắt đầu luồng cho client hiện tại
@@ -2784,7 +2775,7 @@ namespace Server
                 {
                     string folderPath = folderBrowserDialog.SelectedPath;
                     // Hiển thị đường dẫn thư mục đã chọn, ví dụ trên một label
-                    ExportToExcel(folderPath + @"\" +classSession.ClassName +"_"+ room.RoomName + "_" + DateTime.Now.ToString("dd-MM-yyyy") + ".xlsx", dgv_client);
+                    ExportToExcel(folderPath + @"\" + classSession.ClassName + "_" + room.RoomName + "_" + DateTime.Now.ToString("dd-MM-yyyy") + ".xlsx", dgv_client);
                 }
             }
         }
@@ -2800,7 +2791,7 @@ namespace Server
                 {
                     string folderPath = folderBrowserDialog.SelectedPath;
                     // Hiển thị đường dẫn thư mục đã chọn, ví dụ trên một label
-                    ExportToExcel(folderPath + @"\"+ classSession.ClassName + "_"  + room.RoomName + "_" + DateTime.Now.ToString("dd-MM-yyyy") + ".xlsx", dgv_attendance);
+                    ExportToExcel(folderPath + @"\" + classSession.ClassName + "_" + room.RoomName + "_" + DateTime.Now.ToString("dd-MM-yyyy") + ".xlsx", dgv_attendance);
 
                 }
             }
@@ -2824,7 +2815,7 @@ namespace Server
                 ExamForm.Focus(); // Đưa form lên phía trước
                 return;
             }
-            ExamForm = new SvExamForm(Tests, SendTest,IndexTestReady, DidExamId, sendAllIPInLan);
+            ExamForm = new SvExamForm(Tests, SendTest, IndexTestReady, DidExamId, sendAllIPInLan);
 
             ExamForm.Show();
         }
@@ -2867,7 +2858,7 @@ namespace Server
                     MessageBox.Show("Chưa có sinh viên nào sẵn sàng!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     return false;
                 }
-                Test testReady=Tests[IndexTestReady];
+                Test testReady = Tests[IndexTestReady];
                 DialogResult result = MessageBox.Show($"Đã có {StudentsAreReady.Count} sinh viên sẵn sàng. Bắt đầu thi đề: {testReady.Title}?", "Xác nhận", MessageBoxButtons.OKCancel);
                 if (result == DialogResult.Cancel) return false;
             }
@@ -2944,7 +2935,7 @@ namespace Server
             //{
             //    t.Join();
             //}
-            if(key== "Key-Exam")
+            if (key == "Key-Exam")
             {
                 MessageBox.Show("Đã phát đề", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
@@ -2958,7 +2949,7 @@ namespace Server
             sendForm.Show();
         }
 
-      
+
         private async void tsUpdateInfoSession_Click(object sender, EventArgs e)
         {
             await updateSessionComputer();
@@ -3079,7 +3070,7 @@ namespace Server
         }
         private async void EndClassToolStripMenuItem_ClickAsync(object sender, EventArgs e)
         {
-           this.Close();
+            this.Close();
         }
         private void StopCapture5s()
         {
@@ -3326,6 +3317,6 @@ namespace Server
             }
         }
 
-       
+
     }
 }

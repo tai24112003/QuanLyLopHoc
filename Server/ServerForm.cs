@@ -2541,7 +2541,7 @@ namespace Server
                                     string fileName = System.IO.Path.GetFileName(filePath);
                                     string signal = $"CollectFile-FileName-{fileName}FolderPath-{folderPath}Check-{check}";
                                     byte[] signalBytes = Encoding.UTF8.GetBytes(signal);
-                                    stream.Write(signalBytes, 0, signalBytes.Length); // Gửi tín hiệu 
+                                    stream.Write(signalBytes, 0, signalBytes.Length);
                                     stream.Flush(); // Đảm bảo dữ liệu được gửi đi ngay lập tức
                                     Console.WriteLine("Đã gửi tín hiệu send");
 
@@ -2559,8 +2559,26 @@ namespace Server
                                             // Đọc dữ liệu tệp zip
                                             byte[] fileBytes = reader.ReadBytes(fileLength);
 
+                                            // Kiểm tra nếu tên file không chứa dấu *
+                                            if (!receivedFileName.Contains("*"))
+                                            {
+                                                // Lấy tên từ cột 0
+                                                string folderName = row.Cells[0].Value.ToString();
+                                                // Tạo đường dẫn thư mục mới
+                                                string customFolderPath = Path.Combine(folderToSavePath, folderName);
+
+                                                // Tạo thư mục nếu chưa tồn tại
+                                                if (!Directory.Exists(customFolderPath))
+                                                {
+                                                    Directory.CreateDirectory(customFolderPath);
+                                                }
+
+                                                // Cập nhật đường dẫn lưu tệp
+                                                folderToSavePath = customFolderPath;
+                                            }
+
                                             // Lưu file zip vào đường dẫn tạm thời
-                                            string tempZipPath = System.IO.Path.Combine(System.IO.Path.GetTempPath(), receivedFileName);
+                                            string tempZipPath = Path.Combine(Path.GetTempPath(), receivedFileName);
                                             File.WriteAllBytes(tempZipPath, fileBytes);
 
                                             // Giải nén file zip
@@ -2592,6 +2610,7 @@ namespace Server
                                     if (client != null) client.Close();
                                 }
                             });
+
 
                             // Bắt đầu luồng cho client hiện tại
                             clientThreads.Add(clientThread);

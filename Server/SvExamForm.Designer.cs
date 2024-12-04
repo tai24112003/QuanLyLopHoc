@@ -345,7 +345,7 @@
             this.cbb_questTypeFilter.FormattingEnabled = true;
             this.cbb_questTypeFilter.Location = new System.Drawing.Point(20, 124);
             this.cbb_questTypeFilter.Name = "cbb_questTypeFilter";
-            this.cbb_questTypeFilter.Size = new System.Drawing.Size(166, 24);
+            this.cbb_questTypeFilter.Size = new System.Drawing.Size(599, 24);
             this.cbb_questTypeFilter.TabIndex = 1;
             this.cbb_questTypeFilter.SelectedIndexChanged += new System.EventHandler(this.cbb_quest_type_filter_SelectedIndexChanged);
             // 
@@ -535,7 +535,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1231, 761);
+            this.ClientSize = new System.Drawing.Size(1664, 861);
             this.Controls.Add(this.btn_sendSignal);
             this.Controls.Add(this.btn_stop_exam);
             this.Controls.Add(this.btn_trackTheExam);
@@ -557,6 +557,8 @@
             this.Controls.Add(this.pnl_header);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.KeyPreview = true;
+            this.MaximumSize = new System.Drawing.Size(1920, 1080);
+            this.MinimumSize = new System.Drawing.Size(1600, 900);
             this.Name = "SvExamForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Kiểm tra";

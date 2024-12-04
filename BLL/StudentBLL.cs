@@ -143,4 +143,25 @@ public class StudentBLL
             return null;
         }
     }
+    public async Task<StudentResponse> UpdateStudent(List<Student> students)
+    {
+        try
+        {
+            string responseJson = await _StudentDAL.UpdateListStudent(students);
+            var updatedStudents = JsonConvert.DeserializeObject<StudentResponse>(responseJson);
+            await InsertStudentLocal(students);
+            return updatedStudents;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Error updating Student in BLL: " + ex.Message);
+
+            // Handle local updates if API fails
+            await InsertStudentLocal(students);
+
+            Console.WriteLine("Data saved locally due to update error.", ex);
+            return null;
+        }
+    }
+
 }

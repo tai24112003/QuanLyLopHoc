@@ -70,5 +70,7 @@ namespace Server
             this.DialogResult = DialogResult.Cancel;
             this.Close();
         }
+
+       
     }
 }

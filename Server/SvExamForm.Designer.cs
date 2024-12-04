@@ -29,6 +29,7 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(SvExamForm));
             this.pnl_header = new System.Windows.Forms.Panel();
             this.btn_send_test = new System.Windows.Forms.Button();
             this.btn_add_test = new System.Windows.Forms.Button();
@@ -554,10 +555,11 @@
             this.Controls.Add(this.label1);
             this.Controls.Add(this.pnl_body);
             this.Controls.Add(this.pnl_header);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.KeyPreview = true;
             this.Name = "SvExamForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "ExamForm";
+            this.Text = "Kiểm tra";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.SvExamForm_FormClosing);
             this.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.SvExamForm_KeyPress);
             this.pnl_header.ResumeLayout(false);

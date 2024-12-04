@@ -29,6 +29,7 @@ namespace Server
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ReciveForm));
             this.btnBrowse = new System.Windows.Forms.Button();
             this.btnCancel = new System.Windows.Forms.Button();
             this.btnCollect = new System.Windows.Forms.Button();
@@ -163,8 +164,11 @@ namespace Server
             this.Controls.Add(this.label2);
             this.Controls.Add(this.txtCollect);
             this.Controls.Add(this.label1);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+            this.MaximumSize = new System.Drawing.Size(460, 189);
+            this.MinimumSize = new System.Drawing.Size(460, 189);
             this.Name = "ReciveForm";
-            this.Text = "ReciveForm";
+            this.Text = "Thu tập tin";
             this.ResumeLayout(false);
             this.PerformLayout();
 

@@ -153,7 +153,7 @@ namespace Server
             menuItem2.Click += contextMenu_Refresh_Click;
             menuItem4.Click += async (sender, e) => await AddSelectedStudentsAsync();
             menuItem6.Click += async (sender, e) => await DeleteSelectedStudentsAsync();
-            menuItem7.Click += async (sender, e) => await AddSelectedStudentsAsync();
+            menuItem7.Click += async (sender, e) => await UpdateSelectedStudentsAsync();
             menuItem5.Click += contextMenu_SelectStudentCheckMachine_Click;
         }
 
@@ -244,6 +244,79 @@ namespace Server
             }
         }
 
+        private async Task UpdateSelectedStudentsAsync()
+        {
+            try
+            {
+                // Kiểm tra nếu không có dòng nào được chọn
+                if (dgv_attendance.SelectedRows.Count == 0)
+                {
+                    MessageBox.Show("Vui lòng chọn ít nhất một sinh viên để thực hiện cập nhật.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    return;
+                }
+
+                List<Student> studentsToUpdate = new List<Student>();
+
+                // Duyệt qua các dòng được chọn
+                foreach (DataGridViewRow selectedRow in dgv_attendance.SelectedRows)
+                {
+                    // Kiểm tra nếu ForeColor của dòng là màu đỏ, bỏ qua dòng này
+                    if (selectedRow.DefaultCellStyle.ForeColor == Color.Red)
+                    {
+                        continue;
+                    }
+
+                    // Lấy thông tin từ dòng
+                    string studentID = selectedRow.Cells["MSSV"]?.Value?.ToString()?.Trim();
+                    string firstName = selectedRow.Cells["FirstName"]?.Value?.ToString()?.Trim();
+                    string lastName = selectedRow.Cells["LastName"]?.Value?.ToString()?.Trim();
+
+                    // Kiểm tra dữ liệu hợp lệ
+                    if (string.IsNullOrWhiteSpace(studentID) || string.IsNullOrWhiteSpace(firstName) || string.IsNullOrWhiteSpace(lastName))
+                    {
+                        MessageBox.Show("Thông tin sinh viên không hợp lệ, vui lòng kiểm tra lại.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        return;
+                    }
+
+                    // Tạo đối tượng Student để cập nhật
+                    var studentToUpdate = new Student
+                    {
+                        StudentID = studentID,
+                        FirstName = lastName,
+                        LastName = firstName,
+                        LastTime = DateTime.Now.ToString("dd/MM/yyyy hh:mm:ss")
+                    };
+                    studentsToUpdate.Add(studentToUpdate);
+                }
+
+                // Nếu không có sinh viên hợp lệ để cập nhật
+                if (studentsToUpdate.Count == 0)
+                {
+                    MessageBox.Show("Không có sinh viên nào đủ điều kiện để cập nhật.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    return;
+                }
+
+                // Gọi BLL để thực hiện cập nhật danh sách sinh viên
+                await _studentBLL.UpdateStudent(studentsToUpdate);
+
+                // Lặp qua các dòng đã cập nhật thành công để thay đổi màu ForeColor
+                foreach (DataGridViewRow selectedRow in dgv_attendance.SelectedRows)
+                {
+                    if (studentsToUpdate.Any(s => s.StudentID == selectedRow.Cells["MSSV"]?.Value?.ToString()))
+                    {
+                        // Thay đổi ForeColor thành màu đen
+                        selectedRow.DefaultCellStyle.ForeColor = Color.Black;
+                    }
+                }
+
+                // Thông báo sau khi cập nhật thành công
+                MessageBox.Show($"Đã cập nhật {studentsToUpdate.Count} sinh viên thành công.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Lỗi khi cập nhật sinh viên: {ex.Message}", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+        }
 
 
         private async Task DeleteSelectedStudentsAsync()
@@ -2196,7 +2269,7 @@ namespace Server
                         " Vui lòng xóa hoặc vào điểm danh để thêm sinh viên", "Thông Báo");
                     return false;
                 }
-                MessageBox.Show("Cập nhật thành công", "Thông Báo");
+                MessageBox.Show("Cập nhật thành công", "Thông Báo",MessageBoxButtons.OK,MessageBoxIcon.Information);
                 return true;
             }
 

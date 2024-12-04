@@ -220,4 +220,21 @@ public class StudentDAL
             return null;
         }
     }
+    public async Task<string> UpdateListStudent(List<Student> students)
+    {
+        try
+        {
+            // Chuyển đổi danh sách sinh viên thành JSON
+            string studentJson = JsonConvert.SerializeObject(students);
+
+            // Gửi yêu cầu PUT đến endpoint `update`
+            return await _dataService.PutAsync("student/update", studentJson);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Error updating students in DAL.", ex);
+            return null;
+        }
+    }
+
 }

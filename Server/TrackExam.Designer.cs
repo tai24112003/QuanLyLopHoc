@@ -30,6 +30,7 @@
         {
             this.components = new System.ComponentModel.Container();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(TrackExam));
             this.lbl_testTitle = new System.Windows.Forms.Label();
             this.lbl_state = new System.Windows.Forms.Label();
             this.lbl_numQuest = new System.Windows.Forms.Label();
@@ -211,7 +212,7 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoScroll = true;
-            this.ClientSize = new System.Drawing.Size(1484, 771);
+            this.ClientSize = new System.Drawing.Size(1584, 861);
             this.Controls.Add(this.lbl_maxP);
             this.Controls.Add(this.dgv_ranking);
             this.Controls.Add(this.lbl_numStudent);
@@ -225,10 +226,13 @@
             this.Controls.Add(this.lbl_state);
             this.Controls.Add(this.lbl_testTitle);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MaximizeBox = false;
+            this.MaximumSize = new System.Drawing.Size(1920, 1080);
+            this.MinimumSize = new System.Drawing.Size(1600, 900);
             this.Name = "TrackExam";
-            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "ExamProgress";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
+            this.Text = "Theo dõi quá trình làm bài";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.TrackExam_FormClosing);
             this.pnl_chart.ResumeLayout(false);
             this.pnl_chart.PerformLayout();

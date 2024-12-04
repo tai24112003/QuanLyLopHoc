@@ -28,10 +28,11 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ConfigForm));
             this.label1 = new System.Windows.Forms.Label();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.radTCP = new System.Windows.Forms.RadioButton();
             this.radUDP = new System.Windows.Forms.RadioButton();
+            this.radTCP = new System.Windows.Forms.RadioButton();
             this.btnSave = new System.Windows.Forms.Button();
             this.label2 = new System.Windows.Forms.Label();
             this.numFPS = new System.Windows.Forms.NumericUpDown();
@@ -64,17 +65,6 @@
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Phương Thức Gửi Ảnh";
             // 
-            // radTCP
-            // 
-            this.radTCP.AutoSize = true;
-            this.radTCP.Location = new System.Drawing.Point(25, 56);
-            this.radTCP.Name = "radTCP";
-            this.radTCP.Size = new System.Drawing.Size(405, 23);
-            this.radTCP.TabIndex = 0;
-            this.radTCP.TabStop = true;
-            this.radTCP.Text = "Gửi đến từng máy (ảnh nhận đủ nhưng tốc độ chậm)";
-            this.radTCP.UseVisualStyleBackColor = true;
-            // 
             // radUDP
             // 
             this.radUDP.AutoSize = true;
@@ -85,6 +75,17 @@
             this.radUDP.TabStop = true;
             this.radUDP.Text = "Gửi đến nhìu máy (dễ mất ảnh nếu mạng yếu)";
             this.radUDP.UseVisualStyleBackColor = true;
+            // 
+            // radTCP
+            // 
+            this.radTCP.AutoSize = true;
+            this.radTCP.Location = new System.Drawing.Point(25, 56);
+            this.radTCP.Name = "radTCP";
+            this.radTCP.Size = new System.Drawing.Size(405, 23);
+            this.radTCP.TabIndex = 0;
+            this.radTCP.TabStop = true;
+            this.radTCP.Text = "Gửi đến từng máy (ảnh nhận đủ nhưng tốc độ chậm)";
+            this.radTCP.UseVisualStyleBackColor = true;
             // 
             // btnSave
             // 
@@ -173,8 +174,11 @@
             this.Controls.Add(this.btnSave);
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.label1);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+            this.MaximumSize = new System.Drawing.Size(478, 306);
+            this.MinimumSize = new System.Drawing.Size(478, 306);
             this.Name = "ConfigForm";
-            this.Text = "ConfigForm";
+            this.Text = "Cấu hình";
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numFPS)).EndInit();

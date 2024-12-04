@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(QuickLaunchForm));
             this.listView1 = new System.Windows.Forms.ListView();
             this.label1 = new System.Windows.Forms.Label();
             this.button1 = new System.Windows.Forms.Button();
@@ -42,6 +43,8 @@
             this.listView1.HideSelection = false;
             this.listView1.Location = new System.Drawing.Point(0, 75);
             this.listView1.Margin = new System.Windows.Forms.Padding(2);
+            this.listView1.MaximumSize = new System.Drawing.Size(600, 199);
+            this.listView1.MinimumSize = new System.Drawing.Size(600, 199);
             this.listView1.Name = "listView1";
             this.listView1.Size = new System.Drawing.Size(600, 199);
             this.listView1.TabIndex = 0;
@@ -116,9 +119,10 @@
             this.Controls.Add(this.button1);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.listView1);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Margin = new System.Windows.Forms.Padding(2);
             this.Name = "QuickLaunchForm";
-            this.Text = "QuickLaunchForm";
+            this.Text = "Mở phần mềm";
             this.ResumeLayout(false);
             this.PerformLayout();
 

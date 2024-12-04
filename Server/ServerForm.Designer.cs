@@ -29,10 +29,10 @@
         private void InitializeComponent()
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(svForm));
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle4 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle5 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle6 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle7 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle8 = new System.Windows.Forms.DataGridViewCellStyle();
             this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
             this.btnAll = new System.Windows.Forms.Button();
             this.sendFileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -57,20 +57,6 @@
             this.tsScreen = new System.Windows.Forms.ToolStripButton();
             this.tsAttendance = new System.Windows.Forms.ToolStripButton();
             this.dgv_client = new System.Windows.Forms.DataGridView();
-            this.NameComputer = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.Disk = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.DiskDB = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.CPU = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.CPUDB = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.IPC = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.Ram = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.RamDB = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.StudentID = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.Mouse = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.Keyboard = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.Monitor = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.ComputerID = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.MismathInfo = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.dgv_attendance = new System.Windows.Forms.DataGridView();
             this.MSSV = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.FirstName = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -99,6 +85,20 @@
             this.tsExport = new System.Windows.Forms.ToolStripSplitButton();
             this.tsExportSession = new System.Windows.Forms.ToolStripMenuItem();
             this.tsExportAttendance = new System.Windows.Forms.ToolStripMenuItem();
+            this.NameComputer = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Disk = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.DiskDB = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.CPU = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.CPUDB = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.IPC = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Ram = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.RamDB = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.StudentID = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Mouse = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Keyboard = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Monitor = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.ComputerID = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.MismathInfo = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.flowLayoutPanel1.SuspendLayout();
             this.toolStrip2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgv_client)).BeginInit();
@@ -115,7 +115,7 @@
             this.flowLayoutPanel1.Location = new System.Drawing.Point(0, 90);
             this.flowLayoutPanel1.Margin = new System.Windows.Forms.Padding(2);
             this.flowLayoutPanel1.Name = "flowLayoutPanel1";
-            this.flowLayoutPanel1.Size = new System.Drawing.Size(1443, 39);
+            this.flowLayoutPanel1.Size = new System.Drawing.Size(1664, 39);
             this.flowLayoutPanel1.TabIndex = 3;
             // 
             // btnAll
@@ -230,7 +230,7 @@
             this.tsAttendance});
             this.toolStrip2.Location = new System.Drawing.Point(0, 129);
             this.toolStrip2.Name = "toolStrip2";
-            this.toolStrip2.Size = new System.Drawing.Size(100, 480);
+            this.toolStrip2.Size = new System.Drawing.Size(100, 732);
             this.toolStrip2.TabIndex = 5;
             this.toolStrip2.Text = "toolStrip2";
             // 
@@ -271,9 +271,9 @@
             // 
             this.dgv_client.AllowUserToAddRows = false;
             this.dgv_client.AllowUserToDeleteRows = false;
-            dataGridViewCellStyle1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
-            dataGridViewCellStyle1.SelectionBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(149)))), ((int)(((byte)(179)))), ((int)(((byte)(255)))));
-            this.dgv_client.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle1;
+            dataGridViewCellStyle5.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
+            dataGridViewCellStyle5.SelectionBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(149)))), ((int)(((byte)(179)))), ((int)(((byte)(255)))));
+            this.dgv_client.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle5;
             this.dgv_client.AutoSizeRowsMode = System.Windows.Forms.DataGridViewAutoSizeRowsMode.AllCells;
             this.dgv_client.BackgroundColor = System.Drawing.Color.White;
             this.dgv_client.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
@@ -292,136 +292,32 @@
             this.Monitor,
             this.ComputerID,
             this.MismathInfo});
-            dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle2.BackColor = System.Drawing.SystemColors.Window;
-            dataGridViewCellStyle2.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            dataGridViewCellStyle2.ForeColor = System.Drawing.SystemColors.ControlText;
-            dataGridViewCellStyle2.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-            dataGridViewCellStyle2.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            dataGridViewCellStyle2.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
-            this.dgv_client.DefaultCellStyle = dataGridViewCellStyle2;
+            dataGridViewCellStyle6.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle6.BackColor = System.Drawing.SystemColors.Window;
+            dataGridViewCellStyle6.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            dataGridViewCellStyle6.ForeColor = System.Drawing.SystemColors.ControlText;
+            dataGridViewCellStyle6.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle6.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle6.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.dgv_client.DefaultCellStyle = dataGridViewCellStyle6;
             this.dgv_client.Dock = System.Windows.Forms.DockStyle.Left;
             this.dgv_client.GridColor = System.Drawing.Color.White;
             this.dgv_client.Location = new System.Drawing.Point(100, 129);
             this.dgv_client.Name = "dgv_client";
             this.dgv_client.RowHeadersWidth = 51;
-            this.dgv_client.Size = new System.Drawing.Size(935, 480);
+            this.dgv_client.Size = new System.Drawing.Size(935, 732);
             this.dgv_client.TabIndex = 9;
             this.dgv_client.CellBeginEdit += new System.Windows.Forms.DataGridViewCellCancelEventHandler(this.dgv_CellBeginEdit);
             this.dgv_client.CellValueChanged += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgv_client_CellValueChanged);
             this.dgv_client.MouseClick += new System.Windows.Forms.MouseEventHandler(this.dgv_client_MouseClick);
             // 
-            // NameComputer
-            // 
-            this.NameComputer.Frozen = true;
-            this.NameComputer.HeaderText = "Tên Máy";
-            this.NameComputer.MinimumWidth = 6;
-            this.NameComputer.Name = "NameComputer";
-            this.NameComputer.Width = 97;
-            // 
-            // Disk
-            // 
-            this.Disk.Frozen = true;
-            this.Disk.HeaderText = "Ổ Cứng";
-            this.Disk.MinimumWidth = 6;
-            this.Disk.Name = "Disk";
-            this.Disk.Width = 96;
-            // 
-            // DiskDB
-            // 
-            this.DiskDB.Frozen = true;
-            this.DiskDB.HeaderText = "Ổ Cứng Chuẩn";
-            this.DiskDB.Name = "DiskDB";
-            // 
-            // CPU
-            // 
-            this.CPU.Frozen = true;
-            this.CPU.HeaderText = "CPU";
-            this.CPU.MinimumWidth = 6;
-            this.CPU.Name = "CPU";
-            this.CPU.Width = 97;
-            // 
-            // CPUDB
-            // 
-            this.CPUDB.Frozen = true;
-            this.CPUDB.HeaderText = "CPU Chuẩn";
-            this.CPUDB.Name = "CPUDB";
-            // 
-            // IPC
-            // 
-            this.IPC.Frozen = true;
-            this.IPC.HeaderText = "IPC";
-            this.IPC.MinimumWidth = 6;
-            this.IPC.Name = "IPC";
-            this.IPC.Visible = false;
-            this.IPC.Width = 97;
-            // 
-            // Ram
-            // 
-            this.Ram.Frozen = true;
-            this.Ram.HeaderText = "Ram";
-            this.Ram.MinimumWidth = 6;
-            this.Ram.Name = "Ram";
-            this.Ram.Width = 97;
-            // 
-            // RamDB
-            // 
-            this.RamDB.Frozen = true;
-            this.RamDB.HeaderText = "Ram Chuẩn";
-            this.RamDB.Name = "RamDB";
-            // 
-            // StudentID
-            // 
-            this.StudentID.Frozen = true;
-            this.StudentID.HeaderText = "MSSV";
-            this.StudentID.MinimumWidth = 6;
-            this.StudentID.Name = "StudentID";
-            this.StudentID.Width = 96;
-            // 
-            // Mouse
-            // 
-            this.Mouse.Frozen = true;
-            this.Mouse.HeaderText = "Chuột";
-            this.Mouse.MinimumWidth = 6;
-            this.Mouse.Name = "Mouse";
-            this.Mouse.Width = 97;
-            // 
-            // Keyboard
-            // 
-            this.Keyboard.Frozen = true;
-            this.Keyboard.HeaderText = "Bàn Phím";
-            this.Keyboard.MinimumWidth = 6;
-            this.Keyboard.Name = "Keyboard";
-            this.Keyboard.Width = 96;
-            // 
-            // Monitor
-            // 
-            this.Monitor.Frozen = true;
-            this.Monitor.HeaderText = "Màn Hình";
-            this.Monitor.MinimumWidth = 6;
-            this.Monitor.Name = "Monitor";
-            this.Monitor.Width = 97;
-            // 
-            // ComputerID
-            // 
-            this.ComputerID.HeaderText = "Column1";
-            this.ComputerID.MinimumWidth = 6;
-            this.ComputerID.Name = "ComputerID";
-            this.ComputerID.Visible = false;
-            this.ComputerID.Width = 73;
-            // 
-            // MismathInfo
-            // 
-            this.MismathInfo.HeaderText = "Thông Tin Sai Lệch";
-            this.MismathInfo.Name = "MismathInfo";
-            // 
             // dgv_attendance
             // 
             this.dgv_attendance.AllowUserToAddRows = false;
             this.dgv_attendance.AllowUserToDeleteRows = false;
-            dataGridViewCellStyle3.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
-            dataGridViewCellStyle3.SelectionBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(149)))), ((int)(((byte)(179)))), ((int)(((byte)(255)))));
-            this.dgv_attendance.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle3;
+            dataGridViewCellStyle7.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
+            dataGridViewCellStyle7.SelectionBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(149)))), ((int)(((byte)(179)))), ((int)(((byte)(255)))));
+            this.dgv_attendance.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle7;
             this.dgv_attendance.AutoSizeRowsMode = System.Windows.Forms.DataGridViewAutoSizeRowsMode.AllCells;
             this.dgv_attendance.BackgroundColor = System.Drawing.Color.White;
             this.dgv_attendance.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
@@ -429,20 +325,20 @@
             this.MSSV,
             this.FirstName,
             this.LastName});
-            dataGridViewCellStyle4.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle4.BackColor = System.Drawing.SystemColors.Window;
-            dataGridViewCellStyle4.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            dataGridViewCellStyle4.ForeColor = System.Drawing.SystemColors.ControlText;
-            dataGridViewCellStyle4.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-            dataGridViewCellStyle4.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            dataGridViewCellStyle4.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
-            this.dgv_attendance.DefaultCellStyle = dataGridViewCellStyle4;
+            dataGridViewCellStyle8.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle8.BackColor = System.Drawing.SystemColors.Window;
+            dataGridViewCellStyle8.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            dataGridViewCellStyle8.ForeColor = System.Drawing.SystemColors.ControlText;
+            dataGridViewCellStyle8.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle8.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle8.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.dgv_attendance.DefaultCellStyle = dataGridViewCellStyle8;
             this.dgv_attendance.Dock = System.Windows.Forms.DockStyle.Left;
             this.dgv_attendance.GridColor = System.Drawing.Color.White;
             this.dgv_attendance.Location = new System.Drawing.Point(1035, 129);
             this.dgv_attendance.Name = "dgv_attendance";
             this.dgv_attendance.RowHeadersWidth = 51;
-            this.dgv_attendance.Size = new System.Drawing.Size(183, 480);
+            this.dgv_attendance.Size = new System.Drawing.Size(183, 732);
             this.dgv_attendance.TabIndex = 10;
             this.dgv_attendance.MouseClick += new System.Windows.Forms.MouseEventHandler(this.dgv_attendance_MouseClick);
             // 
@@ -473,7 +369,7 @@
             this.lst_client.HideSelection = false;
             this.lst_client.Location = new System.Drawing.Point(1218, 129);
             this.lst_client.Name = "lst_client";
-            this.lst_client.Size = new System.Drawing.Size(688, 480);
+            this.lst_client.Size = new System.Drawing.Size(688, 732);
             this.lst_client.TabIndex = 11;
             this.lst_client.UseCompatibleStateImageBehavior = false;
             this.lst_client.DoubleClick += new System.EventHandler(this.Lst_client_DoubleClick);
@@ -705,7 +601,7 @@
             this.tsExam});
             this.toolStrip1.Location = new System.Drawing.Point(0, 0);
             this.toolStrip1.Name = "toolStrip1";
-            this.toolStrip1.Size = new System.Drawing.Size(1443, 90);
+            this.toolStrip1.Size = new System.Drawing.Size(1664, 90);
             this.toolStrip1.TabIndex = 4;
             this.toolStrip1.Text = "toolStrip1";
             // 
@@ -738,13 +634,118 @@
             this.tsExportAttendance.Text = "Xuất File Điểm Danh";
             this.tsExportAttendance.Click += new System.EventHandler(this.ExportAttendance_Click);
             // 
+            // NameComputer
+            // 
+            this.NameComputer.Frozen = true;
+            this.NameComputer.HeaderText = "Tên Máy";
+            this.NameComputer.MinimumWidth = 6;
+            this.NameComputer.Name = "NameComputer";
+            this.NameComputer.Width = 97;
+            // 
+            // Disk
+            // 
+            this.Disk.Frozen = true;
+            this.Disk.HeaderText = "Ổ Cứng";
+            this.Disk.MinimumWidth = 6;
+            this.Disk.Name = "Disk";
+            this.Disk.Width = 96;
+            // 
+            // DiskDB
+            // 
+            this.DiskDB.Frozen = true;
+            this.DiskDB.HeaderText = "Ổ Cứng Chuẩn";
+            this.DiskDB.Name = "DiskDB";
+            // 
+            // CPU
+            // 
+            this.CPU.Frozen = true;
+            this.CPU.HeaderText = "CPU";
+            this.CPU.MinimumWidth = 6;
+            this.CPU.Name = "CPU";
+            this.CPU.Width = 97;
+            // 
+            // CPUDB
+            // 
+            this.CPUDB.Frozen = true;
+            this.CPUDB.HeaderText = "CPU Chuẩn";
+            this.CPUDB.Name = "CPUDB";
+            // 
+            // IPC
+            // 
+            this.IPC.Frozen = true;
+            this.IPC.HeaderText = "IPC";
+            this.IPC.MinimumWidth = 6;
+            this.IPC.Name = "IPC";
+            this.IPC.Visible = false;
+            this.IPC.Width = 97;
+            // 
+            // Ram
+            // 
+            this.Ram.Frozen = true;
+            this.Ram.HeaderText = "Ram";
+            this.Ram.MinimumWidth = 6;
+            this.Ram.Name = "Ram";
+            this.Ram.Width = 97;
+            // 
+            // RamDB
+            // 
+            this.RamDB.Frozen = true;
+            this.RamDB.HeaderText = "Ram Chuẩn";
+            this.RamDB.Name = "RamDB";
+            // 
+            // StudentID
+            // 
+            this.StudentID.Frozen = true;
+            this.StudentID.HeaderText = "MSSV";
+            this.StudentID.MinimumWidth = 6;
+            this.StudentID.Name = "StudentID";
+            this.StudentID.Width = 96;
+            // 
+            // Mouse
+            // 
+            this.Mouse.Frozen = true;
+            this.Mouse.HeaderText = "Chuột";
+            this.Mouse.MinimumWidth = 6;
+            this.Mouse.Name = "Mouse";
+            this.Mouse.Width = 97;
+            // 
+            // Keyboard
+            // 
+            this.Keyboard.Frozen = true;
+            this.Keyboard.HeaderText = "Bàn Phím";
+            this.Keyboard.MinimumWidth = 6;
+            this.Keyboard.Name = "Keyboard";
+            this.Keyboard.Width = 96;
+            // 
+            // Monitor
+            // 
+            this.Monitor.Frozen = true;
+            this.Monitor.HeaderText = "Màn Hình";
+            this.Monitor.MinimumWidth = 6;
+            this.Monitor.Name = "Monitor";
+            this.Monitor.Width = 97;
+            // 
+            // ComputerID
+            // 
+            this.ComputerID.HeaderText = "Column1";
+            this.ComputerID.MinimumWidth = 6;
+            this.ComputerID.Name = "ComputerID";
+            this.ComputerID.Visible = false;
+            this.ComputerID.Width = 73;
+            // 
+            // MismathInfo
+            // 
+            this.MismathInfo.HeaderText = "Thông Tin Sai Lệch";
+            this.MismathInfo.Name = "MismathInfo";
+            this.MismathInfo.Visible = false;
+            // 
             // svForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoSize = true;
             this.BackColor = System.Drawing.Color.White;
-            this.ClientSize = new System.Drawing.Size(1443, 609);
+            this.ClientSize = new System.Drawing.Size(1664, 861);
             this.Controls.Add(this.lst_client);
             this.Controls.Add(this.dgv_attendance);
             this.Controls.Add(this.dgv_client);
@@ -752,7 +753,10 @@
             this.Controls.Add(this.flowLayoutPanel1);
             this.Controls.Add(this.toolStrip1);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Margin = new System.Windows.Forms.Padding(2);
+            this.MaximumSize = new System.Drawing.Size(1920, 1080);
+            this.MinimumSize = new System.Drawing.Size(1600, 900);
             this.Name = "svForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Server Form";

@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(GroupForm));
             this.listBoxAvailableComputers = new System.Windows.Forms.ListBox();
             this.listBoxSelectedComputers = new System.Windows.Forms.ListBox();
             this.label1 = new System.Windows.Forms.Label();
@@ -148,8 +149,11 @@
             this.Controls.Add(this.label1);
             this.Controls.Add(this.listBoxSelectedComputers);
             this.Controls.Add(this.listBoxAvailableComputers);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+            this.MaximumSize = new System.Drawing.Size(816, 489);
+            this.MinimumSize = new System.Drawing.Size(816, 489);
             this.Name = "GroupForm";
-            this.Text = "GroupForm";
+            this.Text = "Chia nhóm";
             this.ResumeLayout(false);
             this.PerformLayout();
 

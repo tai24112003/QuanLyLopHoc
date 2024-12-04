@@ -358,8 +358,8 @@ namespace Server
             int classID = int.Parse(cbbClass.SelectedValue.ToString());
             int userID = int.Parse(cbbName.SelectedValue.ToString());
             Console.WriteLine(userID);
-            string roomID = (Environment.MachineName.Split('-'))[0];
-            //string roomID = "F710";
+            //string roomID = (Environment.MachineName.Split('-'))[0];
+            string roomID = "F710";
 
             // Lấy thông tin phòng
             var room = await _roomBLL.GetRoomsByName(roomID);

@@ -2512,7 +2512,7 @@ namespace Server
             // Xử lý đường dẫn tệp nhận được từ FormSendFile
             Console.WriteLine("Đường dẫn tệp nhận được: " + filePath);
             Console.WriteLine("Đường dẫn tệp đến: " + folderPath);
-            Console.WriteLine("Đường dẫn tệp đến: " + folderToSavePath);
+            Console.WriteLine("Đường dẫn lưu tệp: " + folderToSavePath);
 
             List<Thread> clientThreads = new List<Thread>();
 
@@ -2560,66 +2560,51 @@ namespace Server
                                             byte[] fileBytes = reader.ReadBytes(fileLength);
 
                                             // Kiểm tra nếu tên file không chứa dấu *
+                                            string customFolderPath = folderToSavePath;
                                             if (!receivedFileName.Contains("*"))
                                             {
                                                 // Lấy tên từ cột 0
                                                 string folderName = row.Cells[0].Value.ToString();
                                                 // Tạo đường dẫn thư mục mới
-                                                string customFolderPath = System.IO.Path.Combine(folderToSavePath, folderName);
+                                                customFolderPath = Path.Combine(folderToSavePath, folderName);
 
                                                 // Tạo thư mục nếu chưa tồn tại
                                                 if (!Directory.Exists(customFolderPath))
                                                 {
                                                     Directory.CreateDirectory(customFolderPath);
                                                 }
-
-                                                // Cập nhật đường dẫn lưu tệp
-                                                folderToSavePath = customFolderPath;
                                             }
 
-                                            // Kiểm tra nếu tên file không chứa dấu *
-                                            // Kiểm tra nếu tên file không chứa dấu *
-                                            if (!receivedFileName.Contains("*"))
-                                            {
-                                                // Lấy tên từ cột 0
-                                                string folderName = row.Cells[0].Value.ToString();
-                                                // Tạo đường dẫn thư mục riêng cho máy hiện tại
-                                                string customFolderPath = System.IO.Path.Combine(folderToSavePath, folderName);
+                                            // Lưu file zip vào đường dẫn tạm thời
+                                            string tempZipPath = Path.Combine(Path.GetTempPath(), receivedFileName);
+                                            File.WriteAllBytes(tempZipPath, fileBytes);
 
-                                                // Tạo thư mục nếu chưa tồn tại
-                                                if (!Directory.Exists(customFolderPath))
-                                                {
-                                                    Directory.CreateDirectory(customFolderPath);
-                                                }
+                                            // Giải nén file zip
+                                            ZipFile.ExtractToDirectory(tempZipPath, customFolderPath);
 
-                                                // Sử dụng customFolderPath để lưu tệp thay vì thay đổi folderToSavePath
-                                                string tempZipPath = System.IO.Path.Combine(System.IO.Path.GetTempPath(), receivedFileName);
-                                                File.WriteAllBytes(tempZipPath, fileBytes);
+                                            // Xóa file zip tạm thời
+                                            File.Delete(tempZipPath);
 
-                                                // Giải nén file zip
-                                                ZipFile.ExtractToDirectory(tempZipPath, customFolderPath);
-
-                                                // Xóa file zip tạm thời
-                                                File.Delete(tempZipPath);
-
-                                                MessageBox.Show("Các tệp đã được nhận và lưu thành công tại: " + customFolderPath, "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                                            }
-
-
-
+                                            MessageBox.Show("Các tệp đã được nhận và lưu thành công tại: " + customFolderPath,
+                                                "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
                                         }
                                         catch (Exception ex)
                                         {
                                             Console.WriteLine("Lỗi khi nhận tệp: " + ex.Message);
                                         }
-                                        finally
-                                        {
-                                            // Đảm bảo rằng kết nối được đóng đúng cách
-                                            if (stream != null) stream.Close();
-                                            if (client != null) client.Close();
-                                        }
-                                    });
-
+                                    }
+                                }
+                                catch (Exception ex)
+                                {
+                                    Console.WriteLine("Lỗi khi kết nối đến client: " + ex.Message);
+                                }
+                                finally
+                                {
+                                    // Đảm bảo rằng kết nối được đóng đúng cách
+                                    if (stream != null) stream.Close();
+                                    if (client != null) client.Close();
+                                }
+                            });
 
                             // Bắt đầu luồng cho client hiện tại
                             clientThreads.Add(clientThread);
@@ -2629,15 +2614,16 @@ namespace Server
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show("Mất kết nối với: " + row.Cells[0].Value.ToString(), "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    MessageBox.Show("Mất kết nối với: " + row.Cells[0].Value.ToString(),
+                        "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
             }
 
             // Chờ tất cả các luồng kết thúc trước khi tiếp tục
-            //foreach (Thread t in clientThreads)
-            //{
-            //    t.Join();
-            //}
+            foreach (Thread t in clientThreads)
+            {
+                t.Join();
+            }
         }
 
         private void sendWork_ButtonClick(object sender, EventArgs e)

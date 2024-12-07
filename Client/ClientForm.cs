@@ -36,14 +36,23 @@ namespace testUdpTcp
             myIp = getIPServer();
             //myIp = "192.168.72.228";
             inf = GetDeviceInfo();
-
+            this.KeyPreview = true;
             foreach (var ip in inf)
             {
                 Console.Write(ip.ToString());
             }
 
-
         }
+        private void Form_KeyDown(object sender, KeyEventArgs e)
+        {
+            // Kiểm tra nếu phím Enter (KeyCode == Keys.Enter) được nhấn
+            if (e.KeyCode == Keys.Enter)
+            {
+                // Gọi hàm xử lý button1_Click_1
+                button1_Click_1(sender, e);
+            }
+        }
+
         [DllImport("user32.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.StdCall)]
         public static extern void mouse_event(uint dwFlags, uint dx, uint dy, uint dwData, int dwExtraInfo);
 
@@ -281,7 +290,6 @@ namespace testUdpTcp
             while ((bytesRead = clientStream.Read(messageBuffer, 0, messageBuffer.Length)) > 0)
             {
                 receivedMessage += Encoding.UTF8.GetString(messageBuffer, 0, bytesRead);
-                Console.WriteLine(receivedMessage);
 
                 // Nếu nhận đủ thông điệp
                 if ((receivedMessage.Contains("-") && !receivedMessage.StartsWith("Key-Examt-")) && (receivedMessage.Contains("-") && !receivedMessage.StartsWith("QuestComet")))
@@ -961,8 +969,8 @@ namespace testUdpTcp
                 Array.Copy(imageData, index, dataToSend, signalLength, bytesToSend);
 
                 // Gửi dữ liệu bao gồm tín hiệu
-                udpClient.Send(dataToSend, dataToSend.Length, new IPEndPoint(broadcastAddress, 8889)); // Gửi dữ liệu qua UDP
-                // udpClient.Send(dataToSend, dataToSend.Length, new IPEndPoint(IPAddress.Parse("127.0.0.1"), 8889)); // Gửi dữ liệu qua UDP
+                //udpClient.Send(dataToSend, dataToSend.Length, new IPEndPoint(broadcastAddress, 8889)); // Gửi dữ liệu qua UDP
+                udpClient.Send(dataToSend, dataToSend.Length, new IPEndPoint(IPAddress.Parse("127.0.0.1"), 8889)); // Gửi dữ liệu qua UDP
 
                 // Cập nhật số byte đã gửi và vị trí index
                 bytesSent += bytesToSend;
@@ -1040,6 +1048,7 @@ namespace testUdpTcp
                     form1 = new SlideShowForm();
                     form1.ServerIP = IpServer;
                     form1.Protocal = protocal;
+                    form1.myIP=myIp;
                     form1.Show();
                 }
             }
@@ -1240,8 +1249,8 @@ namespace testUdpTcp
             stringList.Add($"InfoClient-");
             InForGroup.Controls.Clear();
             // Lấy thông tin về tên máy
-            //string machineName = Environment.MachineName;
-            string machineName = "F710-01";
+            string machineName = Environment.MachineName;
+            //string machineName = "F710-01";
             stringList.Add($"IPC: {myIp}");
             stringList.Add($"Tenmay: {machineName}");
             lblNameComputer.Text = machineName;
@@ -1282,23 +1291,29 @@ namespace testUdpTcp
 
             foreach (ManagementObject wmi_HD in searcher.Get())
             {
-                string HDInfo = "";
-                // Lấy model của ổ cứng
-                stringList.Add("Model: " + wmi_HD["Model"]);
-                HDInfo += "Model: " + wmi_HD["Model"];
-                // Lấy giao diện (interface) của ổ cứng
-                stringList.Add("Interface: " + wmi_HD["InterfaceType"]);
-                HDInfo += " - Interface: " + wmi_HD["InterfaceType"];
+                try
+                {
+                    string HDInfo = "";
+                    HDInfo += "Model: " + wmi_HD["Model"];
+                    HDInfo += " - Interface: " + wmi_HD["InterfaceType"];
 
-                // Lấy kích thước của ổ cứng (size)
-                ulong size = (ulong)wmi_HD["Size"];
-                stringList.Add("Size: " + (size / (1024 * 1024 * 1024)) + " GB");
-                HDInfo += " - Size: " + (size / (1024 * 1024 * 1024)) + " GB";
-                InfoUC infoUC = new InfoUC();
-                infoUC.Image = Properties.Resources.harddisk;
-                infoUC.TextLabel = HDInfo;
-                InForGroup.Controls.Add(infoUC);
+                    
 
+                    ulong size = (ulong)wmi_HD["Size"];
+                    stringList.Add("Model: " + wmi_HD["Model"]);
+                    stringList.Add("Interface: " + wmi_HD["InterfaceType"]);
+                    stringList.Add("Size: " + (size / (1024 * 1024 * 1024)) + " GB|");
+
+                    HDInfo += " - Size: " + (size / (1024 * 1024 * 1024)) + " GB";
+                    InfoUC infoUC = new InfoUC();
+                    infoUC.Image = Properties.Resources.harddisk;
+                    infoUC.TextLabel = HDInfo;
+                   
+                    InForGroup.Controls.Add(infoUC);
+                }
+                catch (Exception ex) { 
+                    continue;
+                }
             }
 
             searcher = new ManagementObjectSearcher("SELECT * FROM Win32_Processor");
@@ -1427,6 +1442,9 @@ namespace testUdpTcp
             }
             else
             {
+                mssvLst.Remove(tmp);
+                mssvList.Remove(txtMSSV.Text);
+
                 MessageBox.Show("Gửi thất bại", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }

@@ -286,22 +286,26 @@ namespace Server
 
         private async void btnSubmit_Click(object sender, EventArgs e)
         {
+            this.Hide();
             // Kiểm tra xem tất cả các trường cần thiết đã được chọn chưa
             if (cbbClass.SelectedItem == null)
             {
                 MessageBox.Show("Vui lòng chọn lớp học.", "Lỗi xác thực", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                this.Show();
                 return;
             }
 
             if (cbbName.SelectedItem == null)
             {
                 MessageBox.Show("Vui lòng chọn người dùng.", "Lỗi xác thực", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                this.Show();
                 return;
             }
 
             if (cbbSession.SelectedItem == null)
             {
                 MessageBox.Show("Vui lòng chọn buổi học.", "Lỗi xác thực", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                this.Show();
                 return;
             }
             // Lấy đối tượng session đã chọn từ ComboBox
@@ -312,12 +316,14 @@ namespace Server
             if (selectedStart == null )
             {
                 MessageBox.Show("Vui lòng chọn thời gian bắt đầu.", "Lỗi xác thực", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                this.Show();
                 return;
             }
 
             if (selectedEnd == null )
             {
                 MessageBox.Show("Vui lòng chọn thời gian kết thúc.", "Lỗi xác thực", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                this.Show();
                 return;
             }
 
@@ -347,6 +353,7 @@ namespace Server
             if (startTime >= endTime)
             {
                 MessageBox.Show("Thời gian bắt đầu phải trước thời gian kết thúc.", "Lỗi xác thực", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                this.Show();
                 return;
             }
 
@@ -366,9 +373,9 @@ namespace Server
             if (room == null)
             {
                 MessageBox.Show( roomID + " chưa tồn tại vui lòng liên hệ khoa để biết thêm thông tin","Lỗi",MessageBoxButtons.OK,MessageBoxIcon.Error);
+                this.Show();
                 return;
             }
-            this.Hide();
 
             try
             {

@@ -10,9 +10,22 @@ public class ApiService : IDataService
     public ApiService()
     {
         _client = new HttpClient();
+        //_client.BaseAddress = new Uri($"http://localhost:9999/api/"); 
         _client.BaseAddress = new Uri($"http://localhost:9999/api/"); 
         _client.DefaultRequestHeaders.Accept.Clear();
         _client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
+    }
+
+    public void UpdateBaseAddress(string baseUrl)
+    {
+        if (Uri.TryCreate(baseUrl, UriKind.Absolute, out var uri))
+        {
+            _client.BaseAddress = uri;
+        }
+        else
+        {
+            throw new ArgumentException("Invalid URL");
+        }
     }
 
     public async Task<string> GetAsync(string endpoint)

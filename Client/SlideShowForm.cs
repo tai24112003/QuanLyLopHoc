@@ -21,6 +21,7 @@ namespace testUdpTcp
         private Thread tcpListenerThread;
         private string serverIP;
         private string protocal;
+        private string myIp;
         private bool isRunning;
 
         public string ServerIP
@@ -33,51 +34,24 @@ namespace testUdpTcp
             get { return protocal; }
             set { protocal = value; }
         }
-        string myIp="127.0.0.1";
+        public string myIP
+        {
+            get { return myIp; }
+            set { myIp = value; }
+        }
         public SlideShowForm()
         {
             InitializeComponent();
 
             this.FormBorderStyle = FormBorderStyle.None; // Loại bỏ viền của form
             this.WindowState = FormWindowState.Maximized; // Phóng to form ra toàn màn hình
-            this.TopMost = true; // Đặt form ở trên cùng của tất cả các cửa sổ khác
-            myIp = getIPServer();
+            //this.TopMost = true; // Đặt form ở trên cùng của tất cả các cửa sổ khác
 
             // Ẩn con trỏ chuột
-            Cursor.Hide();
+            //Cursor.Hide();
             udpClient = new UdpClient(8889); // Khởi tạo UDP client và lắng nghe trên cổng 8889
         }
-        private string getIPServer()
-        {
-            string ip = string.Empty;
-            // Lấy tất cả card mạng của máy tính
-            NetworkInterface[] networkInterfaces = NetworkInterface.GetAllNetworkInterfaces();
-
-            foreach (NetworkInterface networkInterface in networkInterfaces)
-            {
-                // Kiểm tra chỉ lấy card mạng có cấu hình IP cục bộ (Local Area Network)
-                if ((networkInterface.NetworkInterfaceType == NetworkInterfaceType.Ethernet &&
-            networkInterface.Name.Contains("Ethernet") &&
-                    networkInterface.OperationalStatus == OperationalStatus.Up) || networkInterface.NetworkInterfaceType == NetworkInterfaceType.Wireless80211)
-                {
-                    // Lấy danh sách địa chỉ IP của card mạng này
-                    IPInterfaceProperties ipProperties = networkInterface.GetIPProperties();
-                    foreach (UnicastIPAddressInformation ipInfo in ipProperties.UnicastAddresses)
-                    {
-                        // Chỉ lấy địa chỉ IPv4 của mạng LAN cục bộ
-                        if (ipInfo.Address.AddressFamily == AddressFamily.InterNetwork &&
-                            !IPAddress.IsLoopback(ipInfo.Address) &&
-                            !ipInfo.Address.ToString().StartsWith("169.254")) // Loại bỏ các địa chỉ APIPA
-                        {
-                            ip = ipInfo.Address.ToString();
-                            // Trả về địa chỉ IP đầu tiên tìm thấy
-                            return ip;
-                        }
-                    }
-                }
-            }
-            return ip;
-        }
+       
         private void SlideShowForm_Load(object sender, EventArgs e)
         {
             ConnectToServer();

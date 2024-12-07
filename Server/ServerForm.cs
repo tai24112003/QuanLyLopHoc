@@ -121,7 +121,7 @@ namespace Server
             _serviceProvider = serviceProvider;
 
             //Ip = ;
-            //Ip = getIPServer();
+            Ip = getIPServer();
             this.KeyPreview = true;
             // Thực hiện các logic khởi tạo khác nếu cần thiết
         }
@@ -279,7 +279,7 @@ namespace Server
                     if (!string.IsNullOrEmpty(studentID))
                     {
                         // Thay đổi ForeColor thành màu đen cho các dòng có MSSV đã thêm thành công
-                        selectedRow.DefaultCellStyle.ForeColor = Color.Black;
+                        selectedRow.DefaultCellStyle.BackColor = Color.Transparent;
                     }
                 }
 
@@ -309,7 +309,7 @@ namespace Server
                 foreach (DataGridViewRow selectedRow in dgv_attendance.SelectedRows)
                 {
                     // Kiểm tra nếu ForeColor của dòng là màu đỏ, bỏ qua dòng này
-                    if (selectedRow.DefaultCellStyle.ForeColor == Color.Red)
+                    if (selectedRow.DefaultCellStyle.BackColor == Color.FromArgb(212,246,255))
                     {
                         continue;
                     }
@@ -353,7 +353,7 @@ namespace Server
                     if (studentsToUpdate.Any(s => s.StudentID == selectedRow.Cells["MSSV"]?.Value?.ToString()))
                     {
                         // Thay đổi ForeColor thành màu đen
-                        selectedRow.DefaultCellStyle.ForeColor = Color.Black;
+                        selectedRow.DefaultCellStyle.BackColor = Color.Transparent;
                     }
                 }
 
@@ -750,7 +750,7 @@ namespace Server
                 {
                     for (int j = 0; j < dgv_client.Columns.Count; j++)
                     {
-                        dgv_client.Rows[i].Cells[j].Style.ForeColor = Color.Red;
+                        dgv_client.Rows[i].Cells[j].Style.BackColor = Color.FromArgb(212,246,255);
                     }
                 }
                 else
@@ -760,11 +760,11 @@ namespace Server
                         var originalValue = infoList[j];
                         if (originalValue.Contains(":0"))
                         {
-                            dgv_client.Rows[i].Cells[j].Style.ForeColor = Color.Red;
+                            dgv_client.Rows[i].Cells[j].Style.BackColor = Color.FromArgb(212, 246, 255);
                         }
                         else
                         {
-                            dgv_client.Rows[i].Cells[j].Style.ForeColor = Color.Black;
+                            dgv_client.Rows[i].Cells[j].Style.BackColor = Color.Transparent;
                         }
                     }
                 }
@@ -858,8 +858,8 @@ namespace Server
 
             IPAddress broadcastAddress = GetBroadcastAddress() ?? null;
             //SendUDPMessage(IPAddress.Parse("192.168.1.2"), 11312, Ip);
-            //SendUDPMessage(broadcastAddress, 11312, Ip + mess);
-            SendUDPMessage(IPAddress.Parse("127.0.0.1"), 11312, Ip + mess);
+            SendUDPMessage(broadcastAddress, 11312, Ip + mess);
+            //SendUDPMessage(IPAddress.Parse("127.0.0.1"), 11312, Ip + mess);
         }
         private void SendUDPMessage(IPAddress ipAddress, int port, string mes)
         {
@@ -1634,7 +1634,7 @@ namespace Server
                     // Lấy chỉ số cột dựa trên sessionID
                     int columnIndex = dgv_attendance.Columns[sessionID.ToString()].Index;
                     newRow.Cells[columnIndex].Value = value;
-                    newRow.DefaultCellStyle.ForeColor = Color.Red; // Đánh dấu hàng mới
+                    newRow.DefaultCellStyle.BackColor = Color.FromArgb(212, 246, 255); // Đánh dấu hàng mới
                     dgv_attendance.Rows.Add(newRow);
 
 
@@ -1853,15 +1853,15 @@ namespace Server
                     // Cập nhật màu sắc và lưu trạng thái màu
                     if (tmp.Contains("0"))
                     {
-                        row.Cells[i].Style.ForeColor = Color.Red;
+                        row.Cells[i].Style.BackColor = Color.FromArgb(212, 246, 255);
                     }
                     else if (tmp.Contains("1"))
                     {
-                        row.Cells[i].Style.ForeColor = Color.Black;
+                        row.Cells[i].Style.BackColor = Color.Transparent;
                     }
                     else
                     {
-                        row.Cells[i].Style.ForeColor = Color.Red;
+                        row.Cells[i].Style.BackColor = Color.FromArgb(212, 246, 255);
 
                     }
                 }
@@ -1904,11 +1904,11 @@ namespace Server
                     // Cập nhật màu sắc và lưu trạng thái màu
                     if (tmp.Contains("0"))
                     {
-                        newRow.Cells[i].Style.ForeColor = Color.Red;
+                        newRow.Cells[i].Style.BackColor = Color.FromArgb(212, 246, 255);
                     }
                     else
                     {
-                        newRow.Cells[i].Style.ForeColor = Color.Black;
+                        newRow.Cells[i].Style.BackColor = Color.Transparent;
                     }
                 }
             }
@@ -2427,7 +2427,7 @@ namespace Server
                 }
 
                 // Kiểm tra màu sắc của ô (nếu màu nền là đỏ thì không thêm vào danh sách)
-                if (row.Cells[0].Style.ForeColor != Color.Red)
+                if (row.Cells[0].Style.BackColor != Color.FromArgb(212, 246, 255))
                 {
                     Attendance attendance = new Attendance
                     {
@@ -2917,7 +2917,7 @@ namespace Server
                             cell.Value = dataGrid.Rows[i].Cells[j].Value?.ToString() ?? "";
 
                             // Kiểm tra nếu ô có màu đỏ thì tô màu trong Excel
-                            if (dataGrid.Rows[i].Cells[j].Style.ForeColor == Color.Red)
+                            if (dataGrid.Rows[i].Cells[j].Style.BackColor == Color.FromArgb(212, 246, 255))
                             {
                                 cell.Style.Fill.PatternType = ExcelFillStyle.Solid;
                                 cell.Style.Fill.BackgroundColor.SetColor(Color.Red);

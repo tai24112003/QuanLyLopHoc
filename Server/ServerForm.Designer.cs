@@ -236,6 +236,7 @@
             // 
             // tsHome
             // 
+            this.tsHome.BackColor = System.Drawing.Color.Transparent;
             this.tsHome.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
             this.tsHome.Image = ((System.Drawing.Image)(resources.GetObject("tsHome.Image")));
             this.tsHome.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;

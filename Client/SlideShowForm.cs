@@ -49,7 +49,6 @@ namespace testUdpTcp
 
             // Ẩn con trỏ chuột
             //Cursor.Hide();
-            udpClient = new UdpClient(8889); // Khởi tạo UDP client và lắng nghe trên cổng 8889
         }
        
         private void SlideShowForm_Load(object sender, EventArgs e)
@@ -58,6 +57,7 @@ namespace testUdpTcp
             isRunning = true;
             if (protocal == "UDP")
             {
+                udpClient = new UdpClient(8889); // Khởi tạo UDP client và lắng nghe trên cổng 8889
                 udpListenerThread = new Thread(new ThreadStart(ListenForUdpClients));
                 udpListenerThread.Start();
             }
@@ -211,11 +211,13 @@ namespace testUdpTcp
         {
             try
             {
-                // Khởi tạo TCPListener để lắng nghe kết nối từ client trên cổng 8998
-                tcpListener = new TcpListener(IPAddress.Parse(myIp), 8998);
-                tcpListener.Start();
-                Console.WriteLine("Listening for TCP connections on port 8998...");
-
+                if (tcpListener == null || !tcpListener.Server.IsBound)
+                {
+                    // Khởi tạo lại TcpListener
+                    tcpListener = new TcpListener(IPAddress.Parse(myIp), 8998);
+                    tcpListener.Start();
+                    Console.WriteLine("Đang lắng nghe kết nối TCP trên cổng 8998...");
+                }
                 while (isRunning)
                 {
                     TcpClient tcpClient = tcpListener.AcceptTcpClient();

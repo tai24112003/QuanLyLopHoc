@@ -121,7 +121,7 @@ namespace Server
             _serviceProvider = serviceProvider;
 
             //Ip = ;
-            Ip = getIPServer();
+            //Ip = getIPServer();
             this.KeyPreview = true;
             // Thực hiện các logic khởi tạo khác nếu cần thiết
         }

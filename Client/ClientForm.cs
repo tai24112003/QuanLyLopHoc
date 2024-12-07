@@ -33,7 +33,7 @@ namespace testUdpTcp
         public ClientForm()
         {
             InitializeComponent();
-            myIp = getIPServer();
+            //myIp = getIPServer();
             //myIp = "192.168.72.228";
             inf = GetDeviceInfo();
             this.KeyPreview = true;

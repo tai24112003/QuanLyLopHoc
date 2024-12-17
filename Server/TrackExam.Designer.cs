@@ -106,7 +106,7 @@
             this.pnl_chart.Controls.Add(this.btn_switchView);
             this.pnl_chart.Location = new System.Drawing.Point(222, 90);
             this.pnl_chart.Name = "pnl_chart";
-            this.pnl_chart.Size = new System.Drawing.Size(866, 656);
+            this.pnl_chart.Size = new System.Drawing.Size(848, 656);
             this.pnl_chart.TabIndex = 5;
             // 
             // lbl_fastest
@@ -191,9 +191,9 @@
             dataGridViewCellStyle1.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
             this.dgv_ranking.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle1;
             this.dgv_ranking.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dgv_ranking.Location = new System.Drawing.Point(1094, 90);
+            this.dgv_ranking.Location = new System.Drawing.Point(1076, 90);
             this.dgv_ranking.Name = "dgv_ranking";
-            this.dgv_ranking.Size = new System.Drawing.Size(376, 641);
+            this.dgv_ranking.Size = new System.Drawing.Size(394, 641);
             this.dgv_ranking.TabIndex = 1;
             // 
             // lbl_maxP

@@ -15,6 +15,8 @@ namespace DAL.Models
         public bool IsExamining {  get; set; }
         public int RestTimeBetweenQuests { get; set; }
         public int Progress { get; set; }
+        public bool IsShowResult { get; set; }
+
         private void Initialize(int index)
         {
             Index = index;
@@ -23,7 +25,7 @@ namespace DAL.Models
             IsExamining = false ;
             RestTimeBetweenQuests = 3;
             Progress = 0;
-
+            IsShowResult = false ;
             Quests = new List<Quest>
             {
                 new Quest()
@@ -69,6 +71,9 @@ namespace DAL.Models
                         Quests=value.Split(new string[] { "quest@" }, StringSplitOptions.RemoveEmptyEntries)
                             .Select((questString) => new Quest(questString)).ToList();
                         break;
+                    case "isShowResult":
+                        IsShowResult= bool.TryParse(value, out bool isShowResultO) ? isShowResultO : false;
+                        break;
                 }
             }
         }
@@ -81,7 +86,7 @@ namespace DAL.Models
         public string GetTestString()
         {
             string rs = "";
-            rs += $"t-indext:{Index}t-titleExamt:{Title}t-pointt:{MaxPoint}t-restTimeBetweenQuests:{RestTimeBetweenQuests}t-questst:";
+            rs += $"t-indext:{Index}t-titleExamt:{Title}t-pointt:{MaxPoint}t-restTimeBetweenQuests:{RestTimeBetweenQuests}t-isShowResultt:{IsShowResult}t-questst:";
             foreach (Quest quest in Quests) {
                 rs += "quest@";
                 rs += quest.GetQuestString();
@@ -91,7 +96,7 @@ namespace DAL.Models
         public string GetTestStringOutOfQuest()
         {
             string rs = "";
-            rs += $"t-indext:{Index}t-titleExamt:{Title}t-pointt:{MaxPoint}t-restTimeBetweenQuestst:{RestTimeBetweenQuests}";
+            rs += $"t-indext:{Index}t-titleExamt:{Title}t-pointt:{MaxPoint}t-restTimeBetweenQuestst:{RestTimeBetweenQuests}t-isShowResultt:{IsShowResult}";
             return rs;
         }
         public int GetNumStudentDo()
@@ -137,7 +142,26 @@ namespace DAL.Models
             {
                 studentScores = studentScores.Take(top).ToList();
             }
+            foreach(StudentScore stc in studentScores)
+            {
+                stc.StudentName = GetStudentNameById(stc.StudentId);
+            }
+
             return studentScores;
+        }
+        public string GetStudentNameById(string mssv)
+        {
+            foreach(Quest q in Quests)
+            {
+                foreach(StudentAnswer st in q.StudentAnswers)
+                {
+                    if (st.StudentID == mssv)
+                    {
+                        return st.StudentName;
+                    }
+                }
+            }
+            return "<trống>";
         }
         public int CreateIndexQuestInTest()
         {

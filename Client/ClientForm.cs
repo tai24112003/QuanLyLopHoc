@@ -25,6 +25,7 @@ using WindowsInput;
 using DAL.Models;
 using System.Diagnostics;
 using System.Collections;
+using DocumentFormat.OpenXml.Office.SpreadSheetML.Y2023.MsForms;
 
 namespace testUdpTcp
 {
@@ -43,7 +44,7 @@ namespace testUdpTcp
                 Console.Write(ip.ToString());
             }
 
-
+            StudentAnswer=new StudentAnswer();
         }
         [DllImport("user32.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.StdCall)]
         public static extern void mouse_event(uint dwFlags, uint dx, uint dy, uint dwData, int dwExtraInfo);
@@ -67,7 +68,7 @@ namespace testUdpTcp
         private bool sended = false;
         private string hostName;
         TcpListener listener;
-        string mssvDoTest { get; set; }
+        private StudentAnswer StudentAnswer { get; set; }
         private bool isRunningscreenshot = true;
         private bool isRunningscreenshot5s = true;
         private bool isRunningtcplisten = true;
@@ -103,37 +104,38 @@ namespace testUdpTcp
             listenThread = new Thread(ListenForClients);
             listenThread.Start();
 
-
         }
 
-        private void GetMSSV(string mssv)
+        private void GetMSSV(string mssv,string name)
         {
-            this.mssvDoTest = mssv;
-            sendData($"Ready-{mssvDoTest}");
-            WaitingFrom = null; 
-            examFrm = new ExamForm(mssvDoTest, Test, sendData, UpdateMSSV);
+            this.StudentAnswer.StudentID = mssv;
+            this.StudentAnswer.StudentName = name;
+            sendData($"Ready-{StudentAnswer.StudentID}");
+            WaitingFrom = null;
+            examFrm = new ExamForm(StudentAnswer, Test, sendData, UpdateMSSV);
             examFrm.Show();
         }
-        private void UpdateMSSV(string newMSSV)
+        private void UpdateMSSV(string newMSSV, string name)
         {
-            this.mssvDoTest= newMSSV;
+            this.StudentAnswer.StudentID = newMSSV;
+            this.StudentAnswer.StudentName = name;
             WaitingFrom = null;
         }
-        private void ShowWaitingForm(Action<string> bindingMssv)
+        private void ShowWaitingForm(Action<string,string> bindingInfoStudent)
         {
             if (this.InvokeRequired)
             {
                 this.Invoke(new Action(() =>
                 {
                     this.Hide();
-                    WaitingFrom = new Waiting(bindingMssv);
+                    WaitingFrom = new Waiting(bindingInfoStudent);
                     WaitingFrom.Show();
                 }));
             }
             else
             {
                 this.Hide();
-                WaitingFrom = new Waiting(bindingMssv);
+                WaitingFrom = new Waiting(bindingInfoStudent);
                 WaitingFrom.Show();
             }
         }
@@ -283,8 +285,7 @@ namespace testUdpTcp
             while ((bytesRead = clientStream.Read(messageBuffer, 0, messageBuffer.Length)) > 0)
             {
                 receivedMessage += Encoding.UTF8.GetString(messageBuffer, 0, bytesRead);
-                Console.WriteLine(receivedMessage);
-
+                //Console.WriteLine(receivedMessage);
                 // Nếu nhận đủ thông điệp
                 if ((receivedMessage.Contains("-") && !receivedMessage.StartsWith("Key-Examt-")) && (receivedMessage.Contains("-") && !receivedMessage.StartsWith("QuestComet")))
                 {
@@ -446,14 +447,14 @@ namespace testUdpTcp
                 {
                     Test = new Test(parts[0]);
                     Console.WriteLine(Test);
-                    if (!string.IsNullOrEmpty(mssvDoTest))
+                    if (!string.IsNullOrEmpty(StudentAnswer.StudentID))
                     {
-                        sendData($"Ready-{mssvDoTest}");
+                        sendData($"Ready-{StudentAnswer}");
                         if (this.InvokeRequired)
                         {
                             this.Invoke(new Action(() => {
                                 this.Hide();
-                                examFrm = new ExamForm(mssvDoTest, Test, sendData, UpdateMSSV);
+                                examFrm = new ExamForm(StudentAnswer, Test, sendData, UpdateMSSV);
                                 examFrm.Show();
                                 examFrm.Focus();
                             }));
@@ -461,7 +462,7 @@ namespace testUdpTcp
                         else
                         {
                             this.Hide();
-                            examFrm = new ExamForm(mssvDoTest, Test, sendData, UpdateMSSV);
+                            examFrm = new ExamForm(StudentAnswer, Test, sendData, UpdateMSSV);
                             examFrm.Show();
                             examFrm.Focus();
                         }
@@ -483,7 +484,7 @@ namespace testUdpTcp
             {
                 try
                 {
-                    if (string.IsNullOrEmpty(mssvDoTest))
+                    if (string.IsNullOrEmpty(StudentAnswer.StudentID))
                     {
                         if (WaitingFrom != null)
                             return;
@@ -525,7 +526,7 @@ namespace testUdpTcp
                         Test = new Test(pts[0]);
                     }
 
-                    if (string.IsNullOrEmpty(mssvDoTest))
+                    if (string.IsNullOrEmpty(StudentAnswer.StudentID))
                     {
                         if (WaitingFrom != null)
                         {
@@ -534,12 +535,12 @@ namespace testUdpTcp
                         ShowWaitingForm(UpdateMSSV);
                         return;
                     }
-
+                   //Quest quest = JsonConvert.DeserializeObject<Quest>(pts[1]);
                     Quest quest = new Quest(pts[1]);
                     Test.Quests.Add(quest);
                     if (examFrm == null)
                     {
-                        examFrm = new ExamForm(mssvDoTest, Test, sendData, UpdateMSSV, true);
+                        examFrm = new ExamForm(StudentAnswer, Test, sendData, UpdateMSSV, true);
                         Test.IsExamining = true;
                         _ = TestConnection();
                     }
@@ -643,7 +644,7 @@ namespace testUdpTcp
                         break;
                     case "DoExam":
                         Console.WriteLine("Làm bài");
-                        if (string.IsNullOrEmpty(mssvDoTest))
+                        if (string.IsNullOrEmpty(StudentAnswer.StudentID))
                         {
                             if (WaitingFrom != null) break;
 
@@ -652,7 +653,7 @@ namespace testUdpTcp
                         }
                         if (examFrm == null)
                         {
-                            examFrm = new ExamForm(mssvDoTest,Test, sendData,UpdateMSSV);
+                            examFrm = new ExamForm(StudentAnswer,Test, sendData,UpdateMSSV);
                             if (this.InvokeRequired)
                             {
                                 this.Invoke(new Action(() => {
@@ -1314,6 +1315,11 @@ namespace testUdpTcp
 
             string mssv = txtMSSV.Text;
             string fullName = txtFullName.Text.Trim();  // Lấy và cắt khoảng trắng thừa
+            if (string.IsNullOrEmpty(StudentAnswer.StudentID))
+            {
+                StudentAnswer.StudentID = mssv;
+                StudentAnswer.StudentName=fullName;
+            }
 
             if (IpServer == String.Empty) return;
 

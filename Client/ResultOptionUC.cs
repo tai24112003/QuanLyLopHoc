@@ -13,11 +13,12 @@ namespace testUdpTcp
 {
     public partial class ResultOptionUC : UserControl
     {
-        private Result Result { get; set; }
-        private bool IsSelect {  get; set; }
+        public Result Result { get; set; }
+        public bool IsSelect {  get; set; }
         private string Title { get; set; }
+        private bool IsShowResult {  get; set; }
         private readonly  Func<Result, bool> SelectAnswer;
-        public ResultOptionUC(Result result, Func<Result, bool> selectAnswer, string title)
+        public ResultOptionUC(Result result, Func<Result, bool> selectAnswer, string title, bool state)
         {
             InitializeComponent();
 
@@ -31,6 +32,7 @@ namespace testUdpTcp
             
             ToolTip toolTip = new ToolTip();
             toolTip.SetToolTip(lbl_result, Result.Content);
+            IsShowResult = state;
         }
 
         public void ChangeSize( int pW, int pH)
@@ -56,7 +58,7 @@ namespace testUdpTcp
             UpdateState();
         }
 
-        private void UpdateState()
+        public void UpdateState()
         {
             this.BorderStyle =IsSelect?BorderStyle.Fixed3D:BorderStyle.FixedSingle;
             this.lbl_result.BackColor = IsSelect ? Color.Blue: Color.FromArgb(255,128,128,128);
@@ -72,7 +74,10 @@ namespace testUdpTcp
             else if(!IsSelect)
             {
                 this.lbl_result.BackColor = Color.LightGray; // Màu nền khi bị vô hiệu hóa
-                this.lbl_result.ForeColor = Color.White;
+            }
+            else if(IsShowResult)
+            {
+               this.lbl_result.BackColor=Result.IsCorrect?Color.LightGreen : Color.Red;
             }
         }
     }

@@ -33,8 +33,9 @@
             this.pnl_quest = new System.Windows.Forms.Panel();
             this.lbl_countdown = new System.Windows.Forms.Label();
             this.btn_confirm = new System.Windows.Forms.Button();
-            this.lbl_questtype_info = new System.Windows.Forms.Label();
+            this.ptb_questImage = new System.Windows.Forms.PictureBox();
             this.pnl_quest.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.ptb_questImage)).BeginInit();
             this.SuspendLayout();
             // 
             // lbl_question
@@ -94,17 +95,14 @@
             this.btn_confirm.UseVisualStyleBackColor = false;
             this.btn_confirm.Click += new System.EventHandler(this.btn_confirm_Click);
             // 
-            // lbl_questtype_info
+            // ptb_questImage
             // 
-            this.lbl_questtype_info.AutoSize = true;
-            this.lbl_questtype_info.BackColor = System.Drawing.Color.Transparent;
-            this.lbl_questtype_info.Font = new System.Drawing.Font("Microsoft Sans Serif", 20.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lbl_questtype_info.ForeColor = System.Drawing.Color.Black;
-            this.lbl_questtype_info.Location = new System.Drawing.Point(202, 17);
-            this.lbl_questtype_info.Name = "lbl_questtype_info";
-            this.lbl_questtype_info.Size = new System.Drawing.Size(92, 31);
-            this.lbl_questtype_info.TabIndex = 5;
-            this.lbl_questtype_info.Text = "label1";
+            this.ptb_questImage.BackColor = System.Drawing.Color.Transparent;
+            this.ptb_questImage.Location = new System.Drawing.Point(809, 185);
+            this.ptb_questImage.Name = "ptb_questImage";
+            this.ptb_questImage.Size = new System.Drawing.Size(100, 78);
+            this.ptb_questImage.TabIndex = 0;
+            this.ptb_questImage.TabStop = false;
             // 
             // QuestionInfoUC
             // 
@@ -112,7 +110,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackgroundImage = global::testUdpTcp.Properties.Resources.school_background;
             this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.Controls.Add(this.lbl_questtype_info);
+            this.Controls.Add(this.ptb_questImage);
             this.Controls.Add(this.btn_confirm);
             this.Controls.Add(this.lbl_countdown);
             this.Controls.Add(this.pnl_quest);
@@ -121,6 +119,7 @@
             this.Size = new System.Drawing.Size(909, 612);
             this.pnl_quest.ResumeLayout(false);
             this.pnl_quest.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.ptb_questImage)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -133,6 +132,6 @@
         private System.Windows.Forms.Panel pnl_quest;
         private System.Windows.Forms.Label lbl_countdown;
         private System.Windows.Forms.Button btn_confirm;
-        private System.Windows.Forms.Label lbl_questtype_info;
+        private System.Windows.Forms.PictureBox ptb_questImage;
     }
 }

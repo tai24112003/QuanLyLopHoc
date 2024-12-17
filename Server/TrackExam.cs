@@ -35,6 +35,7 @@ namespace Server
             dgv_ranking.DefaultCellStyle.SelectionForeColor = Color.White;
             dgv_ranking.Columns["Top"].HeaderText = "Thứ hạng";
             dgv_ranking.Columns["StudentId"].HeaderText = "MSSV";
+            dgv_ranking.Columns["StudentName"].HeaderText = "Tên";
             dgv_ranking.Columns["Score"].HeaderText = "Điểm";
             dgv_ranking.Columns["NumCorrect"].HeaderText = "Câu đúng";
             dgv_ranking.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;

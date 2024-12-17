@@ -14,13 +14,13 @@ namespace Server
 {
     public partial class ThumbnailQuestion : UserControl
     {
-        private readonly Action<ThumbnailQuestion> DoulicateQuestion;
-        private readonly Action<ThumbnailQuestion> DeleteQuestion;
-        private readonly Action<ThumbnailQuestion> SelectEventNoti;
+        private  Action<ThumbnailQuestion> DoulicateQuestion { get; set; }
+        private  Action<ThumbnailQuestion> DeleteQuestion { get; set; }
+        private  Action<ThumbnailQuestion> SelectEventNoti { get; set; }
 
         public Quest Quest { get; set; }
         private int Index { get; set; }
-        private bool IsSelect=false;
+        private bool IsSelect { get; set; }
         private bool IsView { get; set; }
         public ThumbnailQuestion(Action<ThumbnailQuestion> deleteQuestion, Action<ThumbnailQuestion> doulicateQuestion, Action<ThumbnailQuestion> selectEventNoti, Quest quest, bool state, int index=-1, bool isview=false)
         {

@@ -1,9 +1,12 @@
 ﻿using DAL.Models;
+using DocumentFormat.OpenXml.Bibliography;
 using OfficeOpenXml;
+using OfficeOpenXml.Drawing;
 using OfficeOpenXml.Style;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -185,6 +188,47 @@ namespace Server
                             countingResult++;
                             col++;
                         }
+
+                        col = 11;
+                        if (worksheet.Cells[row, col].Value!=null)
+                        {
+                            string directoryPath = Path.GetDirectoryName(filePath);
+                            string imagePath = worksheet.Cells[row, col].Value.ToString();
+                            string fullImagePath = Path.Combine(directoryPath, imagePath);
+                            if (File.Exists(fullImagePath))
+                            {
+                                //newQuest.ImageData = File.ReadAllBytes(fullImagePath);
+                                using (var image = Image.FromFile(fullImagePath))
+                                {
+                                    // Lặp lại quá trình nén cho đến khi kích thước hình ảnh nhỏ hơn 1MB
+                                    using (MemoryStream memoryStream = new MemoryStream())
+                                    {
+                                        // Khởi tạo chất lượng nén ban đầu
+                                        long quality = 100L;
+                                        var encoder = GetEncoder(ImageFormat.Jpeg);
+                                        var encoderParams = new EncoderParameters(1);
+                                        encoderParams.Param[0] = new EncoderParameter(Encoder.Quality, quality);
+
+                                        // Nén hình ảnh vào bộ nhớ
+                                        image.Save(memoryStream, encoder, encoderParams);
+
+                                        // Kiểm tra kích thước và giảm chất lượng nếu cần
+                                        while (memoryStream.Length > 1024 * 1024) // Kiểm tra nếu hình ảnh lớn hơn 1MB
+                                        {
+                                            memoryStream.SetLength(0); // Xóa bộ nhớ
+                                            quality -= 10; // Giảm chất lượng
+
+                                            encoderParams.Param[0] = new EncoderParameter(Encoder.Quality, quality);
+                                            image.Save(memoryStream, encoder, encoderParams);
+                                        }
+
+                                        // Gán dữ liệu hình ảnh vào ImageData
+                                        newQuest.ImageData = memoryStream.ToArray();
+                                    }
+                                }
+                            }
+                        }
+
                         newTest.Quests.Add(newQuest);
                         coutingQuestion++;
                         row++;
@@ -208,6 +252,18 @@ namespace Server
                 MessageBox.Show($"Lỗi khi import: {ex.Message}");
             }
         }
+        private static ImageCodecInfo GetEncoder(ImageFormat format)
+        {
+            ImageCodecInfo[] codecs = ImageCodecInfo.GetImageDecoders();
+            foreach (ImageCodecInfo codec in codecs)
+            {
+                if (codec.FormatID == format.Guid)
+                {
+                    return codec;
+                }
+            }
+            return null;
+        }
         private void ExportExcel(string filePath)
         {
             try
@@ -227,26 +283,31 @@ namespace Server
                     ExcelWorksheet worksheetTest = package.Workbook.Worksheets.Add("Đề kiểm tra");
                     Test test = Tests[IndexTestSelected];
 
-                    worksheetTest.Cells[1, 1].Value = "Tiêu đề";
-                    worksheetTest.Cells[1, 2].Value = test.Title;
+                    int row = 1;
+                    worksheetTest.Cells[row, 1].Value = "Tiêu đề";
+                    worksheetTest.Cells[row, 2].Value = test.Title;
 
-                    worksheetTest.Cells[2, 1].Value = "Điểm tối đa";
-                    worksheetTest.Cells[2, 2].Value = test.MaxPoint;
+                    //2
+                    worksheetTest.Cells[++row, 1].Value = "Điểm tối đa";
+                    worksheetTest.Cells[row, 2].Value = test.MaxPoint;
+                    //3
+                    worksheetTest.Cells[++row, 1].Value = "Thời gian nghỉ giữa các câu hỏi";
+                    worksheetTest.Cells[row, 2].Value = test.RestTimeBetweenQuests;
 
-                    worksheetTest.Cells[3, 1].Value = "Thời gian nghỉ giữa các câu hỏi";
-                    worksheetTest.Cells[3, 2].Value = test.RestTimeBetweenQuests;
+                    //5
+                    row += 2;
+                    worksheetTest.Cells[row, 1].Value = "Nội dung câu hỏi";
+                    worksheetTest.Cells[row, 2].Value = "Loại câu hỏi";
+                    worksheetTest.Cells[row, 3].Value = "Thời gian làm (giây)";
+                    worksheetTest.Cells[row, 4].Value = "Kết quả 0";
+                    worksheetTest.Cells[row, 5].Value = "Kết quả 1";
+                    worksheetTest.Cells[row, 6].Value = "Kết quả 2";
+                    worksheetTest.Cells[row, 7].Value = "Kết quả 3";
+                    worksheetTest.Cells[row, 8].Value = "Kết quả 4";
+                    worksheetTest.Cells[row,9].Value = "Kết quả 5";
 
-                    worksheetTest.Cells[5, 1].Value = "Nội dung câu hỏi";
-                    worksheetTest.Cells[5, 2].Value = "Loại câu hỏi";
-                    worksheetTest.Cells[5, 3].Value = "Thời gian làm (giây)";
-                    worksheetTest.Cells[5, 4].Value = "Kết quả 0";
-                    worksheetTest.Cells[5, 5].Value = "Kết quả 1";
-                    worksheetTest.Cells[5, 6].Value = "Kết quả 2";
-                    worksheetTest.Cells[5, 7].Value = "Kết quả 3";
-                    worksheetTest.Cells[5, 8].Value = "Kết quả 4";
-                    worksheetTest.Cells[5,9].Value = "Kết quả 5";
-
-                    worksheetTest.Cells[5, 10].Value = "Đáp án đúng";
+                    worksheetTest.Cells[row, 10].Value = "Đáp án đúng";
+                    worksheetTest.Cells[row, 11].Value = "Hình ảnh";
 
                     //note for test
                     worksheetTest.Cells["M5"].Value = "LƯU Ý:";
@@ -256,10 +317,8 @@ namespace Server
                     worksheetTest.Cells["P5"].Value = "Trắc nghiệm 1 đáp án";
                     worksheetTest.Cells["P6"].Value = "Trắc nghiệm nhiều đáp án";
 
-
-
-
-                    int row = 6;
+                    //6
+                    row++;
                     int questionIndex = 1;
 
                     foreach (Quest quest in test.Quests)
@@ -280,6 +339,28 @@ namespace Server
                             .Select((r, idx) => r.IsCorrect ? idx + 1 : (int?)null)
                             .Where(idx => idx != null));
                         worksheetTest.Cells[row, 10].Value = correctAnswers;
+
+                        if (quest.ImageData != null)
+                        {
+                            string directoryPath = Path.GetDirectoryName(filePath);
+                            string imgFolderPath = Path.Combine(directoryPath, "img");
+
+                            // Tạo thư mục "img" nếu chưa tồn tại
+                            if (!Directory.Exists(imgFolderPath))
+                            {
+                                Directory.CreateDirectory(imgFolderPath);
+                            }
+
+                            // Đặt tên file hình ảnh theo index của quest và sử dụng định dạng JPG
+                            string imageFileName = $"{quest.Index}.jpg";
+                            worksheetTest.Cells[row, 11].Value = $"img/{imageFileName}";
+
+                            // Đường dẫn đầy đủ để lưu hình ảnh
+                            string imagePath = Path.Combine(imgFolderPath, imageFileName);
+
+                            // Ghi dữ liệu hình ảnh từ ImageData vào file ảnh với định dạng JPG
+                            File.WriteAllBytes(imagePath, quest.ImageData);
+                        }
 
                         row++;
                         questionIndex++;
@@ -387,8 +468,6 @@ namespace Server
                         worksheet2.Cells[row2, 4].Value = st.NumCorrect.ToString();
                     }
 
-
-
                     package.Save();
                 }
 
@@ -415,6 +494,7 @@ namespace Server
         }
         private void ChangeTest()
         {
+            UpdateRadioButtons();
             btn_doExam.Visible=IndexTestSended!=-1?true:false;
             if (pnl_test_list.Controls.Count < 1)
             {
@@ -433,7 +513,20 @@ namespace Server
             
             FilterQuestByType(cbb_questTypeFilter.SelectedItem as QuestType);
         }
-     
+        private void UpdateRadioButtons()
+        {
+            if (Tests[IndexTestSelected].IsShowResult)
+            {
+                rdb_noneShow.Checked = false; // Chọn RadioButton1
+                rdb_show.Checked = true;
+            }
+            else
+            {
+                rdb_noneShow.Checked = true;
+                rdb_show.Checked = false; // Chọn RadioButton2
+            }
+        }
+
         //action delegate
         //
         private void DeleteQues(ThumbnailQuestion item)
@@ -645,10 +738,10 @@ namespace Server
         private void UpdatePaneQuestListlHeight()
         {
             // Cập nhật chiều cao của panel nếu cần thiết
-            int newHeight = pnl_slide_question.Controls.Count * 105 + 10; // 105 là chiều cao trung bình của ThumbnailQuestion
-            newHeight = Math.Min(newHeight, 490); // Giới hạn chiều cao tối đa là 580
+            int newHeight = pnl_slide_question.Controls.Count * 105 + 6; // 105 là chiều cao trung bình của ThumbnailQuestion
+            newHeight = Math.Min(newHeight, 636); // Giới hạn chiều cao tối đa là 580
             this.pnl_slide_question.Height = newHeight;
-            if (newHeight >= 490)
+            if (newHeight >= 636)
             {
                 pnl_slide_question.VerticalScroll.Value = pnl_slide_question.VerticalScroll.Maximum;
                 pnl_slide_question.PerformLayout(); // Cập nhật bố cục sau khi cuộn
@@ -764,7 +857,7 @@ namespace Server
             Test tempTest = Tests[IndexTestSelected];
             tempTest.Title=txt_testTitle.Text.Trim();
             tempTest.MaxPoint =int.TryParse(txt_maxPoint.Text.Trim(), out int value)?value:0;
-
+            
             txt_maxPoint.Text = tempTest.MaxPoint.ToString();
 
             Quest temp;
@@ -808,12 +901,30 @@ namespace Server
                 if (folderBrowserDialog.ShowDialog() == DialogResult.OK)
                 {
                     string folderPath = folderBrowserDialog.SelectedPath;
-                    Console.WriteLine($"{folderPath}");
-                    // Hiển thị đường dẫn thư mục đã chọn, ví dụ trên một label
-                    ExportExcel(folderPath + @"\exam-result.xlsx");
+
+                    // Lấy thời gian hiện tại và định dạng thành chuỗi
+                    string timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
+
+                    // Tên file bao gồm ngày giờ
+                    string fileName = $"exam-result_{timestamp}.xlsx";
+
+                    // Tạo thư mục mới dựa trên tên file (không bao gồm phần mở rộng)
+                    string folderName = Path.GetFileNameWithoutExtension(fileName);
+                    string newFolderPath = Path.Combine(folderPath, folderName);
+                    Directory.CreateDirectory(newFolderPath);
+
+                    // Tạo thư mục "img" cùng cấp với file Excel trong thư mục mới
+                    string imgFolderPath = Path.Combine(newFolderPath, "img");
+                    Directory.CreateDirectory(imgFolderPath);
+
+                    // Đường dẫn đầy đủ của file Excel trong thư mục mới
+                    string fullFilePath = Path.Combine(newFolderPath, fileName);
+
+                    ExportExcel(fullFilePath);
                 }
             }
         }
+
         private void btn_sendExam_Click(object sender, EventArgs e)
         {
             Test test = Tests[IndexTestSelected];
@@ -939,7 +1050,8 @@ namespace Server
         }
         private void btn_confirmSetExam_Click(object sender, EventArgs e)
         {
-            if (cbb_doQuestTime_exam.SelectedIndex == -1 && cbb_questType_exam.SelectedIndex == -1 && cbb_restEachTime_exam.SelectedIndex == -1)
+            Test test = Tests[IndexTestSelected];
+            if (cbb_doQuestTime_exam.SelectedIndex == -1 && cbb_questType_exam.SelectedIndex == -1 && cbb_restEachTime_exam.SelectedIndex == -1&&rdb_noneShow.Checked==!test.IsShowResult)
             {
                 return;
             }
@@ -952,7 +1064,7 @@ namespace Server
 
             int newDoTime = 0;
             int newRestTime = 0;
-
+            test.IsShowResult=!rdb_noneShow.Checked;
             if (cbb_questType_exam.SelectedItem != null)
             {
                 newType=cbb_questType_exam.SelectedItem as QuestType;

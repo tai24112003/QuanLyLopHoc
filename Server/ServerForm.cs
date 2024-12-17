@@ -39,7 +39,7 @@ namespace Server
         private bool isFullInfoMode = false;
         private WinFormsTimer timer;
         Class _classinfo;
-        private string Ip= "172.16.13.30";
+        private string Ip= "172.16.12.34";
         private TcpListener tcpListener;
         private Thread listenThread;
         private Thread screenshotThread;
@@ -640,7 +640,9 @@ namespace Server
                             case "studentId":
                                 newAnswer.StudentID = value;
                                 break;
-
+                            case "studentName":
+                                newAnswer.StudentName = value;
+                                break;
                             case "timeDoQuest":
                                 newAnswer.TimeDoQuest = int.TryParse(value, out int timeDoQuestO) ? timeDoQuestO : 0;
                                 break;
@@ -2501,8 +2503,8 @@ namespace Server
                                 client = new TcpClient(clientIP, 8888)
                                 {
                                     SendBufferSize = 1024 * 1024, // Thiết lập kích thước buffer lớn (1 MB)
-                                    SendTimeout = 5000, // 5 giây
-                                    ReceiveTimeout = 5000 // 5 giây
+                                    //SendTimeout = 5000, // 5 giây
+                                    //ReceiveTimeout = 5000 // 5 giây
                                 };
                                 stream = client.GetStream();
 

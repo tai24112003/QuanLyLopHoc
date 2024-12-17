@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -20,14 +21,19 @@ namespace testUdpTcp
         private StudentAnswer StudentAnswer { get; set; }
         private Action<StudentAnswer, int> SendAnswer { get; set; }
         private bool IsAnswer {  get; set; }
-        public QuestionInfoUC(Quest quest, Action<StudentAnswer, int> sendAnswer)
+        private bool IsShowResult { get; set; }
+        private int DevideBy { get; set; }
+        public QuestionInfoUC(StudentAnswer student, Quest quest, Action<StudentAnswer, int> sendAnswer, bool state, int devideBy=0)
         {
             InitializeComponent();
 
             Quest = quest;
             SendAnswer = sendAnswer;
-            StudentAnswer=new StudentAnswer();
+            StudentAnswer = student;
+            StudentAnswer.SelectResultsId.Clear();
             IsAnswer = false;
+            IsShowResult = state;
+            DevideBy = devideBy;
 
             Counter = Quest.CountDownTime;
             CountdownTimer = new Timer
@@ -36,7 +42,6 @@ namespace testUdpTcp
             };
             CountdownTimer.Tick += CountdownTimerQuest_Tick;
             InitUI();
-
         }
 
         private void InitUI()
@@ -44,34 +49,51 @@ namespace testUdpTcp
             ToolTip toolTip = new ToolTip();
 
             int screenW = SystemInformation.VirtualScreen.Width;
-            int screenH = SystemInformation.VirtualScreen.Height;
+            int screenH = SystemInformation.VirtualScreen.Height-DevideBy;
+
+            int topRightBtn = (int)(screenH * 0.94);
+
+            //lbl_questtype_info.Text =Quest.Type.Name;
+            //lbl_questtype_info.Location = new Point((int)(screenW * 0.8), (int)(screenH * 0.05));
+            //toolTip.SetToolTip(lbl_questtype_info, Quest.Type.Description);
+
+            pnl_answers.Size = new Size((int)(screenW * 0.8), (int)(screenH * 0.35));
+            int topRightAnswer = topRightBtn - 10 - pnl_answers.Height;
+            pnl_answers.Location = new Point((int)(screenW * 0.1), topRightAnswer);
+
+            btn_confirm.Location = new Point((int)(screenW*0.5-btn_confirm.Width/2), topRightBtn);
+            btn_confirm.Visible = StudentAnswer.SelectResultsId.Any();
 
             pnl_quest.Size = new Size((int)(screenW * 0.8), (int)(screenH * 0.18));
-            pnl_quest.Location = new Point((int)(screenW * 0.1), (int)(screenH * 0.15));
+            int topRightQuest=topRightAnswer - 10 - pnl_quest.Height;
+            pnl_quest.Location = new Point((int)(screenW * 0.1), topRightQuest);
 
             lbl_question.MaximumSize = new Size((int)(pnl_quest.Width - 5), 0);
             lbl_question.Location = new Point(0, 0);
-            lbl_question.Text = Quest.Content;
+            lbl_question.Text = Quest.Content + $" ({Quest.Type.Name})";
 
             lbl_countdown.Text = $"Thời gian: {Counter} s";
-            lbl_countdown.Location = new Point((int)(screenW * 0.03), (int)(screenH * 0.05));
+            lbl_countdown.Location = new Point((int)(screenW * 0.03), (int)(screenH * 0.01));
 
-            lbl_questtype_info.Text =Quest.Type.Name;
-            lbl_questtype_info.Location = new Point((int)(screenW * 0.8), (int)(screenH * 0.05));
-            toolTip.SetToolTip(lbl_questtype_info, Quest.Type.Description);
+            ptb_questImage.Size = new Size((int)(screenW * 0.3), pnl_quest.Top - lbl_countdown.Bottom - 10);
+            ptb_questImage.Location = new Point((int)(screenW * 0.5) - ptb_questImage.Width / 2, lbl_countdown.Bottom);
 
-            pnl_answers.Size = new Size((int)(screenW * 0.8), (int)(screenH * 0.5));
-            pnl_answers.Location = new Point((int)(screenW * 0.1), (int)(screenH * 0.4));
-
-            btn_confirm.Location = new Point((int)(screenW*0.5-btn_confirm.Width/2), (int)(screenH*0.75));
-            btn_confirm.Visible = StudentAnswer.SelectResultsId.Any();
+            if (Quest.ImageData != null)
+            {
+                using (var ms = new MemoryStream(Quest.ImageData))
+                {
+                    // Chuyển byte array thành Image và hiển thị trong PictureBox
+                    ptb_questImage.Image = Image.FromStream(ms);
+                    ptb_questImage.SizeMode = PictureBoxSizeMode.Zoom;
+                }
+            }
 
             Shuffle(Quest.Results);
             List<string> titleRs = new List<string> {"A","B","C","D","E","F" };
             int index = 0;
             foreach (var item in Quest.Results)
             {
-                ResultOptionUC newRs = new ResultOptionUC(item, StudentSelectTheRs, titleRs[index]);
+                ResultOptionUC newRs = new ResultOptionUC(item, StudentSelectTheRs, titleRs[index], IsShowResult);
                 newRs.ChangeSize(pnl_answers.Width, pnl_answers.Height);
                 pnl_answers.Controls.Add(newRs);
                 index++;
@@ -90,13 +112,23 @@ namespace testUdpTcp
                     return true;
                 }
 
+                int indexRs = Quest.Results[index].Id;
+
                 if (Quest.Type == QuestType.SingleSeclect && StudentAnswer.SelectResultsId.Any())
                 {
-                    MessageBox.Show("Đây là câu hỏi 1 đáp án");
-                    return false;
+                    //MessageBox.Show("Đây là câu hỏi 1 đáp án");
+                    int oldId=StudentAnswer.SelectResultsId.First();
+                    StudentAnswer.SelectResultsId.Clear();
+                    foreach (ResultOptionUC item in pnl_answers.Controls)
+                    {
+                        if (item.Result.Id==oldId) {
+                            item.IsSelect = !item.IsSelect;
+                            item.UpdateState();
+                            break;
+                        }
+                    }
                 }
-                int indexRs = Quest.Results[index].Id;
-                StudentAnswer.SelectResultsId.Add(indexRs);
+                StudentAnswer.SelectResultsId.Add(indexRs); 
                 btn_confirm.Visible = StudentAnswer.SelectResultsId.Any();
                 return true;
             }

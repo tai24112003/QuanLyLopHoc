@@ -63,6 +63,9 @@
             this.lbl_quest_type = new System.Windows.Forms.Label();
             this.cbb_questType = new System.Windows.Forms.ComboBox();
             this.grb_setting_exam = new System.Windows.Forms.GroupBox();
+            this.rdb_show = new System.Windows.Forms.RadioButton();
+            this.rdb_noneShow = new System.Windows.Forms.RadioButton();
+            this.label7 = new System.Windows.Forms.Label();
             this.label6 = new System.Windows.Forms.Label();
             this.cbb_restEachTime_exam = new System.Windows.Forms.ComboBox();
             this.label4 = new System.Windows.Forms.Label();
@@ -197,7 +200,7 @@
             this.panel1.BackColor = System.Drawing.SystemColors.Desktop;
             this.panel1.Location = new System.Drawing.Point(225, 155);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(2, 600);
+            this.panel1.Size = new System.Drawing.Size(2, 750);
             this.panel1.TabIndex = 5;
             // 
             // pnl_slide_question
@@ -211,14 +214,14 @@
             // 
             this.pnl_body.Location = new System.Drawing.Point(234, 174);
             this.pnl_body.Name = "pnl_body";
-            this.pnl_body.Size = new System.Drawing.Size(760, 580);
+            this.pnl_body.Size = new System.Drawing.Size(760, 725);
             this.pnl_body.TabIndex = 2;
             // 
             // btn_save
             // 
             this.btn_save.BackgroundImage = global::Server.Properties.Resources.save;
             this.btn_save.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.btn_save.Location = new System.Drawing.Point(1017, 692);
+            this.btn_save.Location = new System.Drawing.Point(1008, 855);
             this.btn_save.Name = "btn_save";
             this.btn_save.Size = new System.Drawing.Size(50, 50);
             this.btn_save.TabIndex = 5;
@@ -242,7 +245,7 @@
             // btn_confirmSetExam
             // 
             this.btn_confirmSetExam.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btn_confirmSetExam.Location = new System.Drawing.Point(132, 192);
+            this.btn_confirmSetExam.Location = new System.Drawing.Point(132, 218);
             this.btn_confirmSetExam.Name = "btn_confirmSetExam";
             this.btn_confirmSetExam.Size = new System.Drawing.Size(75, 23);
             this.btn_confirmSetExam.TabIndex = 14;
@@ -255,7 +258,7 @@
             // 
             this.btn_stop_exam.BackgroundImage = global::Server.Properties.Resources.close;
             this.btn_stop_exam.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.btn_stop_exam.Location = new System.Drawing.Point(1100, 585);
+            this.btn_stop_exam.Location = new System.Drawing.Point(1100, 612);
             this.btn_stop_exam.Name = "btn_stop_exam";
             this.btn_stop_exam.Size = new System.Drawing.Size(50, 50);
             this.btn_stop_exam.TabIndex = 17;
@@ -277,7 +280,7 @@
             this.panel3.BackColor = System.Drawing.SystemColors.Desktop;
             this.panel3.Location = new System.Drawing.Point(1000, 155);
             this.panel3.Name = "panel3";
-            this.panel3.Size = new System.Drawing.Size(2, 600);
+            this.panel3.Size = new System.Drawing.Size(2, 750);
             this.panel3.TabIndex = 6;
             // 
             // label3
@@ -423,6 +426,9 @@
             // 
             // grb_setting_exam
             // 
+            this.grb_setting_exam.Controls.Add(this.rdb_show);
+            this.grb_setting_exam.Controls.Add(this.rdb_noneShow);
+            this.grb_setting_exam.Controls.Add(this.label7);
             this.grb_setting_exam.Controls.Add(this.btn_confirmSetExam);
             this.grb_setting_exam.Controls.Add(this.label6);
             this.grb_setting_exam.Controls.Add(this.cbb_restEachTime_exam);
@@ -430,19 +436,54 @@
             this.grb_setting_exam.Controls.Add(this.cbb_doQuestTime_exam);
             this.grb_setting_exam.Controls.Add(this.label5);
             this.grb_setting_exam.Controls.Add(this.cbb_questType_exam);
-            this.grb_setting_exam.Location = new System.Drawing.Point(1008, 288);
+            this.grb_setting_exam.Location = new System.Drawing.Point(1008, 308);
             this.grb_setting_exam.Name = "grb_setting_exam";
-            this.grb_setting_exam.Size = new System.Drawing.Size(213, 221);
+            this.grb_setting_exam.Size = new System.Drawing.Size(213, 247);
             this.grb_setting_exam.TabIndex = 15;
             this.grb_setting_exam.TabStop = false;
             this.grb_setting_exam.Text = "Điều chỉnh bài kiểm tra";
+            // 
+            // rdb_show
+            // 
+            this.rdb_show.AutoSize = true;
+            this.rdb_show.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.rdb_show.Location = new System.Drawing.Point(92, 175);
+            this.rdb_show.Name = "rdb_show";
+            this.rdb_show.Size = new System.Drawing.Size(93, 20);
+            this.rdb_show.TabIndex = 18;
+            this.rdb_show.TabStop = true;
+            this.rdb_show.Text = "Trả kết quả";
+            this.rdb_show.UseVisualStyleBackColor = true;
+            // 
+            // rdb_noneShow
+            // 
+            this.rdb_noneShow.AutoSize = true;
+            this.rdb_noneShow.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.rdb_noneShow.Location = new System.Drawing.Point(3, 175);
+            this.rdb_noneShow.Name = "rdb_noneShow";
+            this.rdb_noneShow.Size = new System.Drawing.Size(63, 20);
+            this.rdb_noneShow.TabIndex = 17;
+            this.rdb_noneShow.TabStop = true;
+            this.rdb_noneShow.Text = "Không";
+            this.rdb_noneShow.UseVisualStyleBackColor = true;
+            // 
+            // label7
+            // 
+            this.label7.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.label7.AutoSize = true;
+            this.label7.Location = new System.Drawing.Point(3, 157);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(62, 13);
+            this.label7.TabIndex = 16;
+            this.label7.Text = "Trả kết quả";
             // 
             // label6
             // 
             this.label6.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(3, 103);
+            this.label6.Location = new System.Drawing.Point(3, 110);
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(139, 13);
             this.label6.TabIndex = 13;
@@ -455,7 +496,7 @@
             this.cbb_restEachTime_exam.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cbb_restEachTime_exam.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.cbb_restEachTime_exam.FormattingEnabled = true;
-            this.cbb_restEachTime_exam.Location = new System.Drawing.Point(3, 118);
+            this.cbb_restEachTime_exam.Location = new System.Drawing.Point(3, 125);
             this.cbb_restEachTime_exam.Name = "cbb_restEachTime_exam";
             this.cbb_restEachTime_exam.Size = new System.Drawing.Size(207, 24);
             this.cbb_restEachTime_exam.TabIndex = 12;
@@ -465,7 +506,7 @@
             this.label4.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(3, 61);
+            this.label4.Location = new System.Drawing.Point(3, 65);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(79, 13);
             this.label4.TabIndex = 11;
@@ -478,7 +519,7 @@
             this.cbb_doQuestTime_exam.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cbb_doQuestTime_exam.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.cbb_doQuestTime_exam.FormattingEnabled = true;
-            this.cbb_doQuestTime_exam.Location = new System.Drawing.Point(3, 76);
+            this.cbb_doQuestTime_exam.Location = new System.Drawing.Point(3, 80);
             this.cbb_doQuestTime_exam.Name = "cbb_doQuestTime_exam";
             this.cbb_doQuestTime_exam.Size = new System.Drawing.Size(207, 24);
             this.cbb_doQuestTime_exam.TabIndex = 10;
@@ -508,7 +549,7 @@
             // 
             // btn_trackTheExam
             // 
-            this.btn_trackTheExam.Location = new System.Drawing.Point(1057, 539);
+            this.btn_trackTheExam.Location = new System.Drawing.Point(1057, 566);
             this.btn_trackTheExam.Name = "btn_trackTheExam";
             this.btn_trackTheExam.Size = new System.Drawing.Size(132, 40);
             this.btn_trackTheExam.TabIndex = 16;
@@ -534,7 +575,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1231, 761);
+            this.ClientSize = new System.Drawing.Size(1231, 911);
             this.Controls.Add(this.btn_sendSignal);
             this.Controls.Add(this.btn_stop_exam);
             this.Controls.Add(this.btn_trackTheExam);
@@ -615,5 +656,8 @@
         private System.Windows.Forms.Button btn_trackTheExam;
         private System.Windows.Forms.Button btn_stop_exam;
         private System.Windows.Forms.Button btn_sendSignal;
+        private System.Windows.Forms.Label label7;
+        private System.Windows.Forms.RadioButton rdb_show;
+        private System.Windows.Forms.RadioButton rdb_noneShow;
     }
 }

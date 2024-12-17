@@ -12,6 +12,7 @@ using DAL.Models;
 using static System.Net.Mime.MediaTypeNames;
 using System.Reflection;
 using System.Threading.Tasks;
+using Newtonsoft.Json.Linq;
 
 namespace testUdpTcp
 {
@@ -27,17 +28,17 @@ namespace testUdpTcp
         private Timer CountdownTimer { get; set; }
         private int CounterA { get; set; }
         private  Action<string> SendData { get; set; }
-        private  Action<string> ChangeMssvInClientForm { get; set; }
-        private string Mssv { get; set; }
+        private  Action<string,string> ChangeInfoInClientForm { get; set; }
+        private StudentAnswer Student { get; set; }
         private bool IsLate {  get; set; }
-        public ExamForm(string mssv,Test test, Action<string> sendAnswer,Action<string> changeMssv, bool state=false )
+        public ExamForm(StudentAnswer student,Test test, Action<string> sendAnswer,Action<string, string> changeInfoStudent, bool state=false )
         {
             InitializeComponent();
 
             Test = test;
             SendData = sendAnswer;
-            ChangeMssvInClientForm = changeMssv;
-            Mssv = mssv;
+            ChangeInfoInClientForm = changeInfoStudent;
+            Student = student;
             IsLate = state;
 
             InitForm();
@@ -60,15 +61,33 @@ namespace testUdpTcp
 
         private void InitalStateUI()
         {
+            int sW = SystemInformation.VirtualScreen.Width;
+
+            panel4.Size =new Size(sW/2 +20, headerPanel.Height);
+            int pnl4W = panel4.Width;
+
             label4.Text = this.Test.Title;
-            lbl_mssv.Text = this.Mssv;
+            int l4 = pnl4W / 2 - label4.Width / 2;
+            label4.Location = new Point(l4>0?l4:0,5);
+
             lbl_maxP.Text = $"Điểm tối đa: {Test.MaxPoint}";
+            lbl_maxP.Location = new Point(pnl4W / 2 - lbl_maxP.Width / 2, label4.Bottom+5);
+
+            lbl_mssv.Text ="MSSV: "+ this.Student.StudentID;
+            lbl_mssv.Location = new Point(pnl4W / 2 - lbl_mssv.Width / 2, lbl_maxP.Bottom + 5);
+            
+            lbl_name.Text="Tên: "+this.Student.StudentName;
+            lbl_name.Location = new Point(pnl4W / 2 - lbl_name.Width / 2, lbl_mssv.Bottom + 5);
+
+            btn_changeMssv.Location = new Point(Math.Max(lbl_mssv.Right,lbl_name.Right) +10 , lbl_mssv.Bottom);
+
             this.FormBorderStyle = FormBorderStyle.None;
             this.WindowState = FormWindowState.Maximized;
             pnExam.Location = new Point(0, headerPanel.Height);
             pnExam.Width = (int)(screenWidth );
             pnExam.Height = (int)(screenHeight - headerPanel.Height);
             pnExam.AutoScroll = true;
+
 
             lbl_top1.Visible = false;
             lbl_top2.Visible = false;
@@ -84,13 +103,15 @@ namespace testUdpTcp
             lbl_top2.Visible = false;
             lbl_top3.Visible = false;
 
+            int headerH=this.headerPanel.Height;
             foreach (Quest item in Test.Quests)
             {
                 if (item.Index != indexQ)
                 {
                     continue;
                 }
-                QuestionInfoUC newQ = new QuestionInfoUC(item, SendAnswer)
+
+                QuestionInfoUC newQ = new QuestionInfoUC(Student,item, SendAnswer, Test.IsShowResult, headerH)
                 {
                     Dock = DockStyle.Fill,
                 };
@@ -101,7 +122,8 @@ namespace testUdpTcp
         }
         private void SendAnswer(StudentAnswer answer, int indexQuest)
         {
-            answer.StudentID = Mssv;
+            Console.WriteLine(Student.StudentName);
+
             string mess = $"answer@indexQuest:{indexQuest}{answer.GetAnswerString()}";
             Console.WriteLine(mess);
             SendData(mess);
@@ -179,12 +201,14 @@ namespace testUdpTcp
             );
             lbl.Anchor = AnchorStyles.None;
         }
-        private void ChangeMssvInForm(string newMSSV)
+        private void ChangeMssvInForm(string newMSSV, string name)
         {
-            string mess = $"ReadyAgain-{Mssv}-{newMSSV}";
-            this.Mssv = newMSSV;
-            lbl_mssv.Text = Mssv;
-            ChangeMssvInClientForm(newMSSV);
+            string mess = $"ReadyAgain-{Student}-{newMSSV}";
+            this.Student.StudentID = newMSSV;
+            this.Student.StudentName = name;
+            lbl_mssv.Text = newMSSV;
+            lbl_name.Text = name;
+            ChangeInfoInClientForm(newMSSV,name);
             SendData(mess);
         }
         private void btn_changeMssv_Click(object sender, EventArgs e)

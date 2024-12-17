@@ -34,10 +34,10 @@
             this.label1 = new System.Windows.Forms.Label();
             this.label17 = new System.Windows.Forms.Label();
             this.panel4 = new System.Windows.Forms.Panel();
+            this.lbl_name = new System.Windows.Forms.Label();
             this.lbl_maxP = new System.Windows.Forms.Label();
             this.btn_changeMssv = new System.Windows.Forms.Button();
             this.lbl_mssv = new System.Windows.Forms.Label();
-            this.label9 = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
             this.pnExam = new System.Windows.Forms.Panel();
             this.lbl_top3 = new System.Windows.Forms.Label();
@@ -78,7 +78,7 @@
             // 
             this.label12.AutoSize = true;
             this.label12.ForeColor = System.Drawing.Color.White;
-            this.label12.Location = new System.Drawing.Point(140, 84);
+            this.label12.Location = new System.Drawing.Point(157, 84);
             this.label12.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label12.Name = "label12";
             this.label12.Size = new System.Drawing.Size(253, 13);
@@ -93,7 +93,7 @@
             this.label1.AutoSize = true;
             this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 19.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label1.ForeColor = System.Drawing.Color.White;
-            this.label1.Location = new System.Drawing.Point(130, 8);
+            this.label1.Location = new System.Drawing.Point(147, 8);
             this.label1.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(254, 31);
@@ -108,7 +108,7 @@
             this.label17.AutoSize = true;
             this.label17.Font = new System.Drawing.Font("Microsoft Sans Serif", 19.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label17.ForeColor = System.Drawing.Color.White;
-            this.label17.Location = new System.Drawing.Point(22, 46);
+            this.label17.Location = new System.Drawing.Point(39, 46);
             this.label17.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label17.Name = "label17";
             this.label17.Size = new System.Drawing.Size(511, 31);
@@ -117,10 +117,10 @@
             // 
             // panel4
             // 
+            this.panel4.Controls.Add(this.lbl_name);
             this.panel4.Controls.Add(this.lbl_maxP);
             this.panel4.Controls.Add(this.btn_changeMssv);
             this.panel4.Controls.Add(this.lbl_mssv);
-            this.panel4.Controls.Add(this.label9);
             this.panel4.Controls.Add(this.label4);
             this.panel4.Dock = System.Windows.Forms.DockStyle.Right;
             this.panel4.Location = new System.Drawing.Point(692, 0);
@@ -129,12 +129,24 @@
             this.panel4.Size = new System.Drawing.Size(511, 129);
             this.panel4.TabIndex = 10;
             // 
+            // lbl_name
+            // 
+            this.lbl_name.AutoSize = true;
+            this.lbl_name.Font = new System.Drawing.Font("Microsoft Sans Serif", 13.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lbl_name.ForeColor = System.Drawing.Color.White;
+            this.lbl_name.Location = new System.Drawing.Point(149, 95);
+            this.lbl_name.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.lbl_name.Name = "lbl_name";
+            this.lbl_name.Size = new System.Drawing.Size(110, 24);
+            this.lbl_name.TabIndex = 28;
+            this.lbl_name.Text = "0306211215";
+            // 
             // lbl_maxP
             // 
             this.lbl_maxP.AutoSize = true;
             this.lbl_maxP.Font = new System.Drawing.Font("Microsoft Sans Serif", 13.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lbl_maxP.ForeColor = System.Drawing.Color.White;
-            this.lbl_maxP.Location = new System.Drawing.Point(133, 52);
+            this.lbl_maxP.Location = new System.Drawing.Point(132, 40);
             this.lbl_maxP.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.lbl_maxP.Name = "lbl_maxP";
             this.lbl_maxP.Size = new System.Drawing.Size(68, 24);
@@ -143,7 +155,7 @@
             // 
             // btn_changeMssv
             // 
-            this.btn_changeMssv.Location = new System.Drawing.Point(371, 86);
+            this.btn_changeMssv.Location = new System.Drawing.Point(380, 86);
             this.btn_changeMssv.Name = "btn_changeMssv";
             this.btn_changeMssv.Size = new System.Drawing.Size(75, 23);
             this.btn_changeMssv.TabIndex = 26;
@@ -156,24 +168,12 @@
             this.lbl_mssv.AutoSize = true;
             this.lbl_mssv.Font = new System.Drawing.Font("Microsoft Sans Serif", 13.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lbl_mssv.ForeColor = System.Drawing.Color.White;
-            this.lbl_mssv.Location = new System.Drawing.Point(216, 84);
+            this.lbl_mssv.Location = new System.Drawing.Point(154, 70);
             this.lbl_mssv.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.lbl_mssv.Name = "lbl_mssv";
             this.lbl_mssv.Size = new System.Drawing.Size(110, 24);
             this.lbl_mssv.TabIndex = 25;
             this.lbl_mssv.Text = "0306211215";
-            // 
-            // label9
-            // 
-            this.label9.AutoSize = true;
-            this.label9.Font = new System.Drawing.Font("Microsoft Sans Serif", 13.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label9.ForeColor = System.Drawing.Color.White;
-            this.label9.Location = new System.Drawing.Point(132, 84);
-            this.label9.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.label9.Name = "label9";
-            this.label9.Size = new System.Drawing.Size(68, 24);
-            this.label9.TabIndex = 23;
-            this.label9.Text = "MSSV:";
             // 
             // label4
             // 
@@ -183,7 +183,7 @@
             this.label4.AutoSize = true;
             this.label4.Font = new System.Drawing.Font("Microsoft Sans Serif", 19.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label4.ForeColor = System.Drawing.Color.White;
-            this.label4.Location = new System.Drawing.Point(128, 8);
+            this.label4.Location = new System.Drawing.Point(103, 4);
             this.label4.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(231, 31);
@@ -285,7 +285,6 @@
         private System.Windows.Forms.Panel pnInfo;
         private System.Windows.Forms.Label label17;
         private System.Windows.Forms.Panel panel4;
-        private System.Windows.Forms.Label label9;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.Label label12;
         public System.Windows.Forms.Label label1;
@@ -297,5 +296,6 @@
         private System.Windows.Forms.Label lbl_top1;
         private System.Windows.Forms.Button btn_changeMssv;
         private System.Windows.Forms.Label lbl_maxP;
+        private System.Windows.Forms.Label lbl_name;
     }
 }

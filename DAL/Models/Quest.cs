@@ -1,5 +1,8 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
+using System.IO.Compression;
+using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
@@ -13,6 +16,7 @@ namespace DAL.Models
         public string Content { get; set; }
         public QuestType Type { get; set; }
         public int CountDownTime { get; set; }
+        public byte[] ImageData { get; set; }
         public List<Result> Results { get; set; }
         public List<StudentAnswer> StudentAnswers { get; set; }
         private void Initialize(int index, int type=0, string contentSuffix = "")
@@ -56,35 +60,46 @@ namespace DAL.Models
 
         public Quest(string questString)
         {
-            string[] parts = questString.Split(new string[] {"q-" },StringSplitOptions.RemoveEmptyEntries);
+            string[] parts = questString.Split(new string[] { "q-" }, StringSplitOptions.RemoveEmptyEntries);
             foreach (var part in parts)
             {
                 string[] keyValue = part.Split(new string[] { "q:" }, StringSplitOptions.RemoveEmptyEntries);
                 string key = keyValue[0];
-                string value = keyValue.Length > 0 ? keyValue[1] : string.Empty;
+                string value = keyValue.Length > 1 ? keyValue[1] : string.Empty;
 
                 switch (key)
                 {
                     case "index":
-                        Index=int.Parse(value);
+                        Index = int.TryParse(value, out int index) ? index : 0;
                         break;
+
                     case "questContent":
                         Content = value;
                         break;
+
                     case "type":
                         Type = QuestType.GetQuestType(int.TryParse(value, out int typeId) ? typeId : 0);
                         break;
+
                     case "time":
                         CountDownTime = int.TryParse(value, out int time) ? time : 0;
                         break;
+
                     case "results":
-                         Results = value.Split(new string[] { "result@" }, StringSplitOptions.RemoveEmptyEntries)
-                            .Select((item) => new Result(item))
-                            .ToList(); // Assuming ParseResults parses and sets results list
+                        Results = value.Split(new string[] { "result@" }, StringSplitOptions.RemoveEmptyEntries)
+                                       .Select(item => new Result(item))
+                                       .ToList();
+                        break;
+
+                    case "image":
+                        // Giải nén dữ liệu hình ảnh từ Base64
+                        byte[] compressedImageData = Convert.FromBase64String(value);
+                        ImageData = DecompressImage(compressedImageData);
                         break;
                 }
             }
         }
+
         public List<Result> GetResultsCorrect() =>  Results.Where(result=>result.IsCorrect).ToList();
         public void DropCorrectResult()
         {
@@ -97,11 +112,46 @@ namespace DAL.Models
         {
             string rs = "";
             rs += $"q-indexq:{Index}q-questContentq:{Content}q-typeq:{Type.Id}q-timeq:{CountDownTime}q-resultsq:";
-            foreach (var item in Results) {
+
+            // Chuyển đổi danh sách kết quả
+            foreach (var item in Results)
+            {
                 rs += "result@";
                 rs += item.GetResultString();
             }
+
+            // Chuyển đổi hình ảnh (nếu có) thành chuỗi Base64
+            if (ImageData != null && ImageData.Length > 0)
+            {
+                byte[] compressedImage = CompressImage(ImageData); // Nén dữ liệu hình ảnh
+                string compressedImageBase64 = Convert.ToBase64String(compressedImage); // Chuyển sang Base64
+                rs += $"q-imageq:{compressedImageBase64}"; // Thêm hình ảnh nén dưới dạng Base64
+            }
+
             return rs;
+        }
+        private byte[] CompressImage(byte[] imageData)
+        {
+            using (var outputStream = new MemoryStream())
+            {
+                using (var gzipStream = new GZipStream(outputStream, CompressionMode.Compress))
+                {
+                    gzipStream.Write(imageData, 0, imageData.Length);
+                }
+                return outputStream.ToArray();
+            }
+        }
+        private byte[] DecompressImage(byte[] compressedImageData)
+        {
+            using (var inputStream = new MemoryStream(compressedImageData))
+            using (var outputStream = new MemoryStream())
+            {
+                using (var gzipStream = new GZipStream(inputStream, CompressionMode.Decompress))
+                {
+                    gzipStream.CopyTo(outputStream);
+                }
+                return outputStream.ToArray();
+            }
         }
         public int GetNumStudentDo() =>  StudentAnswers.Count;
         public List<StudentAnswer> GetStudentsAnsweredCorrectly() {
@@ -169,12 +219,14 @@ namespace DAL.Models
     public class StudentAnswer
     {
         public string StudentID{ get; set; }
+        public string StudentName{ get; set; }
         public List<int> SelectResultsId{ get; set; }
         public int TimeDoQuest { get; set; }
 
         private void Initialize(string studentId="",  int timeDoQuest=-1)
         {
             StudentID = studentId;
+            StudentName="";
             SelectResultsId = new List<int>();
             TimeDoQuest = timeDoQuest;
         }
@@ -182,15 +234,10 @@ namespace DAL.Models
         {
             Initialize();
         }
-        public StudentAnswer(string studentId = "", int timeDoQuest = -1)
-        {
-            Initialize(studentId,  timeDoQuest);
-        }
-    
         public string GetAnswerString()
         {
             string rs = "";
-            rs += $"-studentId:{StudentID}-timeDoQuest:{TimeDoQuest}-selectResultsId:{string.Join(",",SelectResultsId)}";
+            rs += $"-studentId:{StudentID}-studentName:{StudentName}-timeDoQuest:{TimeDoQuest}-selectResultsId:{string.Join(",",SelectResultsId)}";
             return rs;
         }
     }
@@ -199,11 +246,13 @@ namespace DAL.Models
     {
         public int Top { get; set; }
         public string StudentId { get; set; }
+        public string StudentName { get; set; }
         public double Score { get; set; }
         public int NumCorrect { get; set; }
         public StudentScore()
         {
             StudentId = "";
+            StudentName = "";
             Score = 0.0;
             Top = 0;
             NumCorrect = 0;
@@ -211,7 +260,7 @@ namespace DAL.Models
 
         public string GetTopNumCorrectString()
         {
-            return $"top {Top}: {StudentId} câu đúng: {NumCorrect}";
+            return $"top {Top}: {StudentId} - {StudentName} câu đúng: {NumCorrect}";
         }
         public string GetTopScoreString()
         {

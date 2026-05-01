@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -22,6 +23,13 @@ namespace testUdpTcp
         private string serverIP;
         private string protocal;
         private bool isRunning;
+        private class FrameBuffer
+        {
+            public List<byte[]> Parts;
+            public DateTime FirstSeen;
+        }
+
+        private int _latestCompletedFrameId = -1;
 
         public string ServerIP
         {
@@ -114,7 +122,8 @@ namespace testUdpTcp
         }
         private void ListenForUdpClients()
         {
-            Dictionary<int, List<byte[]>> imagesData = new Dictionary<int, List<byte[]>>();
+            Dictionary<int, FrameBuffer> imagesData = new Dictionary<int, FrameBuffer>();
+            TimeSpan frameTimeout = TimeSpan.FromMilliseconds(50);
 
 
             try
@@ -138,23 +147,31 @@ namespace testUdpTcp
                         Array.Copy(receivedData, 13, imageData, 0, imageData.Length);
 
                         // Khởi tạo danh sách các phần của ảnh nếu chưa có
-                        if (!imagesData.ContainsKey(imageIndex))
+                        if (imageIndex < _latestCompletedFrameId)
                         {
-                            imagesData[imageIndex] = new List<byte[]>(new byte[cutCount][]);
+                            continue;
                         }
 
-                        // Lưu phần ảnh vào vị trí tương ứng
-                        imagesData[imageIndex][cutIndex - 1] = imageData;
+                        if (!imagesData.ContainsKey(imageIndex))
+                        {
+                            imagesData[imageIndex] = new FrameBuffer
+                            {
+                                Parts = new List<byte[]>(new byte[cutCount][]),
+                                FirstSeen = DateTime.UtcNow
+                            };
+                        }
+
+                        imagesData[imageIndex].Parts[cutIndex - 1] = imageData;
 
                         // In thông tin kiểm tra
                         Console.WriteLine($"Received part {cutIndex}/{cutCount} of image {imageIndex}");
 
                         // Kiểm tra xem tất cả các phần của ảnh đã được nhận đủ chưa
-                        if (imagesData[imageIndex].All(part => part != null))
+                        if (imagesData[imageIndex].Parts.All(part => part != null))
                         {
                             // Tạo ảnh từ dữ liệu đã ghép và hiển thị ảnh
                             List<byte> completeImageData = new List<byte>();
-                            foreach (var part in imagesData[imageIndex])
+                            foreach (var part in imagesData[imageIndex].Parts)
                             {
                                 completeImageData.AddRange(part);
                             }
@@ -166,9 +183,18 @@ namespace testUdpTcp
                                 UpdatePictureBox(image);
                             }
 
-                            // Xóa dữ liệu của ảnh vừa nhận xong để chuẩn bị cho lần nhận ảnh tiếp theo
+                            _latestCompletedFrameId = imageIndex;
                             imagesData.Remove(imageIndex);
                         }
+                    }
+
+                    var expiredKeys = imagesData
+                        .Where(kvp => DateTime.UtcNow - kvp.Value.FirstSeen > frameTimeout)
+                        .Select(kvp => kvp.Key)
+                        .ToList();
+                    foreach (var key in expiredKeys)
+                    {
+                        imagesData.Remove(key);
                     }
                 }
 

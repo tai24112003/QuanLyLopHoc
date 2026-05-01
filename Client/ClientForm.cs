@@ -786,7 +786,7 @@ namespace testUdpTcp
             // Lấy địa chỉ broadcast của mạng local
             IPAddress broadcastAddress = GetBroadcastAddress();
             int i = 1;
-            int fps = 120;
+            int fps = 20;
             while (isRunningscreenshot)
             {
                 try
@@ -797,16 +797,21 @@ namespace testUdpTcp
                     int screenWidth = SystemInformation.VirtualScreen.Width;
                     int screenHeight = SystemInformation.VirtualScreen.Height;
 
-                    using (Bitmap screenshot = new Bitmap(screenWidth, screenHeight, PixelFormat.Format32bppArgb))
+                    int targetWidth = Math.Min(1280, screenWidth);
+                    int targetHeight = (int)(screenHeight * (targetWidth / (double)screenWidth));
+
+                    using (Bitmap fullScreenshot = new Bitmap(screenWidth, screenHeight, PixelFormat.Format24bppRgb))
+                    using (Graphics fullGraphics = Graphics.FromImage(fullScreenshot))
                     {
+                        fullGraphics.CopyFromScreen(screenLeft, screenTop, 0, 0, fullScreenshot.Size, CopyPixelOperation.SourceCopy);
+                        DrawCursorOnScreenshot(fullGraphics);
+
+                        using (Bitmap screenshot = new Bitmap(targetWidth, targetHeight, PixelFormat.Format24bppRgb))
                         using (Graphics graphics = Graphics.FromImage(screenshot))
                         {
-                            graphics.CopyFromScreen(screenLeft, screenTop, 0, 0, screenshot.Size, CopyPixelOperation.SourceCopy);
+                            graphics.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.Low;
+                            graphics.DrawImage(fullScreenshot, new Rectangle(0, 0, targetWidth, targetHeight));
 
-                            // Draw the cursor
-                            DrawCursorOnScreenshot(graphics);
-
-                            // Compress and send the screenshot
                             using (MemoryStream stream = new MemoryStream())
                             {
                                 CompressAndSendImage(i, screenshot, stream, udpBufferSize, udpClient, broadcastAddress);
@@ -877,11 +882,15 @@ namespace testUdpTcp
                     int screenWidth = SystemInformation.VirtualScreen.Width;
                     int screenHeight = SystemInformation.VirtualScreen.Height;
 
-                    using (Bitmap screenshot = new Bitmap(screenWidth, screenHeight, PixelFormat.Format32bppArgb))
+                    const int targetWidth = 1280;
+                    int targetHeight = (int)(screenHeight * (targetWidth / (double)screenWidth));
+
+                    using (Bitmap screenshot = new Bitmap(targetWidth, targetHeight, PixelFormat.Format24bppRgb))
                     {
                         using (Graphics graphics = Graphics.FromImage(screenshot))
                         {
-                            graphics.CopyFromScreen(screenLeft, screenTop, 0, 0, screenshot.Size, CopyPixelOperation.SourceCopy);
+                            graphics.CopyFromScreen(screenLeft, screenTop, 0, 0, new Size(screenWidth, screenHeight), CopyPixelOperation.SourceCopy);
+                            graphics.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.Low;
                             DrawCursorOnScreenshot(graphics);
                             SendImage(IpServer, 8765, Environment.MachineName, screenshot);
                         }
@@ -903,16 +912,16 @@ namespace testUdpTcp
 
         private void CompressAndSendImage(int i, Bitmap image, MemoryStream stream, int bufferSize, UdpClient udpClient, IPAddress broadcastAddress)
         {
-            long quality = 100L; // Bắt đầu với chất lượng 90%
+            long quality = 60L;
 
             byte[] imageData;
             do
             {
-                stream.SetLength(0); // Đặt lại stream cho mỗi lần nén
+                stream.SetLength(0);
                 SaveJpeg(stream, image, quality);
                 imageData = stream.ToArray();
-                quality -= 10; // Giảm chất lượng đi 10% cho lần tiếp theo nếu cần
-            } while (imageData.Length > bufferSize && quality > 100);
+                quality -= 5;
+            } while (imageData.Length > 60_000 && quality >= 30);
 
             int bytesSent = 0;
             int index = 0;
@@ -925,7 +934,8 @@ namespace testUdpTcp
                 int signalLength = signal.Length;
 
                 int remainingBytes = imageData.Length - bytesSent;
-                int bytesToSend = Math.Min(bufferSize - signalLength - 100, remainingBytes); // Đảm bảo có chỗ cho tín hiệu
+                const int maxDatagramPayload = 1200;
+                int bytesToSend = Math.Min(maxDatagramPayload - signalLength, remainingBytes);
 
                 // Tạo một mảng byte mới để chứa tín hiệu và dữ liệu cần gửi
                 byte[] dataToSend = new byte[signalLength + bytesToSend];
